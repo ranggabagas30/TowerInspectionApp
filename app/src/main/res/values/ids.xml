@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!-- ==================================================================== -->
+    <!-- ============================= General ============================== -->
+    <!-- ==================================================================== -->
+    
+    <item name="layout_helper1" type="id"/>
+    <item name="layout_helper2" type="id"/>
+    <item name="layout_helper3" type="id"/>
+
+    <!-- ==================================================================== -->
+    <!-- ============================= Template ============================= -->
+    <!-- ==================================================================== -->
+
+    <item name="label" type="id"/>
+    <item name="label_param" type="id"/>
+    <item name="edit_text" type="id"/>
+    <item name="check_box" type="id"/>
+    <item name="choice" type="id"/>
+    <item name="radio_button" type="id"/>
+    <item name="form" type="id"/>
+    <item name="inspection_item" type="id"/>
+    <item name="photo_item" type="id"/>
+
+    <!-- ==================================================================== -->
+    <!-- ============================== Header ============================== -->
+    <!-- ==================================================================== -->
+
+    <item name="header_title" type="id"/>
+    <item name="header_subtitle" type="id"/>
+    
+    <!-- ==================================================================== -->
+    <!-- ============================== Login =============================== -->
+    <!-- ==================================================================== -->
+    
+    <item name="username" type="id"/>
+    <item name="password" type="id"/>
+    <item name="submit" type="id"/>
+    <item name="forgot_password" type="id"/>
+
+</resources>

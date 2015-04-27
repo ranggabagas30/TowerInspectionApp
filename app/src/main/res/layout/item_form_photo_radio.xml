@@ -1,0 +1,29 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <ImageView
+        android:id="@+id/picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:padding="@dimen/padding_small"
+        android:visibility="gone" />
+
+    <com.sap.inspection.view.PhotoItemRadio
+        android:id="@+id/item_form_photo"
+        style="@style/list_sub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/picture"
+        android:text="SAMPLE" />
+
+    <ImageView
+        android:id="@+id/upload"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:padding="@dimen/padding_small"
+        android:src="@drawable/ic_upload"/>
+
+</RelativeLayout>

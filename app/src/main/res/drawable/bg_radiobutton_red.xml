@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item>
+        <shape android:shape="oval" >
+            <corners android:radius="@dimen/padding_small" />
+
+            <size
+                android:height="@dimen/item_drill_radiobutton"
+                android:width="@dimen/item_drill_radiobutton" />
+
+            <solid android:color="@color/lightgray" />
+        </shape>
+    </item>
+    <item
+        android:bottom="@dimen/padding_xxs"
+        android:left="@dimen/padding_xxs"
+        android:right="@dimen/padding_xxs"
+        android:top="@dimen/padding_xxs">
+        <shape android:shape="oval" >
+            <corners android:radius="@dimen/padding_xxs" />
+
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+
+</layer-list>

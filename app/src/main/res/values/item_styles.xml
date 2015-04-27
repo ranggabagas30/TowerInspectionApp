@@ -1,0 +1,32 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ==================================================================== -->
+    <!-- ============================ Item Style ============================ -->
+    <!-- ==================================================================== -->
+
+    <style name="list_title">
+        <item name="android:textSize">@dimen/text_large</item>
+        <item name="android:textColor">@color/list_title</item>
+    </style>
+
+    <style name="list_title_bold" parent="@style/list_title">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="list_sub">
+        <item name="android:textColor">@color/list_title</item>
+    </style>
+
+    <style name="navigation_1" parent="@style/list_title_bold">
+        <item name="android:textColor">#666666</item>
+    </style>
+
+    <style name="navigation_2" parent="@style/list_title_bold">
+        <item name="android:textColor">#333333</item>
+    </style>
+
+    <style name="navigation_3" parent="@style/navigation_2">
+        <item name="android:textStyle">normal</item>
+    </style>
+
+</resources>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:padding="@dimen/padding_medium"
+        android:textSize="@dimen/text_medium" />
+
+    <LinearLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/user"
+        android:orientation="vertical"
+        android:weightSum="1.5" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5" >
+
+            <FrameLayout
+                android:id="@+id/s1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop" >
+
+                <include layout="@layout/item_mainmenu" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="@dimen/padding_xxs"
+                android:layout_height="@dimen/padding_xxs" />
+
+            <FrameLayout
+                android:id="@+id/s2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop" >
+
+                <include layout="@layout/item_mainmenu" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="@dimen/padding_xxs"
+            android:layout_height="@dimen/padding_xxs" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5" >
+
+            <FrameLayout
+                android:id="@+id/s3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop" >
+
+                <include layout="@layout/item_mainmenu" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="@dimen/padding_xxs"
+                android:layout_height="@dimen/padding_xxs" />
+
+            <FrameLayout
+                android:id="@+id/s4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop" >
+
+                <include layout="@layout/item_mainmenu" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="@dimen/padding_xxs"
+            android:layout_height="@dimen/padding_xxs" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5" >
+
+            <FrameLayout
+                android:id="@+id/s5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop" >
+
+                <include layout="@layout/item_mainmenu" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="@dimen/padding_xxs"
+                android:layout_height="@dimen/padding_xxs" />
+
+            <FrameLayout
+                android:id="@+id/s6"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop" >
+
+                <include layout="@layout/item_mainmenu" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

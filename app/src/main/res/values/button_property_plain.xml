@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================================================================== -->
+    <!-- ============================== Button ============================== -->
+    <!-- ==================================================================== -->
+
+
+    <!-- plain blue -->
+    <color name="button_plain_blue_stroke">#2b6ba6</color>
+    <color name="button_plain_blue">#287ec0</color>
+    <color name="button_plain_blue_hit">#216497</color>
+
+</resources>

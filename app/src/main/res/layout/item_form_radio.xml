@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:padding="@dimen/padding_large" >
+
+    <com.sap.inspection.view.MyTextView
+        android:id="@+id/item_form_label"
+        style="@style/list_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingBottom="@dimen/padding_small"
+        android:text="SAMPLE"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/item_form_label"
+        android:padding="@dimen/padding_small"
+        android:visibility="gone" />
+
+    <RadioGroup
+        android:id="@+id/item_form_radio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/picture"
+        android:orientation="horizontal" />
+
+</RelativeLayout>

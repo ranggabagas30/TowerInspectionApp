@@ -1,0 +1,160 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:padding="@dimen/padding_large" >
+
+    <RelativeLayout
+        android:id="@+id/photolayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/padding_large"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/failed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Image failed to load..."
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible" >
+
+            <ImageView
+                android:id="@+id/photo"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="#efefef"
+                android:clickable="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/logo_sap" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/photo"
+                android:background="#802b3134"
+                android:padding="@dimen/padding_small" >
+
+                <TextView
+                    android:id="@+id/latitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:paddingRight="@dimen/padding_medium"
+                    android:text="Lat. : "
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/longitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/latitude"
+                    android:text="Long. :"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/accuracy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/longitude"
+                    android:text="Accuracy up to : 100 m"
+                    android:textColor="@android:color/white" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@id/layout_helper2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/photolayout" >
+
+        <com.sap.inspection.view.ImageButtonForList
+            android:id="@+id/button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@android:color/transparent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_camera"
+            android:text="Take Photo" />
+
+        <ImageView
+            android:id="@+id/no_picture"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/padding_medium"
+            android:src="@drawable/ic_no_picture" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/button"
+            android:layout_toRightOf="@id/no_picture"
+            android:paddingRight="@dimen/padding_medium" >
+
+            <com.sap.inspection.view.MyTextView
+                android:id="@+id/label"
+                style="@style/list_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:text="SAMPLE"
+                android:textColor="#333333" />
+
+            <RadioGroup
+                android:id="@+id/radioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/label"
+                android:orientation="horizontal" >
+
+                <RadioButton
+                    android:id="@+id/radioOK"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OK" />
+
+                <RadioButton
+                    android:id="@+id/radioNOK"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NOK" />
+
+                <RadioButton
+                    android:id="@+id/radioNA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="N/A" />
+            </RadioGroup>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/remark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_helper2"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:gravity="top|left"
+        android:hint="Remark"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="@dimen/padding_xxl"
+        android:layout_height="@dimen/padding_xxl"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+</RelativeLayout>

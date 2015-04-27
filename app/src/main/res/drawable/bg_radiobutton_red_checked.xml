@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item>
+        <shape android:shape="oval" >
+            <corners android:radius="@dimen/padding_small" />
+
+            <size
+                android:height="@dimen/item_drill_radiobutton"
+                android:width="@dimen/item_drill_radiobutton" />
+
+            <solid android:color="@color/theme_color" />
+        </shape>
+    </item>
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/ic_checklist" />
+    </item>
+
+</layer-list>

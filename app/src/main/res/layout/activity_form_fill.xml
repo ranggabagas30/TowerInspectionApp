@@ -1,0 +1,91 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:id="@id/layout_helper1"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/action_bar"
+        android:background="#ee2933"
+        android:padding="@dimen/padding_xtra_small" >
+
+        <com.sap.inspection.view.MyTextView
+            android:id="@id/header_title"
+            style="@style/list_sub"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/action_bar"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="2"
+            android:text="Filling Form"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_large"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_search"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/action_bar"
+        android:layout_below="@id/layout_helper1"
+        android:background="#ffffff"
+        android:paddingLeft="@dimen/padding_large"
+        android:paddingRight="@dimen/padding_large" >
+
+        <ImageView
+            android:id="@+id/ic_search"
+            android:layout_width="@dimen/action_bar"
+            android:layout_height="@dimen/action_bar"
+            android:layout_alignParentRight="true"
+            android:padding="@dimen/padding_small"
+            android:src="@drawable/ic_search" />
+
+        <AutoCompleteTextView
+            android:id="@+id/search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="@dimen/padding_small"
+            android:layout_marginLeft="@dimen/padding_small"
+            android:layout_marginTop="@dimen/padding_small"
+            android:layout_toLeftOf="@id/ic_search"
+            android:hint="Search"
+            android:maxHeight="@dimen/action_bar"
+            android:singleLine="true" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_search"
+        android:background="#eeeeee" >
+
+        <LinearLayout
+            android:id="@+id/root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/padding_medium"
+            android:paddingRight="@dimen/padding_medium" >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/padding_medium" />
+        </LinearLayout>
+    </ScrollView>
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_search"
+        android:background="#eeeeee"
+        android:divider="@android:color/transparent"
+        android:descendantFocusability="beforeDescendants"
+        android:dividerHeight="0dp"
+        android:paddingLeft="@dimen/padding_large"
+        android:paddingRight="@dimen/padding_large" />
+
+</RelativeLayout>

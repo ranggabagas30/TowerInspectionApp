@@ -1,0 +1,117 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fafafa" >
+
+    <RelativeLayout
+        android:id="@id/layout_helper1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="@dimen/padding_large" >
+
+        <TextView
+            android:id="@id/item_option_condition_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="@dimen/padding_medium"
+            android:text="@string/condition" />
+
+        <RadioGroup
+            android:id="@id/item_option_condition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/item_option_condition_label"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@id/item_option_condition_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/padding_medium"
+                android:button="@drawable/bg_radiobutton_red"
+                android:paddingLeft="@dimen/padding_medium"
+                android:text="@string/ok" />
+
+            <RadioButton
+                android:id="@id/item_option_condition_nok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/padding_medium"
+                android:button="@drawable/bg_radiobutton_red_checked"
+                android:paddingLeft="@dimen/padding_medium"
+                android:text="@string/nok" />
+
+            <RadioButton
+                android:id="@id/item_option_condition_noanswer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/padding_medium"
+                android:text="@string/noanswer" />
+        </RadioGroup>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@id/layout_helper2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_helper1" >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#e9e9e9" />
+
+        <RelativeLayout
+            android:id="@id/item_option_measure_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large" >
+
+            <TextView
+                android:id="@id/item_option_measure_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:text="@string/measurement" />
+
+            <LinearLayout
+                android:id="@id/item_option_measure_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/item_option_measure_label"
+                android:orientation="vertical" >
+            </LinearLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/layout_helper2"
+        android:background="#e5e7e8"
+        android:padding="@dimen/padding_large" >
+
+        <TextView
+            android:id="@id/item_option_criteria_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/criteria" />
+
+        <TextView
+            android:id="@id/item_option_criteria"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/padding_xtra_small"
+            android:layout_toRightOf="@id/item_option_criteria_label"
+            android:text="@string/criteria" />
+    </RelativeLayout>
+
+</RelativeLayout>

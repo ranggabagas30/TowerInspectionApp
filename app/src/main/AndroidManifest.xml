@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.sap.inspection"
+    android:versionCode="19"
+    android:versionName="0.0.20">
+    <!-- vc 6 vn 0.0.7 check if any update -->
+    <!-- vc 7 vn 0.0.8 check db closed if not opened on mainactivity-->
+    <!-- vc 8 vn 0.0.9 enable full GPS -->
+    <!-- vc 9 vn 0.0.10 change timeout to 20sec -->
+    <!-- vc 10 vn 0.0.11 add refresh schedule on setting, schedule sort desc, add username and app version -->
+    <!-- vc 11 vn 0.0.12 can delete data with password -->
+    <!-- vc 13 vn 0.0.13 hot fix url endpoint -->
+    <!-- vc 14 vn 0.0.14 skipped because satria didn't confirm want to upload -->
+    <!-- vc 15 vn 0.0.16 drop down and multiple user form -->
+    <!-- vc 16 vn 0.0.17 changing endpoint from mobile-api.sekap.net to operation-api.sekap.net -->
+    <!-- vc 17 vn 0.0.18 corrective form done, but upload for it is still hidden, upload delete all corrective datas, skip corrective upload -->
+    <!-- vc 18 vn 0.0.19 reupload all data with confirmation, update always download apk -->
+    <!-- vc 19 vn 0.0.20 hot fix, jsonObject.wrap tidak di support di icecream -->
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="17" />
+
+    <uses-feature android:name="android.hardware.camera"></uses-feature>
+
+    <permission
+        android:name="com.sap.inspection.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.sap.inspection.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <application
+        android:name="com.sap.inspection.MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/logo_sap"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="com.sap.inspection.LoginActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.sap.inspection.MainActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.sap.inspection.FormActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.sap.inspection.FormCorrectiveActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.sap.inspection.FormFillActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name="com.sap.inspection.CameraActivity"></activity>
+        <activity
+            android:name="com.sap.inspection.CallendarActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.sap.inspection.UpdateActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.sap.inspection.SettingActivity"
+            android:screenOrientation="portrait"></activity>
+
+        <!-- Needed for push notification -->
+        <receiver
+            android:name="com.rindang.pushnotification.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.sap.inspection" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.rindang.pushnotification.GcmIntentService" />
+        <uses-library android:name="com.google.android.maps" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+    </application>
+
+</manifest>

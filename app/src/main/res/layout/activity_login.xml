@@ -1,0 +1,179 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_login" />
+
+    <!-- $adb pull /storage/sdcard0/value.db ~/Desktop/ -->
+    <!-- $adb pull /storage/sdcard0/general.db ~/Desktop/ -->
+
+    <RelativeLayout
+        android:id="@+id/devLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/copy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="copy db" />
+
+        <Button
+            android:id="@+id/change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/copy"
+            android:text="change url" />
+
+        <EditText
+            android:id="@+id/endPoint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/copy"
+            android:layout_toLeftOf="@id/change" />
+    </RelativeLayout>
+
+    <!-- android:background="@color/theme_color" > -->
+
+    <FrameLayout
+        android:id="@+id/preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible" >
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/adduser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="add user"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="@dimen/padding_xxl"
+        android:paddingTop="40dp" >
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:src="@drawable/logo_sap"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/text"
+            style="@style/list_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/logo"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="@dimen/padding_xtra_large"
+            android:gravity="center_horizontal"
+            android:text="MOBILE APPLICATION"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:visibility="invisible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding_large"
+                android:background="@drawable/bg_edittext"
+                android:orientation="vertical" >
+
+                <EditText
+                    android:id="@id/username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/padding_medium"
+                    android:layout_marginRight="@dimen/padding_medium"
+                    android:layout_marginTop="@dimen/padding_medium"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/user_name"
+                    android:nextFocusDown="@id/password"
+                    android:singleLine="true" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/padding_xxs"
+                    android:layout_marginBottom="@dimen/padding_medium"
+                    android:layout_marginTop="@dimen/padding_medium"
+                    android:background="@color/bg_main" />
+
+                <EditText
+                    android:id="@id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/padding_medium"
+                    android:layout_marginLeft="@dimen/padding_medium"
+                    android:layout_marginRight="@dimen/padding_medium"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/password"
+                    android:inputType="textPassword"
+                    android:singleLine="true" />
+            </LinearLayout>
+
+            <Button
+                android:id="@id/submit"
+                style="@style/list_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/padding_large"
+                android:layout_marginRight="@dimen/padding_large"
+                android:layout_marginTop="@dimen/padding_large"
+                android:background="@drawable/bg_button_plain_blue"
+                android:text="@string/signin"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@id/forgot_password"
+                style="@style/list_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/forgot_password"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding_large"
+                android:background="@drawable/selector_button_green_small_padding"
+                android:text="Update Now"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/app_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="@dimen/padding_medium"
+        android:textColor="@android:color/white" />
+
+</RelativeLayout>

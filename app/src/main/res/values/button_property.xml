@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================================================================== -->
+    <!-- ============================== Button ============================== -->
+    <!-- ==================================================================== -->
+
+
+    <!-- button corner -->
+    <dimen name="corner">5dp</dimen>
+    <dimen name="corner_stroke">1px</dimen>
+    <dimen name="corner_innershadow">2px</dimen> <!-- innershadow = corner_stroke - corner_innershadow -->
+    <dimen name="corner_dropshadow">1px</dimen>
+
+    <!-- ///////// bg green button -->
+
+    <color name="green_button_stroke">#69a730</color>
+    <color name="green_button_innershadow">#a3d477</color>
+    <color name="green_button_top">#84c548</color>
+    <color name="green_button_bottom">#77b83c</color>
+    <color name="green_button_text_shadow">#80000000</color>
+    <color name="green_button_text_color">#ffffff</color>
+    <color name="green_button_stroke_hit">#5b9923</color>
+    <color name="green_button_innershadow_hit">#9dce70</color>
+    <color name="green_button_top_hit">#7cbe40</color>
+    <color name="green_button_bottom_hit">#68a82e</color>
+
+    <!-- ///////// bg gray button -->
+
+    <color name="gray_button_stroke">#bebebe</color>
+    <color name="gray_button_innershadow">#ffffff</color>
+    <color name="gray_button_top">#f8f8f8</color>
+    <color name="gray_button_bottom">#efefef</color>
+    <color name="gray_button_text_shadow">#00000000</color>
+    <color name="gray_button_text_color">#000000</color>
+    <color name="gray_button_stroke_hit">#a7a7a7</color>
+    <color name="gray_button_innershadow_hit">#ffffff</color>
+    <color name="gray_button_top_hit">#f2f2f2</color>
+    <color name="gray_button_bottom_hit">#e2e2e2</color>
+
+    <!-- ///////// bg blue button -->
+
+    <color name="blue_button_stroke">#3f9eb8</color>
+    <color name="blue_button_innershadow">#4fffffff</color>
+    <color name="blue_button_top">#69c8e2</color>
+    <color name="blue_button_bottom">#55b6d1</color>
+    <color name="blue_button_text_shadow">#80000000</color>
+    <color name="blue_button_text_color">#ffffff</color>
+    <color name="blue_button_stroke_hit">#4c95bd</color>
+    <color name="blue_button_innershadow_hit">#88c2e1</color>
+    <color name="blue_button_top_hit">#73b6db</color>
+    <color name="blue_button_bottom_hit">#61a5cb</color>
+
+</resources>

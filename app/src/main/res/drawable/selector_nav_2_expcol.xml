@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/item_nav_2_expcol_pressed" android:state_pressed="true"/> <!-- pressed -->
+    <item android:drawable="@color/item_nav_2_expcol_default"/> <!-- default -->
+
+</selector>

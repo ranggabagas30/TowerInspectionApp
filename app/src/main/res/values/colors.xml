@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item type="color" name="bg_main">#eeeeee</item>
+    <item type="color" name="theme_color">#ee2933</item>
+    <item type="color" name="dkgray">#555555</item>
+    <item type="color" name="lightgray">#e1e1e1</item>
+    <item type="color" name="lightgray_hit">#d0d0d0</item>
+    
+</resources>

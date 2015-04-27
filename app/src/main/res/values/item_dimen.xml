@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ==================================================================== -->
+    <!-- =============================== Item =============================== -->
+    <!-- ==================================================================== -->
+
+
+    <!-- ============================= MainMenu ============================= -->
+    <dimen name="item_mainmenu_width">100dp</dimen>
+    <dimen name="item_mainmenu_height">120dp</dimen>
+
+    <!-- =============================== Drill ============================== -->
+    <dimen name="item_drill_arrow">20dp</dimen>
+    <dimen name="item_drill_radiobutton">25dp</dimen>
+    
+    <!-- =============================== Schedule ============================== -->
+    <dimen name="item_schedule_status_width">70dp</dimen>
+    <dimen name="item_schedule_status_height">60dp</dimen>
+    <dimen name="item_schedule_task_width">130dp</dimen>
+
+</resources>

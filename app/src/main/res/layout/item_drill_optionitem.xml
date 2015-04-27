@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_item_drill_green" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/item_drill_arrow"
+        android:paddingLeft="@dimen/padding_large"
+        android:paddingBottom="@dimen/padding_medium"
+        android:paddingTop="@dimen/padding_medium" >
+
+        <com.sap.inspection.view.MyTextView
+            android:id="@id/item_drill_title"
+            style="@style/list_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:text="SAMPLE" />
+
+        <com.sap.inspection.view.MyTextView
+            android:id="@id/item_drill_subcolored"
+            style="@style/list_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/item_drill_title"
+            android:singleLine="true"
+            android:text="SAMPLE " />
+
+        <com.sap.inspection.view.MyTextView
+            android:id="@id/item_drill_subplain"
+            style="@style/list_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/item_drill_title"
+            android:layout_toRightOf="@id/item_drill_subcolored"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="SAMPLE" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@id/item_drill_arrow"
+        android:layout_width="@dimen/item_drill_arrow"
+        android:layout_height="@dimen/item_drill_arrow"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/padding_large"
+        android:src="@drawable/arrow_r" />
+
+</RelativeLayout>

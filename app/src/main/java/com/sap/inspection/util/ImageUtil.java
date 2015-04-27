@@ -1,0 +1,170 @@
+package com.sap.inspection.util;
+
+import java.io.File;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.widget.Toast;
+
+public class ImageUtil {
+	private static final String tag = "image util";
+	public static final int MenuShootImage = 101;
+	
+	public static void resizeAndSaveImage(String imageUri) {
+        try {
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+
+            options.inSampleSize = 4;
+            File tempDir= Environment.getExternalStorageDirectory();
+            String path = tempDir.getAbsolutePath()+"/.temp/"+imageUri.substring(imageUri.lastIndexOf('/'));
+
+            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
+
+            File file;
+            file = new File(path);
+            Log.d(tag, file.getPath());
+            try {
+                FileOutputStream out = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            bitmap = null;
+            System.gc();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	public static void resizeAndSaveImage(String imageUri, String scheduleId) {
+        try {
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+
+            options.inSampleSize = 4;
+            File tempDir= Environment.getExternalStorageDirectory();
+            String path = tempDir.getAbsolutePath()+"/.temp/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
+
+            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
+
+            File file;
+            file = new File(path);
+            Log.d(tag, file.getPath());
+            try {
+                FileOutputStream out = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            bitmap = null;
+            System.gc();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	public static String resizeAndSaveImage(Bitmap bitmap, String url) {
+		String physicalPath = null;
+        try {
+        	Log.d("saving bitmap", "url : "+url);
+        	Log.d("saving bitmap", "bitmap : "+bitmap);
+            File tempDir= Environment.getExternalStorageDirectory();
+            String path = null;
+            if (url.contains("?"))
+            	path = tempDir.getAbsolutePath()+"/.temp/"+url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
+            else
+            	path = tempDir.getAbsolutePath()+"/.temp/"+url.substring(url.lastIndexOf('/')+1);
+            
+
+            File file;
+            file = new File(path);
+            Log.d(tag, file.getPath());
+            try {
+                FileOutputStream out = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            bitmap = null;
+            physicalPath = path;
+            System.gc();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        return physicalPath;
+    }
+	
+	public static Uri takePicture(Activity activity){
+		//		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+		//		startActivityForResult(intent,CAMERA);
+
+		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+		File photo;
+		try
+		{
+			// place where to store camera taken picture
+			photo = createTemporaryFile("picture", ".jpg");
+			Log.d(tag,"photo url : "+photo.getName());
+			photo.delete();
+		}
+		catch(Exception e)
+		{
+			Log.d(tag,"Can't create file to take picture!");
+			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", 10000);
+			return null;
+		}
+		Uri mImageUri = Uri.fromFile(photo);
+		Log.d(tag,"photo uri : "+mImageUri.getPath());
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+
+		//        intent.putExtra("crop", "true");
+		intent.putExtra("outputX", 1080);
+		intent.putExtra("outputY", 720);
+		intent.putExtra("aspectX", 1);
+		intent.putExtra("aspectY", 1);
+		intent.putExtra("scale", true);
+		intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
+		//start camera intent
+		//	    activity.startActivityForResult(this, intent, MenuShootImage);
+		activity.startActivityForResult(intent, MenuShootImage);
+		return mImageUri;
+	}
+
+	private static File createTemporaryFile(String part, String ext) throws Exception
+	{
+		File tempDir= Environment.getExternalStorageDirectory();
+		tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+		if(!tempDir.exists())
+		{
+			tempDir.mkdir();
+		}
+		return File.createTempFile(part, ext, tempDir);
+	}
+}

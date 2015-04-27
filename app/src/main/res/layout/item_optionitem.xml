@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ee2933"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:id="@id/item_drill_layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <include layout="@layout/item_drill_optionitem" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@id/item_drill_layout_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <include layout="@layout/item_child_optionitem" />
+    </FrameLayout>
+
+</LinearLayout>
