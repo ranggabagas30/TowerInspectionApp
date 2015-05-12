@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- From: file:/Users/rindangseptyan/AndroidStudioProjects/SAPTowerInspection/google-play-services_lib/build/intermediates/bundles/debug/res/values-it/values.xml -->
+    <!-- From: file:/Users/domikado9/Documents/AndroidStudioProjects/sap_tower_android/google-play-services_lib/build/intermediates/bundles/debug/res/values-it/values.xml -->
     <eat-comment/>
     <string msgid="3983201110833868073" name="auth_client_needs_enabling_title">"Un\'applicazione richiede l\'attivazione di Google Play Services."</string>
     <string msgid="7999585836145154206" name="auth_client_needs_installation_title">"Un\'applicazione richiede l\'installazione di Google Play Services."</string>

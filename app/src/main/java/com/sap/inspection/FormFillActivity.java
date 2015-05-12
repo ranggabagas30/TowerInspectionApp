@@ -368,9 +368,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		public void onClick(View v) {
-            Toast.makeText(FormFillActivity.this,"upload",Toast.LENGTH_SHORT).show();
-//			photoItem = (PhotoItemRadio) v.getTag();
-//			takePicture(photoItem.getItemId());
+			photoItem = (PhotoItemRadio) v.getTag();
+			takePicture(photoItem.getItemId());
 		}
 	};
 
@@ -378,8 +377,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
         @Override
         public void onClick(View v) {
-            photoItem = (PhotoItemRadio) v.getTag();
-            takePicture(photoItem.getItemId());
+			Toast.makeText(FormFillActivity.this,"upload",Toast.LENGTH_SHORT).show();
+//			photoItem = (PhotoItemRadio) v.getTag();
+//			takePicture(photoItem.getItemId());
         }
     };
 

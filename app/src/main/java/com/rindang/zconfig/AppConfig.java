@@ -6,6 +6,7 @@ public class AppConfig{
 	public BaseConfig config;
 	
 	private AppConfig() {
+//        config = new WawanConfig();
 //		config = new ProdConfig();
 //		config = new ProdMobileConfig();
 		config = new DevConfig();

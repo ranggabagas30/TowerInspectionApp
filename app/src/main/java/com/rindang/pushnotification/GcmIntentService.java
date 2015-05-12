@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.sap.inspection.util.BundleToJson;
 
 public class GcmIntentService extends IntentService {
 
@@ -32,7 +31,7 @@ public class GcmIntentService extends IntentService {
 		String messageType = gcm.getMessageType(intent);
 		Log.d(TAG, "==== GCM IN ====");
 		Log.d(TAG, "messageType: " + messageType);
-		Log.d(TAG, "all data : " + BundleToJson.convert(extras));
+//		Log.d(TAG, "all data : " + BundleToJson.convert(extras));
 		if(!extras.isEmpty()){
 			Log.d(TAG, "2.extras: " + extras);
 			if(GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)){
