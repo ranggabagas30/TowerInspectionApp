@@ -153,18 +153,18 @@ containing a value of this type.
         public static int zOrderOnTop=0x7f010010;
     }
     public static final class color {
-        public static int common_action_bar_splitter=0x7f030000;
-        public static int common_signin_btn_dark_text_default=0x7f030001;
-        public static int common_signin_btn_dark_text_disabled=0x7f030002;
-        public static int common_signin_btn_dark_text_focused=0x7f030003;
-        public static int common_signin_btn_dark_text_pressed=0x7f030004;
-        public static int common_signin_btn_default_background=0x7f030005;
-        public static int common_signin_btn_light_text_default=0x7f030006;
-        public static int common_signin_btn_light_text_disabled=0x7f030007;
-        public static int common_signin_btn_light_text_focused=0x7f030008;
-        public static int common_signin_btn_light_text_pressed=0x7f030009;
-        public static int common_signin_btn_text_dark=0x7f03000a;
-        public static int common_signin_btn_text_light=0x7f03000b;
+        public static int common_action_bar_splitter=0x7f040000;
+        public static int common_signin_btn_dark_text_default=0x7f040001;
+        public static int common_signin_btn_dark_text_disabled=0x7f040002;
+        public static int common_signin_btn_dark_text_focused=0x7f040003;
+        public static int common_signin_btn_dark_text_pressed=0x7f040004;
+        public static int common_signin_btn_default_background=0x7f040005;
+        public static int common_signin_btn_light_text_default=0x7f040006;
+        public static int common_signin_btn_light_text_disabled=0x7f040007;
+        public static int common_signin_btn_light_text_focused=0x7f040008;
+        public static int common_signin_btn_light_text_pressed=0x7f040009;
+        public static int common_signin_btn_text_dark=0x7f04000a;
+        public static int common_signin_btn_text_light=0x7f04000b;
     }
     public static final class drawable {
         public static int common_signin_btn_icon_dark=0x7f020000;
@@ -197,43 +197,43 @@ containing a value of this type.
         public static int ic_plusone_tall_off_client=0x7f02001b;
     }
     public static final class id {
-        public static int hybrid=0x7f040004;
-        public static int none=0x7f040000;
-        public static int normal=0x7f040001;
-        public static int satellite=0x7f040002;
-        public static int terrain=0x7f040003;
+        public static int hybrid=0x7f060000;
+        public static int none=0x7f060001;
+        public static int normal=0x7f060002;
+        public static int satellite=0x7f060003;
+        public static int terrain=0x7f060004;
     }
     public static final class integer {
         public static int google_play_services_version=0x7f050000;
     }
     public static final class string {
-        public static int auth_client_needs_enabling_title=0x7f060000;
-        public static int auth_client_needs_installation_title=0x7f060001;
-        public static int auth_client_needs_update_title=0x7f060002;
-        public static int auth_client_play_services_err_notification_msg=0x7f060003;
-        public static int auth_client_requested_by_msg=0x7f060004;
-        public static int auth_client_using_bad_version_title=0x7f060005;
-        public static int common_google_play_services_enable_button=0x7f060006;
-        public static int common_google_play_services_enable_text=0x7f060007;
-        public static int common_google_play_services_enable_title=0x7f060008;
-        public static int common_google_play_services_install_button=0x7f060009;
-        public static int common_google_play_services_install_text_phone=0x7f06000a;
-        public static int common_google_play_services_install_text_tablet=0x7f06000b;
-        public static int common_google_play_services_install_title=0x7f06000c;
-        public static int common_google_play_services_invalid_account_text=0x7f06000d;
-        public static int common_google_play_services_invalid_account_title=0x7f06000e;
-        public static int common_google_play_services_network_error_text=0x7f06000f;
-        public static int common_google_play_services_network_error_title=0x7f060010;
-        public static int common_google_play_services_unknown_issue=0x7f060011;
-        public static int common_google_play_services_unsupported_date_text=0x7f060012;
-        public static int common_google_play_services_unsupported_text=0x7f060013;
-        public static int common_google_play_services_unsupported_title=0x7f060014;
-        public static int common_google_play_services_update_button=0x7f060015;
-        public static int common_google_play_services_update_text=0x7f060016;
-        public static int common_google_play_services_update_title=0x7f060017;
-        public static int common_signin_button_text=0x7f060018;
-        public static int common_signin_button_text_long=0x7f060019;
-        public static int location_client_powered_by_google=0x7f06001a;
+        public static int auth_client_needs_enabling_title=0x7f030000;
+        public static int auth_client_needs_installation_title=0x7f030001;
+        public static int auth_client_needs_update_title=0x7f030002;
+        public static int auth_client_play_services_err_notification_msg=0x7f030003;
+        public static int auth_client_requested_by_msg=0x7f030004;
+        public static int auth_client_using_bad_version_title=0x7f030005;
+        public static int common_google_play_services_enable_button=0x7f030006;
+        public static int common_google_play_services_enable_text=0x7f030007;
+        public static int common_google_play_services_enable_title=0x7f030008;
+        public static int common_google_play_services_install_button=0x7f030009;
+        public static int common_google_play_services_install_text_phone=0x7f03000a;
+        public static int common_google_play_services_install_text_tablet=0x7f03000b;
+        public static int common_google_play_services_install_title=0x7f03000c;
+        public static int common_google_play_services_invalid_account_text=0x7f03000d;
+        public static int common_google_play_services_invalid_account_title=0x7f03000e;
+        public static int common_google_play_services_network_error_text=0x7f03000f;
+        public static int common_google_play_services_network_error_title=0x7f030010;
+        public static int common_google_play_services_unknown_issue=0x7f030011;
+        public static int common_google_play_services_unsupported_date_text=0x7f030012;
+        public static int common_google_play_services_unsupported_text=0x7f030013;
+        public static int common_google_play_services_unsupported_title=0x7f030014;
+        public static int common_google_play_services_update_button=0x7f030015;
+        public static int common_google_play_services_update_text=0x7f030016;
+        public static int common_google_play_services_update_title=0x7f030017;
+        public static int common_signin_button_text=0x7f030018;
+        public static int common_signin_button_text_long=0x7f030019;
+        public static int location_client_powered_by_google=0x7f03001a;
     }
     public static final class styleable {
         /** Attributes that can be used with a AdsAttrs.
@@ -266,7 +266,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:adSize
         */
-        public static final int AdsAttrs_adSize = 0;
+        public static int AdsAttrs_adSize = 0;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#adSizes}
           attribute's value can be found in the {@link #AdsAttrs} array.
@@ -280,7 +280,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:adSizes
         */
-        public static final int AdsAttrs_adSizes = 1;
+        public static int AdsAttrs_adSizes = 1;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#adUnitId}
           attribute's value can be found in the {@link #AdsAttrs} array.
@@ -294,7 +294,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:adUnitId
         */
-        public static final int AdsAttrs_adUnitId = 2;
+        public static int AdsAttrs_adUnitId = 2;
         /** Attributes that can be used with a MapAttrs.
            <p>Includes the following attributes:</p>
            <table>
@@ -350,7 +350,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:cameraBearing
         */
-        public static final int MapAttrs_cameraBearing = 1;
+        public static int MapAttrs_cameraBearing = 1;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#cameraTargetLat}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -364,7 +364,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:cameraTargetLat
         */
-        public static final int MapAttrs_cameraTargetLat = 2;
+        public static int MapAttrs_cameraTargetLat = 2;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#cameraTargetLng}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -378,7 +378,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:cameraTargetLng
         */
-        public static final int MapAttrs_cameraTargetLng = 3;
+        public static int MapAttrs_cameraTargetLng = 3;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#cameraTilt}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -392,7 +392,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:cameraTilt
         */
-        public static final int MapAttrs_cameraTilt = 4;
+        public static int MapAttrs_cameraTilt = 4;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#cameraZoom}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -406,7 +406,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:cameraZoom
         */
-        public static final int MapAttrs_cameraZoom = 5;
+        public static int MapAttrs_cameraZoom = 5;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#mapType}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -426,7 +426,7 @@ containing a value of this type.
 </table>
           @attr name com.google.android.gms:mapType
         */
-        public static final int MapAttrs_mapType = 0;
+        public static int MapAttrs_mapType = 0;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#uiCompass}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -440,7 +440,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:uiCompass
         */
-        public static final int MapAttrs_uiCompass = 6;
+        public static int MapAttrs_uiCompass = 6;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#uiRotateGestures}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -454,7 +454,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:uiRotateGestures
         */
-        public static final int MapAttrs_uiRotateGestures = 7;
+        public static int MapAttrs_uiRotateGestures = 7;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#uiScrollGestures}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -468,7 +468,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:uiScrollGestures
         */
-        public static final int MapAttrs_uiScrollGestures = 8;
+        public static int MapAttrs_uiScrollGestures = 8;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#uiTiltGestures}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -482,7 +482,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:uiTiltGestures
         */
-        public static final int MapAttrs_uiTiltGestures = 9;
+        public static int MapAttrs_uiTiltGestures = 9;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#uiZoomControls}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -496,7 +496,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:uiZoomControls
         */
-        public static final int MapAttrs_uiZoomControls = 10;
+        public static int MapAttrs_uiZoomControls = 10;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#uiZoomGestures}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -510,7 +510,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:uiZoomGestures
         */
-        public static final int MapAttrs_uiZoomGestures = 11;
+        public static int MapAttrs_uiZoomGestures = 11;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#useViewLifecycle}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -524,7 +524,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:useViewLifecycle
         */
-        public static final int MapAttrs_useViewLifecycle = 12;
+        public static int MapAttrs_useViewLifecycle = 12;
         /**
           <p>This symbol is the offset where the {@link com.google.android.gms.R.attr#zOrderOnTop}
           attribute's value can be found in the {@link #MapAttrs} array.
@@ -538,6 +538,6 @@ theme attribute (in the form
 containing a value of this type.
           @attr name com.google.android.gms:zOrderOnTop
         */
-        public static final int MapAttrs_zOrderOnTop = 13;
+        public static int MapAttrs_zOrderOnTop = 13;
     };
 }

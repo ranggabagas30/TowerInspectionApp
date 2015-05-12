@@ -11,7 +11,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 	private final String TAG = getClass().getName();
 
 	public static final String dbName = "value.db";
-	static final int schema_version = 5;
+	static final int schema_version = 6;
 
 	public static final String colCreatedAt = "created_at";
 	public static final String colUpdatedAt = "updated_at";
@@ -142,7 +142,17 @@ public class DbManagerValue extends SQLiteOpenHelper {
 				}
 				public void revert(SQLiteDatabase db) {
 				}
+			},
+			new Patch() {
+				public void apply(SQLiteDatabase db) {
+					Log.d(getClass().getName(), "general patch 6");
+					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colCreatedAt + " TEXT");
+				}
+				public void revert(SQLiteDatabase db) {
+					db.execSQL("ALTER TABLE "+mFormValue+" DROP COLUMN "+colCreatedAt+" TEXT");
+				}
 			}
+
 	};
 	
 }

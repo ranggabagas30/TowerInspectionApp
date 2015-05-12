@@ -1,6 +1,10 @@
 package com.sap.inspection.model.value;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -195,7 +199,7 @@ public class ItemValueModel extends BaseModel {
         }
         do{
             model.add(getSiteFromCursor(cursor));
-            log(""+model.get(model.size() - 1).value);
+            log("" + model.get(model.size() - 1).value);
         }
         while(cursor.moveToNext());
         log("model size "+model.size());
@@ -214,7 +218,7 @@ public class ItemValueModel extends BaseModel {
 		log("row id : "+  rowId);
 		log("schedule Id : "+  scheduleId);
 		log("operator id : "+  operatorId);
-		log("item id : "+  itemId);
+		log("item id : " + itemId);
 		log("------------------------------------");
 		save(scheduleId, photoStatus);
 	}
@@ -224,14 +228,14 @@ public class ItemValueModel extends BaseModel {
 	}  
 
 	public void save(String scheduleId, String photoStatus){
-		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
 				DbManagerValue.mFormValue , DbManagerValue.colScheduleId,
 				DbManagerValue.colItemId,DbManagerValue.colValue,
 				DbManagerValue.colIsPhoto,DbManagerValue.colOperatorId,
 				DbManagerValue.colRowId, DbManagerValue.colRemark,
 				DbManagerValue.colLatitude, DbManagerValue.colLongitude,
 				DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
-				DbManagerValue.colUploadStatus);
+				DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt);
 
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
@@ -248,8 +252,16 @@ public class ItemValueModel extends BaseModel {
 		stmt.bindLong(11, gpsAccuracy);
 		stmt.bindLong(12, uploadStatus);
 
+		bindAndCheckNullString(stmt, 13, getCurrentDate());
+
 		stmt.executeInsert();
 		stmt.close();
+	}
+
+	private String getCurrentDate(){
+		Date currentDate = Calendar.getInstance().getTime();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.getDefault());
+		return simpleDateFormat.format(currentDate);
 	}
 
 	private ItemValueModel getSiteFromCursor(Cursor c) {
@@ -271,7 +283,7 @@ public class ItemValueModel extends BaseModel {
 		FormValueModel.value = (c.getString(c.getColumnIndex(DbManagerValue.colValue)));
 		FormValueModel.uploadStatus = (c.getInt(c.getColumnIndex(DbManagerValue.colUploadStatus)));
 		FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1 ? true : false;
-
+		FormValueModel.createdAt = (c.getString(c.getColumnIndex(DbManagerValue.colCreatedAt)));
 		return FormValueModel;
 	}
 

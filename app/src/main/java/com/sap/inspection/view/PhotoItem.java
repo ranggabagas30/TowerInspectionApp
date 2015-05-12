@@ -1,6 +1,10 @@
 package com.sap.inspection.view;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -213,24 +213,12 @@ public class ItemUploadManager {
 				params.add(new BasicNameValuePair("longitude",String.valueOf(Float.parseFloat(itemValue.longitude)/1000000)));
 			if (itemValue.gpsAccuracy != 0)
 				params.add(new BasicNameValuePair("accuracy", String.valueOf(itemValue.gpsAccuracy)));
+			params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
 			return params;
 		}
 
 		private String uploadPhoto(ItemValueModel itemValue) {
 			try {
-				//				HttpParams httpParameters = new BasicHttpParams();
-				//				// Set the timeout in milliseconds until a connection is established.
-				//				// The default value is zero, that means the timeout is not used. 
-				//				int timeoutConnection = 3000;
-				//				HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-				//				// Set the default socket timeout (SO_TIMEOUT) 
-				//				// in milliseconds which is the timeout for waiting for data.
-				//				int timeoutSocket = 5000;
-				////				int timeoutSocket = HttpConnectionParams.SO_TIMEOUT;
-				//				HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-
-				//				HttpClient client = new DefaultHttpClient(httpParameters);
-
 				HttpClient client = new DefaultHttpClient();
 				HttpPost request = new HttpPost(APIList.uploadUrl()+"?access_token="+getAccessToken(MyApplication.getContext()));
 				log(request.getURI().toString());
@@ -238,8 +226,6 @@ public class ItemUploadManager {
 				if (mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), null) != null) {
 					request.setHeader("Cookie", mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), ""));
 				}
-				// request.setHeader("Content-Type",
-				// "application/x-www-form-urlencoded");
 
 				MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
@@ -248,12 +234,6 @@ public class ItemUploadManager {
 				byte[] dataFile; 
 				ByteArrayBody bab;
 				if (null != itemValue.value && null != itemValue.photoStatus){
-					//					bos = new ByteArrayOutputStream();
-					//					bm = BitmapFactory.decodeFile(itemValue.value.replaceFirst("^file\\:\\/\\/", ""));
-					//					bm.compress(CompressFormat.JPEG, 75, bos);
-					//					dataFile = bos.toByteArray();
-					//					bab = new ByteArrayBody(dataFile, itemValue.value);
-					//					reqEntity.addPart("picture", bab);
 					reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
 				}
 
