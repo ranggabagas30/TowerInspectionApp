@@ -8,8 +8,8 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 20
-        versionName "0.0.21"
+        versionCode 23
+        versionName "0.0.23"
     }
 
 //    signingConfigs {

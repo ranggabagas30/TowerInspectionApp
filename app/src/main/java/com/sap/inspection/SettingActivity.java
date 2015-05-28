@@ -1,16 +1,6 @@
 package com.sap.inspection;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -27,7 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +35,15 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.tools.DeleteAllDataDialog;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
@@ -437,7 +435,7 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 		pDialog.setMessage(msg);
 	}
 
-	private void hideDialog(){
+	public void hideDialog(){
 		if (pDialog == null || !pDialog.isShowing())
 			return;
 		pDialog.dismiss();

@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.sap.inspection.MainActivity;
+import com.sap.inspection.SettingActivity;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
@@ -59,5 +60,11 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 		EventBus.getDefault().post(new ScheduleProgressEvent(100,true));
 		if (mainActivity != null)
 			mainActivity.setFlagScheduleSaved(true);
+		if (activity != null)
+			try {
+				((SettingActivity)activity).hideDialog();
+			} catch (Exception e) {
+				e.printStackTrace();
+		}
 	}
 }

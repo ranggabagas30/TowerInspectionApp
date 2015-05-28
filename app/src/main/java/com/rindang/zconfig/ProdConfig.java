@@ -9,7 +9,7 @@ public class ProdConfig extends BaseConfig{
 	
 	@Override
 	public String getHost() {
-		return host;
+		return "http://operation.sekap.net";
 	}
 
 	@Override
