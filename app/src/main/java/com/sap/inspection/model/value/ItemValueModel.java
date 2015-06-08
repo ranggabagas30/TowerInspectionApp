@@ -1,11 +1,5 @@
 package com.sap.inspection.model.value;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -16,7 +10,12 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
-import com.sap.inspection.model.DbRepository;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class ItemValueModel extends BaseModel {
@@ -263,6 +262,7 @@ public class ItemValueModel extends BaseModel {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.getDefault());
 		return simpleDateFormat.format(currentDate);
 	}
+
 
 	private ItemValueModel getSiteFromCursor(Cursor c) {
 		ItemValueModel FormValueModel = null;

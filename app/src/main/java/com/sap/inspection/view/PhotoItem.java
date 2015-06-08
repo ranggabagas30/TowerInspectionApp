@@ -1,7 +1,5 @@
 package com.sap.inspection.view;
 
-import java.io.File;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.Editable;
@@ -26,6 +24,8 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.rules.SavingRule;
 import com.sap.inspection.rules.saving.PreventiveSave;
+
+import java.io.File;
 
 
 public class PhotoItem extends RelativeLayout {

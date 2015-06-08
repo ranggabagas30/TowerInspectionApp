@@ -61,7 +61,7 @@ public class SiteModel extends BaseModel {
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s) VALUES(?,?,?)",
 						DbManager.mSite , DbManager.colID,
 						DbManager.colName,DbManager.colSiteLocation);
-		
+
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);

@@ -1,12 +1,22 @@
 package com.sap.inspection.manager;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Collection;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.rindang.zconfig.APIList;
+import com.sap.inspection.MyApplication;
+import com.sap.inspection.R;
+import com.sap.inspection.connection.JSONConnection;
+import com.sap.inspection.event.UploadProgressEvent;
+import com.sap.inspection.model.responsemodel.BaseResponseModel;
+import com.sap.inspection.model.value.DbRepositoryValue;
+import com.sap.inspection.model.value.ItemValueModel;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -28,25 +38,13 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.rindang.zconfig.APIList;
-import com.sap.inspection.R;
-import com.sap.inspection.MyApplication;
-import com.sap.inspection.connection.JSONConnection;
-import com.sap.inspection.constant.Constants;
-import com.sap.inspection.event.UploadProgressEvent;
-import com.sap.inspection.listener.UploadListener;
-import com.sap.inspection.model.responsemodel.BaseResponseModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
-import com.sap.inspection.model.value.ItemValueModel;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import de.greenrobot.event.EventBus;
 
@@ -213,7 +211,6 @@ public class ItemUploadManager {
 				params.add(new BasicNameValuePair("longitude",String.valueOf(Float.parseFloat(itemValue.longitude)/1000000)));
 			if (itemValue.gpsAccuracy != 0)
 				params.add(new BasicNameValuePair("accuracy", String.valueOf(itemValue.gpsAccuracy)));
-			params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
 			return params;
 		}
 
@@ -233,11 +230,13 @@ public class ItemUploadManager {
 				Bitmap bm;
 				byte[] dataFile; 
 				ByteArrayBody bab;
+				ArrayList<NameValuePair> params = getParams(itemValue);
 				if (null != itemValue.value && null != itemValue.photoStatus){
+					params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
+					Log.d(getClass().getName(),"createdAt"+itemValue.createdAt);
 					reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
 				}
 
-				ArrayList<NameValuePair> params = getParams(itemValue);
 				for (int i = 0; i < params.size(); i++) {
 					log(params.get(i).getName()+" || "+params.get(i).getValue());
 					reqEntity.addPart(params.get(i).getName(), new StringBody(params.get(i).getValue()));

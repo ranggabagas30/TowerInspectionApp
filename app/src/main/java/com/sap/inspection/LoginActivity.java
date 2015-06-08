@@ -1,19 +1,5 @@
 package com.sap.inspection;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.channels.FileChannel;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -56,7 +42,20 @@ import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
-import com.sap.inspection.tools.PrefUtil;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class LoginActivity extends BaseActivity {
 
@@ -204,9 +203,10 @@ public class LoginActivity extends BaseActivity {
 
 		//update things
 		String version = null;
+		int versionCode = 0;
 		try {
 			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-			log(version);
+			versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 		} catch (NameNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -214,6 +214,7 @@ public class LoginActivity extends BaseActivity {
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		file_url = prefs.getString(this.getString(R.string.url_update), "");
 		update = (Button) findViewById(R.id.update);
+		log("version Name = " + version+" versionCode = "+versionCode);
 		if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))){
 			update.setVisibility(View.GONE);
 		}else{

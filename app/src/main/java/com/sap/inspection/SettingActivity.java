@@ -71,13 +71,15 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		String version = null;
+		int versionCode = 0;
 		try {
 			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-			log(version);
+			versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 		} catch (NameNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		log("version Name = " + version+" versionCode = "+versionCode);
 		setContentView(R.layout.activity_setting);
 		TextView title = (TextView) findViewById(R.id.header_title);
 		title.setText("Settings");
@@ -86,6 +88,8 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 		// show progress bar button
 		update = (Button) findViewById(R.id.update);
 		updateStatus =  (TextView) findViewById(R.id.updateStatus);
+		log("latest_version"+prefs.getString(this.getString(R.string.latest_version), ""));
+		log("url_update"+prefs.getString(this.getString(R.string.url_update), ""));
 		if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))){
 			update.setVisibility(View.GONE);
 			updateStatus.setText("No New Update");
