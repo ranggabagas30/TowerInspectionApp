@@ -28,13 +28,21 @@ import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.UploadListener;
 import com.sap.inspection.manager.DeleteAllDataTask;
 import com.sap.inspection.manager.ItemUploadManager;
+import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.form.ColumnModel;
+import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormGroupModel;
+import com.sap.inspection.model.form.WorkFormModel;
+import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
+import com.sap.inspection.model.responsemodel.VersionModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.tools.DeleteAllDataDialog;
+import com.sap.inspection.tools.PrefUtil;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -50,6 +58,7 @@ import de.greenrobot.event.EventBus;
 public class SettingActivity extends BaseActivity implements UploadListener{
 
 	Button update;
+	Button updateForm;
 	Button upload;
 	Button reupload;
 	Button delete;
@@ -60,6 +69,8 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 	File tempFile;
 
 	private ProgressDialog pDialog;
+
+	private boolean flagScheduleSaved = false;
 
 	// Progress dialog type (0 - for Horizontal progress bar)
 	public static final int progress_bar_type = 0; 
@@ -79,24 +90,32 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		log("version Name = " + version+" versionCode = "+versionCode);
+		log("version Name = " + version + " versionCode = " + versionCode);
 		setContentView(R.layout.activity_setting);
+
+
+
 		TextView title = (TextView) findViewById(R.id.header_title);
 		title.setText("Settings");
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		file_url = prefs.getString(this.getString(R.string.url_update), "");
 		// show progress bar button
 		update = (Button) findViewById(R.id.update);
+		updateForm = (Button) findViewById(R.id.update_form);
 		updateStatus =  (TextView) findViewById(R.id.updateStatus);
 		log("latest_version"+prefs.getString(this.getString(R.string.latest_version), ""));
 		log("url_update"+prefs.getString(this.getString(R.string.url_update), ""));
 		if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))){
-			update.setVisibility(View.GONE);
-			updateStatus.setText("No New Update");
+			update.setVisibility(View.VISIBLE);
+			update.setEnabled(false);
+			update.setText("No New Update");
+			update.setBackgroundResource(R.drawable.selector_button_gray_small_padding);
+			//updateStatus.setText("No New Update");
 		}else{
 			update.setVisibility(View.VISIBLE);
 			updateStatus.setText("New Update Available");
 		}
+
 		upload = (Button) findViewById(R.id.uploadData);
 		uploadInfo =  (TextView) findViewById(R.id.uploadInfo);
 		if (ItemUploadManager.getInstance().getLatestStatus() != null){
@@ -117,6 +136,7 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 			update.setText("Install");
 
 		update.setOnClickListener(updateClickListener);
+		updateForm.setOnClickListener(updateFormClickListener);
 
 		upload.setOnClickListener(uploadClickListener);
 
@@ -168,6 +188,142 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 			//			}
 		}
 	};
+
+	OnClickListener updateFormClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			checkFormVersion();
+		}
+	};
+//test
+	private static String formVersion;
+	private void checkFormVersion(){
+		pDialog = new ProgressDialog(activity);
+		pDialog.setMessage("Check form version");
+		pDialog.setCancelable(false);
+		pDialog.show();
+		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
+	}
+
+	private Handler formVersionHandler = new Handler(){
+		public void handleMessage(android.os.Message msg) {
+			if (msg.getData() != null && msg.getData().getString("json") != null){
+				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
+				formVersion = model.version;
+				log("check version : "+ PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
+				log("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
+				log("check version value from web: "+formVersion);
+				if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"))){
+					pDialog.setMessage("Get new form from server");
+					APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
+				}else{
+					pDialog.setMessage("Get schedule from server");
+					APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+				}
+			}else{
+				pDialog.dismiss();
+				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+			}
+		};
+	};
+
+	private Handler formSaverHandler = new Handler(){
+		public void handleMessage(android.os.Message msg) {
+			if (msg.getData() != null && msg.getData().getString("json") != null){
+				initForm(msg.getData().getString("json"));
+			}else{
+				pDialog.dismiss();
+				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+			}
+		};
+	};
+
+	private void initForm(String json){
+		Gson gson = new Gson();
+		FormResponseModel formResponseModel = gson.fromJson(json,FormResponseModel.class);
+		if (formResponseModel.status == 200){
+			FormSaver formSaver = new FormSaver();
+			formSaver.execute(formResponseModel.data.toArray());
+		}
+	}
+
+	private class FormSaver extends AsyncTask<Object, Integer, Void>{
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			pDialog.setMessage("Prepare for saving");
+			DbRepository.getInstance().open(getApplicationContext());
+			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
+			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
+			DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
+			DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
+			DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
+		}
+
+		@Override
+		protected Void doInBackground(Object... params) {
+			int sum = 0;
+			for (int i = 0; i < params.length; i++) {
+				if (((WorkFormModel)params[i]).groups != null)
+					for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
+						if (group.table == null){
+							continue;
+						}
+						log("group name : "+group.name);
+						log("group table : "+group.table.toString());
+						log("group table header : "+group.table.headers.toString());
+						sum += group.table.headers.size();
+						sum += group.table.rows.size();
+					}
+			}
+
+			int curr = 0;
+			for (int i = 0; i < params.length; i++) {
+				((WorkFormModel)params[i]).save();
+				if (((WorkFormModel)params[i]).groups != null)
+					for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
+						if (group.table == null){
+							continue;
+						}
+						for (ColumnModel columnModel : group.table.headers) {
+							curr ++;
+							publishProgress(curr*100/sum);
+							columnModel.save();
+						}
+
+						for (RowModel rowModel : group.table.rows) {
+							curr ++;
+							publishProgress(curr*100/sum);
+							rowModel.save();
+						}
+					}
+			}
+			log("version saved : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
+			log("version saved value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
+			log("version saved value from web: "+formVersion);
+			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), formVersion);
+			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form),"not null");
+			log("form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
+			log("form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
+			return null;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			super.onProgressUpdate(values);
+			log("saving forms "+values[0]+" %...");
+			pDialog.setMessage("saving forms "+values[0]+" %...");
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			//			setFlagFormSaved(true);
+			pDialog.setMessage("Get schedule from server");
+			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+//			DbRepository.getInstance().close();
+		}
+	}
 
 	OnClickListener uploadClickListener = new OnClickListener() {
 
