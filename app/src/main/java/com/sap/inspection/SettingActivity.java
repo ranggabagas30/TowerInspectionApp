@@ -23,10 +23,12 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.event.DeleteAllProgressEvent;
+import com.sap.inspection.event.DeleteAllScheduleEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.UploadListener;
 import com.sap.inspection.manager.DeleteAllDataTask;
+import com.sap.inspection.manager.DeleteAllSchedules;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -42,6 +44,7 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.tools.DeleteAllDataDialog;
+import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.tools.PrefUtil;
 
 import java.io.BufferedInputStream;
@@ -62,6 +65,7 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 	Button upload;
 	Button reupload;
 	Button delete;
+	Button deleteSchedule;
 	Button refreshSchedule;
 	TextView updateStatus;
 	TextView uploadInfo;
@@ -128,6 +132,8 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 
 		delete = (Button) findViewById(R.id.deleteData);
 		delete.setOnClickListener(deleteClickListener);
+		deleteSchedule = (Button) findViewById(R.id.deleteSchedule);
+		deleteSchedule.setOnClickListener(deleteScheduleClickListener);
 
 		tempFile= Environment.getExternalStorageDirectory();
 		tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(SettingActivity.this.getString(R.string.latest_version), "")+".apk");
@@ -168,6 +174,25 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 		@Override
 		public void onClick(View v) {
 			DeleteAllDataTask task = new DeleteAllDataTask();
+			task.execute();
+		}
+	};
+
+	OnClickListener deleteScheduleClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			DeleteAllSchedulesDialog dialog = new DeleteAllSchedulesDialog(activity);
+			dialog.setPositive(positiveDeleteScheduleClickListener);
+			dialog.show();
+		}
+	};
+
+	OnClickListener positiveDeleteScheduleClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			DeleteAllSchedules task = new DeleteAllSchedules();
 			task.execute();
 		}
 	};
@@ -617,6 +642,11 @@ public class SettingActivity extends BaseActivity implements UploadListener{
 		}else{
 			showDialog(event.progressString, true);
 		}
+	}
+
+	public void onEvent(DeleteAllScheduleEvent event) {
+		Toast.makeText(activity, "Delete Schedule Done", Toast.LENGTH_SHORT).show();
+		getSchedule();
 	}
 
 }

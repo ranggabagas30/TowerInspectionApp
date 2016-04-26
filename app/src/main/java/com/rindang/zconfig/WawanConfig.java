@@ -9,7 +9,7 @@ public class WawanConfig extends BaseConfig{
 	
 	@Override
 	public String getHost() {
-		return "http://192.168.88.48";
+		return "http://103.17.54.187";
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
+import com.sap.inspection.model.DbRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class ItemValueModel extends BaseModel {
 		stmt.close();
 		DbRepositoryValue.getInstance().close();
 	}
-	
+
 	public static void delete(String scheduleId, int itemId, int operatorId){
 		String sql = "DELETE FROM " + DbManagerValue.mFormValue + " WHERE "+DbManagerValue.colScheduleId+"="+scheduleId+" AND "+DbManagerValue.colItemId+"="+itemId+" AND "+DbManagerValue.colOperatorId+"="+operatorId;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
