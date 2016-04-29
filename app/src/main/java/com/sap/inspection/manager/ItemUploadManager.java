@@ -220,9 +220,9 @@ public class ItemUploadManager {
 			if (itemValue.remark != null)
 				params.add(new BasicNameValuePair("remark", itemValue.remark));
 			if (itemValue.latitude != null && !itemValue.latitude.equalsIgnoreCase("0"))
-				params.add(new BasicNameValuePair("latitude",String.valueOf(Float.parseFloat(itemValue.latitude)/1000000)));
+				params.add(new BasicNameValuePair("latitude",itemValue.latitude));
 			if (itemValue.longitude != null && !itemValue.longitude.equalsIgnoreCase("0"))
-				params.add(new BasicNameValuePair("longitude",String.valueOf(Float.parseFloat(itemValue.longitude)/1000000)));
+				params.add(new BasicNameValuePair("longitude",itemValue.longitude));
 			if (itemValue.gpsAccuracy != 0)
 				params.add(new BasicNameValuePair("accuracy", String.valueOf(itemValue.gpsAccuracy)));
 			return params;
