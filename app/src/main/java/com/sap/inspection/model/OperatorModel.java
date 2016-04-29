@@ -1,11 +1,11 @@
 package com.sap.inspection.model;
 
-import java.util.Vector;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
+
+import java.util.Vector;
 
 public class OperatorModel extends BaseModel {
 	
@@ -50,9 +50,11 @@ public class OperatorModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return model;
-		
+		}
+
 		model = getOperatorFromCursor(cursor);
 
 		cursor.close();

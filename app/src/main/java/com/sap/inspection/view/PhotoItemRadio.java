@@ -1,7 +1,5 @@
 package com.sap.inspection.view;
 
-import java.io.File;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.Editable;
@@ -29,6 +27,9 @@ import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.tools.DateTools;
+
+import java.io.File;
 
 
 public class PhotoItemRadio extends RelativeLayout {
@@ -157,7 +158,7 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	public void setValue(ItemValueModel value) {
 		this.value = value;
-		imageView.setImageResource(R.drawable.logo_sap);
+		imageView.setImageResource(R.drawable.logo_app);
 		if (itemFormRenderModel.operator != null && itemFormRenderModel.itemModel.scope_type.equalsIgnoreCase("operator"))
 			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.itemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", "")
 					);
@@ -339,6 +340,9 @@ public class PhotoItemRadio extends RelativeLayout {
 		}
 	}
 
+	public void setPhotoDate() {
+		value.createdAt = DateTools.getCurrentDate();
+	}
 	public void setImage(String uri,String latitude, String longitude,int accuracy){
 		if (value != null){
 			value.value = uri;

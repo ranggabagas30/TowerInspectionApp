@@ -1,22 +1,20 @@
 package com.sap.inspection.mainmenu;
 
-import java.util.ArrayList;
-
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.R;
-import com.sap.inspection.fragments.BaseFragment;
-import com.sap.inspection.fragments.BaseTitleFragment;
 
-public class MainMenuPageFragment extends BaseFragment{
+import java.util.ArrayList;
+
+public class MainMenuPageFragment extends BaseFragment {
 	private ArrayList<Integer> titles;
 	private ArrayList<Integer> icons;
 	private int[] ids = {R.id.s1,R.id.s2,R.id.s3,R.id.s4,R.id.s5,R.id.s6};

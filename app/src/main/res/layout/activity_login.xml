@@ -70,7 +70,7 @@
             android:id="@+id/logo"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:src="@drawable/logo_sap"
+            android:src="@drawable/logo_app"
             android:visibility="invisible" />
 
         <TextView
@@ -83,7 +83,7 @@
             android:layout_marginTop="@dimen/padding_xtra_large"
             android:gravity="center_horizontal"
             android:text="MOBILE APPLICATION"
-            android:textColor="@android:color/white"
+            android:textColor="@color/logo_text"
             android:textStyle="bold"
             android:visibility="invisible" />
 

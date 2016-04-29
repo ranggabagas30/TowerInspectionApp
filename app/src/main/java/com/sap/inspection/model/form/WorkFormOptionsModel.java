@@ -1,7 +1,5 @@
 package com.sap.inspection.model.form;
 
-import java.util.Vector;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
@@ -10,6 +8,8 @@ import android.os.Parcel;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+
+import java.util.Vector;
 
 public class WorkFormOptionsModel extends BaseModel {
 
@@ -90,8 +90,10 @@ public class WorkFormOptionsModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		do {
 			result.add(getItemFromCursor(cursor));
 		} while(cursor.moveToNext());

@@ -145,7 +145,7 @@ public class PhotoItem extends RelativeLayout {
 
 	public void setValue(ItemValueModel value) {
 		this.value = value;
-		imageView.setImageResource(R.drawable.logo_sap);
+		imageView.setImageResource(R.drawable.logo_app);
 		if (itemFormRenderModel.label != null)
 			label.setText(itemFormRenderModel.label);
 		else if (itemFormRenderModel.operator != null)

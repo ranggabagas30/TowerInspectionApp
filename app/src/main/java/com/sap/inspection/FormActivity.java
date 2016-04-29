@@ -1,7 +1,5 @@
 package com.sap.inspection;
 
-import java.util.Vector;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 
-import com.sap.inspection.fragments.BaseFragment;
+import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.sap.inspection.fragments.NavigationFragment;
 import com.sap.inspection.listener.FormActivityListener;
 import com.sap.inspection.model.DbRepository;
@@ -19,8 +17,10 @@ import com.sap.inspection.model.WorkTypeModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
-import com.sap.inspection.views.adapter.FragmentsAdapter;
+import com.sap.inspection.tools.DebugLog;
 import com.slidinglayer.SlidingLayer;
+
+import java.util.Vector;
 
 public class FormActivity extends BaseActivity implements FormActivityListener{
 
@@ -41,6 +41,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		DebugLog.d("");
 
 		ProgressDialog dialog = new ProgressDialog(activity);
 		dialog.setMessage("Please wait... \n Generating Inspection Form...");
@@ -104,7 +105,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		navigateToFragment(navigationFragment, R.id.fragment_behind);
 	}
 
-	private void navigateToFragment(BaseFragment fragment,int viewContainerResId) {
+	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
 		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(viewContainerResId, fragment);

@@ -1,4 +1,14 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 22
@@ -30,11 +40,29 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    productFlavors {
+        sap {
+            applicationId 'com.sap.inspection'
+        }
+        stp {
+            applicationId 'com.stp.inspection'
+        }
+    }
+
+}
+
+repositories{
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':google-play-services_lib')
     compile 'com.android.support:appcompat-v7:22.2.1'
-    compile files('libs/FlurryAnalytics-5.0.0.jar')
+    compile project(':baseassets')
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+        transitive = true;
+    }
+
 }

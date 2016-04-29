@@ -59,8 +59,10 @@ public class WorkFormGroupModel extends BaseModel {
 
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return 0;
+		}
 
 		int temp = cursor.getCount();
 		cursor.close();
@@ -126,8 +128,10 @@ public class WorkFormGroupModel extends BaseModel {
 
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		do {
 			result.add(getFormFromCursor(cursor));
 		} while(cursor.moveToNext());

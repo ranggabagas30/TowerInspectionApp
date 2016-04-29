@@ -42,6 +42,7 @@ import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
+import com.sap.inspection.tools.DebugLog;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -152,6 +153,7 @@ public class LoginActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		DebugLog.d("");
 		RegisterGCM register = new RegisterGCM(new Handler());
 		register.execute();
 		
@@ -313,6 +315,8 @@ public class LoginActivity extends BaseActivity {
 			default:
 				break;
 			}
+
+//			throw new RuntimeException("This is a test crash");
 		}
 	};
 

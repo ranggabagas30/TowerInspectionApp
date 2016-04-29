@@ -25,10 +25,10 @@ import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.event.DeleteAllScheduleEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
+import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.UploadListener;
 import com.sap.inspection.manager.DeleteAllDataTask;
-import com.sap.inspection.manager.DeleteAllSchedules;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -43,6 +43,8 @@ import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.task.ScheduleSaver;
+import com.sap.inspection.task.ScheduleTempSaver;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.tools.PrefUtil;
@@ -58,595 +60,639 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-public class SettingActivity extends BaseActivity implements UploadListener{
+public class SettingActivity extends BaseActivity implements UploadListener {
 
-	Button update;
-	Button updateForm;
-	Button upload;
-	Button reupload;
-	Button delete;
-	Button deleteSchedule;
-	Button refreshSchedule;
-	TextView updateStatus;
-	TextView uploadInfo;
-	SharedPreferences prefs;
-	File tempFile;
+    Button update;
+    Button updateForm;
+    Button upload;
+    Button reupload;
+    Button delete;
+    Button deleteSchedule;
+    Button refreshSchedule;
+    TextView updateStatus;
+    TextView uploadInfo;
+    SharedPreferences prefs;
+    File tempFile;
 
-	private ProgressDialog pDialog;
+    private ProgressDialog pDialog;
 
-	private boolean flagScheduleSaved = false;
+    private boolean flagScheduleSaved = false;
 
-	// Progress dialog type (0 - for Horizontal progress bar)
-	public static final int progress_bar_type = 0; 
+    // Progress dialog type (0 - for Horizontal progress bar)
+    public static final int progress_bar_type = 0;
 
-	// File url to download
-	private static String file_url = "http://api.androidhive.info/progressdialog/hive.jpg";
+    // File url to download
+    private static String file_url = "http://api.androidhive.info/progressdialog/hive.jpg";
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		String version = null;
-		int versionCode = 0;
-		try {
-			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-			versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		log("version Name = " + version + " versionCode = " + versionCode);
-		setContentView(R.layout.activity_setting);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        DebugLog.d("");
+        String version = null;
+        int versionCode = 0;
+        try {
+            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        log("version Name = " + version + " versionCode = " + versionCode);
+        setContentView(R.layout.activity_setting);
 
 
+        TextView title = (TextView) findViewById(R.id.header_title);
+        title.setText("Settings");
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        file_url = prefs.getString(this.getString(R.string.url_update), "");
+        // show progress bar button
+        update = (Button) findViewById(R.id.update);
+        updateForm = (Button) findViewById(R.id.update_form);
+        updateStatus = (TextView) findViewById(R.id.updateStatus);
+        log("latest_version" + prefs.getString(this.getString(R.string.latest_version), ""));
+        log("url_update" + prefs.getString(this.getString(R.string.url_update), ""));
+        if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))) {
+            update.setVisibility(View.VISIBLE);
+            update.setEnabled(false);
+            update.setText("No New Update");
+            update.setBackgroundResource(R.drawable.selector_button_gray_small_padding);
+            //updateStatus.setText("No New Update");
+        } else {
+            update.setVisibility(View.VISIBLE);
+            updateStatus.setText("New Update Available");
+        }
 
-		TextView title = (TextView) findViewById(R.id.header_title);
-		title.setText("Settings");
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		file_url = prefs.getString(this.getString(R.string.url_update), "");
-		// show progress bar button
-		update = (Button) findViewById(R.id.update);
-		updateForm = (Button) findViewById(R.id.update_form);
-		updateStatus =  (TextView) findViewById(R.id.updateStatus);
-		log("latest_version"+prefs.getString(this.getString(R.string.latest_version), ""));
-		log("url_update"+prefs.getString(this.getString(R.string.url_update), ""));
-		if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))){
-			update.setVisibility(View.VISIBLE);
-			update.setEnabled(false);
-			update.setText("No New Update");
-			update.setBackgroundResource(R.drawable.selector_button_gray_small_padding);
-			//updateStatus.setText("No New Update");
-		}else{
-			update.setVisibility(View.VISIBLE);
-			updateStatus.setText("New Update Available");
-		}
+        upload = (Button) findViewById(R.id.uploadData);
+        uploadInfo = (TextView) findViewById(R.id.uploadInfo);
+        if (ItemUploadManager.getInstance().getLatestStatus() != null) {
+            if (!ItemUploadManager.getInstance().getLatestStatus().equals(ItemUploadManager.getInstance().syncDone) && !ItemUploadManager.getInstance().getLatestStatus().equals(ItemUploadManager.getInstance().syncFail))
+                uploadInfo.setText(ItemUploadManager.getInstance().getLatestStatus());
+            else
+                uploadInfo.setText("Latest status " + ItemUploadManager.getInstance().getLatestStatus().toLowerCase());
+        } else
+            uploadInfo.setText("Waiting to upload");
 
-		upload = (Button) findViewById(R.id.uploadData);
-		uploadInfo =  (TextView) findViewById(R.id.uploadInfo);
-		if (ItemUploadManager.getInstance().getLatestStatus() != null){
-			if (!ItemUploadManager.getInstance().getLatestStatus().equals(ItemUploadManager.getInstance().syncDone) && !ItemUploadManager.getInstance().getLatestStatus().equals(ItemUploadManager.getInstance().syncFail))
-				uploadInfo.setText(ItemUploadManager.getInstance().getLatestStatus());
-			else
-				uploadInfo.setText("Latest status "+ItemUploadManager.getInstance().getLatestStatus().toLowerCase());
-		}else
-			uploadInfo.setText("Waiting to upload");
+        delete = (Button) findViewById(R.id.deleteData);
+        delete.setOnClickListener(deleteClickListener);
+        deleteSchedule = (Button) findViewById(R.id.deleteSchedule);
+        deleteSchedule.setOnClickListener(deleteScheduleClickListener);
 
-		delete = (Button) findViewById(R.id.deleteData);
-		delete.setOnClickListener(deleteClickListener);
-		deleteSchedule = (Button) findViewById(R.id.deleteSchedule);
-		deleteSchedule.setOnClickListener(deleteScheduleClickListener);
+        tempFile = Environment.getExternalStorageDirectory();
+        tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
 
-		tempFile= Environment.getExternalStorageDirectory();
-		tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(SettingActivity.this.getString(R.string.latest_version), "")+".apk");
+        if (tempFile.exists())
+            update.setText("Install");
 
-		if(tempFile.exists())
-			update.setText("Install");
+        update.setOnClickListener(updateClickListener);
+        updateForm.setOnClickListener(updateFormClickListener);
 
-		update.setOnClickListener(updateClickListener);
-		updateForm.setOnClickListener(updateFormClickListener);
+        upload.setOnClickListener(uploadClickListener);
 
-		upload.setOnClickListener(uploadClickListener);
+        reupload = (Button) findViewById(R.id.reuploadData);
+        reupload.setOnClickListener(reuploadClickListener);
 
-		reupload = (Button) findViewById(R.id.reuploadData);
-		reupload.setOnClickListener(reuploadClickListener);
+        refreshSchedule = (Button) findViewById(R.id.updateSchedule);
+        refreshSchedule.setOnClickListener(new OnClickListener() {
 
-		refreshSchedule = (Button) findViewById(R.id.updateSchedule);
-		refreshSchedule.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSchedule();
+            }
+        });
+    }
 
-			@Override
-			public void onClick(View v) {
-				getSchedule();
-			}
-		});
-	}
+    OnClickListener deleteClickListener = new OnClickListener() {
 
-	OnClickListener deleteClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            DeleteAllDataDialog dialog = new DeleteAllDataDialog(activity);
+            dialog.setPositive(positiveDeleteClickListener);
+            dialog.show();
+        }
+    };
 
-		@Override
-		public void onClick(View v) {
-			DeleteAllDataDialog dialog = new DeleteAllDataDialog(activity);
-			dialog.setPositive(positiveDeleteClickListener);
-			dialog.show();
-		}
-	};
+    OnClickListener positiveDeleteClickListener = new OnClickListener() {
 
-	OnClickListener positiveDeleteClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            DeleteAllDataTask task = new DeleteAllDataTask();
+            task.execute();
+        }
+    };
 
-		@Override
-		public void onClick(View v) {
-			DeleteAllDataTask task = new DeleteAllDataTask();
-			task.execute();
-		}
-	};
+    OnClickListener deleteScheduleClickListener = new OnClickListener() {
 
-	OnClickListener deleteScheduleClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            DeleteAllSchedulesDialog dialog = new DeleteAllSchedulesDialog(activity);
+            dialog.setPositive(positiveDeleteScheduleClickListener);
+            dialog.show();
+        }
+    };
 
-		@Override
-		public void onClick(View v) {
-			DeleteAllSchedulesDialog dialog = new DeleteAllSchedulesDialog(activity);
-			dialog.setPositive(positiveDeleteScheduleClickListener);
-			dialog.show();
-		}
-	};
+    OnClickListener positiveDeleteScheduleClickListener = new OnClickListener() {
 
-	OnClickListener positiveDeleteScheduleClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            getScheduleTemp();
+        }
+    };
 
-		@Override
-		public void onClick(View v) {
-			DeleteAllSchedules task = new DeleteAllSchedules();
-			task.execute();
-		}
-	};
+    OnClickListener updateClickListener = new OnClickListener() {
 
-	OnClickListener updateClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            //Chek if the file already downloaded before
+            //			if(!tempFile.exists()){
+            new DownloadFileFromURL().execute(file_url);
+            //			}
+            //			else{
+            //				Intent intent = new Intent(Intent.ACTION_VIEW)
+            //				.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
+            //				intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
+            //				startActivity(intent);
+            //			}
+        }
+    };
 
-		@Override
-		public void onClick(View v) {
-			//Chek if the file already downloaded before
-			//			if(!tempFile.exists()){
-			new DownloadFileFromURL().execute(file_url);
-			//			}
-			//			else{
-			//				Intent intent = new Intent(Intent.ACTION_VIEW)
-			//				.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
-			//				intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
-			//				startActivity(intent);
-			//			}
-		}
-	};
+    OnClickListener updateFormClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            checkFormVersion();
+        }
+    };
+    //test
+    private static String formVersion;
 
-	OnClickListener updateFormClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			checkFormVersion();
-		}
-	};
-//test
-	private static String formVersion;
-	private void checkFormVersion(){
-		pDialog = new ProgressDialog(activity);
-		pDialog.setMessage("Check form version");
-		pDialog.setCancelable(false);
-		pDialog.show();
-		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
-	}
+    private void checkFormVersion() {
+        pDialog = new ProgressDialog(activity);
+        pDialog.setMessage("Check form version");
+        pDialog.setCancelable(false);
+        pDialog.show();
+        APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
+    }
 
-	private Handler formVersionHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
-			if (msg.getData() != null && msg.getData().getString("json") != null){
-				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
-				formVersion = model.version;
-				log("check version : "+ PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
-				log("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
-				log("check version value from web: "+formVersion);
-				if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"))){
-					pDialog.setMessage("Get new form from server");
-					APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
-				}else{
-					pDialog.setMessage("Get schedule from server");
-					APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
-				}
-			}else{
-				pDialog.dismiss();
-				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
-			}
-		};
-	};
+    private Handler formVersionHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            if (msg.getData() != null && msg.getData().getString("json") != null) {
+                VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
+                formVersion = model.version;
+                log("check version : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""));
+                log("check version value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"));
+                log("check version value from web: " + formVersion);
+                if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"))) {
+                    pDialog.setMessage("Get new form from server");
+                    APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
+                } else {
+                    pDialog.setMessage("Get schedule from server");
+                    APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+                }
+            } else {
+                pDialog.dismiss();
+                Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+            }
+        }
 
-	private Handler formSaverHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
-			if (msg.getData() != null && msg.getData().getString("json") != null){
-				initForm(msg.getData().getString("json"));
-			}else{
-				pDialog.dismiss();
-				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
-			}
-		};
-	};
+        ;
+    };
 
-	private void initForm(String json){
-		Gson gson = new Gson();
-		FormResponseModel formResponseModel = gson.fromJson(json,FormResponseModel.class);
-		if (formResponseModel.status == 200){
-			FormSaver formSaver = new FormSaver();
-			formSaver.execute(formResponseModel.data.toArray());
-		}
-	}
+    private Handler formSaverHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            if (msg.getData() != null && msg.getData().getString("json") != null) {
+                initForm(msg.getData().getString("json"));
+            } else {
+                pDialog.dismiss();
+                Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+            }
+        }
 
-	private class FormSaver extends AsyncTask<Object, Integer, Void>{
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			pDialog.setMessage("Prepare for saving");
-			DbRepository.getInstance().open(getApplicationContext());
-			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
-			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
-			DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
-			DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
-			DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
-		}
+        ;
+    };
 
-		@Override
-		protected Void doInBackground(Object... params) {
-			int sum = 0;
-			for (int i = 0; i < params.length; i++) {
-				if (((WorkFormModel)params[i]).groups != null)
-					for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
-						if (group.table == null){
-							continue;
-						}
-						log("group name : "+group.name);
-						log("group table : "+group.table.toString());
-						log("group table header : "+group.table.headers.toString());
-						sum += group.table.headers.size();
-						sum += group.table.rows.size();
-					}
-			}
+    private void initForm(String json) {
+        Gson gson = new Gson();
+        FormResponseModel formResponseModel = gson.fromJson(json, FormResponseModel.class);
+        if (formResponseModel.status == 200) {
+            FormSaver formSaver = new FormSaver();
+            formSaver.execute(formResponseModel.data.toArray());
+        }
+    }
 
-			int curr = 0;
-			for (int i = 0; i < params.length; i++) {
-				((WorkFormModel)params[i]).save();
-				if (((WorkFormModel)params[i]).groups != null)
-					for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
-						if (group.table == null){
-							continue;
-						}
-						for (ColumnModel columnModel : group.table.headers) {
-							curr ++;
-							publishProgress(curr*100/sum);
-							columnModel.save();
-						}
+    private class FormSaver extends AsyncTask<Object, Integer, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog.setMessage("Prepare for saving");
+            DbRepository.getInstance().open(getApplicationContext());
+            DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
+            DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
+            DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
+            DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
+            DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
+        }
 
-						for (RowModel rowModel : group.table.rows) {
-							curr ++;
-							publishProgress(curr*100/sum);
-							rowModel.save();
-						}
-					}
-			}
-			log("version saved : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
-			log("version saved value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
-			log("version saved value from web: "+formVersion);
-			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), formVersion);
-			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form),"not null");
-			log("form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
-			log("form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
-			return null;
-		}
+        @Override
+        protected Void doInBackground(Object... params) {
+            int sum = 0;
+            for (int i = 0; i < params.length; i++) {
+                if (((WorkFormModel) params[i]).groups != null)
+                    for (WorkFormGroupModel group : ((WorkFormModel) params[i]).groups) {
+                        if (group.table == null) {
+                            continue;
+                        }
+                        log("group name : " + group.name);
+                        log("group table : " + group.table.toString());
+                        log("group table header : " + group.table.headers.toString());
+                        sum += group.table.headers.size();
+                        sum += group.table.rows.size();
+                    }
+            }
 
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			super.onProgressUpdate(values);
-			log("saving forms "+values[0]+" %...");
-			pDialog.setMessage("saving forms "+values[0]+" %...");
-		}
+            int curr = 0;
+            for (int i = 0; i < params.length; i++) {
+                ((WorkFormModel) params[i]).save();
+                if (((WorkFormModel) params[i]).groups != null)
+                    for (WorkFormGroupModel group : ((WorkFormModel) params[i]).groups) {
+                        if (group.table == null) {
+                            continue;
+                        }
+                        for (ColumnModel columnModel : group.table.headers) {
+                            curr++;
+                            publishProgress(curr * 100 / sum);
+                            columnModel.save();
+                        }
 
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			//			setFlagFormSaved(true);
-			pDialog.setMessage("Get schedule from server");
-			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+                        for (RowModel rowModel : group.table.rows) {
+                            curr++;
+                            publishProgress(curr * 100 / sum);
+                            rowModel.save();
+                        }
+                    }
+            }
+            log("version saved : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""));
+            log("version saved value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"));
+            log("version saved value from web: " + formVersion);
+            writePreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), formVersion);
+            writePreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form), "not null");
+            log("form ofline user pref: " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form));
+            log("form ofline user : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form), null));
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            log("saving forms " + values[0] + " %...");
+            pDialog.setMessage("saving forms " + values[0] + " %...");
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            //			setFlagFormSaved(true);
+            pDialog.setMessage("Get schedule from server");
+            APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 //			DbRepository.getInstance().close();
-		}
-	}
+        }
+    }
 
-	OnClickListener uploadClickListener = new OnClickListener() {
+    OnClickListener uploadClickListener = new OnClickListener() {
 
-		@Override
-		public void onClick(View v) {
-			CorrectiveValueModel correctiveValueModel = new CorrectiveValueModel();
+        @Override
+        public void onClick(View v) {
+            CorrectiveValueModel correctiveValueModel = new CorrectiveValueModel();
 //			correctiveValueModel.deleteAll(activity);
 
-			DbRepositoryValue.getInstance().open(activity);
-			ProgressDialog progressDialog = new ProgressDialog(activity);
-			progressDialog.setMessage("preparing item for upload");
-			progressDialog.show();
-			ItemValueModel itemValueModel = new ItemValueModel();
-			ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload();
+            DbRepositoryValue.getInstance().open(activity);
+            ProgressDialog progressDialog = new ProgressDialog(activity);
+            progressDialog.setMessage("preparing item for upload");
+            progressDialog.show();
+            ItemValueModel itemValueModel = new ItemValueModel();
+            ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload();
 
-			itemValueModels.addAll(correctiveValueModel.getItemValuesForUpload());
-			if (itemValueModels.size() == 0){
-				progressDialog.dismiss();
-				Toast.makeText(activity, "There is no new item to upload...", Toast.LENGTH_LONG).show();
-				uploadInfo.setText("There is no new item to upload...");
-				return;
-			}
-			int i = 0;
-			for(ItemValueModel model : itemValueModels){
-				i++;
-				progressDialog.setMessage("preparing "+(100*i/itemValueModels.size())+"%");
-				model.uploadStatus = ItemValueModel.UPLOAD_ONGOING;
-				model.save();
-			}
-			ItemUploadManager.getInstance().addItemValues(itemValueModels);
-			progressDialog.dismiss();
-			Toast.makeText(activity, "Upload on progress,..", Toast.LENGTH_LONG).show();
-			DbRepositoryValue.getInstance().close();
-		}
-	};
+            itemValueModels.addAll(correctiveValueModel.getItemValuesForUpload());
+            if (itemValueModels.size() == 0) {
+                progressDialog.dismiss();
+                Toast.makeText(activity, "There is no new item to upload...", Toast.LENGTH_LONG).show();
+                uploadInfo.setText("There is no new item to upload...");
+                return;
+            }
+            int i = 0;
+            for (ItemValueModel model : itemValueModels) {
+                i++;
+                progressDialog.setMessage("preparing " + (100 * i / itemValueModels.size()) + "%");
+                model.uploadStatus = ItemValueModel.UPLOAD_ONGOING;
+                model.save();
+            }
+            ItemUploadManager.getInstance().addItemValues(itemValueModels);
+            progressDialog.dismiss();
+            Toast.makeText(activity, "Upload on progress,..", Toast.LENGTH_LONG).show();
+            DbRepositoryValue.getInstance().close();
+        }
+    };
 
-	OnClickListener reuploadClickListener = new OnClickListener() {
+    OnClickListener reuploadClickListener = new OnClickListener() {
 
-		@Override
-		public void onClick(View v) {
-			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-			// set title
-			alertDialogBuilder.setTitle("Reupload all data");
-			// set dialog message
-			alertDialogBuilder
-			.setMessage("Are you sure want to re-upload all data?")
-			.setPositiveButton("Upload",new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog,int id) {
-					dialog.dismiss();
-					uploadInfo.setText("Resetting upload status");
-					ItemValueModel.resetAllUploadStatus();
-					CorrectiveValueModel.resetAllUploadStatus();
-					upload.performClick();
-				}
-			})
-			.setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog,int id) {
-					dialog.dismiss();
-				}
-			});
-			alertDialogBuilder.create().show();
-		}
-	};
+        @Override
+        public void onClick(View v) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+            // set title
+            alertDialogBuilder.setTitle("Reupload all data");
+            // set dialog message
+            alertDialogBuilder
+                    .setMessage("Are you sure want to re-upload all data?")
+                    .setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                            uploadInfo.setText("Resetting upload status");
+                            ItemValueModel.resetAllUploadStatus();
+                            CorrectiveValueModel.resetAllUploadStatus();
+                            upload.performClick();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialogBuilder.create().show();
+        }
+    };
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		tempFile= Environment.getExternalStorageDirectory();
-		tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(SettingActivity.this.getString(R.string.latest_version), "")+".apk");
+    @Override
+    protected void onResume() {
+        super.onResume();
+        tempFile = Environment.getExternalStorageDirectory();
+        tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
 
-		if(tempFile.exists())
-			update.setText("Install");
+        if (tempFile.exists())
+            update.setText("Install");
 
-		EventBus.getDefault().register(this);
-	}
+        EventBus.getDefault().register(this);
+    }
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		EventBus.getDefault().unregister(this);
-	}
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
+    }
 
-	/**
-	 * Showing Dialog
-	 * */
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-		case progress_bar_type: // we set this to 0
-			pDialog = new ProgressDialog(this);
-			pDialog.setMessage("Downloading file. Please wait...");
-			pDialog.setIndeterminate(false);
-			pDialog.setMax(100);
-			pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			pDialog.setCancelable(false);
-			pDialog.show();
-			return pDialog;
-		default:
-			return null;
-		}
-	}
+    /**
+     * Showing Dialog
+     */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case progress_bar_type: // we set this to 0
+                pDialog = new ProgressDialog(this);
+                pDialog.setMessage("Downloading file. Please wait...");
+                pDialog.setIndeterminate(false);
+                pDialog.setMax(100);
+                pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                pDialog.setCancelable(false);
+                pDialog.show();
+                return pDialog;
+            default:
+                return null;
+        }
+    }
 
-	/**
-	 * Background Async Task to download file
-	 * */
-	class DownloadFileFromURL extends AsyncTask<String, String, String> {
+    /**
+     * Background Async Task to download file
+     */
+    class DownloadFileFromURL extends AsyncTask<String, String, String> {
 
-		/**
-		 * Before starting background thread
-		 * Show Progress Bar Dialog
-		 * */
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			showDialog(progress_bar_type);
-		}
+        /**
+         * Before starting background thread
+         * Show Progress Bar Dialog
+         */
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showDialog(progress_bar_type);
+        }
 
-		/**
-		 * Downloading file in background thread
-		 * */
-		@Override
-		protected String doInBackground(String... f_url) {
-			int count;
-			try {
-				URL url = new URL(f_url[0]);
-				URLConnection conection = url.openConnection();
-				conection.connect();
-				// this will be useful so that you can show a tipical 0-100% progress bar
-				int lenghtOfFile = conection.getContentLength();
+        /**
+         * Downloading file in background thread
+         */
+        @Override
+        protected String doInBackground(String... f_url) {
+            int count;
+            try {
+                URL url = new URL(f_url[0]);
+                URLConnection conection = url.openConnection();
+                conection.connect();
+                // this will be useful so that you can show a tipical 0-100% progress bar
+                int lenghtOfFile = conection.getContentLength();
 
-				// download the file
-				InputStream input = new BufferedInputStream(url.openStream(), 8192);
+                // download the file
+                InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-				File tempDir= Environment.getExternalStorageDirectory();
-				tempDir=new File(tempDir.getAbsolutePath()+"/Download");
-				if(!tempDir.exists())
-				{
-					tempDir.mkdir();
-				}
+                File tempDir = Environment.getExternalStorageDirectory();
+                tempDir = new File(tempDir.getAbsolutePath() + "/Download");
+                if (!tempDir.exists()) {
+                    tempDir.mkdir();
+                }
 
-				// Output stream
-				OutputStream output = new FileOutputStream(tempDir.getAbsolutePath()+"/sapInspection"+prefs.getString(SettingActivity.this.getString(R.string.latest_version), "")+".apk");
+                // Output stream
+                OutputStream output = new FileOutputStream(tempDir.getAbsolutePath() + "/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
 
-				byte data[] = new byte[1024];
+                byte data[] = new byte[1024];
 
-				long total = 0;
+                long total = 0;
 
-				while ((count = input.read(data)) != -1) {
-					total += count;
-					// publishing the progress....
-					// After this onProgressUpdate will be called
-					publishProgress(""+(int)((total*100)/lenghtOfFile));
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    // publishing the progress....
+                    // After this onProgressUpdate will be called
+                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
 
-					// writing data to file
-					output.write(data, 0, count);
-				}
+                    // writing data to file
+                    output.write(data, 0, count);
+                }
 
-				// flushing output
-				output.flush();
+                // flushing output
+                output.flush();
 
-				// closing streams
-				output.close();
-				input.close();
+                // closing streams
+                output.close();
+                input.close();
 
-			} catch (Exception e) {
-				Log.e("Error: ", e.getMessage());
-			}
+            } catch (Exception e) {
+                Log.e("Error: ", e.getMessage());
+            }
 
-			return null;
-		}
+            return null;
+        }
 
-		/**
-		 * Updating progress bar
-		 * */
-		protected void onProgressUpdate(String... progress) {
-			// setting progress percentage
-			pDialog.setProgress(Integer.parseInt(progress[0]));
-		}
+        /**
+         * Updating progress bar
+         */
+        protected void onProgressUpdate(String... progress) {
+            // setting progress percentage
+            pDialog.setProgress(Integer.parseInt(progress[0]));
+        }
 
-		/**
-		 * After completing background task
-		 * Dismiss the progress dialog
-		 * **/
+        /**
+         * After completing background task
+         * Dismiss the progress dialog
+         **/
 
-		@Override
-		protected void onPostExecute(String file_url) {
-			dismissDialog(progress_bar_type);
+        @Override
+        protected void onPostExecute(String file_url) {
+            dismissDialog(progress_bar_type);
 
-			File tempFile= Environment.getExternalStorageDirectory();
-			tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(SettingActivity.this.getString(R.string.latest_version), "")+".apk");
-			if(!tempFile.exists())
-			{
-				finish();
-			}
+            File tempFile = Environment.getExternalStorageDirectory();
+            tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
+            if (!tempFile.exists()) {
+                finish();
+            }
 
-			Intent intent = new Intent(Intent.ACTION_VIEW)
-			.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
-			intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent); 
-		}
-	}
+            Intent intent = new Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(Uri.fromFile(tempFile), "application/vnd.android.package-archive");
+            intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+    }
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-	}
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
-	@Override
-	public void onUpdate(String status) {
-		log("====================================================");
-		log("====================================================");
-		log(status);
-		log("====================================================");
-		log("====================================================");
-		uploadInfo.setText(status);
-	}
+    @Override
+    public void onUpdate(String status) {
+        log("====================================================");
+        log("====================================================");
+        log(status);
+        log("====================================================");
+        log("====================================================");
+        uploadInfo.setText(status);
+    }
 
-	@Override
-	public void onFailed() {
-		uploadInfo.setText(ItemUploadManager.getInstance().syncFail);
-	}
+    @Override
+    public void onFailed() {
+        uploadInfo.setText(ItemUploadManager.getInstance().syncFail);
+    }
 
-	@Override
-	public void onSuccess() {
-		uploadInfo.setText(ItemUploadManager.getInstance().syncDone);
-	}
+    @Override
+    public void onSuccess() {
+        uploadInfo.setText(ItemUploadManager.getInstance().syncDone);
+    }
 
-	private void getSchedule(){
-		DbRepository.getInstance().open(activity);
-		pDialog = new ProgressDialog(activity);
-		pDialog.setMessage("Get schedule from server...");
-		pDialog.setCancelable(false);
-		pDialog.show();
-		APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
-	}
+    private void getScheduleTemp() {
+        DbRepository.getInstance().open(activity);
+        pDialog = new ProgressDialog(activity);
+        pDialog.setMessage("Get schedule from server...");
+        pDialog.setCancelable(false);
+        pDialog.show();
+        APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
+    }
 
-	Handler scheduleHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
-			Bundle bundle = msg.getData();
-			Gson gson = new Gson();
-			if (bundle.getString("json") != null){
-				ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
-				if (scheduleResponseModel.status == 200){
-					ScheduleSaver scheduleSaver = new ScheduleSaver();
-					scheduleSaver.setActivity(activity);
-					scheduleSaver.execute(scheduleResponseModel.data.toArray());
-				}
-			}else{
-				pDialog.dismiss();
-				Toast.makeText(activity, "Can't get schedule from server\nPlease get an fast internet connection",Toast.LENGTH_LONG).show();
-			}
-		};
-	};
+    private void getSchedule() {
+        DbRepository.getInstance().open(activity);
+        pDialog = new ProgressDialog(activity);
+        pDialog.setMessage("Get schedule from server...");
+        pDialog.setCancelable(false);
+        pDialog.show();
+        APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+    }
 
-	public void onEvent(ScheduleProgressEvent event) {
-		if (event.done){
-			if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
-				DbRepository.getInstance().close();
-		}
-		else
-			showDialog("saving schedule "+event.progress+" %...", true);
-	}
+    Handler scheduleHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            Bundle bundle = msg.getData();
+            Gson gson = new Gson();
+            if (bundle.getString("json") != null) {
+                ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
+                if (scheduleResponseModel.status == 200) {
+                    ScheduleSaver scheduleSaver = new ScheduleSaver();
+                    scheduleSaver.setActivity(activity);
+                    scheduleSaver.execute(scheduleResponseModel.data.toArray());
+                }
+            } else {
+                pDialog.dismiss();
+                Toast.makeText(activity, "Can't get schedule from server\nPlease get an fast internet connection", Toast.LENGTH_LONG).show();
+            }
+        }
 
-	private void showDialog(String msg,boolean blockable){
-		if (pDialog == null)
-			pDialog = new ProgressDialog(this);
-		pDialog.setCancelable(!blockable);
-		pDialog.show();
-		pDialog.setMessage(msg);
-	}
+        ;
+    };
 
-	public void hideDialog(){
-		if (pDialog == null || !pDialog.isShowing())
-			return;
-		pDialog.dismiss();
-	}
+    Handler scheduleHandlerTemp = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            Bundle bundle = msg.getData();
+            Gson gson = new Gson();
+            if (bundle.getString("json") != null) {
+                ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
+                if (scheduleResponseModel.status == 200) {
+                    DeleteAllScheduleEvent deleteAllScheduleEvent = new DeleteAllScheduleEvent();
+                    deleteAllScheduleEvent.scheduleResponseModel = scheduleResponseModel;
+                    EventBus.getDefault().post(deleteAllScheduleEvent);
+                }
+            } else {
+                pDialog.dismiss();
+                Toast.makeText(activity, "Can't get schedule from server\nPlease get an fast internet connection", Toast.LENGTH_LONG).show();
+            }
+        }
 
-	public void onEvent(UploadProgressEvent event) {
-		log("====================================================");
-		log("====================================================");
-		log(event.progressString);
-		log("====================================================");
-		log("====================================================");
-		uploadInfo.setText(event.progressString);
-	}
+        ;
+    };
 
-	public void onEvent(DeleteAllProgressEvent event) {
-		if (event.done){
-			hideDialog();
-			Toast.makeText(activity, event.progressString, Toast.LENGTH_SHORT).show();
-		}else{
-			showDialog(event.progressString, true);
-		}
-	}
+    public void onEvent(ScheduleProgressEvent event) {
+        if (event.done) {
+            if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
+                DbRepository.getInstance().close();
+        } else
+            showDialog("saving schedule " + event.progress + " %...", true);
+    }
 
-	public void onEvent(DeleteAllScheduleEvent event) {
-		Toast.makeText(activity, "Delete Schedule Done", Toast.LENGTH_SHORT).show();
-		getSchedule();
-	}
+    public void onEvent(ScheduleTempProgressEvent event) {
+        if (event.done) {
+            if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
+                DbRepository.getInstance().close();
+        } else
+            showDialog("saving schedule " + event.progress + " %...", true);
+    }
+
+    private void showDialog(String msg, boolean blockable) {
+        if (pDialog == null)
+            pDialog = new ProgressDialog(this);
+        pDialog.setCancelable(!blockable);
+        pDialog.show();
+        pDialog.setMessage(msg);
+    }
+
+    public void hideDialog() {
+        if (pDialog == null || !pDialog.isShowing())
+            return;
+        pDialog.dismiss();
+    }
+
+    public void onEvent(UploadProgressEvent event) {
+        log("====================================================");
+        log("====================================================");
+        log(event.progressString);
+        log("====================================================");
+        log("====================================================");
+        uploadInfo.setText(event.progressString);
+    }
+
+    public void onEvent(DeleteAllProgressEvent event) {
+        if (event.done) {
+            hideDialog();
+            Toast.makeText(activity, event.progressString, Toast.LENGTH_SHORT).show();
+        } else {
+            showDialog(event.progressString, true);
+        }
+    }
+
+    public void onEvent(DeleteAllScheduleEvent event) {
+        Toast.makeText(activity, "Schedule Updated", Toast.LENGTH_SHORT).show();
+        DbRepository.getInstance().clearData(DbManager.mSchedule);
+
+        ScheduleTempSaver scheduleSaver = new ScheduleTempSaver();
+        scheduleSaver.setActivity(activity);
+        scheduleSaver.execute(event.scheduleResponseModel.data.toArray());
+    }
 
 }

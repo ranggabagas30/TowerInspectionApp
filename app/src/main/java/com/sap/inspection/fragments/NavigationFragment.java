@@ -13,6 +13,7 @@ import com.sap.inspection.listener.FormActivityListener;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.views.adapter.NavigationAdapter;
+import com.arifariyan.baseassets.fragment.BaseFragment;
 
 public class NavigationFragment extends BaseFragment{
 	private NavigationAdapter adapter;

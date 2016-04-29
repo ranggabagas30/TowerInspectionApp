@@ -62,8 +62,10 @@ public class WorkFormModel extends BaseModel {
 
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		result = cursor.getInt(cursor.getColumnIndex(DbManager.colSumInput));
 
 		cursor.close();
@@ -117,8 +119,10 @@ public class WorkFormModel extends BaseModel {
 
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return 0;
+		}
 
 		int temp = cursor.getCount();
 		cursor.close();
@@ -142,8 +146,10 @@ public class WorkFormModel extends BaseModel {
 
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		log("=============cursor can move to first==================");
 		result = getItemFromCursor(cursor);
 

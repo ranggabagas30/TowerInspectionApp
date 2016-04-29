@@ -1,7 +1,5 @@
 package com.sap.inspection.model.form;
 
-import java.util.Vector;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
@@ -9,12 +7,13 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.PictureModel;
 import com.sap.inspection.util.ImageUtil;
+
+import java.util.Vector;
 
 public class WorkFormItemModel extends BaseModel {
 
@@ -153,8 +152,10 @@ public class WorkFormItemModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		do {
 			WorkFormItemModel model = getItemFromCursor(cursor);
 			model.options = getWorkFormOptionsModels(model.id);
@@ -178,8 +179,10 @@ public class WorkFormItemModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		result = getItemFromCursor(cursor);
 		result.options = getWorkFormOptionsModels(result.id);
 

@@ -73,16 +73,18 @@ public class CorrectiveValueModel extends ItemValueModel {
 		String[] columns = null;
 		String where =DbManagerValue.colScheduleId+"=? AND "+DbManagerValue.colItemId+"=? AND "+DbManagerValue.colOperatorId+"=?";
 		String[] args = new String[]{scheduleId,String.valueOf(itemId),String.valueOf(operatorId)};
-		Cursor cursor;
 
+		Cursor cursor;
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return model;
+		}
 
 		model = getSiteFromCursor(cursor);
-
 		cursor.close();
+
 		return model;
 	}
 
@@ -102,6 +104,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 
 		if (!cursor.moveToFirst()){
 			log("corrective value for this schedule is null");
+			cursor.close();
 			return model;
 		}
 		do{
@@ -130,8 +133,10 @@ public class CorrectiveValueModel extends ItemValueModel {
 
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return model;
+		}
 		do{
 			model.add(getSiteFromCursor(cursor));
 		}	

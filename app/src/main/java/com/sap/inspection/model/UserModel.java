@@ -1,13 +1,13 @@
 package com.sap.inspection.model;
 
-import com.sap.inspection.tools.MD5;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.Toast;
+
+import com.sap.inspection.tools.MD5;
 
 public class UserModel extends BaseModel {
 
@@ -157,9 +157,11 @@ public class UserModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
-		
+		}
+
 		result = getUserFromCursor(cursor,context);
 		
 		cursor.close();
@@ -181,9 +183,11 @@ public class UserModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
-		
+		}
+
 		result = getUserFromCursor(cursor,context);
 		
 		cursor.close();
@@ -207,9 +211,11 @@ public class UserModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return 0;
-		
+		}
+
 		result = cursor.getCount();
 		
 		cursor.close();

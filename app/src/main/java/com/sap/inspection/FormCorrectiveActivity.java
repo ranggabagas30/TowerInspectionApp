@@ -1,7 +1,5 @@
 package com.sap.inspection;
 
-import java.util.ArrayList;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -21,9 +19,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-
 import com.google.android.gms.maps.model.LatLng;
-//import com.google.android.maps.GeoPoint;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -32,12 +28,16 @@ import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
-import com.sap.inspection.rules.saving.CorrectiveSave;
 import com.sap.inspection.rules.saving.PreventiveSave;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItem;
 import com.sap.inspection.views.adapter.FormFillAdapter;
+
+import java.util.ArrayList;
+
+//import com.google.android.maps.GeoPoint;
 
 public class FormCorrectiveActivity extends BaseActivity {
 
@@ -68,6 +68,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		DebugLog.d("");
 		if (indexes == null)
 			indexes = new ArrayList<Integer>();
 		indexes.add(0);

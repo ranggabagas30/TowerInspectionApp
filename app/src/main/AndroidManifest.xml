@@ -44,7 +44,7 @@
     <application
         android:name="com.sap.inspection.MyApplication"
         android:allowBackup="true"
-        android:icon="@drawable/logo_sap"
+        android:icon="@drawable/logo_app"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
@@ -71,7 +71,6 @@
             android:name="com.sap.inspection.FormFillActivity"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"></activity>
-        <activity android:name="com.sap.inspection.CameraActivity"></activity>
         <activity
             android:name="com.sap.inspection.CallendarActivity"
             android:screenOrientation="portrait"></activity>
@@ -100,6 +99,11 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="93e5d433920a5d5863a8099f06a0cd33376386e8" />
+
     </application>
 
 </manifest>

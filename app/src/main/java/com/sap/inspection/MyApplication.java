@@ -1,8 +1,5 @@
 package com.sap.inspection;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
-import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -12,9 +9,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.flurry.android.FlurryAgent;
+import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import java.lang.Thread.UncaughtExceptionHandler;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
@@ -96,12 +97,7 @@ public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-        // configure Flurry
-        FlurryAgent.setLogEnabled(true);
-
-        // init Flurry
-        FlurryAgent.init(this, "B7GT4CR8JGPNQB94PM86");
+		Fabric.with(this, new Crashlytics());
 
 //		defaultUEH = Thread.getDefaultUncaughtExceptionHandler();
 //

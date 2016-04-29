@@ -14,7 +14,7 @@ public class BaseResponseModel extends BaseModel {
 	 */
 	public int status;
 	public String status_code;
-	public Vector<String> messages;
+	public String messages;
 	public PageModel page;
 	
 	@Override

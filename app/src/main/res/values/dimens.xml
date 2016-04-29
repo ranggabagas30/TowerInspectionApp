@@ -16,15 +16,12 @@
 	
 	<!-- action bar -->
 	
-	<dimen name="action_bar">50dp</dimen>
-
     <!-- general padding -->
     <dimen name="padding_xxs">2dp</dimen>
     <dimen name="padding_xtra_small">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">10dp</dimen>
     <dimen name="padding_medium_neg">-10dp</dimen>
-    <dimen name="padding_large">15dp</dimen>
     <dimen name="padding_xtra_large">20dp</dimen>
     <dimen name="padding_xxl">40dp</dimen>
 
@@ -32,7 +29,6 @@
     <dimen name="text_xtra_small">6dp</dimen>
     <dimen name="text_small">10dp</dimen>
     <dimen name="text_medium">15dp</dimen>
-    <dimen name="text_large">18dp</dimen>
     <dimen name="text_xtra_large">22dp</dimen>
     <dimen name="text_xxl">30dp</dimen>
     

@@ -1,9 +1,5 @@
 package com.sap.inspection.model;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Vector;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -14,6 +10,10 @@ import android.util.Log;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Vector;
 
 public abstract class ScheduleBaseModel extends BaseModel {
 
@@ -218,8 +218,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		result = cursor.getInt(cursor.getColumnIndex(DbManager.colSumDone));
 
 		cursor.close();
@@ -248,8 +250,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" DESC", null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		do {
 			result.add(getScheduleFromCursor(cursor,false));
 		} while(cursor.moveToNext());
@@ -279,8 +283,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		//		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" ASC", null);
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		do {
 			result.add(getScheduleFromCursor(cursor,true));
 		} while(cursor.moveToNext());
@@ -312,11 +318,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" DESC", null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return model;
+		}
 
 		model = getScheduleFromCursor(cursor,false);
-
 		cursor.close();
 
 		return model;

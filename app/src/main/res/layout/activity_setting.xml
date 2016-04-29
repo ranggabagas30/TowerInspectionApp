@@ -134,7 +134,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_button_green_small_padding"
-                    android:text="Delete &amp; Refresh Schedule"
+                    android:text="Refresh &amp; Delete Schedule"
                     android:textColor="@android:color/white"
                     android:layout_marginTop="@dimen/padding_medium"
                     android:textStyle="bold" />

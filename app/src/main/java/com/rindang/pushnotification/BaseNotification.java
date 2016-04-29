@@ -52,9 +52,9 @@ public class BaseNotification {
 		if (builder != null )
 			return builder;
 		Bitmap bitmap = null;
-		bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.logo_sap);
+		bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.logo_app);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-		.setSmallIcon(R.drawable.logo_sap)
+		.setSmallIcon(R.drawable.logo_app)
 		.setLargeIcon(bitmap)
 		.setContentTitle(getTitle())
 		.setVibrate(vibratePattern)

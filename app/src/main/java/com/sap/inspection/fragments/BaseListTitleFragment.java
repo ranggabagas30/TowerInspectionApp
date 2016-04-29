@@ -9,6 +9,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.sap.inspection.R;
 
 public abstract class BaseListTitleFragment extends BaseFragment {

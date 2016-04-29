@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.sap.inspection.tools.DebugLog;
+
 public class CameraTakeImageActivity extends Activity {
     private static final int CAMERA_REQUEST = 1888; 
     private ImageView imageView;
@@ -15,6 +17,7 @@ public class CameraTakeImageActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DebugLog.d("");
         setContentView(R.layout.activity_getimage_camera);
         this.imageView = (ImageView)this.findViewById(R.id.imageView1);
         Button photoButton = (Button) this.findViewById(R.id.button1);

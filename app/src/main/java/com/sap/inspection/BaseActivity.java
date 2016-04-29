@@ -10,7 +10,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Window;
 
-import com.flurry.android.FlurryAgent;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 //import com.sap.inspection.gcm.GCMService;
@@ -23,7 +22,7 @@ public abstract class BaseActivity extends FragmentActivity{
 
 	public static ImageLoader imageLoader = ImageLoader.getInstance();
 	public static DisplayImageOptions  avatarOptions = new DisplayImageOptions.Builder()
-	.showStubImage(R.drawable.logo_sap)
+	.showStubImage(R.drawable.logo_app)
 	.cacheInMemory()
 	.cacheOnDisc()
 //	.resetViewBeforeLoading()
@@ -45,7 +44,6 @@ public abstract class BaseActivity extends FragmentActivity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        FlurryAgent.logEvent(this.getClass().getName());
 		activity = this;
 //        int x = 0;
 //        int y = 1/x;
@@ -122,12 +120,10 @@ public abstract class BaseActivity extends FragmentActivity{
     @Override
     protected void onStart() {
         super.onStart();
-        FlurryAgent.onStartSession(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        FlurryAgent.onEndSession(this);
     }
 }

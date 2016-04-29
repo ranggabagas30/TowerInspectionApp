@@ -5,11 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.GridView;
 
+import com.arifariyan.baseassets.fragment.BaseTitleFragment;
 import com.sap.inspection.R;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.views.adapter.CalendarAdapter;
 
-public class CalendarFragment extends BaseTitleFragment{
+public class CalendarFragment extends BaseTitleFragment {
 	private GridView grid;
 	private CalendarAdapter adapter;
 	

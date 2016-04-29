@@ -1,6 +1,5 @@
 package com.sap.inspection.model;
 
-import android.accounts.Account;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
@@ -121,9 +120,11 @@ public class RoleModel extends BaseModel {
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
-		
+		}
+
 		result = getUserFromCursor(cursor);
 		
 		cursor.close();

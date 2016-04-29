@@ -32,7 +32,7 @@
                 android:background="#efefef"
                 android:clickable="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/logo_sap" />
+                android:src="@drawable/logo_app" />
 
             <RelativeLayout
                 android:layout_width="match_parent"

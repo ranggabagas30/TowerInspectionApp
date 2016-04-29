@@ -10,12 +10,13 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
-import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.tools.DateTools;
+import com.sap.inspection.tools.DebugLog;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 
@@ -133,8 +134,10 @@ public class ItemValueModel extends BaseModel {
 		    return model;
 		}
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return model;
+		}
 
 		model = getSiteFromCursor(cursor);
 
@@ -162,8 +165,10 @@ public class ItemValueModel extends BaseModel {
 
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return model;
+		}
 		do{
 			model.add(getSiteFromCursor(cursor));
 		}	
@@ -195,6 +200,7 @@ public class ItemValueModel extends BaseModel {
 
         if (!cursor.moveToFirst()){
             log("model null ");
+			cursor.close();
             return model;
         }
         do{
@@ -252,18 +258,31 @@ public class ItemValueModel extends BaseModel {
 		stmt.bindLong(11, gpsAccuracy);
 		stmt.bindLong(12, uploadStatus);
 
-		bindAndCheckNullString(stmt, 13, getCurrentDate());
+		DebugLog.d("photo Date="+createdAt);
+		bindAndCheckNullString(stmt, 13, createdAt);
 
 		stmt.executeInsert();
 		stmt.close();
 	}
 
-	private String getCurrentDate(){
-		Date currentDate = Calendar.getInstance().getTime();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.getDefault());
-		return simpleDateFormat.format(currentDate);
+	private String getPhotoLastModified() {
+		try {
+			DebugLog.d("value="+value);
+			File file = new File(value);
+			if(file.exists()) {
+				long date = file.lastModified();
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTimeInMillis(date);
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.getDefault());
+				return  simpleDateFormat.format(calendar.getTime());
+			} else {
+				return DateTools.getCurrentDate();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return DateTools.getCurrentDate();
+		}
 	}
-
 
 	private ItemValueModel getSiteFromCursor(Cursor c) {
 		ItemValueModel FormValueModel = null;

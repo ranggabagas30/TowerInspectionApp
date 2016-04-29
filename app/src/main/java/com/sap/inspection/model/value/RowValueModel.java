@@ -53,8 +53,10 @@ public class RowValueModel extends BaseModel {
 
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return model;
+		}
 
 		model = getSiteFromCursor(cursor);
 

@@ -1,0 +1,5 @@
+<resources>
+	<dimen name="action_bar">50dp</dimen>
+    <dimen name="text_large">18dp</dimen>
+    <dimen name="padding_large">15dp</dimen>
+</resources>

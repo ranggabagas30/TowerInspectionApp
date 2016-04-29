@@ -19,7 +19,7 @@ public abstract class BaseModel implements Parcelable {
 	}
 	
 	protected void log(String tag,String text) {
-		Log.e(tag, text);
+		Log.d(tag, text);
 	}
 	
 	protected void log(String text) {

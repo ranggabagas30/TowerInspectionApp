@@ -1,12 +1,12 @@
 package com.sap.inspection.model;
 
-import com.sap.inspection.R;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
+
+import com.sap.inspection.R;
 
 public class DbRepository {
 	private static DbRepository mInstance = null;
@@ -26,6 +26,8 @@ public class DbRepository {
 	}
 
 	public void open(Context context) {
+		if (_database!=null && _database.isOpen()) return;
+
 		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
 		if(_databaseHelper == null || !mPref.getString(context.getString(R.string.user_id), null).equalsIgnoreCase(mPref.getString(context.getString(R.string.latest_user_db), null))) {
 			_databaseHelper = null;
@@ -37,7 +39,8 @@ public class DbRepository {
 	}
 	
 	public void close() {
-		_database.close();
+		if (_database!=null && _database.isOpen())
+			_database.close();
 	}
 	
 	public SQLiteDatabase getDB(){

@@ -17,6 +17,7 @@ import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.tools.DebugLog;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -36,7 +37,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -99,7 +99,7 @@ public class ItemUploadManager {
 		private String errMsg;
 		private int statusCode = 0;
 		private boolean notJson = false;
-
+		private Gson gson = new Gson();
 		public UploadValue() {
 		}
 
@@ -125,7 +125,7 @@ public class ItemUploadManager {
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			String response = null;
-			itemValuesFailed = new ArrayList<ItemValueModel>();
+			itemValuesFailed = new ArrayList<>();
 			while (itemValues.size() > 0) {
 				publish(itemValues.size() + " items remaining");
 				latestStatus = itemValues.size() + " items remaining";
@@ -138,11 +138,16 @@ public class ItemUploadManager {
 				//check if upload with photo or default item
 				//				if (itemValues.get(0).typePhoto)
 				response = uploadPhoto(itemValues.get(0));
+				DebugLog.d("response="+response);
 				//				else
 				//					response = uploadItem(itemValues.get(0));
 
 				//success then save the flag to done
-				if (isSuccess(response)){
+				/*
+				boolean isSuccess = isSuccess(response);
+				DebugLog.d("isSuccess="+isSuccess);*/
+				BaseResponseModel responseModel = gson.fromJson(response, BaseResponseModel.class);
+				if (responseModel.status==201){
 					ItemValueModel item = itemValues.remove(0);
 					item.uploadStatus = ItemValueModel.UPLOAD_DONE;
 					if (!DbRepositoryValue.getInstance().getDB().isOpen())
@@ -153,6 +158,9 @@ public class ItemUploadManager {
 				//retry until 5 times
 				else{
 					itemValuesFailed.add(itemValues.remove(0));
+					if (responseModel.status==422 || responseModel.status==403 || responseModel.status==404) {
+						MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
+					}
 				}
 //					retry++;
 //				if (retry == 5){
@@ -167,7 +175,7 @@ public class ItemUploadManager {
 			}
 
 			if (itemValuesFailed.size() == 0){
-				MyApplication.getInstance().toast("Syncronize done", Toast.LENGTH_LONG);
+				MyApplication.getInstance().toast(syncDone, Toast.LENGTH_LONG);
 				publish(syncDone);
 				latestStatus = syncDone;
 			}
@@ -181,17 +189,23 @@ public class ItemUploadManager {
 		}
 
 		private boolean isSuccess(String response) {
-			if (notJson || response == null) {
+			if (response == null) {
 				return false;
-			} else if (response != null) {
+			} else
 				try {
-					if (anyServerError(response))
+					Gson gson = new Gson();
+					BaseResponseModel responseModel = gson.fromJson(json, BaseResponseModel.class);
+					if (responseModel.status != 201) {
+						DebugLog.d("set false");
 						return false;
-				} catch (JSONException e) {
+					} else {
+						DebugLog.d("set true");
+						return true;
+					}
+				} catch (Exception e) {
 					return false;
 				}
-			}
-			return true;
+			//return true;
 		}
 
 		private ArrayList<NameValuePair> getParams(ItemValueModel itemValue) {
@@ -357,12 +371,6 @@ public class ItemUploadManager {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			running = false;
-		}
-
-		public boolean anyServerError(String json) throws JSONException {
-			Gson gson = new Gson();
-			BaseResponseModel responseModel = gson.fromJson(json, BaseResponseModel.class);
-			return responseModel == null && responseModel.status != 201;
 		}
 
 		@Override

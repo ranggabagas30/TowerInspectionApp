@@ -15,6 +15,7 @@ import com.appmogli.widget.SectionedGridViewAdapter.OnGridItemClickListener;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.CallendarModel;
 import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.tools.DebugLog;
 
 public class CallendarActivity extends BaseActivity implements OnGridItemClickListener {
 
@@ -27,6 +28,7 @@ public class CallendarActivity extends BaseActivity implements OnGridItemClickLi
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		DebugLog.d("");
 		setContentView(R.layout.activity_sectioned_grid);
 		Bundle bundle = getIntent().getExtras();
 		int filterBy = bundle.getInt("filterBy");

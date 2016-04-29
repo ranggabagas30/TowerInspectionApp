@@ -91,8 +91,10 @@ public class ColumnModel extends BaseModel {
 
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		do {
 			result.add(getColumnFromCursor(cursor));
 		} while(cursor.moveToNext());

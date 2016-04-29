@@ -1,8 +1,5 @@
 package com.sap.inspection.model.form;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
@@ -11,6 +8,8 @@ import android.os.Parcel;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+
+import java.util.Vector;
 
 public class RowModel extends BaseModel {
 
@@ -134,6 +133,7 @@ public class RowModel extends BaseModel {
 	public int getMaxLevel(String workFormGroupId){
 		Cursor cursor = DbRepository.getInstance().getDB().rawQuery("SELECT MAX("+DbManager.colLevel+") FROM "+DbManager.mWorkFormRow+" WHERE "+DbManager.colWorkFormGroupId+"="+workFormGroupId, null);
 		if (!cursor.moveToFirst()){
+			cursor.close();
 			return -1;
 		}
 		int temp  = cursor.getInt(0);
@@ -203,8 +203,10 @@ public class RowModel extends BaseModel {
 
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()) {
+			cursor.close();
 			return result;
+		}
 		do {
 			RowModel model = getRowFromCursor(cursor); 
 			model.row_columns = getRowColumnModels(model.id);

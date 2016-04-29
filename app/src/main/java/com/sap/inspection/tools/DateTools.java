@@ -1,16 +1,23 @@
 package com.sap.inspection.tools;
 
+import android.content.Context;
+import android.text.format.DateUtils;
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
-import android.content.Context;
-import android.text.format.DateUtils;
-import android.util.Log;
+import java.util.Locale;
 
 public class DateTools {
+
+	public static String getCurrentDate(){
+		Date currentDate = Calendar.getInstance().getTime();
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.getDefault());
+		return simpleDateFormat.format(currentDate);
+	}
 
 	//	public final static SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
 	public final static SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
