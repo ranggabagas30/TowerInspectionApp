@@ -1,9 +1,6 @@
 package com.sap.inspection.views.adapter;
 
-import java.util.ArrayList;
-
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,10 +22,13 @@ import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.rules.SavingRule;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.view.FormInputText;
 import com.sap.inspection.view.MyTextView;
 import com.sap.inspection.view.PhotoItem;
 import com.sap.inspection.view.PhotoItemRadio;
+
+import java.util.ArrayList;
 
 public class FormFillAdapter extends MyBaseAdapter {
 
@@ -177,7 +177,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.input = (FormInputText) view.findViewById(R.id.item_form_input);
 				break;
 			default:
-				log("============== get default view : "+getItemViewType(position));
+				DebugLog.d("============== get default view : "+getItemViewType(position));
 				view = new View(context);
 				break;
 			}
@@ -187,10 +187,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 			holder = (ViewHolder) view.getTag();
 		
 		if (getItem(position).itemModel != null)
-			Log.d(getClass().getName(), "picture : "+getItem(position).itemModel.pictureEndPoint);
+			DebugLog.d( "picture : "+getItem(position).itemModel.pictureEndPoint);
 		if (holder.picture != null){
 			if (getItem(position).itemModel != null && getItem(position).itemModel.pictureEndPoint != null){
-				Log.d(getClass().getName(), "picture show : "+getItem(position).itemModel.pictureEndPoint);
+				DebugLog.d( "picture show : "+getItem(position).itemModel.pictureEndPoint);
 				holder.picture.setVisibility(view.VISIBLE);
 				ImageLoader.getInstance().displayImage("file://"+getItem(position).itemModel.pictureEndPoint, holder.picture);
 			}
@@ -211,13 +211,13 @@ public class FormFillAdapter extends MyBaseAdapter {
 		case ItemFormRenderModel.TYPE_CHECKBOX:
 			check(position);
 			holder.label.setText(getItem(position).itemModel.label);
-			Log.d("checkbox", "itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
+			DebugLog.d("checkbox itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
 			reviseCheckBox(holder.checkBox, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[,]"), getItem(position).rowId, getItem(position).operatorId);
 			break;
 		case ItemFormRenderModel.TYPE_RADIO:
 			check(position);
 			holder.label.setText(getItem(position).itemModel.label);
-			Log.d("radio button", "itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
+			DebugLog.d("radio button itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
 			reviseRadio(holder.radio, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
 			break;
 		case ItemFormRenderModel.TYPE_HEADER:
@@ -390,7 +390,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 					value = option.value;
 					break;
 				}
-			Log.d(getClass().getName(), "-=-=-=- value : "+value);
+			DebugLog.d( "-=-=-=- value : "+value);
 			saveValue(item, isChecked, true, value);
 		}
 	};
@@ -408,7 +408,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	private void saveValue(ItemFormRenderModel itemFormRenderModel, boolean isAdding, boolean isCompundButton,String value){
 
-		log("=================================================================");
+		DebugLog.d("=================================================================");
 		if (itemFormRenderModel.itemValue == null){
 			itemFormRenderModel.itemValue = new ItemValueModel();
 			itemFormRenderModel.itemValue.operatorId = itemFormRenderModel.operatorId;
@@ -416,10 +416,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 			itemFormRenderModel.itemValue.scheduleId = itemFormRenderModel.schedule.id;
 			itemFormRenderModel.itemValue.rowId = itemFormRenderModel.rowId;
 		}
-		log("===== value : "+itemFormRenderModel.itemValue.value);
+		DebugLog.d("isAdding="+isAdding+" isCompundButton="+isCompundButton+" value="+value);
+		DebugLog.d("===== value : "+itemFormRenderModel.itemValue.value);
 		if (isCompundButton){
 			if (isAdding){ //adding value on check box
-				log("goto adding");
+				DebugLog.d("goto adding");
 				// value still null or blank
 				if (itemFormRenderModel.itemValue.value == null  || itemFormRenderModel.itemValue.value.equalsIgnoreCase("")){
 					itemFormRenderModel.itemValue.value = value;
@@ -438,7 +439,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				itemFormRenderModel.itemValue.uploadStatus = ItemValueModel.UPLOAD_NONE;
 				saveAfterCheck(itemFormRenderModel);
 			}else{ // deleting on checkbox
-				log("goto deleting");
+				DebugLog.d("goto deleting");
 				String[] chkBoxValue = itemFormRenderModel.itemValue.value.split("[,]");
 				itemFormRenderModel.itemValue.value = "";
 				//removing unchecked checkbox value
@@ -482,7 +483,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 //		log("schedule Id : "+ itemFormRenderModel.itemValue.scheduleId);
 //		log("operator id : "+ itemFormRenderModel.itemValue.operatorId);
 //		log("item id : "+ itemFormRenderModel.itemValue.itemId);
-		log("task done : "+itemFormRenderModel.schedule.sumTaskDone);
+		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
 		//		setPercentage(itemFormRenderModel.itemValue.rowId);
 	}
 	

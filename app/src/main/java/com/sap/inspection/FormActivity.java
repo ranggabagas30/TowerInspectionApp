@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 
 import com.arifariyan.baseassets.fragment.BaseFragment;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.fragments.NavigationFragment;
 import com.sap.inspection.listener.FormActivityListener;
 import com.sap.inspection.model.DbRepository;
@@ -51,7 +52,12 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		Bundle bundle = getIntent().getExtras();
 		
 		dayDate = bundle.getString("dayDate");
-		
+
+		DebugLog.d("scheduleId="+bundle.getString(Constants.scheduleId));
+		DebugLog.d("siteId="+bundle.getInt("siteId"));
+		DebugLog.d("workTypeId="+bundle.getInt("workTypeId"));
+		DebugLog.d("dayDate="+dayDate);
+
 		DbRepository.getInstance().open(activity);
 
 		RowModel rModel = new RowModel();

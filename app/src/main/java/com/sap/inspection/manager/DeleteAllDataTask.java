@@ -1,17 +1,17 @@
 package com.sap.inspection.manager;
 
 
-import java.io.File;
-
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.util.Log;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.tools.DebugLog;
+
+import java.io.File;
 
 import de.greenrobot.event.EventBus;
 
@@ -37,7 +37,7 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 			{
 				publishProgress(count - i);
 				File file = files[i];
-				Log.d(getClass().getName(), "delete file : "+file.getAbsolutePath());
+				DebugLog.d("delete file : "+file.getAbsolutePath());
 				file.delete();
 			}
 		ItemValueModel.deleteAll(MyApplication.getInstance());

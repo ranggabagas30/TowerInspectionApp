@@ -1,8 +1,5 @@
 package com.sap.inspection.views.adapter;
 
-import java.util.Vector;
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -16,6 +13,9 @@ import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.tools.DebugLog;
+
+import java.util.Vector;
 
 public class NavigationAdapterByOperator extends MyBaseAdapter {
 
@@ -95,7 +95,7 @@ public class NavigationAdapterByOperator extends MyBaseAdapter {
 				break;
 
 			default:
-				log("============== get default view : "+getItemViewType(position));
+				DebugLog.d("============== get default view : "+getItemViewType(position));
 				break;
 			}
 			holder.expandCollapse = (ImageView) view.findViewById(R.id.expandCollapse);

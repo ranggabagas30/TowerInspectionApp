@@ -1,27 +1,21 @@
 package com.sap.inspection.util;
 
-import java.io.File;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
-
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sap.inspection.tools.DebugLog;
+
+import java.io.File;
+import java.io.FileOutputStream;
+
 public class ImageUtil {
-	private static final String tag = "image util";
 	public static final int MenuShootImage = 101;
 	
 	public static void resizeAndSaveImage(String imageUri) {
@@ -37,7 +31,7 @@ public class ImageUtil {
 
             File file;
             file = new File(path);
-            Log.d(tag, file.getPath());
+            DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
@@ -68,7 +62,7 @@ public class ImageUtil {
 
             File file;
             file = new File(path);
-            Log.d(tag, file.getPath());
+            DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
@@ -85,7 +79,21 @@ public class ImageUtil {
             e.printStackTrace();
         }
     }
-	
+    public static boolean resizeAndSaveImage2(Bitmap bitmap, File file) {
+            DebugLog.d("path to save = "+file.getPath());
+            try {
+                DebugLog.d("saving photo");
+                FileOutputStream out = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+                out.close();
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+    }
+
 	public static String resizeAndSaveImage(Bitmap bitmap, String url) {
 		String physicalPath = null;
         try {
@@ -101,7 +109,7 @@ public class ImageUtil {
 
             File file;
             file = new File(path);
-            Log.d(tag, file.getPath());
+            DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
@@ -131,17 +139,17 @@ public class ImageUtil {
 		{
 			// place where to store camera taken picture
 			photo = createTemporaryFile("picture", ".jpg");
-			Log.d(tag,"photo url : "+photo.getName());
+			DebugLog.d("photo url : "+photo.getName());
 			photo.delete();
 		}
 		catch(Exception e)
 		{
-			Log.d(tag,"Can't create file to take picture!");
-			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", 10000);
+			DebugLog.d("Can't create file to take picture!");
+			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT);
 			return null;
 		}
 		Uri mImageUri = Uri.fromFile(photo);
-		Log.d(tag,"photo uri : "+mImageUri.getPath());
+		DebugLog.d("photo uri : "+mImageUri.getPath());
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 
 		//        intent.putExtra("crop", "true");

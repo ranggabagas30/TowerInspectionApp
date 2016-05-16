@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
+import com.sap.inspection.tools.DebugLog;
+
 public class WorkTypeModel extends BaseModel {
 
 	public int id;
@@ -58,6 +60,7 @@ public class WorkTypeModel extends BaseModel {
 	}
 	
 	public void save(){
+		DebugLog.d("id="+id+" name="+name);
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s) VALUES(?,?)",
 						DbManager.mWorkType , DbManager.colID,
 						DbManager.colName);

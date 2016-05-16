@@ -1,11 +1,11 @@
 package com.sap.inspection.mainmenu.fragmentadapter;
 
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.View.OnClickListener;
 
 import com.sap.inspection.BaseFragmentAdapter;
 import com.sap.inspection.mainmenu.MainMenuPageFragment;
+import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class MainMenuFragmentAdapter extends BaseFragmentAdapter{
 	
 	private ArrayList<Integer> getRes(ArrayList<Integer> resAll, int pagePosition){
 		int endIndex = getEndIndex(pagePosition) < resAll.size() ? getEndIndex(pagePosition) : resAll.size();
-		Log.d(getClass().getName(), "start : "+getStartIndex(pagePosition)+" end : "+endIndex);
+		DebugLog.d( "start : "+getStartIndex(pagePosition)+" end : "+endIndex);
 		List<Integer> list = resAll.subList(getStartIndex(pagePosition), endIndex);
 		return new ArrayList<>(list);
 	}

@@ -59,27 +59,32 @@
         </activity>
         <activity
             android:name="com.sap.inspection.MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity
             android:name="com.sap.inspection.FormActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name="com.sap.inspection.FormCorrectiveActivity"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
+            />
         <activity
             android:name="com.sap.inspection.FormFillActivity"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
+            />
         <activity
             android:name="com.sap.inspection.CallendarActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity
             android:name="com.sap.inspection.UpdateActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity
             android:name="com.sap.inspection.SettingActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
 
         <!-- Needed for push notification -->
         <receiver

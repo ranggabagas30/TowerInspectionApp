@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
+import com.sap.inspection.MyApplication;
+import com.sap.inspection.tools.DebugLog;
+
 public class SiteModel extends BaseModel {
 	
     public int id;
@@ -60,10 +63,12 @@ public class SiteModel extends BaseModel {
 	}
 	
 	public void save(){
+		DebugLog.d("id="+id+" name="+name+" locationStr="+locationStr);
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s) VALUES(?,?,?)",
 						DbManager.mSite , DbManager.colID,
 						DbManager.colName,DbManager.colSiteLocation);
 
+		DbRepository.getInstance().open(MyApplication.getContext());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);

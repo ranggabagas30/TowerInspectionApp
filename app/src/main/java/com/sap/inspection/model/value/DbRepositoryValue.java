@@ -5,9 +5,9 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.sap.inspection.R;
+import com.sap.inspection.tools.DebugLog;
 
 public class DbRepositoryValue {
 	private static DbRepositoryValue mInstance = null;
@@ -28,7 +28,7 @@ public class DbRepositoryValue {
 	}
 
 	public void open(Context context) {
-		Log.d(getClass().getName(), "DB Value is open----");
+		DebugLog.d("DB Value is open----");
 		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
 		if(_databaseHelper == null || !mPref.getString(context.getString(R.string.user_id), null).equalsIgnoreCase(mPref.getString(context.getString(R.string.latest_user_db_value), null))) {
 			_databaseHelper = null;
@@ -40,7 +40,7 @@ public class DbRepositoryValue {
 	}
 
 	public void close() {
-		Log.d(getClass().getName(), "DB Value is closed-----");
+		DebugLog.d("DB Value is closed-----");
 		_database.close();
 	}
 	

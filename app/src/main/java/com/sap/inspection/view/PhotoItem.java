@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -24,6 +23,7 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.rules.SavingRule;
 import com.sap.inspection.rules.saving.PreventiveSave;
+import com.sap.inspection.tools.DebugLog;
 
 import java.io.File;
 
@@ -56,7 +56,7 @@ public class PhotoItem extends RelativeLayout {
 
 	public void setItemFormRenderModel(ItemFormRenderModel itemFormRenderModel) {
 		this.itemFormRenderModel = itemFormRenderModel;
-		Log.d(getClass().getName(), "value : "+itemFormRenderModel.itemValue.value);
+		DebugLog.d("value : "+itemFormRenderModel.itemValue.value);
 		if (itemFormRenderModel.itemValue.value == null || (value !=null && value.value == null))
 			onTaskDone = false;
 	}
@@ -164,7 +164,7 @@ public class PhotoItem extends RelativeLayout {
 	}
 
 	private void setItemFormRenderedValue(){
-		Log.d(getClass().getName(),"itemFormRenderModel.itemValue.value : "+itemFormRenderModel.itemValue.value);
+		DebugLog.d("itemFormRenderModel.itemValue.value : "+itemFormRenderModel.itemValue.value);
 		//		CorrectiveValueModel temp = new CorrectiveValueModel();
 		//		try{
 		//			temp = temp.getItemValue(itemFormRenderModel.schedule.id, itemFormRenderModel.itemModel.id, itemFormRenderModel.operatorId);
@@ -172,17 +172,16 @@ public class PhotoItem extends RelativeLayout {
 		if (!onTaskDone){
 			itemFormRenderModel.schedule.sumTaskDone++;
 			itemFormRenderModel.schedule.save();
-			Log.d(getClass().getName(),"-=-=-=-=-");
+			DebugLog.d("-=-=-=-=-");
 		}
 		onTaskDone = true;
-		Log.d(getClass().getName(),"task done : "+itemFormRenderModel.schedule.sumTaskDone);
+		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
 		if (itemFormRenderModel != null)
 			itemFormRenderModel.itemValue = value;
 	}
 
 	public void save(Context context){
-		String tag = getClass().getName();
-		Log.d(tag, value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
+		DebugLog.d(value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
 		value.save(context);
 	}
 
@@ -191,9 +190,8 @@ public class PhotoItem extends RelativeLayout {
 			DbRepository.getInstance().open(context);
 		if (!DbRepositoryValue.getInstance().getDB().isOpen())
 			DbRepositoryValue.getInstance().open(context);
-		String tag = getClass().getName();
-		Log.d(tag, value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
-		Log.d(tag, "scope type : "+itemFormRenderModel.itemModel.scope_type);
+		DebugLog.d(value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
+		DebugLog.d("scope type : "+itemFormRenderModel.itemModel.scope_type);
 		setItemFormRenderedValue();
 		if (savingRule == null)
 			savingRule = new PreventiveSave();
@@ -258,16 +256,16 @@ public class PhotoItem extends RelativeLayout {
 	//	}
 
 	public void deletePhoto(){
-		Log.d(getClass().getName(), "into deleted");
+		DebugLog.d("into deleted");
 		if (value != null && value.value != null){
-			Log.d(getClass().getName(), "deleted value not null");
+			DebugLog.d("deleted value not null");
 			File fileTemp=new File(value.value.replaceFirst("^file\\:\\/\\/", ""));
 			if (fileTemp.exists())
 				try{
 					fileTemp.delete();
-					Log.d(getClass().getName(), "file deleted : "+value.value);
+					DebugLog.d("file deleted : "+value.value);
 				}catch(Exception e){
-					Log.d(getClass().getName(), "file not deleted");
+					DebugLog.d("file not deleted");
 					e.printStackTrace();
 				}
 		}

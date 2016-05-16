@@ -1,8 +1,19 @@
 package com.sap.inspection.connection;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.sap.inspection.R;
+import com.sap.inspection.constant.Constants;
+import com.sap.inspection.model.ErrorSatutempatModel;
+import com.sap.inspection.tools.DebugLog;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -16,20 +27,9 @@ import org.apache.http.params.HttpParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.sap.inspection.R;
-import com.sap.inspection.constant.Constants;
-import com.sap.inspection.model.ErrorSatutempatModel;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketTimeoutException;
 
 public class JSONConnection extends AsyncTask<Void, Void, String>{
 
@@ -61,7 +61,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 	@Override
 	protected String doInBackground(Void... arg0) {
 		try {
-			Log.d(getClass().getName(), "GET JSON URL");
+			DebugLog.d("GET JSON URL");
 			HttpParams httpParameters = new BasicHttpParams();
 			// Set the timeout in milliseconds until a connection is established.
 			// The default value is zero, that means the timeout is not used. 
@@ -76,7 +76,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			request = new HttpGet(url);
 			
 			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
-			Log.d(getClass().getName(), "cooooooooooooo kieeeee ||   "+mPref.getString(context.getString(R.string.user_cookie), ""));
+			DebugLog.d("cooooooooooooo kieeeee ||   "+mPref.getString(context.getString(R.string.user_cookie), ""));
 			if (mPref.getString(context.getString(R.string.user_cookie), null) != null){
 				request.addHeader("Cookie", mPref.getString(context.getString(R.string.user_cookie), ""));
 			}
@@ -93,35 +93,35 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			
 			data = response.getEntity().getContent();
 			statusCode = response.getStatusLine().getStatusCode();
-			Log.d(getClass().getName(), "content type name  : "+response.getEntity().getContentType().getName());
-			Log.d(getClass().getName(), "content type value : "+response.getEntity().getContentType().getValue());
+			DebugLog.d("content type name  : "+response.getEntity().getContentType().getName());
+			DebugLog.d("content type value : "+response.getEntity().getContentType().getValue());
 			if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
-				Log.d(getClass().getName(), "not json type");
-				Log.e(getClass().getName(), ConvertInputStreamToString(data));
+				DebugLog.d("not json type");
+				DebugLog.e(ConvertInputStreamToString(data));
 				notJson = true;
 				return null;
 			}
 			String s = ConvertInputStreamToString(data);
-			Log.d(getClass().getName(), "json /n"+s);
+			DebugLog.d("json /n"+s);
 			return s;
 		}catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d(getClass().getName(), "err ||||| "+errMsg);
+			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.TIMEOUT_EXCEPTION);
 		}
 		catch (ClientProtocolException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d(getClass().getName(), "err ||||| "+errMsg);
+			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
 		catch (IOException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d(getClass().getName(), "err ||||| "+errMsg);
+			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
@@ -143,7 +143,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 				e.printStackTrace();
 			}
 		}
-		Log.d(getClass().getName(), url);
+		DebugLog.d(url);
 		Bundle bundle = new Bundle();
 		bundle.putString("json", result);
 		bundle.putString("url", url);
@@ -194,7 +194,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 	
 	public static boolean checkIfContentTypeJson(String contentType){
 		int idxSemiColon = contentType.indexOf(Constants.JSON_CONTENT_TYPE);
-		Log.e("chek if json on json connection", contentType + " | " + idxSemiColon);
+		DebugLog.d(contentType + " | " + idxSemiColon);
 		return idxSemiColon != -1;
 	}
 	

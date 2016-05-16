@@ -2,7 +2,6 @@ package com.sap.inspection.tools;
 
 import android.content.Context;
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -85,7 +84,7 @@ public class DateTools {
 		param = elapsed;
 		elapsed *= 24;
 		if (timeElapsed <= elapsed){
-			Log.d("here", "elapsed : "+timeElapsed);
+			DebugLog.d("elapsed : "+timeElapsed);
 			if (timeElapsed/param > 1)
 				return ((timeElapsed)/param) + " hours ago";
 			else return "an hour ago";

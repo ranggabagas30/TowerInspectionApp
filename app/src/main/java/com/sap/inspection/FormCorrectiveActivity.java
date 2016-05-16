@@ -9,7 +9,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -191,13 +190,13 @@ public class FormCorrectiveActivity extends BaseActivity {
 				x++;
 				WorkFormItemModel item = new WorkFormItemModel();
 				item = item.getItemById(correctiveValueModel.itemId);
-				Log.d(getClass().getName(), "-------------------- ");
+				DebugLog.d( "-------------------- ");
 				if (!ruleAddItem(correctiveValueModel, lastModel, item)){
-					Log.d(getClass().getName(), "not permited to add item");
+					DebugLog.d( "not permited to add item");
 					publishProgress(x*100/correctiveValueModels.size());
 					continue;
 				}
-				Log.d(getClass().getName(), "permited to add item");
+				DebugLog.d( "permited to add item");
 				OperatorModel operatorModel = new OperatorModel();
 				operatorModel = operatorModel.getOperatorById(correctiveValueModel.operatorId);
 				log("Corrective : "+item.label);
@@ -268,12 +267,12 @@ public class FormCorrectiveActivity extends BaseActivity {
 	};
 	
 	private boolean ruleAddItem(CorrectiveValueModel curentModel, CorrectiveValueModel lastModel, WorkFormItemModel itemModel){
-		Log.d(getClass().getName(), "================================================================ : " + itemModel.scope_type);
-		Log.d(getClass().getName(), "current item id : "+curentModel.itemId+" current operator : "+curentModel.operatorId+" status : "+curentModel.photoStatus);
+		DebugLog.d( "================================================================ : " + itemModel.scope_type);
+		DebugLog.d( "current item id : "+curentModel.itemId+" current operator : "+curentModel.operatorId+" status : "+curentModel.photoStatus);
 		if (lastModel != null){
-			Log.d(getClass().getName(), "last item id : "+lastModel.itemId+" last operator : "+lastModel.operatorId+" status : "+lastModel.photoStatus);
-			Log.d(getClass().getName(), "different item id : "+isDifferentItemId(curentModel, lastModel));
-			Log.d(getClass().getName(), "same id with same operator : "+isSameOperatorAndItemId(curentModel, lastModel));
+			DebugLog.d( "last item id : "+lastModel.itemId+" last operator : "+lastModel.operatorId+" status : "+lastModel.photoStatus);
+			DebugLog.d( "different item id : "+isDifferentItemId(curentModel, lastModel));
+			DebugLog.d( "same id with same operator : "+isSameOperatorAndItemId(curentModel, lastModel));
 		}
 		return lastModel == null || //if first model
 				itemModel.scope_type.equalsIgnoreCase("operator") || // if the scope is operator
@@ -301,7 +300,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 			if (photoItem != null && mImageUri != null){
 				photoItem.initValue();
 				photoItem.deletePhoto();
-				Log.d(getClass().getName(), String.valueOf(currentlocation.latitude)+" || "+String.valueOf(currentlocation.longitude));
+				DebugLog.d( String.valueOf(currentlocation.latitude)+" || "+String.valueOf(currentlocation.longitude));
 				photoItem.setImage(mImageUri.toString(),String.valueOf(currentlocation.latitude),String.valueOf(currentlocation.longitude),accuracy);
 			}
 		}

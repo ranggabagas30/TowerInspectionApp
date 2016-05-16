@@ -1,7 +1,5 @@
 package com.sap.inspection.fragments;
 
-import java.util.Vector;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +11,6 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import com.sap.inspection.CallendarActivity;
 import com.sap.inspection.FormActivity;
-import com.sap.inspection.FormCorrectiveActivity;
 import com.sap.inspection.MainActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
@@ -21,6 +18,8 @@ import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.views.adapter.ScheduleAdapter;
+
+import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
 
@@ -136,10 +135,13 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 		Intent intent = null;
 		log("-=-="+models.get(position).work_type.name+"-=-=-=");
+		/*
 		if (models.get(position).work_type.name.equalsIgnoreCase("corrective"))
 			intent = new Intent(activity, FormCorrectiveActivity.class);
 		else
 			intent = new Intent(activity, FormActivity.class);
+			*/
+		intent = new Intent(activity, FormActivity.class);
 		intent.putExtra(Constants.scheduleId, models.get(position).id);
 		intent.putExtra("siteId", models.get(position).site.id);
 		intent.putExtra("dayDate", models.get(position).day_date);

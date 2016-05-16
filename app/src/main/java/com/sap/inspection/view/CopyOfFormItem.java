@@ -1,12 +1,9 @@
 package com.sap.inspection.view;
 
-import java.util.Vector;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -26,6 +23,9 @@ import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.tools.DebugLog;
+
+import java.util.Vector;
 
 public class CopyOfFormItem extends RelativeLayout {
 
@@ -502,6 +502,6 @@ public class CopyOfFormItem extends RelativeLayout {
 	}
 
 	private void log(String msg){
-		Log.d(getClass().getName(), msg);
+		DebugLog.d(msg);
 	}
 }

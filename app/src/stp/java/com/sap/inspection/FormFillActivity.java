@@ -1,15 +1,5 @@
 package com.sap.inspection;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +14,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -58,6 +47,16 @@ import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -143,7 +142,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		// initiate the location using GPS
 		setCurrentGeoPoint(new LatLng(0, 0));
 		accuracy = initiateLocation();
-		Log.d(getClass().getName(), "oncreate "+ String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
+		DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
 
 		setContentView(R.layout.activity_form_fill);
 
@@ -153,7 +152,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		adapter.setPhotoListener(photoClickListener);
         adapter.setUploadListener(uploadClickListener);
 		list.setAdapter(adapter);
-		progressDialog = new ProgressDialog(activity);
+		progressDialog = new ProgressDialog(this);
 		Bundle bundle = getIntent().getExtras();
 		rowId = bundle.getInt("rowId");
 		workFormGroupId = bundle.getInt("workFormGroupId");
@@ -162,6 +161,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		DbRepositoryValue.getInstance().open(activity);
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(bundle.getString("scheduleId"));
+		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+bundle.getString("scheduleId"));
 		adapter.setWorkType(schedule.work_type.name);
 
 		scroll = (ScrollView) findViewById(R.id.scroll);
@@ -171,8 +171,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		title = (TextView) findViewById(R.id.header_title);
 
 		progressDialog.setMessage("Generating form...");
-		progressDialog.show();
 		progressDialog.setCancelable(false);
+		try {
+			progressDialog.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		FormLoader loader = new FormLoader();
 		loader.execute();
 	}
@@ -416,7 +420,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		{
             log(e.getMessage());
 			log("Can't create file to take picture!");
-			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", 10000).show();
+			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
 			return false;
 		}
 		mImageUri = Uri.fromFile(photo);
@@ -462,7 +466,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				photoItem.initValue();
 				photoItem.deletePhoto();
 				ImageUtil.resizeAndSaveImage(mImageUri.toString(), schedule.id);
-				Log.d(getClass().getName(), String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
+				DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
 				photoItem.setPhotoDate();
 				photoItem.setImage(mImageUri.toString(),String.valueOf(currentGeoPoint.latitude),String.valueOf(currentGeoPoint.longitude),accuracy);
 			}
@@ -678,13 +682,21 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
-			progressDialog.setMessage("Generating form "+values[0]+" % complete");
+			try {
+				progressDialog.setMessage("Generating form "+values[0]+" % complete");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			title.setText(pageTitle);
-			progressDialog.dismiss();
+			try {
+				progressDialog.dismiss();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			adapter.setItems(formModels);
 //			SearchAdapter searchAdapter = new SearchAdapter(activity, android.R.layout.select_dialog_item, android.R.id.text1, indexes);
 			ArrayAdapter<String> searchAdapter = new ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, labels);

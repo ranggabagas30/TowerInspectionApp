@@ -1,9 +1,16 @@
 package com.sap.inspection.connection;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.security.NoSuchAlgorithmException;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
+import android.widget.Toast;
+
+import com.sap.inspection.R;
+import com.sap.inspection.tools.DebugLog;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -17,18 +24,9 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONException;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.sap.inspection.R;
-import com.sap.inspection.constant.Constants;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketTimeoutException;
 
 public class JSONConnectionPOSTPayloadJson extends AsyncTask<Void, Void, String>{
 
@@ -95,35 +93,35 @@ public class JSONConnectionPOSTPayloadJson extends AsyncTask<Void, Void, String>
 			
 			data = response.getEntity().getContent();
 			statusCode = response.getStatusLine().getStatusCode();
-			Log.d(getClass().getName(), "content type name  : "+response.getEntity().getContentType().getName());
-			Log.d(getClass().getName(), "content type value : "+response.getEntity().getContentType().getValue());
+			DebugLog.d("content type name  : "+response.getEntity().getContentType().getName());
+			DebugLog.d("content type value : "+response.getEntity().getContentType().getValue());
 			if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
-				Log.e(getClass().getName(), ConvertInputStreamToString(data));
-				Log.d(getClass().getName(), "not json type");
+				DebugLog.d(ConvertInputStreamToString(data));
+				DebugLog.d("not json type");
 				notJson = true;
 				return null;
 			}
 			String s = ConvertInputStreamToString(data);
-			Log.d(getClass().getName(), "json /n"+s);
+			DebugLog.d("json /n"+s);
 			return s;
 		}catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d(getClass().getName(), "err ||||| "+errMsg);
+			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.TIMEOUT_EXCEPTION);
 		}
 		catch (ClientProtocolException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d(getClass().getName(), "err ||||| "+errMsg);
+			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
 		catch (IOException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d(getClass().getName(), "err ||||| "+errMsg);
+			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
@@ -145,7 +143,7 @@ public class JSONConnectionPOSTPayloadJson extends AsyncTask<Void, Void, String>
 				e.printStackTrace();
 			}
 		}
-		Log.d(getClass().getName(), url);
+		DebugLog.d(url);
 		Bundle bundle = new Bundle();
 		bundle.putString("json", result);
 		bundle.putString("url", url);

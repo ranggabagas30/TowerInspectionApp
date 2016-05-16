@@ -1,10 +1,16 @@
 package com.sap.inspection.connection;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.util.LinkedList;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+
+import com.google.gson.Gson;
+import com.sap.inspection.model.ErrorSatutempatModel;
+import com.sap.inspection.tools.DebugLog;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -22,20 +28,11 @@ import org.apache.http.params.HttpParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.sap.inspection.R;
-import com.sap.inspection.model.ErrorSatutempatModel;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketTimeoutException;
+import java.util.LinkedList;
 
 public class JSONConnectionPOSTValue extends AsyncTask<Void, Void, String>{
 
@@ -164,7 +161,7 @@ public class JSONConnectionPOSTValue extends AsyncTask<Void, Void, String>{
 				e.printStackTrace();
 			}
 		}
-		Log.d(getClass().getName(), url);
+		DebugLog.d( url);
 		Bundle bundle = new Bundle();
 		bundle.putString("json", result);
 		bundle.putString("url", url);

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -146,20 +145,22 @@ public class ItemUploadManager {
 				/*
 				boolean isSuccess = isSuccess(response);
 				DebugLog.d("isSuccess="+isSuccess);*/
-				BaseResponseModel responseModel = gson.fromJson(response, BaseResponseModel.class);
-				if (responseModel.status==201){
-					ItemValueModel item = itemValues.remove(0);
-					item.uploadStatus = ItemValueModel.UPLOAD_DONE;
-					if (!DbRepositoryValue.getInstance().getDB().isOpen())
-						DbRepositoryValue.getInstance().open(MyApplication.getContext());
-					item.save();
-				}
+				if (response!=null) {
+					BaseResponseModel responseModel = gson.fromJson(response, BaseResponseModel.class);
+					if (responseModel.status == 201) {
+						ItemValueModel item = itemValues.remove(0);
+						item.uploadStatus = ItemValueModel.UPLOAD_DONE;
+						if (!DbRepositoryValue.getInstance().getDB().isOpen())
+							DbRepositoryValue.getInstance().open(MyApplication.getContext());
+						item.save();
+					}
 
-				//retry until 5 times
-				else{
-					itemValuesFailed.add(itemValues.remove(0));
-					if (responseModel.status==422 || responseModel.status==403 || responseModel.status==404) {
-						MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
+					//retry until 5 times
+					else {
+						itemValuesFailed.add(itemValues.remove(0));
+						if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
+							MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
+						}
 					}
 				}
 //					retry++;
@@ -247,7 +248,7 @@ public class ItemUploadManager {
 				ArrayList<NameValuePair> params = getParams(itemValue);
 				if (null != itemValue.value && null != itemValue.photoStatus){
 					params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
-					Log.d(getClass().getName(),"createdAt"+itemValue.createdAt);
+					DebugLog.d("createdAt"+itemValue.createdAt);
 					reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
 				}
 
@@ -276,9 +277,9 @@ public class ItemUploadManager {
 				data = response.getEntity().getContent();
 				statusCode = response.getStatusLine().getStatusCode();
 				String s = ConvertInputStreamToString(data);
-				Log.d(getClass().getName(), "json /n" + s);
+				DebugLog.d("json /n" + s);
 				if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
-					Log.d("here", "not json type");
+					DebugLog.d("not json type");
 					notJson = true;
 					return null;
 				}
@@ -299,7 +300,7 @@ public class ItemUploadManager {
 
 		private String uploadItem(ItemValueModel itemValue) {
 			try {
-				Log.d(getClass().getName(), "=============== post do BG");
+				DebugLog.d("=============== post do BG");
 				HttpParams httpParameters = new BasicHttpParams();
 				// Set the timeout in milliseconds until a connection is established.
 				// The default value is zero, that means the timeout is not used. 
@@ -322,11 +323,11 @@ public class ItemUploadManager {
 				entity = new UrlEncodedFormEntity(getParams(itemValue),HTTP.UTF_8);
 				request.setEntity(entity);
 
-				Log.d(getClass().getName(), "=============== before response");
+				DebugLog.d("=============== before response");
 				HttpResponse response = client.execute(request);
 
 				for (Header header : response.getAllHeaders()) {
-					Log.d(getClass().getName(), header.getName() + " ||| "+ header.getValue());
+					DebugLog.d(header.getName() + " ||| "+ header.getValue());
 				}
 
 				// pull cookie
@@ -335,33 +336,33 @@ public class ItemUploadManager {
 					mPref.edit().putString(MyApplication.getContext().getString(R.string.user_cookie),cookie.getValue()).commit();
 				}
 
-				Log.d(getClass().getName(), "=============== after response");
+				DebugLog.d("=============== after response");
 				InputStream data = response.getEntity().getContent();
-				Log.d(getClass().getName(), "=============== after get content");
+				DebugLog.d("=============== after get content");
 				statusCode = response.getStatusLine().getStatusCode();
-				Log.d(getClass().getName(), "content type name  : "+ response.getEntity().getContentType().getName());
-				Log.d(getClass().getName(), "content type value : "+ response.getEntity().getContentType().getValue());
+				DebugLog.d("content type name  : "+ response.getEntity().getContentType().getName());
+				DebugLog.d("content type value : "+ response.getEntity().getContentType().getValue());
 				if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
-					Log.d(getClass().getName(), "not json type");
-					Log.e(getClass().getName(),ConvertInputStreamToString(data));
+					DebugLog.d("not json type");
+					DebugLog.d(ConvertInputStreamToString(data));
 					notJson = true;
 					return null;
 				}
 				String s = ConvertInputStreamToString(data);
-				Log.d(getClass().getName(), "json /n" + s);
+				DebugLog.d("json /n" + s);
 				return s;
 			} catch (SocketTimeoutException e) {
 				errMsg = e.getMessage();
 				e.printStackTrace();
-				Log.d(getClass().getName(), "err ||||| " + errMsg);
+				DebugLog.d("err ||||| " + errMsg);
 			} catch (ClientProtocolException e) {
 				errMsg = e.getMessage();
 				e.printStackTrace();
-				Log.d(getClass().getName(), "err ||||| " + errMsg);
+				DebugLog.d("err ||||| " + errMsg);
 			} catch (IOException e) {
 				errMsg = e.getMessage();
 				e.printStackTrace();
-				Log.d(getClass().getName(), "err ||||| " + errMsg);
+				DebugLog.d("err ||||| " + errMsg);
 			}
 
 			return null;
@@ -412,7 +413,7 @@ public class ItemUploadManager {
 	}
 
 	private void log(String msg){
-		Log.d(getClass().getName(), msg);
+		DebugLog.d(msg);
 	}
 	
 	private void stop(){

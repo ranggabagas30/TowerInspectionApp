@@ -2,13 +2,13 @@ package com.sap.inspection.task;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.sap.inspection.MainActivity;
 import com.sap.inspection.SettingActivity;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
+import com.sap.inspection.tools.DebugLog;
 
 import de.greenrobot.event.EventBus;
 
@@ -30,13 +30,13 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 	protected void onPreExecute() {
 		super.onPreExecute();
 		DbRepositoryValue.getInstance().open(activity);
-		Log.d(getClass().getName(), "open db...");
+		DebugLog.d("open db...");
 	}
 
 	@Override
 	protected Void doInBackground(Object... params) {
 		for (int i = 0; i < params.length; i++) {
-			Log.d(getClass().getName(), "saving schedule : "+i+":"+(params.length - 1));
+			DebugLog.d("saving schedule : "+i+":"+(params.length - 1));
 			publishProgress((i+1)*100/params.length);
 			((ScheduleBaseModel)params[i]).save();
 		}
@@ -46,7 +46,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		super.onProgressUpdate(values);
-		Log.d(getClass().getName(), "saving schedule "+values[0]+" %...");
+		DebugLog.d("saving schedule "+values[0]+" %...");
 		EventBus.getDefault().post(new ScheduleTempProgressEvent(values[0]));
 		if (mainActivity != null)
 			mainActivity.setProgressDialogMessage("schedule","saving schedule "+values[0]+" %...");
@@ -55,7 +55,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 	@Override
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
-		Log.d(getClass().getName(), "on post db...");
+		DebugLog.d("on post db...");
 		DbRepositoryValue.getInstance().close();
 		EventBus.getDefault().post(new ScheduleTempProgressEvent(100,true));
 		if (mainActivity != null)

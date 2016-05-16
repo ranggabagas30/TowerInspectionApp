@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -101,7 +100,7 @@ public class LoginActivity extends BaseActivity {
 	        File sd = Environment.getExternalStorageDirectory();
 	        File data = Environment.getDataDirectory();
 	        if (sd.canWrite()) {
-	            String currentDBPath = "//data//com.sap.inspection//databases//"+dbname;
+	            String currentDBPath = "//data//"+ BuildConfig.APPLICATION_ID+ "//databases//"+dbname;
 	            String backupDBPath = dstName;
 	            File currentDB = new File(data, currentDBPath);
 	            File backupDB = new File(sd, backupDBPath);
@@ -116,9 +115,11 @@ public class LoginActivity extends BaseActivity {
 	                dst.close();
 	            }
 	        }
+			Toast.makeText(activity, "Copy database successful", Toast.LENGTH_SHORT).show();
 	    } catch (Exception e) {
-	    	Log.e(getClass().getName(), e.getMessage());
-	    	Log.e(getClass().getName(), e.getCause().getMessage());
+			DebugLog.e(e.getMessage());
+			DebugLog.e(e.getCause().getMessage());
+			Toast.makeText(activity, "Copy database fail", Toast.LENGTH_SHORT).show();
 	    }
 	}
 	
@@ -129,7 +130,7 @@ public class LoginActivity extends BaseActivity {
 	    	File sd = Environment.getExternalStorageDirectory();
 	        File data = Environment.getDataDirectory();
 	        if (sd.canWrite()) {
-	            String currentDBPath = "//data//com.sap.inspection//databases//"+dbname;
+	            String currentDBPath = "//data//"+ BuildConfig.APPLICATION_ID+ "//databases//"+dbname;
 	            String backupDBPath = dstName;
 	            File currentDB = new File(data, currentDBPath);
 	            File backupDB = new File(sd, backupDBPath);
@@ -145,8 +146,8 @@ public class LoginActivity extends BaseActivity {
 	            }
 	        }
 	    } catch (Exception e) {
-	    	Log.e(getClass().getName(), e.getMessage());
-	    	Log.e(getClass().getName(), e.getCause().getMessage());
+			DebugLog.e(e.getMessage());
+			DebugLog.e(e.getCause().getMessage());
 	    }
 	}
 
@@ -535,7 +536,7 @@ public class LoginActivity extends BaseActivity {
 				input.close();
 
 			} catch (Exception e) {
-				Log.e("Error: ", e.getMessage());
+				DebugLog.e(e.getMessage());
 			}
 
 			return null;

@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -28,6 +27,7 @@ import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
+import com.sap.inspection.tools.DebugLog;
 
 import java.io.File;
 
@@ -210,15 +210,14 @@ public class PhotoItemRadio extends RelativeLayout {
 				itemFormRenderModel.schedule.sumTaskDone++;
 			itemFormRenderModel.schedule.save();
 		}
-		Log.d(getClass().getName(),"task done : "+itemFormRenderModel.schedule.sumTaskDone);
+		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
 		if (itemFormRenderModel != null){
 			itemFormRenderModel.itemValue = value;
 		}
 	}
 
 	public void save(Context context){
-		String tag = getClass().getName();
-		Log.d(tag, value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
+		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
 		value.save(context);
 	}
 
@@ -228,8 +227,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (!DbRepositoryValue.getInstance().getDB().isOpen())
 			DbRepositoryValue.getInstance().open(context);
 		setItemFormRenderedValue();
-		String tag = getClass().getName();
-		Log.d(tag, value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
+		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
 		if(!itemFormRenderModel.itemModel.scope_type.equalsIgnoreCase("operator")){
 			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
 				value.operatorId = operatorModel.id;
@@ -325,16 +323,16 @@ public class PhotoItemRadio extends RelativeLayout {
 	//	}
 
 	public void deletePhoto(){
-		Log.d(getClass().getName(), "into deleted");
+		DebugLog.d( "into deleted");
 		if (value != null && value.value != null){
-			Log.d(getClass().getName(), "deleted value not null");
+			DebugLog.d( "deleted value not null");
 			File fileTemp=new File(value.value.replaceFirst("^file\\:\\/\\/", ""));
 			if (fileTemp.exists())
 				try{
 					fileTemp.delete();
-					Log.d(getClass().getName(), "file deleted : "+value.value);
+					DebugLog.d( "file deleted : "+value.value);
 				}catch(Exception e){
-					Log.d(getClass().getName(), "file not deleted");
+					DebugLog.d( "file not deleted");
 					e.printStackTrace();
 				}
 		}

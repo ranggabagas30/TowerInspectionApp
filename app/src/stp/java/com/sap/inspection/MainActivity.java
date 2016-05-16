@@ -69,7 +69,11 @@ public class MainActivity extends BaseActivity{
 		progressDialog.setCancelable(false);
 		if (GlobalVar.getInstance().anyNetwork(activity)){
 			DbRepository.getInstance().open(activity);
-			progressDialog.show();
+			try {
+				progressDialog.show();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			checkAPKVersion();
 		}else
 			setFlagScheduleSaved(true);
@@ -175,9 +179,9 @@ public class MainActivity extends BaseActivity{
 				break;
 			case R.string.corrective:
 				log("corrective");
-				Toast.makeText(activity, "Coming soon",Toast.LENGTH_LONG).show();
-//				scheduleFragment.setScheduleBy(R.string.corrective);
-				return;
+//				Toast.makeText(activity, "Coming soon",Toast.LENGTH_LONG).show();
+				scheduleFragment.setScheduleBy(R.string.corrective);
+				break;
 			case R.string.newlocation:
 				log("new location");
 				scheduleFragment.setScheduleBy(R.string.newlocation);
@@ -375,8 +379,8 @@ public class MainActivity extends BaseActivity{
 			}else{
 				Toast.makeText(activity, "Check application update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
 			}
-			//checkFormVersion();
-			checkFormVersionOffline();
+			checkFormVersion();
+			//checkFormVersionOffline();
 		};
 	};
 

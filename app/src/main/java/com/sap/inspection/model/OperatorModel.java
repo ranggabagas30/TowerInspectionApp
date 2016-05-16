@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
+import com.sap.inspection.MyApplication;
+import com.sap.inspection.tools.DebugLog;
+
 import java.util.Vector;
 
 public class OperatorModel extends BaseModel {
@@ -62,10 +65,12 @@ public class OperatorModel extends BaseModel {
 	}
 	
 	public void save(){
+		DebugLog.d("id="+id+" name="+name);
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s) VALUES(?,?)",
 						DbManager.mOperator , DbManager.colID,
 						DbManager.colName);
-		
+
+		DbRepository.getInstance().open(MyApplication.getContext());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);

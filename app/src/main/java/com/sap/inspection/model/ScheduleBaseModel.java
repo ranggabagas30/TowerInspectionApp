@@ -4,13 +4,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
+import android.graphics.Bitmap;
 import android.os.Parcel;
-import android.util.Log;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
+import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.ImageUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -31,6 +36,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public UserModel user;
 	public WorkTypeModel work_type;
 	public ProjectModel project;
+	public Vector<ItemValueModel> schedule_values;
 	public String statusColor;
 	public String taskColor;
 	public int sumTask = -1;
@@ -124,6 +130,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		for (OperatorModel operator : operators) {
 			operator.save();
 		}
+
+		if (schedule_values!=null)
+			for (ItemValueModel itemValueModel : schedule_values) {
+				if (downloadImage(itemValueModel.picture,itemValueModel.value))
+					itemValueModel.save();
+			}
 
 		//check if any corective task
 		int tempTask = saveCorrective();
@@ -278,7 +290,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		String query = "SELECT t1.id as sched_id,* FROM " + DbManager.mSchedule + " t1 INNER JOIN " + DbManager.mWorkType + " t2 ON t1." + DbManager.colWorkTypeId + "=t2." + DbManager.colID + " WHERE t2." + DbManager.colName + " LIKE '%" + workType.toUpperCase() + "%' ORDER BY t1." + DbManager.colWorkDate + " DESC";
 		//		String[] args = new String[]{ "'%" + workType.toUpperCase() + "%'"};
 
-		Log.d(getClass().getName(), query);
+		DebugLog.d(query);
 
 		//		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" ASC", null);
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, null);
@@ -451,6 +463,25 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		DbRepository.getInstance().getDB().update(DbManager.mSchedule, cv, null, null);
 		DbRepository.getInstance().close();
+	}
+
+	private boolean downloadImage(String url, String path) {
+		if (url==null) return true;
+		else {
+			DebugLog.d("downloading "+url);
+			Bitmap bitmap = ImageLoader.getInstance().loadImageSync(url);
+			File file = new File(path.replaceFirst("^file\\:\\/\\/", ""));
+			File dir = file.getParentFile();
+			try {
+				if (!dir.mkdirs() && (!dir.exists() || !dir.isDirectory())) {
+					return false;
+				}
+				return ImageUtil.resizeAndSaveImage2(bitmap,file);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
 	}
 
 }

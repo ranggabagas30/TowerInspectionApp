@@ -1,7 +1,5 @@
 package com.sap.inspection.views.adapter;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +14,11 @@ import android.widget.TextView;
 import com.sap.inspection.R;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.view.FormInputText;
 import com.sap.inspection.view.PhotoItemRadio;
+
+import java.util.ArrayList;
 
 public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 
@@ -131,7 +132,7 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 				holder.input = (FormInputText) view.findViewById(R.id.item_form_input);
 				break;
 			default:
-				log("============== get default view : "+getItemViewType(position));
+				DebugLog.d("============== get default view : "+getItemViewType(position));
 				view = new View(context);
 				break;
 			}
@@ -180,7 +181,7 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 				holder.input.setText("");
 			break;
 		default:
-			log("============== get default view : "+getItemViewType(position));
+			DebugLog.d("============== get default view : "+getItemViewType(position));
 			break;
 		}
 

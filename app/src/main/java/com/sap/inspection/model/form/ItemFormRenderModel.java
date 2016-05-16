@@ -1,17 +1,17 @@
 package com.sap.inspection.model.form;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Vector;
-
 import android.os.Parcel;
-import android.util.Log;
 
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
+import com.sap.inspection.tools.DebugLog;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Vector;
 
 public class ItemFormRenderModel extends BaseModel {
 
@@ -173,7 +173,7 @@ public class ItemFormRenderModel extends BaseModel {
 			this.itemModel = firstItem.items.get(0); 
 			this.label = itemModel.label;
 			this.hasPicture = itemModel.pictureEndPoint != null;
-			Log.d(getClass().getName(), "====================== check if picture is not null : "+itemModel.pictureEndPoint);
+			DebugLog.d( "====================== check if picture is not null : "+itemModel.pictureEndPoint);
 			if (parentLabel != null)
 				itemModel.label = itemModel.label+" \n "+parentLabel;
 			if (firstItem.items.get(0).field_type.equalsIgnoreCase("label"))

@@ -9,11 +9,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.LoginActivity;
 import com.sap.inspection.R;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.BundleToJson;
 
 public class BaseNotification {
@@ -23,7 +23,6 @@ public class BaseNotification {
 	
 	protected Context context;
 	protected Bundle bundle;
-	protected String TAG = getClass().getName();
 	protected final int NOTIFICATION_ID = 2;
 	protected long[] vibratePattern = {
 			0, 500
@@ -42,7 +41,7 @@ public class BaseNotification {
 	protected Notification getNotification(){
 		if (notification != null)
 			return notification;
-		Log.d(TAG, "notification: " + getMessage());
+		DebugLog.d("notification: " + getMessage());
 		getNotifBuilder().setContentIntent(getPendingIntent());
 		notification = getNotifBuilder().build(); 
 		return notification;

@@ -85,9 +85,9 @@ public class TokenModel extends BaseModel {
 	}
 
 	public void save(Context ctx) {
-		log(getClass().getName(), accToken);
+		log(accToken);
 		accToken = accToken.replace("access_token", "oauth_token");
-		log(getClass().getName(), accToken);
+		log(accToken);
 		DbRepository.getInstance().open(ctx);
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s) VALUES(?)",
 						DbManager.mTokenTable, DbManager.colAccToken);

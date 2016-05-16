@@ -2,18 +2,18 @@ package com.sap.inspection;
 
 
 import android.content.SharedPreferences;
-
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Window;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-//import com.sap.inspection.gcm.GCMService;
 import com.sap.inspection.manager.ScreenManager;
+import com.sap.inspection.tools.DebugLog;
+
+//import com.sap.inspection.gcm.GCMService;
 
 public abstract class BaseActivity extends FragmentActivity{
 	protected FragmentActivity activity;
@@ -78,11 +78,11 @@ public abstract class BaseActivity extends FragmentActivity{
 	}
 	
 	public void log(String logString){
-		Log.d(getClass().getName(), logString);
+		DebugLog.d(logString);
 	}
 	
 	public void log(int logInt){
-		Log.d(getClass().getName(), String.valueOf(logInt));
+		DebugLog.d(String.valueOf(logInt));
 	}
 	
 	public void writePreference(int key, String value) {

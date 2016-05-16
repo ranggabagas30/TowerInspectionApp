@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -158,7 +157,7 @@ public class UpdateActivity extends BaseActivity {
 				input.close();
 
 			} catch (Exception e) {
-				Log.e("Error: ", e.getMessage());
+				DebugLog.e(e.getMessage());
 			}
 
 			return null;

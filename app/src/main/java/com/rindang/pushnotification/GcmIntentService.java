@@ -4,9 +4,9 @@ import android.app.IntentService;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.sap.inspection.tools.DebugLog;
 
 public class GcmIntentService extends IntentService {
 
@@ -29,11 +29,11 @@ public class GcmIntentService extends IntentService {
 		Bundle extras = intent.getExtras();
 		GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
 		String messageType = gcm.getMessageType(intent);
-		Log.d(TAG, "==== GCM IN ====");
-		Log.d(TAG, "messageType: " + messageType);
-//		Log.d(TAG, "all data : " + BundleToJson.convert(extras));
+		DebugLog.d("==== GCM IN ====");
+		DebugLog.d("messageType: " + messageType);
+//		DebugLog.d("all data : " + BundleToJson.convert(extras));
 		if(!extras.isEmpty()){
-			Log.d(TAG, "2.extras: " + extras);
+			DebugLog.d("2.extras: " + extras);
 			if(GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)){
 			}
 
@@ -44,9 +44,9 @@ public class GcmIntentService extends IntentService {
 //				String extrasMessage = extras.getString("message");
 //				String extrasTitle = extras.getString("title");
 //				String extrasType = extras.getString("notification_type");
-//				Log.d(TAG, "message----: " + extrasMessage);
-//				if (extrasMessage.contains("rindang")) Log.d(TAG, "hey it's rindang");
-				Log.d(TAG, "on message type message");
+//				DebugLog.d("message----: " + extrasMessage);
+//				if (extrasMessage.contains("rindang")) DebugLog.d("hey it's rindang");
+				DebugLog.d("on message type message");
 				BaseNotification notif = NotificationProcessor.getNotification(extras, this);
 				notif.sendNotification();
 //				DebugNotification notif = new DebugNotification(this, extras);
@@ -61,11 +61,11 @@ public class GcmIntentService extends IntentService {
 		Bundle extras = intent.getExtras();
 		GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
 		String messageType = gcm.getMessageType(intent);
-		Log.d(TAG, "messageType: " + messageType);
+		DebugLog.d("messageType: " + messageType);
 		if(!extras.isEmpty()){
-			Log.d(TAG, "2.extras: " + extras);
+			DebugLog.d("2.extras: " + extras);
 			String extrasMessage = extras.getString("message");
-			Log.d(TAG, "message---- : " + extrasMessage);
+			DebugLog.d("message---- : " + extrasMessage);
 		}
 	}
 

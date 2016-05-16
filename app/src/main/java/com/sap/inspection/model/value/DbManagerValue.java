@@ -1,14 +1,12 @@
 package com.sap.inspection.model.value;
 
 import android.content.Context;
-
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+
+import com.sap.inspection.tools.DebugLog;
 
 public class DbManagerValue extends SQLiteOpenHelper {
-
-	private final String TAG = getClass().getName();
 
 	public static final String dbName = "value.db";
 	static final int schema_version = 6;
@@ -63,18 +61,18 @@ public class DbManagerValue extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-		Log.d(getClass().getName(), "========================================");
-		Log.d(getClass().getName(), "----------------------------------------");
-		Log.d(getClass().getName(), "========================================");
+		DebugLog.d("========================================");
+		DebugLog.d("----------------------------------------");
+		DebugLog.d("========================================");
 
-		Log.d(getClass().getName(), "old : "+oldVersion+" new : "+newVersion);
+		DebugLog.d("old : "+oldVersion+" new : "+newVersion);
 		for (int i=oldVersion; i<newVersion; i++) {
-			Log.d(getClass().getName(), "upgrade index : "+i);
+			DebugLog.d("upgrade index : "+i);
 			PATCHES[i].apply(db);
 		}
-		Log.d(getClass().getName(), "========================================");
-		Log.d(getClass().getName(), "----------------------------------------");
-		Log.d(getClass().getName(), "========================================");
+		DebugLog.d("========================================");
+		DebugLog.d("----------------------------------------");
+		DebugLog.d("========================================");
 	}
 
 	@Override
@@ -99,7 +97,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 			},
 			new Patch() {
 				public void apply(SQLiteDatabase db) {
-//					Log.d(getClass().getName(), "upgrade : second ");
+//					DebugLog.d("upgrade : second ");
 //					db.execSQL("DROP TABLE IF EXISTS " + mFormValue);
 //					db.execSQL("DROP TABLE IF EXISTS " + mRowValue);
 //					onCreate(db);
@@ -109,7 +107,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 			},
 			new Patch() {
 				public void apply(SQLiteDatabase db) {
-//					Log.d(getClass().getName(), "upgrade : third ");
+//					DebugLog.d("upgrade : third ");
 //					try {
 //						db.execSQL("ALTER TABLE "+mFormValue+" ADD COLUMN "+colUploadStatus+" integer DEFAULT 0");
 //					}catch(Exception e){
@@ -121,7 +119,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 			},
 			new Patch() {
 				public void apply(SQLiteDatabase db) {
-//					Log.d(getClass().getName(), "upgrade : forth ");
+//					DebugLog.d("upgrade : forth ");
 //					try {
 //						db.execSQL("ALTER TABLE "+mFormValue+" ADD COLUMN "+colSiteId+" integer DEFAULT 0");
 //					}catch(Exception e){
@@ -145,7 +143,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 			},
 			new Patch() {
 				public void apply(SQLiteDatabase db) {
-					Log.d(getClass().getName(), "general patch 6");
+					DebugLog.d("general patch 6");
 					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colCreatedAt + " TEXT");
 				}
 				public void revert(SQLiteDatabase db) {

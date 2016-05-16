@@ -1,11 +1,6 @@
 package com.appmogli.widget;
 
-import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.Vector;
-
 import android.content.Context;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +14,11 @@ import android.widget.TextView;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.CallendarModel;
+import com.sap.inspection.tools.DebugLog;
+
+import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.Vector;
 
 public class SectionedGridViewAdapter extends BaseAdapter implements
 View.OnClickListener {
@@ -121,7 +121,7 @@ View.OnClickListener {
 		// count items in each section
 		for (String sectionName : sectionCursors.keySet()) {
 			int sectionCount = sectionCursors.get(sectionName).size();
-			Log.d(getClass().getName(), "======= "+sectionName+" section count : "+sectionCount);
+			DebugLog.d("======= "+sectionName+" section count : "+sectionCount);
 			int numberOfRows = sectionCount / numberOfChildrenInRow;
 			if (sectionCount % numberOfChildrenInRow != 0) {
 				numberOfRows++;
@@ -131,7 +131,7 @@ View.OnClickListener {
 			count += numberOfRows;
 		}
 
-		Log.d(getClass().getName(), "======= count : "+count);
+		DebugLog.d("======= count : "+count);
 		return count;
 	}
 
@@ -157,7 +157,7 @@ View.OnClickListener {
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 			if (isSectionheader) {
-				Log.d(getClass().getName(), "========= section header "+position);
+				DebugLog.d("========= section header "+position);
 				v = inflater.inflate(R.layout.section_header, null);
 				TextView header = (TextView) v.findViewById(R.id.header);
 				RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(gridItemSize * numberOfChildrenInRow, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -165,7 +165,7 @@ View.OnClickListener {
 				param.addRule(RelativeLayout.BELOW, R.id.layout_helper1);
 				header.setLayoutParams(param);
 			} else {
-				Log.d(getClass().getName(), "========= row item "+position);
+				DebugLog.d("========= row item "+position);
 				LinearLayout ll = (LinearLayout) inflater.inflate(
 						R.layout.list_row, null);
 				v = ll;
@@ -228,7 +228,7 @@ View.OnClickListener {
 				// its not gap
 				if (c.size() > cursorStartAt) {
 					String[] s = c.get(cursorStartAt).date.split("[-]", 3);
-					Log.d(getClass().getName(), "==================="+s[0]+s[1]+s[2]);
+					DebugLog.d("==================="+s[0]+s[1]+s[2]);
 					Calendar calendar = Calendar.getInstance();
 					calendar.set(Integer.parseInt(s[0]), Integer.parseInt(s[1]) - 1, Integer.parseInt(s[2]));
 					TextView tv = (TextView) child.findViewById(R.id.day_week);
@@ -377,7 +377,7 @@ View.OnClickListener {
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		ButtonViewHolder holder = (ButtonViewHolder) v.getTag();
-		Log.d(getClass().getName(), holder.sectionName + holder.positionInSection);
+		DebugLog.d(holder.sectionName + holder.positionInSection);
 		if (this.listener != null) {
 			listener.onGridItemClicked(holder.sectionName,
 					holder.positionInSection, holder.parent);

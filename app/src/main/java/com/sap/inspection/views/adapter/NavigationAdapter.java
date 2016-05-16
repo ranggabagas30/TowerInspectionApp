@@ -1,7 +1,5 @@
 package com.sap.inspection.views.adapter;
 
-import java.util.Vector;
-
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -14,6 +12,9 @@ import android.widget.TextView;
 import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.tools.DebugLog;
+
+import java.util.Vector;
 
 public class NavigationAdapter extends MyBaseAdapter {
 
@@ -74,7 +75,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		View view = convertView;
 		final ViewHolder holder;
-		log(getItem(position).ancestry+"/"+getItem(position).id+" | "+getItem(position).text);
+		DebugLog.d(getItem(position).ancestry+"/"+getItem(position).id+" | "+getItem(position).text);
 		if (convertView == null) {
 			holder = new ViewHolder();
 			switch (getItemViewType(position)) {
@@ -89,7 +90,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 				break;
 
 			default:
-				log("============== get default view : "+getItemViewType(position));
+				DebugLog.d("============== get default view : "+getItemViewType(position));
 				break;
 			}
 			holder.expandCollapse = (ImageView) view.findViewById(R.id.expandCollapse);
@@ -142,7 +143,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 				intent.putExtra("rowId", getItem(position).id);
 				intent.putExtra("workFormGroupId", getItem(position).work_form_group_id);
 				intent.putExtra("scheduleId", scheduleId);
-				log("----ini others form lho----- "+scheduleId);
+				DebugLog.d("----ini others form lho----- "+scheduleId);
 //				context.startActivity(intent);
 			}
 			else if (getItem(position).hasForm){
@@ -150,7 +151,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 				intent.putExtra("rowId", getItem(position).id);
 				intent.putExtra("workFormGroupId", getItem(position).work_form_group_id);
 				intent.putExtra("scheduleId", scheduleId);
-				log("----schedule id----- "+scheduleId);
+				DebugLog.d("----schedule id----- "+scheduleId);
 				context.startActivity(intent);
 			}else
 				toogleExpand(position);
@@ -161,13 +162,13 @@ public class NavigationAdapter extends MyBaseAdapter {
 	private void toogleExpand(int position){
 		if (getItem(position).isOpen){
 			getItem(position).isOpen = false;
-			log("closed");
+			DebugLog.d("closed");
 		}
 		else if (getItem(position).children != null && getItem(position).children.size() > 0){
 			getItem(position).isOpen = true;
-			log("open");
+			DebugLog.d("open");
 		}else{
-			log("not open");
+			DebugLog.d("not open");
 		}
 		notifyDataSetChanged();
 	}

@@ -40,6 +40,7 @@ public class ItemValueModel extends BaseModel {
 	public String photoStatus;
 	public int uploadStatus = UPLOAD_NONE;
 	public boolean typePhoto;
+	public String picture;
 
 
 	@Override
@@ -260,6 +261,12 @@ public class ItemValueModel extends BaseModel {
 
 		DebugLog.d("photo Date="+createdAt);
 		bindAndCheckNullString(stmt, 13, createdAt);
+
+		DebugLog.d("scheduleId="+scheduleId+" itemId="+itemId+" value="+value+
+				" typePhoto="+typePhoto+" operatorId="+operatorId+" rowId="+rowId+
+				" remark="+remark+" latitude="+latitude+" longitude="+longitude+
+				" photoStatus="+photoStatus+" gpsAccuracy="+gpsAccuracy+
+				" uploadStatus="+uploadStatus+" createdAt="+createdAt);
 
 		stmt.executeInsert();
 		stmt.close();

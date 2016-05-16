@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -143,7 +142,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		// initiate the location using GPS
 		setCurrentGeoPoint(new LatLng(0, 0));
 		accuracy = initiateLocation();
-		Log.d(getClass().getName(), "oncreate "+ String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
+		DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
 
 		setContentView(R.layout.activity_form_fill);
 
@@ -463,7 +462,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				photoItem.initValue();
 				photoItem.deletePhoto();
 				ImageUtil.resizeAndSaveImage(mImageUri.toString(), schedule.id);
-				Log.d(getClass().getName(), String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
+				DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
 				photoItem.setPhotoDate();
 				photoItem.setImage(mImageUri.toString(),String.valueOf(currentGeoPoint.latitude),String.valueOf(currentGeoPoint.longitude),accuracy);
 			}

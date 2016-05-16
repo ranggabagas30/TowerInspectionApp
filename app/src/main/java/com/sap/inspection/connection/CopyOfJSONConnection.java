@@ -1,28 +1,26 @@
 package com.sap.inspection.connection;
 
-import java.io.IOException;
-
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.NoSuchAlgorithmException;
-
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ErrorSatutempatModel;
+import com.sap.inspection.tools.DebugLog;
+
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class CopyOfJSONConnection extends AsyncTask<Void, Void, String>{
 
@@ -56,7 +54,7 @@ public class CopyOfJSONConnection extends AsyncTask<Void, Void, String>{
 			urlConnection = address.openConnection();
 	        urlConnection.setConnectTimeout(3000);
 	        is =  urlConnection.getInputStream();
-	        Log.d(getClass().getName(), "content type : "+urlConnection.getContentType());
+	        DebugLog.d("content type : "+urlConnection.getContentType());
 			String s = ConvertInputStreamToString(is);
 			is.close();
 //			Log.d("XML", s);
@@ -66,21 +64,21 @@ public class CopyOfJSONConnection extends AsyncTask<Void, Void, String>{
 		}catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d("here", "err ||||| "+errMsg);
+			DebugLog.e("err ||||| "+errMsg);
 //			ErrorManager.getInstance().setError(errMsg);
 //			ErrorManager.getInstance().setKindError(ErrorManager.TIMEOUT_EXCEPTION);
 		}
 		catch (ClientProtocolException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d("here", "err ||||| "+errMsg);
+			DebugLog.e("err ||||| "+errMsg);
 //			ErrorManager.getInstance().setError(errMsg);
 //			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
 		catch (IOException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
-			Log.d("here", "err ||||| "+errMsg);
+			DebugLog.e("err ||||| "+errMsg);
 //			ErrorManager.getInstance().setError(errMsg);
 //			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
@@ -92,7 +90,7 @@ public class CopyOfJSONConnection extends AsyncTask<Void, Void, String>{
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
 //		setJson(result);
-		Log.d("here", url);
+		DebugLog.d(url);
 		if (result != null)
 			try {
 				if (anyServerError(result, context))
@@ -142,7 +140,7 @@ public class CopyOfJSONConnection extends AsyncTask<Void, Void, String>{
 	
 	public static boolean checkIfContentTypeJson(String contentType){
 		int idxSemiColon = contentType.indexOf(Constants.JSON_CONTENT_TYPE);
-		Log.e("chek if json on json connection", contentType + " | " + idxSemiColon);
+		DebugLog.d(contentType + " | " + idxSemiColon);
 		return idxSemiColon != -1;
 	}
 	
