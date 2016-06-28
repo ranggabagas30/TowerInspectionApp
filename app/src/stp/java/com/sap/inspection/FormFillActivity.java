@@ -5,14 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +31,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.DbRepository;
@@ -82,8 +86,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	
 	private FormFillAdapter adapter;
 
-	private LocationManager locationManager;
-	private LocationListener locationListener;
+//	private LocationManager locationManager;
+//	private LocationListener locationListener;
 	private LatLng currentGeoPoint;
 	private int accuracy;
 	private String make;
@@ -95,6 +99,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	private ProgressDialog progressDialog;
 
+	private GoogleApiClient googleApiClient;
+	private LocationRequest locationRequest;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -110,6 +116,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if (formModels == null)
 			formModels = new ArrayList<ItemFormRenderModel>();
 
+		googleApiClient = new GoogleApiClient.Builder(this)
+				.addApi(LocationServices.API)
+				.addConnectionCallbacks(connectionCallbacks)
+				.addOnConnectionFailedListener(onConnectionFailedListener)
+				.build();
+/*
 		locationListener = new LocationListener() {
 
 			public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -143,7 +155,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		setCurrentGeoPoint(new LatLng(0, 0));
 		accuracy = initiateLocation();
 		DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
-
+*/
+		setCurrentGeoPoint(new LatLng(0, 0));
 		setContentView(R.layout.activity_form_fill);
 
 		list = (ListView) findViewById(R.id.list);
@@ -373,11 +386,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	@Override
 	protected void onStop() {
+		googleApiClient.disconnect();
 		DbRepository.getInstance().close();
 		DbRepositoryValue.getInstance().close();
 		super.onStop();
 	}
 
+	@Override
+	protected void onStart() {
+		super.onStart();
+		// Connect the client.
+		googleApiClient.connect();
+	}
 
 	OnClickListener photoClickListener = new OnClickListener() {
 
@@ -442,8 +462,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	private File createTemporaryFile(String part, String ext) throws Exception
 	{
-		File tempDir= Environment.getExternalStorageDirectory();
-		tempDir=new File(tempDir.getAbsolutePath()+"/.temp"); // create temp folder
+//		File tempDir= Environment.getExternalStorageDirectory();
+		File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+		tempDir=new File(tempDir.getAbsolutePath()+"/TowerInspection"); // create temp folder
 		if(!tempDir.exists())
 		{
 			tempDir.mkdir();
@@ -466,6 +487,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				photoItem.initValue();
 				photoItem.deletePhoto();
 				ImageUtil.resizeAndSaveImage(mImageUri.toString(), schedule.id);
+				sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+						Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
 				DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
 				photoItem.setPhotoDate();
 				photoItem.setImage(mImageUri.toString(),String.valueOf(currentGeoPoint.latitude),String.valueOf(currentGeoPoint.longitude),accuracy);
@@ -565,6 +588,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		return b.toString();
 	}
 
+	/*
 	public int initiateLocation(){
 		if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
 //			setCurrentGeoPoint(new LatLng( 
@@ -585,7 +609,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		setCurrentGeoPoint(new LatLng(0,0));
 		return 0;
 
-	}
+	}*/
 
 	public void setCurrentGeoPoint(LatLng currentGeoPoint) {
 		this.currentGeoPoint = currentGeoPoint;
@@ -718,5 +742,38 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if (rowModel.row_columns.size() > 0 && rowModel.row_columns.get(0).items.size() > 0)
 			pageTitle = rowModel.row_columns.get(0).items.get(0).label;
 	}
-	
+
+	private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
+		@Override
+		public void onConnected(@Nullable Bundle bundle) {
+			DebugLog.d("");
+			locationRequest = LocationRequest.create();
+			locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+			locationRequest.setInterval(5000); // Update location every second
+			LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,locationListener);
+		}
+
+		@Override
+		public void onConnectionSuspended(int i) {
+			DebugLog.d("i="+i);
+		}
+
+	};
+
+	private GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = new GoogleApiClient.OnConnectionFailedListener() {
+		@Override
+		public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+			DebugLog.d("connectionResult="+connectionResult.toString());
+		}
+	};
+
+	private com.google.android.gms.location.LocationListener locationListener = new com.google.android.gms.location.LocationListener() {
+		@Override
+		public void onLocationChanged(Location location) {
+			accuracy = (int)location.getAccuracy();
+			setCurrentGeoPoint(new LatLng(location.getLatitude(), location.getLongitude()));
+			DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
+		}
+	};
+
 }

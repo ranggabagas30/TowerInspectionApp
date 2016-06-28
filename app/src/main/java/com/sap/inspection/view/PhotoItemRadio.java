@@ -124,8 +124,10 @@ public class PhotoItemRadio extends RelativeLayout {
 		progress = (ProgressBar) root.findViewById(R.id.progress);
 		remark = (EditText) root.findViewById(R.id.remark);
 		remark.addTextChangedListener(textWatcher);
+		/*
 		int maxLength = 60;    
 		remark.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
+		*/
 		radioGroup = (RadioGroup) root.findViewById(R.id.radioGroup);
 		ok = (RadioButton) root.findViewById(R.id.radioOK);
 		nok = (RadioButton) root.findViewById(R.id.radioNOK);

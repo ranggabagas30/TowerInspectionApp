@@ -24,8 +24,9 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 
 	@Override
 	protected Void doInBackground(Void... arg0) {
-		File tempDir= Environment.getExternalStorageDirectory();
-		String path = tempDir.getAbsolutePath()+"/.temp/";
+//		File tempDir= Environment.getExternalStorageDirectory();
+		File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+		String path = tempDir.getAbsolutePath()+"/TowerInspection/";
 		getFileCount(path);
 		File f;
 		f = new File(path);

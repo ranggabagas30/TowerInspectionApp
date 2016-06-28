@@ -98,8 +98,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
                 android:scaleType="centerCrop" >
+                <include layout="@layout/item_mainmenu" />
 
-                <include layout="@layout/item_mainmenu"/>
             </FrameLayout>
 
             <View
@@ -112,8 +112,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
                 android:scaleType="centerCrop" >
+                <include layout="@layout/item_mainmenu" />
 
-                <include layout="@layout/item_mainmenu"/>
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>

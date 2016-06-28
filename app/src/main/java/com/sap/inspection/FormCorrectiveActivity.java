@@ -1,14 +1,13 @@
 package com.sap.inspection;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -18,6 +17,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.OperatorModel;
@@ -55,14 +58,16 @@ public class FormCorrectiveActivity extends BaseActivity {
 	
 	FormFillAdapter adapter;
 
-	private LocationManager locationManager;
-	private LocationListener locationListener;
+//	private LocationManager locationManager;
+//	private LocationListener locationListener;
 	private LatLng currentlocation;
 	private int accuracy;
 	private TextView title;
 
 	private ProgressDialog progressDialog;
 
+	private GoogleApiClient googleApiClient;
+	private LocationRequest locationRequest;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +83,12 @@ public class FormCorrectiveActivity extends BaseActivity {
 		if (formModels == null)
 			formModels = new ArrayList<ItemFormRenderModel>();
 
+		googleApiClient = new GoogleApiClient.Builder(this)
+				.addApi(LocationServices.API)
+				.addConnectionCallbacks(connectionCallbacks)
+				.addOnConnectionFailedListener(onConnectionFailedListener)
+				.build();
+		/*
 		locationListener = new LocationListener() {
 
 			public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -106,7 +117,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 		// initiate the location using GPS
 		setCurrentLocation(new LatLng(0, 0));
-		accuracy = initiateLocation();
+		accuracy = initiateLocation();*/
 
 		setContentView(R.layout.activity_form_fill);
 
@@ -137,7 +148,8 @@ public class FormCorrectiveActivity extends BaseActivity {
 		FormLoader loader = new FormLoader();
 		loader.execute();
 	}
-	
+
+	/*
 	public int initiateLocation(){
 		if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
 //			setCurrentLocation(new LatLng( 
@@ -158,7 +170,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 		setCurrentLocation(new LatLng(0,0));
 		return 0;
 
-	}
+	}*/
 
 	public void setCurrentLocation(LatLng currentGeoPoint) {
 		this.currentlocation = currentGeoPoint;
@@ -305,5 +317,52 @@ public class FormCorrectiveActivity extends BaseActivity {
 			}
 		}
 	}
-	
+
+	@Override
+	protected void onStop() {
+		// Disconnecting the client invalidates it.
+		googleApiClient.disconnect();
+		super.onStop();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		// Connect the client.
+		googleApiClient.connect();
+	}
+
+	private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
+		@Override
+		public void onConnected(@Nullable Bundle bundle) {
+			DebugLog.d("");
+			locationRequest = LocationRequest.create();
+			locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+			locationRequest.setInterval(5000); // Update location every second
+			LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,locationListener);
+		}
+
+		@Override
+		public void onConnectionSuspended(int i) {
+			DebugLog.d("i="+i);
+		}
+
+	};
+
+	private GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = new GoogleApiClient.OnConnectionFailedListener() {
+		@Override
+		public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+			DebugLog.d("connectionResult="+connectionResult.toString());
+		}
+	};
+
+	private com.google.android.gms.location.LocationListener locationListener = new com.google.android.gms.location.LocationListener() {
+		@Override
+		public void onLocationChanged(Location location) {
+			accuracy = (int)location.getAccuracy();
+			currentlocation = new LatLng(location.getLatitude(), location.getLongitude());
+			DebugLog.d(String.valueOf(currentlocation.latitude)+" || "+String.valueOf(currentlocation.longitude));
+		}
+	};
+
 }

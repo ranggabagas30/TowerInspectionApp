@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.JSONConnection;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
@@ -99,6 +100,7 @@ public class ItemUploadManager {
 		private int statusCode = 0;
 		private boolean notJson = false;
 		private Gson gson = new Gson();
+		private String scheduleId;
 		public UploadValue() {
 		}
 
@@ -150,6 +152,7 @@ public class ItemUploadManager {
 					if (responseModel.status == 201) {
 						ItemValueModel item = itemValues.remove(0);
 						item.uploadStatus = ItemValueModel.UPLOAD_DONE;
+						scheduleId = item.scheduleId;
 						if (!DbRepositoryValue.getInstance().getDB().isOpen())
 							DbRepositoryValue.getInstance().open(MyApplication.getContext());
 						item.save();
@@ -176,6 +179,9 @@ public class ItemUploadManager {
 			}
 
 			if (itemValuesFailed.size() == 0){
+				if (scheduleId!=null)
+					APIHelper.getJsonFromUrl(MyApplication.getContext(),null, APIList.uploadConfirmUrl()+
+						scheduleId+"/update");
 				MyApplication.getInstance().toast(syncDone, Toast.LENGTH_LONG);
 				publish(syncDone);
 				latestStatus = syncDone;

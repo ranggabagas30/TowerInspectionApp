@@ -2,7 +2,6 @@ package com.sap.inspection.view;
 
 import android.content.Context;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.EditText;
@@ -34,8 +33,10 @@ public class FormInputText extends EditText{
 	
 	private void init(){
 		addTextChangedListener(textWatcher);
+		/*
 		int maxLength = 60;    
 		setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
+		*/
 	}
 
 	TextWatcher textWatcher = new TextWatcher() {

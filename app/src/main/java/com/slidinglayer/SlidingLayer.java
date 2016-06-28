@@ -23,9 +23,6 @@
 
 package com.slidinglayer;
 
-import java.lang.reflect.Method;
-import java.util.Random;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -36,7 +33,6 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
-import android.util.FloatMath;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -48,6 +44,9 @@ import android.widget.FrameLayout;
 import android.widget.Scroller;
 
 import com.sap.inspection.R;
+
+import java.lang.reflect.Method;
+import java.util.Random;
 
 public class SlidingLayer extends FrameLayout {
 
@@ -892,7 +891,7 @@ public class SlidingLayer extends FrameLayout {
     float distanceInfluenceForSnapDuration(float f) {
         f -= 0.5f; // center the values about 0.
         f *= 0.3f * Math.PI / 2.0f;
-        return FloatMath.sin(f);
+        return (float) Math.sin(f);
     }
 
     private void endDrag() {

@@ -11,15 +11,16 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+    useLibrary  'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "com.sap.inspection"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 25
-        versionName "0.0.25"
+        versionCode 26
+        versionName "0.0.26"
     }
 
 //    signingConfigs {
@@ -60,8 +61,10 @@ repositories{
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':google-play-services_lib')
-    compile 'com.android.support:appcompat-v7:22.2.1'
+//    compile project(':google-play-services_lib')
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.google.android.gms:play-services-location:7.0.0'
+    compile 'com.google.android.gms:play-services-gcm:7.0.0'
     compile project(':baseassets')
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;

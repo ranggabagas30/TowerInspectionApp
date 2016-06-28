@@ -24,8 +24,9 @@ public class ImageUtil {
             BitmapFactory.Options options = new BitmapFactory.Options();
 
             options.inSampleSize = 4;
-            File tempDir= Environment.getExternalStorageDirectory();
-            String path = tempDir.getAbsolutePath()+"/.temp/"+imageUri.substring(imageUri.lastIndexOf('/'));
+//            File tempDir= Environment.getExternalStorageDirectory();
+            File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
             Bitmap bitmap = BitmapFactory.decodeFile(path,options);
 
@@ -55,8 +56,9 @@ public class ImageUtil {
             BitmapFactory.Options options = new BitmapFactory.Options();
 
             options.inSampleSize = 4;
-            File tempDir= Environment.getExternalStorageDirectory();
-            String path = tempDir.getAbsolutePath()+"/.temp/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
+//            File tempDir= Environment.getExternalStorageDirectory();
+            File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
             Bitmap bitmap = BitmapFactory.decodeFile(path,options);
 
@@ -99,12 +101,13 @@ public class ImageUtil {
         try {
         	Log.d("saving bitmap", "url : "+url);
         	Log.d("saving bitmap", "bitmap : "+bitmap);
-            File tempDir= Environment.getExternalStorageDirectory();
+//            File tempDir= Environment.getExternalStorageDirectory();
+            File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             String path = null;
             if (url.contains("?"))
-            	path = tempDir.getAbsolutePath()+"/.temp/"+url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
+            	path = tempDir.getAbsolutePath()+"/TowerInspection/"+url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
             else
-            	path = tempDir.getAbsolutePath()+"/.temp/"+url.substring(url.lastIndexOf('/')+1);
+            	path = tempDir.getAbsolutePath()+"/TowerInspection/"+url.substring(url.lastIndexOf('/')+1);
             
 
             File file;
@@ -167,8 +170,9 @@ public class ImageUtil {
 
 	private static File createTemporaryFile(String part, String ext) throws Exception
 	{
-		File tempDir= Environment.getExternalStorageDirectory();
-		tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+		//File tempDir= Environment.getExternalStorageDirectory();
+        File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+		tempDir=new File(tempDir.getAbsolutePath()+"/TowerInspection/");
 		if(!tempDir.exists())
 		{
 			tempDir.mkdir();

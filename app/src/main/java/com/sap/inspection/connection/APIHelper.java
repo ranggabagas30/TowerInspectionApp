@@ -1,19 +1,18 @@
 package com.sap.inspection.connection;
 
-import java.util.LinkedList;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
-import com.rindang.zconfig.APIList;
-import com.sap.inspection.R;
-import com.sap.inspection.constant.Constants;
-import com.sap.inspection.tools.AndroidUID;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+
+import com.rindang.zconfig.APIList;
+import com.sap.inspection.R;
+import com.sap.inspection.tools.AndroidUID;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.LinkedList;
 
 
 public class APIHelper {
@@ -41,7 +40,7 @@ public class APIHelper {
 		nvp = new BasicNameValuePair("password", password);
 		params.add(nvp);
 		postParams(context, APIList.loginUrl(), handler, params);
-	};
+	}
 
 	public static void registerGCMToken(Context context, Handler handler, String token){
 		LinkedList<NameValuePair> params = new LinkedList<NameValuePair>();
@@ -50,34 +49,34 @@ public class APIHelper {
 		nvp = new BasicNameValuePair("device_id", AndroidUID.getUID(context));
 		params.add(nvp);
 		postParams(context, APIList.gcmTokenRegeisterUrl()+"?access_token="+getAccessToken(context), handler, params);
-	};
+	}
 
 	public static void logout(Context context,Handler handler, String userName, String password){
 		getJsonFromUrl(context, handler, APIList.logoutUrl());
-	};
+	}
 
 	//Users
 	public static void getUser(Context context,Handler handler, String userName){
 		getJsonFromUrl(context, handler, APIList.userUrl()+"/"+userName+"?access_token="+getAccessToken(context));
-	};
+	}
 
 	public static void getUserPictures(Context context,Handler handler, String userName){
 		getJsonFromUrl(context, handler, APIList.userUrl()+"/"+userName+"/pictures"+"?access_token="+getAccessToken(context));
-	};
+	}
 
 	//Schedules
 	public static void getSchedules(Context context,Handler handler, String userId){
 		getJsonFromUrl(context, handler, APIList.userUrl()+"/"+userId+"/schedules?template=default&per_page=-1&"+"access_token="+getAccessToken(context));
-	};
+	}
 
 	//Forms
 	public static void getFormVersion(Context context,Handler handler, String userId){
 		getJsonFromUrl(context, handler, APIList.formVersionUrl()+"?access_token="+getAccessToken(context));
-	};
+	}
 	
 	public static void getForms(Context context,Handler handler, String userId){
 		getJsonFromUrl(context, handler, APIList.formsUrl()+"?template=full&user_id="+userId+"&access_token="+getAccessToken(context));
-	};
+	}
 
 	public static String getAccessToken(Context context){
 		SharedPreferences mpref =  PreferenceManager.getDefaultSharedPreferences(context);
@@ -87,6 +86,6 @@ public class APIHelper {
 	//APK
 	public static void getAPKVersion(Context context,Handler handler, String userId){
 		getJsonFromUrl(context, handler, APIList.apkUrl()+"?access_token="+getAccessToken(context));
-	};
+	}
 
 }

@@ -47,4 +47,9 @@ public class APIList {
 		return AppConfig.getInstance().getV1()+"/apk";
 	}
 
+	//Confirm
+	public static String uploadConfirmUrl(){
+		return AppConfig.getInstance().getV1()+"/corrective/";
+	}
+
 }
