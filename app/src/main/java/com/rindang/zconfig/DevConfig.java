@@ -1,14 +1,14 @@
 package com.rindang.zconfig;
 
+import android.view.View;
+
 import com.sap.inspection.R;
 import com.sap.inspection.tools.PrefUtil;
-
-import android.view.View;
 
 
 public class DevConfig extends BaseConfig{
 
-	private final String SENDER_ID = "65449620027";
+	private final String SENDER_ID = "934425217631";
 	
 	@Override
 	public String getHost() {

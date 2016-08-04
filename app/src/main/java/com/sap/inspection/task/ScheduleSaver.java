@@ -19,7 +19,7 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 	
 	public void setMainActivity(MainActivity mainActivity) {
 		this.mainActivity = mainActivity;
-		this.activity = mainActivity;
+//		this.activity = mainActivity;
 	}
 	
 	public void setActivity(Activity activity){
@@ -29,7 +29,10 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		DbRepositoryValue.getInstance().open(activity);
+		if (activity!=null)
+			DbRepositoryValue.getInstance().open(activity);
+		else if (mainActivity!=null)
+			DbRepositoryValue.getInstance().open(mainActivity);
 		DebugLog.d( "open db...");
 	}
 

@@ -1,8 +1,5 @@
 package com.sap.inspection;
 
-import java.util.LinkedHashMap;
-import java.util.Vector;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +13,9 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.CallendarModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.tools.DebugLog;
+
+import java.util.LinkedHashMap;
+import java.util.Vector;
 
 public class CallendarActivity extends BaseActivity implements OnGridItemClickListener {
 
@@ -35,23 +35,23 @@ public class CallendarActivity extends BaseActivity implements OnGridItemClickLi
 		ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
 		switch (filterBy) {
 		case R.string.schedule:
-			log("schedule");
+			DebugLog.d("schedule");
 			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getAllSchedule(activity));
 			break;
 		case R.string.preventive:
-			log("preventive");
+			DebugLog.d("preventive");
 			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.preventive)));
 			break;
 		case R.string.corrective:
-			log("corrective");
+			DebugLog.d("corrective");
 			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.corrective)));
 			break;
 		case R.string.newlocation:
-			log("new location");
+			DebugLog.d("new location");
 			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.newlocation)));
 			break;
 		case R.string.colocation:
-			log("colocation");
+			DebugLog.d("colocation");
 			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.colocation)));
 			break;
 		default:
@@ -78,7 +78,7 @@ public class CallendarActivity extends BaseActivity implements OnGridItemClickLi
 
 	@Override
 	public void onGridItemClicked(String sectionName, int position, View v) {
-		log(sectionName +" | "+ position+" | "+cursorMap.get(sectionName).get(position).date);
+		DebugLog.d(sectionName +" | "+ position+" | "+cursorMap.get(sectionName).get(position).date);
 		Intent data = new Intent();
 		data.putExtra("date", cursorMap.get(sectionName).get(position).date);
 		setResult(Constants.CALLENDAR_ACTIVITY, data);

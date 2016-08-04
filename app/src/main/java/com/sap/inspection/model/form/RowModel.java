@@ -8,6 +8,7 @@ import android.os.Parcel;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.tools.DebugLog;
 
 import java.util.Vector;
 
@@ -211,9 +212,9 @@ public class RowModel extends BaseModel {
 			RowModel model = getRowFromCursor(cursor); 
 			model.row_columns = getRowColumnModels(model.id);
 			for (RowColumnModel row_col : model.row_columns) {
-				log("== row_col "+row_col.id);
+				DebugLog.d("== row_col "+row_col.id);
 				for (WorkFormItemModel item : row_col.items) {
-					log("== item "+item.label);
+					DebugLog.d("== item "+item.label);
 					if (item.label != null){
 						model.text = item.label;
 						break;
@@ -222,7 +223,7 @@ public class RowModel extends BaseModel {
 				if (model.text != null)
 					break;
 			}
-			log("===== level : "+model.level+"  text : "+model.text+"  id : "+model.id+"   position : "+model.position+"   ancestry : "+model.ancestry+" row_col size : "+model.row_columns.size());
+			DebugLog.d("===== level : "+model.level+"  text : "+model.text+"  id : "+model.id+"   position : "+model.position+"   ancestry : "+model.ancestry+" row_col size : "+model.row_columns.size());
 			result.add(model);
 		} while(cursor.moveToNext());
 

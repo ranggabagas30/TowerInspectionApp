@@ -50,7 +50,8 @@ public class ImageUtil {
         }
     }
 	
-	public static void resizeAndSaveImage(String imageUri, String scheduleId) {
+	public static File resizeAndSaveImage(String imageUri, String scheduleId) {
+        File fileReturn = null;
         try {
 
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -70,6 +71,7 @@ public class ImageUtil {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
                 out.flush();
                 out.close();
+                fileReturn = file;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -80,6 +82,8 @@ public class ImageUtil {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
+
+        return fileReturn;
     }
     public static boolean resizeAndSaveImage2(Bitmap bitmap, File file) {
             DebugLog.d("path to save = "+file.getPath());

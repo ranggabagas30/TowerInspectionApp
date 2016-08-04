@@ -3,8 +3,6 @@ package com.sap.inspection.model;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcelable;
 
-import com.sap.inspection.tools.DebugLog;
-
 
 public abstract class BaseModel implements Parcelable {
 	
@@ -17,9 +15,5 @@ public abstract class BaseModel implements Parcelable {
 	
 	protected void bindBooleanToInteger (SQLiteStatement statement,int index,boolean value){
 			statement.bindLong(index, value?1:0);
-	}
-
-	protected void log(String text) {
-		DebugLog.d(text);
 	}
 }

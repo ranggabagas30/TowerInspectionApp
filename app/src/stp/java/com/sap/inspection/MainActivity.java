@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
@@ -67,16 +68,19 @@ public class MainActivity extends BaseActivity{
 
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setCancelable(false);
-		if (GlobalVar.getInstance().anyNetwork(activity)){
-			DbRepository.getInstance().open(activity);
-			try {
-				progressDialog.show();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			checkAPKVersion();
-		}else
-			setFlagScheduleSaved(true);
+
+		if (getIntent().getBooleanExtra(Constants.LOADAFTERLOGIN,false)) {
+			if (GlobalVar.getInstance().anyNetwork(activity)) {
+				DbRepository.getInstance().open(activity);
+				try {
+					progressDialog.show();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				checkAPKVersion();
+			} else
+				setFlagScheduleSaved(true);
+		}
 
 		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
@@ -166,32 +170,32 @@ public class MainActivity extends BaseActivity{
 			int i = (Integer) v.getTag();
 			switch (i) {
 			case R.string.schedule:
-				log("schedule");
+				DebugLog.d("schedule");
 				scheduleFragment.setScheduleBy(R.string.schedule);
 				break;
 			case R.string.site_audit:
-				log("site audit");
+				DebugLog.d("site audit");
 				scheduleFragment.setScheduleBy(R.string.site_audit);
 				break;
 			case R.string.preventive:
-				log("preventive");
+				DebugLog.d("preventive");
 				scheduleFragment.setScheduleBy(R.string.preventive);
 				break;
 			case R.string.corrective:
-				log("corrective");
+				DebugLog.d("corrective");
 //				Toast.makeText(activity, "Coming soon",Toast.LENGTH_LONG).show();
 				scheduleFragment.setScheduleBy(R.string.corrective);
 				break;
 			case R.string.newlocation:
-				log("new location");
+				DebugLog.d("new location");
 				scheduleFragment.setScheduleBy(R.string.newlocation);
 				break;
 			case R.string.colocation:
-				log("colocation");
+				DebugLog.d("colocation");
 				scheduleFragment.setScheduleBy(R.string.colocation);
 				break;
 			case R.string.settings:
-				log("settings");
+				DebugLog.d("settings");
 				Intent intent = new Intent(activity, SettingActivity.class);
 				startActivity(intent);
 				return;
@@ -262,9 +266,9 @@ public class MainActivity extends BaseActivity{
 						if (group.table == null){
 							continue;
 						}
-						log("group name : "+group.name);
-						log("group table : "+group.table.toString());
-						log("group table header : "+group.table.headers.toString());
+						DebugLog.d("group name : "+group.name);
+						DebugLog.d("group table : "+group.table.toString());
+						DebugLog.d("group table header : "+group.table.headers.toString());
 						sum += group.table.headers.size();
 						sum += group.table.rows.size();
 					}
@@ -291,20 +295,20 @@ public class MainActivity extends BaseActivity{
 						}
 					}
 			}
-			log("version saved : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
-			log("version saved value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
-			log("version saved value from web: "+formVersion);
+			DebugLog.d("version saved : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
+			DebugLog.d("version saved value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
+			DebugLog.d("version saved value from web: "+formVersion);
 			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), formVersion);
 			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form),"not null");
-			log("form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
-			log("form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
+			DebugLog.d("form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
+			DebugLog.d("form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
 			return null;
 		}
 
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
-			log("saving forms "+values[0]+" %...");
+			DebugLog.d("saving forms "+values[0]+" %...");
 			progressDialog.setMessage("saving forms "+values[0]+" %...");
 		}
 
@@ -354,7 +358,7 @@ public class MainActivity extends BaseActivity{
 	}
 
 	private void checkAPKVersion(){
-		log("check apk version");
+		DebugLog.d("check apk version");
 		progressDialog.setMessage("Check application version");
 		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
 	}
@@ -368,7 +372,7 @@ public class MainActivity extends BaseActivity{
 				String version = null;
 				try {
 					version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-					log(version);
+					DebugLog.d(version);
 				} catch (NameNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -390,8 +394,8 @@ public class MainActivity extends BaseActivity{
 	}
 	
 	private void checkFormVersionOffline(){
-		log("check form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
-		log("check form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
+		DebugLog.d("check form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
+		DebugLog.d("check form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
 		if (getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null) != null){
 			progressDialog.setMessage("Get schedule from server");
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
@@ -407,9 +411,9 @@ public class MainActivity extends BaseActivity{
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
 				formVersion = model.version;
-				log("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
-				log("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
-				log("check version value from web: "+formVersion);
+				DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
+				DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
+				DebugLog.d("check version value from web: "+formVersion);
 				if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"))){
 					progressDialog.setMessage("Get new form from server");
 					APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));

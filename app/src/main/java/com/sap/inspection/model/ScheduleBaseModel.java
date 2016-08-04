@@ -54,7 +54,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public String getPercent(){
-		log(sumTaskDone+":"+sumTask);
+		DebugLog.d(sumTaskDone+":"+sumTask);
 		if (sumTask > 0)
 			return 100*sumTaskDone/sumTask >= 100 ? 100+"%" : (100*sumTaskDone/sumTask)+"%";
 			else

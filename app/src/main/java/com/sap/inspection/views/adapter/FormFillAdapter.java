@@ -124,6 +124,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_checkbox,null);
 				holder.label = (TextView) view.findViewById(R.id.item_form_label);
 				holder.checkBox = (LinearLayout) view.findViewById(R.id.item_form_check);
+				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
 				break;
 			case ItemFormRenderModel.TYPE_COLUMN:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_column,null);
@@ -152,6 +153,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE_RADIO:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_photo_radio,null);
+				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
 				holder.photoRadio = (PhotoItemRadio) view.findViewById(R.id.item_form_photo);
 				holder.photoRadio.setAudit(isAudit());
 				holder.photoRadio.setButtonClickListener(photoListener);
@@ -159,6 +161,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_photo,null);
+				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
 				holder.photo = (PhotoItem) view.findViewById(R.id.item_form_photo);
 				holder.photo.setAudit(isAudit());
 				holder.photo.setButtonClickListener(photoListener);
@@ -167,6 +170,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 			case ItemFormRenderModel.TYPE_RADIO:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_radio,null);
+				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
 				holder.label = (TextView) view.findViewById(R.id.item_form_label);
 				holder.radio = (RadioGroup) view.findViewById(R.id.item_form_radio);
 				break;
@@ -175,6 +179,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.label = (TextView) view.findViewById(R.id.item_form_label);
 				holder.description = (TextView) view.findViewById(R.id.item_form_description);
 				holder.input = (FormInputText) view.findViewById(R.id.item_form_input);
+				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
 				break;
 			default:
 				DebugLog.d("============== get default view : "+getItemViewType(position));
@@ -191,11 +196,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 		if (holder.picture != null){
 			if (getItem(position).itemModel != null && getItem(position).itemModel.pictureEndPoint != null){
 				DebugLog.d( "picture show : "+getItem(position).itemModel.pictureEndPoint);
-				holder.picture.setVisibility(view.VISIBLE);
+				holder.picture.setVisibility(View.VISIBLE);
 				ImageLoader.getInstance().displayImage("file://"+getItem(position).itemModel.pictureEndPoint, holder.picture);
 			}
 			else
-				holder.picture.setVisibility(view.GONE);
+				holder.picture.setVisibility(View.GONE);
 		}
 
 		switch (getItemViewType(position)) {
@@ -213,12 +218,14 @@ public class FormFillAdapter extends MyBaseAdapter {
 			holder.label.setText(getItem(position).itemModel.label);
 			DebugLog.d("checkbox itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
 			reviseCheckBox(holder.checkBox, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[,]"), getItem(position).rowId, getItem(position).operatorId);
+			setMandatory(holder,getItem(position));
 			break;
 		case ItemFormRenderModel.TYPE_RADIO:
 			check(position);
 			holder.label.setText(getItem(position).itemModel.label);
 			DebugLog.d("radio button itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
 			reviseRadio(holder.radio, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
+			setMandatory(holder,getItem(position));
 			break;
 		case ItemFormRenderModel.TYPE_HEADER:
 			holder.label.setText(getItem(position).itemModel.labelHeader);
@@ -228,18 +235,20 @@ public class FormFillAdapter extends MyBaseAdapter {
 		case ItemFormRenderModel.TYPE_PICTURE_RADIO:
 			holder.photoRadio.setItemFormRenderModel(getItem(position));
 			holder.photoRadio.setValue(getItem(position).itemValue,true);
+			setMandatory(holder,getItem(position));
 			break;
 		case ItemFormRenderModel.TYPE_PICTURE:
 			holder.photo.setItemFormRenderModel(getItem(position));
 			holder.photo.setValue(getItem(position).itemValue,true);
+			setMandatory(holder,getItem(position));
 			break;
 		case ItemFormRenderModel.TYPE_TEXT_INPUT:
 			holder.label.setText(getItem(position).itemModel.label);
 			if(getItem(position).itemModel.description == null){
-				holder.description.setVisibility(view.GONE);
+				holder.description.setVisibility(View.GONE);
 			}
 			else{
-				holder.description.setVisibility(view.VISIBLE);
+				holder.description.setVisibility(View.VISIBLE);
 				holder.description.setText(getItem(position).itemModel.description);
 			}
 			holder.input.setTextChange(null);
@@ -249,7 +258,9 @@ public class FormFillAdapter extends MyBaseAdapter {
 			else
 				holder.input.setText("");
 			holder.input.setTextChange(formTextChange);
+			holder.input.setEnabled(!getItem(position).itemModel.disable);
 			check(position);
+			setMandatory(holder,getItem(position));
 			break;
 		default:
 			break;
@@ -257,6 +268,13 @@ public class FormFillAdapter extends MyBaseAdapter {
 		return view; 
 	}
 
+	private void setMandatory(ViewHolder viewHolder, ItemFormRenderModel itemFormRenderModel) {
+		if (itemFormRenderModel.itemModel.mandatory) {
+			viewHolder.mandatory.setVisibility(View.VISIBLE);
+		} else {
+			viewHolder.mandatory.setVisibility(View.GONE);
+		}
+	}
 	private void check(int position){
 //		log("============== aaaaaa ============================");
 //		log("============== aaaaaa ============================");
@@ -275,6 +293,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 			checkBox.setOnCheckedChangeListener(null);
 			checkBox.setChecked(false);
 			checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
+			checkBox.setEnabled(!item.itemModel.disable);
 		}
 		for (int i = 0; i< linear.getChildCount(); i++){
 			//binding checkbox
@@ -325,6 +344,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
 			radioButton.setOnCheckedChangeListener(null);
+			radioButton.setEnabled(!item.itemModel.disable);
 		}
 		radioGroup.clearCheck();
 		isHorizontal = 3 >= item.itemModel.options.size();
@@ -362,6 +382,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 						radioGroup.check(radioButton.getId());
 				}
 			radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
+
 		}
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 	}
@@ -377,6 +398,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		FormInputText input;
 		RadioGroup radio;
 		ImageView picture;
+		TextView mandatory;
 	}
 
 	OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {

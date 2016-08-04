@@ -185,7 +185,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			list.setSelection(indexes.get(labels.indexOf(parent.getItemAtPosition(position))));
-			log("===== selected : "+parent.getItemAtPosition(position)+" | "+indexes.get(labels.indexOf(parent.getItemAtPosition(position))));
+			DebugLog.d("===== selected : "+parent.getItemAtPosition(position)+" | "+indexes.get(labels.indexOf(parent.getItemAtPosition(position))));
 		}
 	};
 
@@ -211,7 +211,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 				DebugLog.d( "permited to add item");
 				OperatorModel operatorModel = new OperatorModel();
 				operatorModel = operatorModel.getOperatorById(correctiveValueModel.operatorId);
-				log("Corrective : "+item.label);
+				DebugLog.d("Corrective : "+item.label);
 				ItemFormRenderModel header = new ItemFormRenderModel();
 				if (lastModel == null || lastModel.itemId != correctiveValueModel.itemId || lastModel.operatorId != correctiveValueModel.operatorId){
 					header.type = ItemFormRenderModel.TYPE_HEADER;
@@ -219,7 +219,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 					header.itemValue = correctiveValueModel;
 					header.setSchedule(schedule);
 					item.labelHeader = item.label+"\n"+operatorNameForHeader(item, operatorModel);
-					log("after changed : "+item.label);
+					DebugLog.d("after changed : "+item.label);
 					header.label = item.label;
 					formModels.add(header);
 					

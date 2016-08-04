@@ -5,13 +5,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.Window;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.manager.ScreenManager;
-import com.sap.inspection.tools.DebugLog;
 
 //import com.sap.inspection.gcm.GCMService;
 
@@ -76,15 +76,7 @@ public abstract class BaseActivity extends FragmentActivity{
 		}
 		super.onDestroy();
 	}
-	
-	public void log(String logString){
-		DebugLog.d(logString);
-	}
-	
-	public void log(int logInt){
-		DebugLog.d(String.valueOf(logInt));
-	}
-	
+
 	public void writePreference(int key, String value) {
 		mPref.edit().putString(getString(key), value).commit();
 	}
@@ -126,4 +118,9 @@ public abstract class BaseActivity extends FragmentActivity{
     protected void onStop() {
         super.onStop();
     }
+
+	protected int color(int colorRes) {
+		return ContextCompat.getColor(this, colorRes);
+	}
+
 }

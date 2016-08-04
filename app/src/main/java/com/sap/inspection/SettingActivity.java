@@ -47,6 +47,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.tools.PrefUtil;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -96,7 +97,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        log("version Name = " + version + " versionCode = " + versionCode);
+        DebugLog.d("version Name = " + version + " versionCode = " + versionCode);
         setContentView(R.layout.activity_setting);
 
 
@@ -108,8 +109,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         update = (Button) findViewById(R.id.update);
         updateForm = (Button) findViewById(R.id.update_form);
         updateStatus = (TextView) findViewById(R.id.updateStatus);
-        log("latest_version" + prefs.getString(this.getString(R.string.latest_version), ""));
-        log("url_update" + prefs.getString(this.getString(R.string.url_update), ""));
+        DebugLog.d("latest_version" + prefs.getString(this.getString(R.string.latest_version), ""));
+        DebugLog.d("url_update" + prefs.getString(this.getString(R.string.url_update), ""));
         if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))) {
             update.setVisibility(View.VISIBLE);
             update.setEnabled(false);
@@ -158,6 +159,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 getSchedule();
             }
         });
+
+        findViewById(R.id.setting_logout).setOnClickListener(logoutClickListener);
     }
 
     OnClickListener deleteClickListener = new OnClickListener() {
@@ -236,9 +239,9 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             if (msg.getData() != null && msg.getData().getString("json") != null) {
                 VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
                 formVersion = model.version;
-                log("check version : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""));
-                log("check version value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"));
-                log("check version value from web: " + formVersion);
+                DebugLog.d("check version : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""));
+                DebugLog.d("check version value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"));
+                DebugLog.d("check version value from web: " + formVersion);
                 if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"))) {
                     pDialog.setMessage("Get new form from server");
                     APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
@@ -299,9 +302,9 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                         if (group.table == null) {
                             continue;
                         }
-                        log("group name : " + group.name);
-                        log("group table : " + group.table.toString());
-                        log("group table header : " + group.table.headers.toString());
+                        DebugLog.d("group name : " + group.name);
+                        DebugLog.d("group table : " + group.table.toString());
+                        DebugLog.d("group table header : " + group.table.headers.toString());
                         sum += group.table.headers.size();
                         sum += group.table.rows.size();
                     }
@@ -328,20 +331,20 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                         }
                     }
             }
-            log("version saved : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""));
-            log("version saved value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"));
-            log("version saved value from web: " + formVersion);
+            DebugLog.d("version saved : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""));
+            DebugLog.d("version saved value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"));
+            DebugLog.d("version saved value from web: " + formVersion);
             writePreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), formVersion);
             writePreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form), "not null");
-            log("form ofline user pref: " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form));
-            log("form ofline user : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form), null));
+            DebugLog.d("form ofline user pref: " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form));
+            DebugLog.d("form ofline user : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form), null));
             return null;
         }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            log("saving forms " + values[0] + " %...");
+            DebugLog.d("saving forms " + values[0] + " %...");
             pDialog.setMessage("saving forms " + values[0] + " %...");
         }
 
@@ -561,11 +564,11 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
     @Override
     public void onUpdate(String status) {
-        log("====================================================");
-        log("====================================================");
-        log(status);
-        log("====================================================");
-        log("====================================================");
+        DebugLog.d("====================================================");
+        DebugLog.d("====================================================");
+        DebugLog.d(status);
+        DebugLog.d("====================================================");
+        DebugLog.d("====================================================");
         uploadInfo.setText(status);
     }
 
@@ -668,11 +671,11 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     }
 
     public void onEvent(UploadProgressEvent event) {
-        log("====================================================");
-        log("====================================================");
-        log(event.progressString);
-        log("====================================================");
-        log("====================================================");
+        DebugLog.d("====================================================");
+        DebugLog.d("====================================================");
+        DebugLog.d(event.progressString);
+        DebugLog.d("====================================================");
+        DebugLog.d("====================================================");
         uploadInfo.setText(event.progressString);
     }
 
@@ -694,4 +697,26 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         scheduleSaver.execute(event.scheduleResponseModel.data.toArray());
     }
 
+    OnClickListener logoutClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            new LovelyStandardDialog(SettingActivity.this,R.style.CheckBoxTintTheme)
+                    .setTopColor(color(R.color.theme_color))
+                    .setButtonsColor(color(R.color.theme_color))
+                    .setIcon(R.drawable.logo_app)
+                    .setTitle("Confirmation")
+                    .setMessage("Are you sure you want to logout?")
+                    .setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            writePreference(R.string.keep_login,false);
+                            Intent i = new Intent(SettingActivity.this, LoginActivity.class);
+                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(i);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+        }
+    };
 }

@@ -61,17 +61,17 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		DbRepository.getInstance().open(activity);
 
 		RowModel rModel = new RowModel();
-		log("===================================1 row model max level : "+rModel.getMaxLevel("1"));
-		log("===================================2 row model max level : "+rModel.getMaxLevel("2"));
-		log("===================================3 row model max level : "+rModel.getMaxLevel("3"));
+		DebugLog.d("===================================1 row model max level : "+rModel.getMaxLevel("1"));
+		DebugLog.d("===================================2 row model max level : "+rModel.getMaxLevel("2"));
+		DebugLog.d("===================================3 row model max level : "+rModel.getMaxLevel("3"));
 		
 		scheduleBaseModels = new ScheduleGeneral();
 		scheduleBaseModels = scheduleBaseModels.getScheduleById(bundle.getString("scheduleId"));
-		log("===================================4 worktype id : "+scheduleBaseModels.work_type.id);
+		DebugLog.d("===================================4 worktype id : "+scheduleBaseModels.work_type.id);
 		workFormModel = new WorkFormModel();
 		workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModels.work_type.id);
-		log("===================================4 form model max level : "+workFormModel.id);
-		log("===================================4 form model : "+workFormModel.name);
+		DebugLog.d("===================================4 form model max level : "+workFormModel.id);
+		DebugLog.d("===================================4 form model : "+workFormModel.name);
 		WorkFormGroupModel groupModel = new WorkFormGroupModel();
 		workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
 		
@@ -87,7 +87,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		rowModel.text = "this is just a root place holder";
 		rowModel.children = new Vector<RowModel>();
 		for (WorkFormGroupModel model : workFormGroupModels) {
-			log("===================================4 form group model max level : "+model.id+" | "+model.name);
+			DebugLog.d("===================================4 form group model max level : "+model.id+" | "+model.name);
 //			rowModel.children.addAll(rowModel.getAllItemByWorkFormGroupId(model.id));
 			RowModel groupRow = new RowModel();
 			groupRow.children = rowModel.getAllItemByWorkFormGroupId(model.id);

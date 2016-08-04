@@ -132,6 +132,15 @@
                     android:singleLine="true" />
             </LinearLayout>
 
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Keep Me Logged In"
+                android:layout_marginLeft="@dimen/padding_large"
+                android:layout_marginRight="@dimen/padding_large"
+                android:textColor="@android:color/white"
+                android:id="@+id/cbkeep"
+                />
             <Button
                 android:id="@id/submit"
                 style="@style/list_title"
@@ -142,7 +151,8 @@
                 android:layout_marginTop="@dimen/padding_large"
                 android:background="@drawable/bg_button_plain_blue"
                 android:text="@string/signin"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                />
 
             <TextView
                 android:id="@id/forgot_password"

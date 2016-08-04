@@ -9,6 +9,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.PrefUtil;
 
@@ -44,7 +45,7 @@ public class RegisterGCM extends AsyncTask<Void, Void, String>{
 		DebugLog.d("result in gcm : " + result);
 		try {
 			if (!PrefUtil.getStringPref(R.string.user_authToken, "").equalsIgnoreCase("")){
-//				APIHelper.registerGCMToken(MyApplication.getInstance(), myHandler,  result);
+				APIHelper.registerGCMToken(MyApplication.getInstance(), myHandler,  result);
 			}
 		} catch (UnsupportedOperationException e){
 			e.printStackTrace();

@@ -184,7 +184,7 @@ public class ItemValueModel extends BaseModel {
         String[] columns = null;
         String where = null;
         String[] args = null;
-        log("get itemvalues for " + scheduleId);
+		DebugLog.d("get itemvalues for " + scheduleId);
 
         if (ItemUploadManager.getInstance().isRunning()){
             where =DbManagerValue.colUploadStatus+"!=? AND "+DbManagerValue.colScheduleId+"=?";
@@ -193,23 +193,23 @@ public class ItemValueModel extends BaseModel {
             where = DbManagerValue.colScheduleId+"=?";
             args = new String[]{scheduleId};
         }
-        log(where);
+		DebugLog.d(where);
 
         Cursor cursor;
 
         cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
         if (!cursor.moveToFirst()){
-            log("model null ");
+			DebugLog.d("model null ");
 			cursor.close();
             return model;
         }
         do{
             model.add(getSiteFromCursor(cursor));
-            log("" + model.get(model.size() - 1).value);
+			DebugLog.d("" + model.get(model.size() - 1).value);
         }
         while(cursor.moveToNext());
-        log("model size "+model.size());
+		DebugLog.d("model size "+model.size());
         cursor.close();
         return model;
     }
@@ -221,12 +221,12 @@ public class ItemValueModel extends BaseModel {
 	}
 
 	public void save(){
-		log("saving value on itemvaluemodel");
-		log("row id : "+  rowId);
-		log("schedule Id : "+  scheduleId);
-		log("operator id : "+  operatorId);
-		log("item id : " + itemId);
-		log("------------------------------------");
+		DebugLog.d("saving value on itemvaluemodel");
+		DebugLog.d("row id : "+  rowId);
+		DebugLog.d("schedule Id : "+  scheduleId);
+		DebugLog.d("operator id : "+  operatorId);
+		DebugLog.d("item id : " + itemId);
+		DebugLog.d("------------------------------------");
 		save(scheduleId, photoStatus);
 	}
 

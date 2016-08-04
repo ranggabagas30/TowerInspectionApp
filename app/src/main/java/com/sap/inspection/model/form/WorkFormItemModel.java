@@ -20,7 +20,7 @@ public class WorkFormItemModel extends BaseModel {
 	public int id;
 	public int position;
 	public boolean searchable;
-	public boolean mandatory;
+	public boolean mandatory = false;
 	public boolean visible;
 	public boolean listable;
 	public Vector<WorkFormOptionsModel> options;
@@ -37,6 +37,9 @@ public class WorkFormItemModel extends BaseModel {
 	public String created_at;
 	public String updated_at;
 	public PictureModel picture;
+	public boolean disable;
+	public boolean search = true;
+	public boolean expand;
 
 	@Override
 	public int describeContents() {
@@ -68,6 +71,9 @@ public class WorkFormItemModel extends BaseModel {
 				+ DbManager.colCreatedAt + " varchar, "
 				+ DbManager.colUpdatedAt + " varchar, "
 				+ DbManager.colPicture + " varchar, "
+				+ DbManager.colDisable + " integer, "
+				+ DbManager.colSearch + " integer, "
+				+ DbManager.colExpand + " integer, "
 				+ "PRIMARY KEY (" + DbManager.colID + "))";
 	}
 
@@ -84,7 +90,7 @@ public class WorkFormItemModel extends BaseModel {
 
 		saveImage();
 		String sql = String
-				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 						DbManager.mWorkFormItem , DbManager.colID,
 						DbManager.colPosition,DbManager.colSearchable,
 						DbManager.colMandatory,DbManager.colVisible,
@@ -93,7 +99,9 @@ public class WorkFormItemModel extends BaseModel {
 						DbManager.colLableKey,DbManager.colDescription,
 						DbManager.colWorkFormRowColumnId, DbManager.colDefaultValue,
 						DbManager.colScopeType, DbManager.colCreatedAt,
-						DbManager.colUpdatedAt, DbManager.colPicture);
+						DbManager.colUpdatedAt, DbManager.colPicture,
+						DbManager.colDisable,DbManager.colSearch,
+						DbManager.colExpand);
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -114,6 +122,9 @@ public class WorkFormItemModel extends BaseModel {
 		bindAndCheckNullString(stmt, 15, created_at);
 		bindAndCheckNullString(stmt, 16, updated_at);
 		bindAndCheckNullString(stmt, 17, pictureEndPoint);
+		bindBooleanToInteger(stmt, 18, disable);
+		bindBooleanToInteger(stmt, 19, search);
+		bindBooleanToInteger(stmt, 20, expand);
 
 		stmt.executeInsert();
 		stmt.close();
@@ -245,6 +256,9 @@ public class WorkFormItemModel extends BaseModel {
 		item.updated_at = (c.getString(c.getColumnIndex(DbManager.colUpdatedAt)));
 		item.description = (c.getString(c.getColumnIndex(DbManager.colDescription)));
 		item.pictureEndPoint = (c.getString(c.getColumnIndex(DbManager.colPicture)));
+		item.disable = (int) (c.getLong(c.getColumnIndex(DbManager.colDisable))) == 1 ? true : false;
+		item.search = (int) (c.getLong(c.getColumnIndex(DbManager.colSearch))) == 1 ? true : false;
+		item.expand = (int) (c.getLong(c.getColumnIndex(DbManager.colExpand))) == 1 ? true : false;
 
 		return item;
 	}

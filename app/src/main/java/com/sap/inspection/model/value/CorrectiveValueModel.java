@@ -12,6 +12,7 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.tools.DebugLog;
 
 
 public class CorrectiveValueModel extends ItemValueModel {
@@ -103,13 +104,13 @@ public class CorrectiveValueModel extends ItemValueModel {
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,order, null);
 
 		if (!cursor.moveToFirst()){
-			log("corrective value for this schedule is null");
+			DebugLog.d("corrective value for this schedule is null");
 			cursor.close();
 			return model;
 		}
 		do{
 			model.add(getSiteFromCursor(cursor));
-			log("corrective item id : "+model.get(model.size() - 1).itemId);
+			DebugLog.d("corrective item id : "+model.get(model.size() - 1).itemId);
 		}while(cursor.moveToNext());
 
 		cursor.close();
@@ -152,12 +153,12 @@ public class CorrectiveValueModel extends ItemValueModel {
 	}
 
 	public void save(){
-		log("saving value on itemvaluemodel");
-		log("row id : "+  rowId);
-		log("schedule Id : "+  scheduleId);
-		log("operator id : "+  operatorId);
-		log("item id : "+  itemId);
-		log("------------------------------------");
+		DebugLog.d("saving value on itemvaluemodel");
+		DebugLog.d("row id : "+  rowId);
+		DebugLog.d("schedule Id : "+  scheduleId);
+		DebugLog.d("operator id : "+  operatorId);
+		DebugLog.d("item id : "+  itemId);
+		DebugLog.d("------------------------------------");
 		save(scheduleId, photoStatus);
 	}
 
@@ -228,12 +229,12 @@ public class CorrectiveValueModel extends ItemValueModel {
 	}
 
 	public void saveOrReplace(){
-		log("saving value on itemvaluemodel");
-		log("row id : "+  rowId);
-		log("schedule Id : "+  scheduleId);
-		log("operator id : "+  operatorId);
-		log("item id : "+  itemId);
-		log("------------------------------------");
+		DebugLog.d("saving value on itemvaluemodel");
+		DebugLog.d("row id : "+  rowId);
+		DebugLog.d("schedule Id : "+  scheduleId);
+		DebugLog.d("operator id : "+  operatorId);
+		DebugLog.d("item id : "+  itemId);
+		DebugLog.d("------------------------------------");
 		saveOrReplace(scheduleId, photoStatus);
 	}
 

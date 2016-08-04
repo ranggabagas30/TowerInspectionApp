@@ -167,6 +167,16 @@
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
             </LinearLayout>
+            <Button
+                android:id="@+id/setting_logout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/selector_button_green_small_padding"
+                android:text="Logout"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
         </LinearLayout>
     </ScrollView>
 

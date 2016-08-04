@@ -19,6 +19,8 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,6 +71,7 @@ public class LoginActivity extends BaseActivity {
 	private EditText username;
 	private EditText password;
 	private TextView version;
+	private CheckBox cbKeep;
 	public static final String SENDER_ID = "494949404342";
 	private LoginLogModel loginLogModel;
 
@@ -104,8 +107,8 @@ public class LoginActivity extends BaseActivity {
 	            String backupDBPath = dstName;
 	            File currentDB = new File(data, currentDBPath);
 	            File backupDB = new File(sd, backupDBPath);
-	            log("external dir : "+backupDB.getPath());
-	            log("database path : "+currentDB.getPath());
+				DebugLog.d("external dir : "+backupDB.getPath());
+				DebugLog.d("database path : "+currentDB.getPath());
 
 	            if (currentDB.exists()) {
 	                FileChannel src = new FileInputStream(currentDB).getChannel();
@@ -134,8 +137,8 @@ public class LoginActivity extends BaseActivity {
 	            String backupDBPath = dstName;
 	            File currentDB = new File(data, currentDBPath);
 	            File backupDB = new File(sd, backupDBPath);
-	            log("external dir : "+backupDB.getPath());
-	            log("database path : "+currentDB.getPath());
+				DebugLog.d("external dir : "+backupDB.getPath());
+				DebugLog.d("database path : "+currentDB.getPath());
 
 	            if (currentDB.exists()) {
 	                FileChannel src = new FileInputStream(currentDB).getChannel();
@@ -155,9 +158,14 @@ public class LoginActivity extends BaseActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		DebugLog.d("");
-		RegisterGCM register = new RegisterGCM(new Handler());
-		register.execute();
-		
+
+		if (getPreference(R.string.keep_login,false) && getPreference(R.string.user_authToken,null)!=null) {
+			Intent intent = new Intent(this, jumto);
+			startActivity(intent);
+			finish();
+			return;
+		}
+
 		progressDialog = new ProgressDialog(activity);
 		setContentView(R.layout.activity_login);
 		developmentLayout = findViewById(R.id.devLayout);
@@ -198,6 +206,14 @@ public class LoginActivity extends BaseActivity {
 		password = (EditText) findViewById(R.id.password);
 		version =  (TextView) findViewById(R.id.app_version);
 		version.setText(getVersionName());
+
+		cbKeep = (CheckBox)findViewById(R.id.cbkeep);
+		cbKeep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+				DebugLog.d("checked="+b);
+			}
+		});
 		
 		if (getPreference(R.string.user_name, null) != null)
 			username.setText(getPreference(R.string.user_name, null));
@@ -217,7 +233,7 @@ public class LoginActivity extends BaseActivity {
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		file_url = prefs.getString(this.getString(R.string.url_update), "");
 		update = (Button) findViewById(R.id.update);
-		log("version Name = " + version+" versionCode = "+versionCode);
+		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
 		if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))){
 			update.setVisibility(View.GONE);
 		}else{
@@ -245,6 +261,9 @@ public class LoginActivity extends BaseActivity {
 				}
 			}
 		});
+
+//test crash for crashlytics
+//		throw new RuntimeException("This is a crash");
 	}
 
 	private void initForm(){
@@ -296,8 +315,7 @@ public class LoginActivity extends BaseActivity {
 			loginLogModel.id = String.valueOf(System.currentTimeMillis());
 			loginLogModel.userName = username.getText().toString();
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String currentDateandTime = simpleDateFormat.format(new Date());
-			loginLogModel.time = currentDateandTime;
+			loginLogModel.time = simpleDateFormat.format(new Date());
 			loginLogModel.fileName = loginLogModel.time + " " + loginLogModel.userName;
 			setFileName(loginLogModel.fileName);
 			//			preview.camera.takePicture(shutterCallback, rawCallback,jpegCallback);
@@ -306,9 +324,9 @@ public class LoginActivity extends BaseActivity {
 			case R.id.submit:
 				if (GlobalVar.getInstance().anyNetwork(activity)){
 					onlineLogin(userModel);
-					log("any network");
+					DebugLog.d("any network");
 				}else{
-					log("no network");
+					DebugLog.d("no network");
 					checkLoginState(offlineLogin(userModel.username, userModel.password));
 				}
 				break;
@@ -349,8 +367,6 @@ public class LoginActivity extends BaseActivity {
 
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 
 		}
@@ -368,6 +384,7 @@ public class LoginActivity extends BaseActivity {
 					writePreference(R.string.user_fullname, userResponseModel.data.full_name);
 					writePreference(R.string.user_id, userResponseModel.data.id);
 					writePreference(R.string.user_authToken, userResponseModel.data.persistence_token);
+					writePreference(R.string.keep_login,cbKeep.isChecked());
 					if (progressDialog != null && progressDialog.isShowing())
 						progressDialog.dismiss();
 					checkLoginState(true);
@@ -384,7 +401,10 @@ public class LoginActivity extends BaseActivity {
 
 	private void checkLoginState(boolean canLogin){
 		if (canLogin){
+			RegisterGCM register = new RegisterGCM(new Handler());
+			register.execute();
 			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+			intent.putExtra(Constants.LOADAFTERLOGIN,true);
 			startActivityForResult(intent, Constants.DEFAULT_REQUEST_CODE);
 			finish();
 		}
@@ -583,7 +603,7 @@ public class LoginActivity extends BaseActivity {
 		String version = null;
 		try {
 			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-			log(version);
+			DebugLog.d(version);
 		} catch (NameNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

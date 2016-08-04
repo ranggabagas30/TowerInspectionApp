@@ -1,8 +1,5 @@
 package com.sap.inspection.constant;
 
-import com.rindang.zconfig.AppConfig;
-
-
 public class Constants {
 	
 	public static final String[] DAYS 		= {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
@@ -74,5 +71,7 @@ public class Constants {
 	 */
 	
 	public static String scheduleId = "scheduleId";
-	
+
+	public static final String LOADAFTERLOGIN = "load";
+
 } 

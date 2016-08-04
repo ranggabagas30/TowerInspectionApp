@@ -5,7 +5,7 @@ import android.view.View;
 
 public class WawanConfig extends BaseConfig{
 
-	public static final String SENDER_ID = "65449620027";
+	public static final String SENDER_ID = "934425217631";
 	
 	@Override
 	public String getHost() {

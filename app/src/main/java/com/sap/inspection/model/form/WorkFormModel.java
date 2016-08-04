@@ -1,7 +1,5 @@
 package com.sap.inspection.model.form;
 
-import java.util.Vector;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
@@ -13,6 +11,9 @@ import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.SiteModel;
 import com.sap.inspection.model.WorkTypeModel;
+import com.sap.inspection.tools.DebugLog;
+
+import java.util.Vector;
 
 public class WorkFormModel extends BaseModel {
 	
@@ -150,7 +151,7 @@ public class WorkFormModel extends BaseModel {
 			cursor.close();
 			return result;
 		}
-		log("=============cursor can move to first==================");
+		DebugLog.d("=============cursor can move to first==================");
 		result = getItemFromCursor(cursor);
 
 		cursor.close();
@@ -160,17 +161,17 @@ public class WorkFormModel extends BaseModel {
 
 	private WorkFormModel getItemFromCursor(Cursor c) {
 		WorkFormModel item= new WorkFormModel();
-		log("=============cursor can move to second==================");
+		DebugLog.d("=============cursor can move to second==================");
 		if (null == c)
 			return item;
-		log("=============cursor can move to third==================");
+		DebugLog.d("=============cursor can move to third==================");
 		item.id = (c.getInt(c.getColumnIndex(DbManager.colID)));
 		item.name = (c.getString(c.getColumnIndex(DbManager.colName)));
 		item.work_type_id = (c.getInt(c.getColumnIndex(DbManager.colWorkTypeId)));
 		item.notes = (c.getString(c.getColumnIndex(DbManager.colNotes)));
 		item.created_at = (c.getString(c.getColumnIndex(DbManager.colCreatedAt)));
 		item.updated_at = (c.getString(c.getColumnIndex(DbManager.colUpdatedAt)));
-		log("============= id =================="+item.id);
+		DebugLog.d("============= id =================="+item.id);
 		return item;
 	}
 }

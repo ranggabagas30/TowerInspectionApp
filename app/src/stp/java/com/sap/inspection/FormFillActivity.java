@@ -8,6 +8,7 @@ import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -83,7 +84,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private ScrollView scroll;
 	private AutoCompleteTextView search;
 	private ListView list;
-	
+	private View searchView;
+
 	private FormFillAdapter adapter;
 
 //	private LocationManager locationManager;
@@ -159,6 +161,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		setCurrentGeoPoint(new LatLng(0, 0));
 		setContentView(R.layout.activity_form_fill);
 
+		searchView = findViewById(R.id.layout_search);
 		list = (ListView) findViewById(R.id.list);
 		list.setOnItemSelectedListener(itemSelected);
 		adapter = new FormFillAdapter(this);
@@ -172,8 +175,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);
+
+		String scheduleId = bundle.getString("scheduleId");
+
+		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+scheduleId);
 		schedule = new ScheduleGeneral();
-		schedule = schedule.getScheduleById(bundle.getString("scheduleId"));
+		schedule = schedule.getScheduleById(scheduleId);
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+bundle.getString("scheduleId"));
 		adapter.setWorkType(schedule.work_type.name);
 
@@ -198,16 +205,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		public void onItemSelected(AdapterView<?> listView, View view, int position, long id)
 		{
-			log("==================== on item selected");
+			DebugLog.d("==================== on item selected");
 			FormFillAdapter adapter = (FormFillAdapter) listView.getAdapter();
 		    if (adapter.getItemViewType(position) == ItemFormRenderModel.TYPE_TEXT_INPUT)
 		    {
-		    	log("here is the text input");
+				DebugLog.d("here is the text input");
 		        listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 		        view.findViewById(R.id.item_form_input).requestFocus();
 		    }
 		    else if (adapter.getItemViewType(position) == ItemFormRenderModel.TYPE_PICTURE_RADIO){
-		    	log("here is the picture");
+				DebugLog.d("here is the picture");
 		        listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 		        RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radioGroup);
 		        if (radioGroup.getCheckedRadioButtonId() == R.id.radioNOK)
@@ -240,7 +247,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		public void onNothingSelected(AdapterView<?> listView)
 		{
-			log("==================== on nothing selected");
+			DebugLog.d("==================== on nothing selected");
 		    // This happens when you start scrolling, so we need to prevent it from staying
 		    // in the afterDescendants mode if the EditText was focused 
 		    listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
@@ -271,10 +278,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 			if (buttonView.getTag() != null){
-				log((String)buttonView.getTag());
+				DebugLog.d((String)buttonView.getTag());
 				String[] split = ((String)buttonView.getTag()).split("[|]");
 				for (int i = 0; i < split.length; i++) {
-					log("=== "+split[i]);
+					DebugLog.d("=== "+split[i]);
 				}
 				saveValue(split, isChecked, true);
 			}
@@ -285,7 +292,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 
 		if (itemProperties.length < 5){
-			log("invalid component to saved");
+			DebugLog.d("invalid component to saved");
 			return;
 		}
 		//
@@ -302,11 +309,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			itemValueForShare.value = "";
 			itemValueForShare.typePhoto = itemProperties[4].equalsIgnoreCase("1");
 		}
-		log("=================================================================");
-		log("===== value : "+itemValueForShare.value);
+		DebugLog.d("=================================================================");
+		DebugLog.d("===== value : "+itemValueForShare.value);
 		if (isCompundButton){
 			if (isAdding){ //adding value on check box
-				log("goto adding");
+				DebugLog.d("goto adding");
 				// value still null or blank
 				if (itemValueForShare.value == null | itemValueForShare.value.equalsIgnoreCase(""))
 					itemValueForShare.value = itemProperties[3];
@@ -323,7 +330,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
 				itemValueForShare.save();
 			}else{ // deleting on checkbox
-				log("goto deleting");
+				DebugLog.d("goto deleting");
 				String[] chkBoxValue = itemValueForShare.value.split("[,]");
 				itemValueForShare.value = "";
 				//removing unchecked checkbox value
@@ -352,9 +359,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				itemValueForShare.save();
 			}
 		}
-		log("===== value : "+itemValueForShare.value);
-		log("row id : "+ itemValueForShare.rowId);
-		log("task done : "+itemValueForShare.countTaskDone(schedule.id, itemValueForShare.rowId));
+		DebugLog.d("===== value : "+itemValueForShare.value);
+		DebugLog.d("row id : "+ itemValueForShare.rowId);
+		DebugLog.d("task done : "+itemValueForShare.countTaskDone(schedule.id, itemValueForShare.rowId));
 		setPercentage(itemValueForShare.rowId);
 	}
 
@@ -367,11 +374,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	public void onTextChange(String string, View view) {
 		if (view.getTag() != null){
-			log((String)view.getTag());
+			DebugLog.d((String)view.getTag());
 			String[] split = ((String)view.getTag()).split("[|]");
 			split[3] = string;
 			for (int i = 0; i < split.length; i++) {
-				log("=== "+split[i]);
+				DebugLog.d("=== "+split[i]);
 			}
 			saveValue(split, !string.equalsIgnoreCase(""),false);
 		}
@@ -433,18 +440,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		{
 			// place where to store camera taken picture
 			photo = this.createTemporaryFile("picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-", ".jpg");
-			log("photo url : "+photo.getName());
+			DebugLog.d("photo url : "+photo.getName());
 			photo.delete();
 		}
 		catch(Exception e)
 		{
-            log(e.getMessage());
-			log("Can't create file to take picture!");
+			DebugLog.d(e.getMessage());
+			DebugLog.d("Can't create file to take picture!");
 			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
 			return false;
 		}
 		mImageUri = Uri.fromFile(photo);
-		log("mimage url : "+mImageUri.getPath());
+		DebugLog.d("mimage url : "+mImageUri.getPath());
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 
 		//        intent.putExtra("crop", "true");
@@ -486,9 +493,17 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (photoItem != null && mImageUri != null){
 				photoItem.initValue();
 				photoItem.deletePhoto();
-				ImageUtil.resizeAndSaveImage(mImageUri.toString(), schedule.id);
-				sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-						Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
+				File file = ImageUtil.resizeAndSaveImage(mImageUri.toString(), schedule.id);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+					Intent mediaScanIntent = new Intent(
+							Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+					Uri contentUri = Uri.fromFile(file);
+					mediaScanIntent.setData(contentUri);
+					this.sendBroadcast(mediaScanIntent);
+				} else {
+					sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+							Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
+				}
 				DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
 				photoItem.setPhotoDate();
 				photoItem.setImage(mImageUri.toString(),String.valueOf(currentGeoPoint.latitude),String.valueOf(currentGeoPoint.longitude),accuracy);
@@ -634,24 +649,24 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			for(int i = 0; i < rowModel.row_columns.size(); i++){
 				if (rowModel.row_columns.get(i).items.size() > 0){
 					finishInflate = false;
-					log("-----------------------------------------------");
-					log("========================= head row id : "+rowModel.id);
-					log("========================= head row ancestry : "+rowModel.ancestry);
+					DebugLog.d("-----------------------------------------------");
+					DebugLog.d("========================= head row id : "+rowModel.id);
+					DebugLog.d("========================= head row ancestry : "+rowModel.ancestry);
 					checkHeaderName(rowModel);
-					log("-----------------------------------------------");
+					DebugLog.d("-----------------------------------------------");
 					
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
 					form.setColumn(column);
 					form.setRowColumnModels(rowModel.row_columns, null);
 					if (form.hasInput){
-						log("========================= head row has input : ");
+						DebugLog.d("========================= head row has input : ");
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 						labels.add(form.getLabel());
 						formModels.add(form);
 					}
 					else if (form.hasPicture){
-						log("========================= head row has picture : ");
+						DebugLog.d("========================= head row has picture : ");
 						labels.add(form.getLabel());
 						formModels.add(form);
 					}
@@ -668,10 +683,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				x++;
 				publishProgress(x*100/rowModel.children.size());
 				finishInflate = false;
-				log("-----------------------------------------------");
-				log("========================= child row id : "+model.id);
-				log("========================= child row ancestry : "+rowModel.ancestry);
-				log("-----------------------------------------------");
+				DebugLog.d("-----------------------------------------------");
+				DebugLog.d("========================= child row id : "+model.id);
+				DebugLog.d("========================= child row ancestry : "+rowModel.ancestry);
+				DebugLog.d("-----------------------------------------------");
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
 				form.setColumn(column);
@@ -696,7 +711,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					rowModel.row_columns.size() > 0 && 
 					rowModel.row_columns.get(0).items != null &&
 					rowModel.row_columns.get(0).items.size() > 0){
-				log("========================= head row label : "+rowModel.row_columns.get(0).items.get(0).label);
+				DebugLog.d("========================= head row label : "+rowModel.row_columns.get(0).items.get(0).label);
 				if (rowModel.row_columns.get(0).items.get(0).label != null && !rowModel.row_columns.get(0).items.get(0).label.equalsIgnoreCase(""))
 					this.lastLable = rowModel.row_columns.get(0).items.get(0).label;
 					rowModel.row_columns.get(0).items.get(0).labelHeader = this.lastLable;
@@ -722,6 +737,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				e.printStackTrace();
 			}
 			adapter.setItems(formModels);
+			boolean ada = false;
+			for (ItemFormRenderModel item : formModels) {
+				if (item.itemModel!=null&&!item.itemModel.search) {
+					ada = true;
+					break;
+				}
+			}
+			if (ada)
+				searchView.setVisibility(View.GONE);
 //			SearchAdapter searchAdapter = new SearchAdapter(activity, android.R.layout.select_dialog_item, android.R.id.text1, indexes);
 			ArrayAdapter<String> searchAdapter = new ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, labels);
 			search.setAdapter(searchAdapter);
@@ -734,7 +758,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			list.setSelection(indexes.get(labels.indexOf(parent.getItemAtPosition(position))));
-			log("===== selected : "+parent.getItemAtPosition(position)+" | "+indexes.get(labels.indexOf(parent.getItemAtPosition(position))));
+			DebugLog.d("===== selected : "+parent.getItemAtPosition(position)+" | "+indexes.get(labels.indexOf(parent.getItemAtPosition(position))));
 		}
 	};
 	
@@ -775,5 +799,51 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
 		}
 	};
+
+	@Override
+	public void onBackPressed() {
+		int[] arr = {ItemFormRenderModel.TYPE_PICTURE_RADIO,
+				ItemFormRenderModel.TYPE_CHECKBOX,
+				ItemFormRenderModel.TYPE_RADIO,
+				ItemFormRenderModel.TYPE_TEXT_INPUT,
+				ItemFormRenderModel.TYPE_PICTURE};
+		ArrayList<Integer> list = new ArrayList<>();
+		list.add(ItemFormRenderModel.TYPE_PICTURE_RADIO);
+		list.add(ItemFormRenderModel.TYPE_CHECKBOX);
+		list.add(ItemFormRenderModel.TYPE_RADIO);
+		list.add(ItemFormRenderModel.TYPE_TEXT_INPUT);
+		list.add(ItemFormRenderModel.TYPE_PICTURE);
+		adapter.notifyDataSetChanged();
+		if (adapter!=null && !adapter.isEmpty()) {
+			boolean mandatoryFound = false;
+			DebugLog.d("adapter size "+adapter.getCount());
+			for (int i = 0; i < adapter.getCount(); i++) {
+				ItemFormRenderModel item = adapter.getItem(i);
+				DebugLog.d("count "+i);
+				if (item.itemModel!=null) {
+					DebugLog.d("type="+item.type+" mandatory="+item.itemModel.mandatory+
+							" disable="+item.itemModel.disable);
+				}
+				if (item.itemValue!=null) {
+					DebugLog.d("itemValue="+item.itemValue.value);
+				}
+
+				if (list.contains(item.type)) {
+					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
+						if (item.itemModel != null && item.itemModel.mandatory && !item.itemModel.disable) {
+							Toast.makeText(activity, item.itemModel.label + " is mandatory", Toast.LENGTH_SHORT).show();
+							mandatoryFound = true;
+							break;
+						}
+					}
+				}
+			}
+			DebugLog.d("mandatoryFound="+mandatoryFound);
+			if (!mandatoryFound)
+				super.onBackPressed();
+		} else
+			super.onBackPressed();
+	}
+
 
 }

@@ -4,12 +4,22 @@
     android:background="#ffffff"
     android:padding="@dimen/padding_large" >
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="italic|bold"
+        android:text="Mandatory"
+        android:id="@+id/item_form_mandatory"
+        android:visibility="gone"
+        />
+
     <com.sap.inspection.view.MyTextView
         android:id="@+id/item_form_label"
         style="@style/list_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/item_form_mandatory"
         android:text="SAMPLE"
         android:textColor="#333333"
         android:visibility="gone" />

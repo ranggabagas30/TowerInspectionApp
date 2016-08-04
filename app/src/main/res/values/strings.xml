@@ -42,7 +42,8 @@
     <string name="uid">UID</string>
     <string name="latest_user_db">latest_user_db</string>
     <string name="latest_user_db_value">latest_user_db_value</string>
-    
+    <string name="keep_login">keep_login</string>
+
     <!-- Forms -->
     <string name="ok">OK</string>
     <string name="nok">NOK</string>

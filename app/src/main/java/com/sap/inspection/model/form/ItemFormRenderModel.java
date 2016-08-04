@@ -89,9 +89,9 @@ public class ItemFormRenderModel extends BaseModel {
 
 	private void countPercent(){
 		percent = fillableTask == 0? 0 : filledTask * 100 / fillableTask;
-		log("-=--=-=- percent : "+percent);
-		log("-=--=-=- filled task : "+filledTask);
-		log("-=--=-=- fillable task : "+fillableTask);
+		DebugLog.d("-=--=-=- percent : "+percent);
+		DebugLog.d("-=--=-=- filled task : "+filledTask);
+		DebugLog.d("-=--=-=- fillable task : "+fillableTask);
 	}
 
 	public String getWhen(){
@@ -137,7 +137,7 @@ public class ItemFormRenderModel extends BaseModel {
 
 	public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels,String parentLabel) {
 		if (schedule.operators == null || schedule.operators.size() == 0){
-			log("operator none");
+			DebugLog.d("operator none");
 			return;
 		}
 //		do {
@@ -150,19 +150,19 @@ public class ItemFormRenderModel extends BaseModel {
 		for(ColumnModel columnModel : columns){
 			if (columnModel.position == 1){
 				firstColId = columnModel.id;
-				log("first column : "+columnModel.column_name+" colid "+columnModel.id);
+				DebugLog.d("first column : "+columnModel.column_name+" colid "+columnModel.id);
 				break;
 			}
 		}
-		log("first column detected : "+firstColId);
+		DebugLog.d("first column detected : "+firstColId);
 		if (firstColId == -1)
 			return;
 		
 		for(int i = 0 ; i < rowColumnModels.size(); i++){
-			log("current row col id : "+rowColumnModels.get(i).id);
+			DebugLog.d("current row col id : "+rowColumnModels.get(i).id);
 			if (rowColumnModels.get(i).column_id == firstColId){
 				firstItem = rowColumnModels.remove(i);
-				log("first item id : "+firstItem.id);
+				DebugLog.d("first item id : "+firstItem.id);
 			}
 		}
 		if (firstItem == null)
@@ -254,9 +254,9 @@ public class ItemFormRenderModel extends BaseModel {
 
 	private void generateItemsPerOperator(RowColumnModel rowCol,int operatorId){
 		for (int i = 0 ; i< rowCol.items.size(); i ++) {
-			log("item : "+rowCol.items.get(i).label+" id : "+rowCol.items.get(i).id);
+			DebugLog.d("item : "+rowCol.items.get(i).label+" id : "+rowCol.items.get(i).id);
 			if (rowCol.items.get(i).id == 441)
-				log("===================== item : "+rowCol.items.get(i).label+" id : "+rowCol.items.get(i).id+"=================");
+				DebugLog.d("===================== item : "+rowCol.items.get(i).label+" id : "+rowCol.items.get(i).id+"=================");
 			if (rowCol.items.get(i).field_type == null)
 				continue;
 			generateViewItem(rowCol.row_id,rowCol.items.get(i),operatorId);
@@ -266,7 +266,7 @@ public class ItemFormRenderModel extends BaseModel {
 	//check if any input type
 	private boolean checkAnyInput(Vector<WorkFormItemModel> items){
 		for (WorkFormItemModel item : items) {
-			log("scope type : "+item.scope_type);
+			DebugLog.d("scope type : "+item.scope_type);
 			if (item.field_type != null && !item.field_type.equalsIgnoreCase("label") && item.scope_type != null && !item.scope_type.equalsIgnoreCase("all"))
 				return true;
 		}
@@ -275,7 +275,7 @@ public class ItemFormRenderModel extends BaseModel {
 	
 	private boolean checkAnyInputHead(Vector<WorkFormItemModel> items){
 		for (WorkFormItemModel item : items) {
-			log("scope type : "+item.scope_type);
+			DebugLog.d("scope type : "+item.scope_type);
 			if (item.field_type != null && !item.field_type.equalsIgnoreCase("label") && item.scope_type != null)
 				return true;
 		}
@@ -293,10 +293,10 @@ public class ItemFormRenderModel extends BaseModel {
 			add(child);
 			return;
 		}
-		log("===================== item label : "+item.label+" id : "+item.id+"=================");
-		log("===================== item description : "+item.description+" id : "+item.id+"=================");
+		DebugLog.d("===================== item label : "+item.label+" id : "+item.id+"=================");
+		DebugLog.d("===================== item description : "+item.description+" id : "+item.id+"=================");
 
-		log(schedule.id+" | "+item.id+" | "+operatorId+" | "+rowId);
+		DebugLog.d(schedule.id+" | "+item.id+" | "+operatorId+" | "+rowId);
 		ItemValueModel initValue = new ItemValueModel();
 		ItemFormRenderModel child = new ItemFormRenderModel();
 		child.itemModel = item;
@@ -304,10 +304,10 @@ public class ItemFormRenderModel extends BaseModel {
 		child.rowId = rowId;
 		child.operatorId = operatorId;
 		child.schedule = schedule;
-		log("================================================");
-		log("================================================");
-		log("================================================");
-		log("value : "+initValue.value);
+		DebugLog.d("================================================");
+		DebugLog.d("================================================");
+		DebugLog.d("================================================");
+		DebugLog.d("value : "+initValue.value);
 
 		if (item.field_type.equalsIgnoreCase("text_field")){
 			hasInput = true;
@@ -348,7 +348,7 @@ public class ItemFormRenderModel extends BaseModel {
 	}
 	
 	private ColumnModel getColumn(int colId){
-		log("-==-=--="+this.columns.size());
+		DebugLog.d("-==-=--="+this.columns.size());
 		for (ColumnModel oneColumn : this.columns) {
 			if (colId == oneColumn.id)
 				return oneColumn;
