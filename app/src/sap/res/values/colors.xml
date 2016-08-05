@@ -2,5 +2,6 @@
 <resources>
 
     <item type="color" name="logo_text">@android:color/white</item>
+    <item type="color" name="keepme">@android:color/white</item>
 
 </resources>

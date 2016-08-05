@@ -138,7 +138,7 @@
                 android:text="Keep Me Logged In"
                 android:layout_marginLeft="@dimen/padding_large"
                 android:layout_marginRight="@dimen/padding_large"
-                android:textColor="@android:color/white"
+                android:textColor="@color/keepme"
                 android:id="@+id/cbkeep"
                 />
             <Button
