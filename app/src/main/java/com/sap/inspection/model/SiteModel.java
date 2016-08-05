@@ -78,7 +78,16 @@ public class SiteModel extends BaseModel {
 		stmt.executeInsert();
 		stmt.close();
 	}
-	
+
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mSite;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
 	private SiteModel getSiteFromCursor(Cursor c) {
 		SiteModel siteModel = null;
 

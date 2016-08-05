@@ -109,7 +109,15 @@ public class WorkFormModel extends BaseModel {
 
 	}
 
-	
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mWorkForm;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
 	public int countItem() {
 
 		String table = DbManager.mWorkForm;

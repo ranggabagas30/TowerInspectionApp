@@ -103,7 +103,16 @@ public class WorkFormGroupModel extends BaseModel {
 		stmt.executeInsert();
 		stmt.close();
 	}
-	
+
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mWorkFormGroup;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
 	public int getInput(int groupId) {
 		if (input == -1)
 			countInput(groupId);

@@ -80,6 +80,15 @@ public class OperatorModel extends BaseModel {
 		stmt.close();
 	}
 
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mOperator;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
 	private OperatorModel getOperatorFromCursor(Cursor c) {
 		OperatorModel operatorModel = null;
 

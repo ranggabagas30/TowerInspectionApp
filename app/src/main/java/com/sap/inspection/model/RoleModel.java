@@ -108,6 +108,15 @@ public class RoleModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mRoles;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
 	public RoleModel getRoleModel(Context context, String roleID) {
 		DbRepository.getInstance().open(context);
 		RoleModel result = null;

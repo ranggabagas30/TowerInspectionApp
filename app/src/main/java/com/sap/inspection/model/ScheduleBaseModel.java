@@ -228,6 +228,15 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	}
 
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mSchedule;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
 	public static int getTaskDone(String scheduleId){
 		int result = 0;
 

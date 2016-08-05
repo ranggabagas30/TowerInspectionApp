@@ -34,6 +34,15 @@ public class RowValueModel extends BaseModel {
 		DbRepositoryValue.getInstance().close();
 	}
 
+	public static void deleteAll(Context ctx){
+		DbRepositoryValue.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManagerValue.mRowValue;
+		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepositoryValue.getInstance().close();
+	}
+
 	public RowValueModel getSiteById(Context context,String scheduleId, String itemId) {
 		RowValueModel model = null;
 		DbRepositoryValue.getInstance().open(context);

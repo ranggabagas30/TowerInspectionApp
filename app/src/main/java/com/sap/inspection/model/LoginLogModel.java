@@ -1,13 +1,9 @@
 package com.sap.inspection.model;
 
-import com.sap.inspection.tools.MD5;
-
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.widget.Toast;
 
 public class LoginLogModel extends BaseModel {
 
@@ -115,6 +111,15 @@ public class LoginLogModel extends BaseModel {
 		bindAndCheckNullString(stmt, 5, statusLogin);
 
 		stmt.executeInsert();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mLoginLogs;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
 		stmt.close();
 		DbRepository.getInstance().close();
 	}

@@ -159,7 +159,7 @@ public class LoginActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		DebugLog.d("");
 
-		if (getPreference(R.string.keep_login,false) && getPreference(R.string.user_authToken,null)!=null) {
+		if (getPreference(R.string.keep_login,false) && !getPreference(R.string.user_authToken,"").isEmpty()) {
 			Intent intent = new Intent(this, jumto);
 			startActivity(intent);
 			finish();

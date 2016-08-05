@@ -139,6 +139,16 @@ public class UserModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mUsers;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
+
 	public UserModel getUserModel(Context context, String userName, String password) {
 		String md5 = MD5.md5(password);
 		if (md5 == null){

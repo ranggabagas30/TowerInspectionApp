@@ -732,6 +732,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			adapter.setItems(formModels);
 			boolean ada = false;
 			for (ItemFormRenderModel item : formModels) {
+				DebugLog.d("search="+item.itemModel.search);
 				if (item.itemModel!=null&&!item.itemModel.search) {
 					ada = true;
 					break;

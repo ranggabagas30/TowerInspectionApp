@@ -683,6 +683,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         if (event.done) {
             hideDialog();
             Toast.makeText(activity, event.progressString, Toast.LENGTH_SHORT).show();
+            gotoLogin();
         } else {
             showDialog(event.progressString, true);
         }
@@ -710,13 +711,17 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                         @Override
                         public void onClick(View v) {
                             writePreference(R.string.keep_login,false);
-                            Intent i = new Intent(SettingActivity.this, LoginActivity.class);
-                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(i);
+                            gotoLogin();
                         }
                     })
                     .setNegativeButton(android.R.string.no, null)
                     .show();
         }
     };
+
+    private void gotoLogin() {
+        Intent i = new Intent(SettingActivity.this, LoginActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
+    }
 }

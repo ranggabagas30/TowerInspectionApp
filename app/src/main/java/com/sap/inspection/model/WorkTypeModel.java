@@ -74,6 +74,15 @@ public class WorkTypeModel extends BaseModel {
 		stmt.close();
 	}
 
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mWorkType;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
 	private WorkTypeModel getworkTypeFromCursor(Cursor c) {
 		WorkTypeModel workTypeModel = null;
 

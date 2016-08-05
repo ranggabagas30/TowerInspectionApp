@@ -83,6 +83,15 @@ public class WorkFormItemModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
+	public static void delete(Context ctx){
+		DbRepository.getInstance().open(ctx);
+		String sql = "DELETE FROM " + DbManager.mWorkFormItem;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
 	public void save(){
 		if (picture != null && picture.medium != null){
 			pictureEndPoint = picture.medium;
