@@ -62,7 +62,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			} else if (value<0){
 				return "0%";
 			} else {
-				return (100 * sumTaskDone / sumTask) + "%";
+				return value + "%";
 			}
 //			return 100 * sumTaskDone / sumTask >= 100 ? 100 + "%" : (100 * sumTaskDone / sumTask) + "%";
 		}else {
