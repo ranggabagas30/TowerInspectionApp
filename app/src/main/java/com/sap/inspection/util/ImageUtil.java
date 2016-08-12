@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.tools.ExifUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,13 +55,12 @@ public class ImageUtil {
         File fileReturn = null;
         try {
 
-            BitmapFactory.Options options = new BitmapFactory.Options();
-
-            options.inSampleSize = 4;
 //            File tempDir= Environment.getExternalStorageDirectory();
             File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 4;
             Bitmap bitmap = BitmapFactory.decodeFile(path,options);
 
             File file;
@@ -76,6 +76,42 @@ public class ImageUtil {
                 e.printStackTrace();
             }
             
+            bitmap = null;
+            System.gc();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        return fileReturn;
+    }
+    public static File resizeAndSaveImageCheckExif(String imageUri, String scheduleId) {
+        File fileReturn = null;
+        try {
+
+//            File tempDir= Environment.getExternalStorageDirectory();
+            File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 4;
+            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
+
+            bitmap = ExifUtil.rotateBitmap(path,bitmap);
+
+            File file;
+            file = new File(path);
+            DebugLog.d(file.getPath());
+            try {
+                FileOutputStream out = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+                out.close();
+                fileReturn = file;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             bitmap = null;
             System.gc();
 

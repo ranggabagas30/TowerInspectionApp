@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -44,6 +45,8 @@ import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.Utility;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -159,8 +162,50 @@ public class LoginActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		DebugLog.d("");
 
+		if (!GlobalVar.getInstance().anyNetwork(this)){
+			new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
+					.setTopColor(color(R.color.theme_color))
+					.setButtonsColor(color(R.color.theme_color))
+					.setIcon(R.drawable.logo_app)
+					.setTitle("Information")
+					.setMessage("No internet connection. Please connect your network.")
+					.setCancelable(false)
+					.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+							finish();
+						}
+					})
+					.show();
+			return;
+		}
+
+		if (!Utility.checkGpsStatus(this)) {
+			new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
+					.setTopColor(color(R.color.theme_color))
+					.setButtonsColor(color(R.color.theme_color))
+					.setIcon(R.drawable.logo_app)
+					.setTitle("Information")
+					.setMessage("Please enable your GPS")
+					.setCancelable(false)
+					.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Intent gpsOptionsIntent = new Intent(
+									Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+							startActivity(gpsOptionsIntent);
+							finish();
+						}
+					})
+					.show();
+			return;
+		}
+
 		if (getPreference(R.string.keep_login,false) && !getPreference(R.string.user_authToken,"").isEmpty()) {
 			Intent intent = new Intent(this, jumto);
+			if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false))
+				intent.putExtra(Constants.LOADSCHEDULE,true);
 			startActivity(intent);
 			finish();
 			return;
@@ -327,7 +372,10 @@ public class LoginActivity extends BaseActivity {
 					DebugLog.d("any network");
 				}else{
 					DebugLog.d("no network");
-					checkLoginState(offlineLogin(userModel.username, userModel.password));
+					if (progressDialog != null && progressDialog.isShowing())
+						progressDialog.dismiss();
+					Toast.makeText(activity, R.string.network_connection_problem, Toast.LENGTH_SHORT).show();
+//					checkLoginState(offlineLogin(userModel.username, userModel.password));
 				}
 				break;
 

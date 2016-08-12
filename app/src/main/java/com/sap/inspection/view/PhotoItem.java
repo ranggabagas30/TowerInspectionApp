@@ -122,7 +122,7 @@ public class PhotoItem extends RelativeLayout {
 		progress = (ProgressBar) root.findViewById(R.id.progress);
 		remark = (EditText) root.findViewById(R.id.remark);
 		remark.addTextChangedListener(textWatcher);
-		remark.setVisibility(View.VISIBLE);
+//		remark.setVisibility(View.VISIBLE);
 		root.findViewById(R.id.radioGroup).setVisibility(View.GONE);
 		value = new ItemValueModel();
 	}
@@ -333,7 +333,7 @@ public class PhotoItem extends RelativeLayout {
 		progress.setVisibility(View.GONE);
 		photoRoot.setVisibility(View.GONE);
 		remark.setText("");
-		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+//		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 		noPicture.setVisibility(View.VISIBLE);
 	}
 
@@ -351,7 +351,7 @@ public class PhotoItem extends RelativeLayout {
 	private void resetVisibility(){
 		progress.setVisibility(View.GONE);
 		photoRoot.setVisibility(View.GONE);
-		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+//		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 	}
 	
 	public void setAudit(boolean isAudit) {

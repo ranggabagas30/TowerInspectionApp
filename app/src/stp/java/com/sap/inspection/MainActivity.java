@@ -20,6 +20,8 @@ import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.event.DeleteAllScheduleEvent;
+import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.manager.AlertDialogManager;
@@ -33,12 +35,15 @@ import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.VersionModel;
 import com.sap.inspection.task.ScheduleSaver;
+import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PrefUtil;
 import com.slidinglayer.SlidingLayer;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends BaseActivity{
 
@@ -69,7 +74,16 @@ public class MainActivity extends BaseActivity{
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setCancelable(false);
 
-		if (getIntent().getBooleanExtra(Constants.LOADAFTERLOGIN,false)) {
+		if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false)) {
+			progressDialog.setMessage("Get schedule from server");
+			APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
+			try {
+				progressDialog.show();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		else if (getIntent().getBooleanExtra(Constants.LOADAFTERLOGIN,false)) {
 			if (GlobalVar.getInstance().anyNetwork(activity)) {
 				DbRepository.getInstance().open(activity);
 				try {
@@ -99,6 +113,13 @@ public class MainActivity extends BaseActivity{
 		if (lastClicked != -1){
 			scheduleFragment.setScheduleBy(lastClicked);
 		}
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		EventBus.getDefault().unregister(this);
 	}
 
 	private void offlineSchedule(){
@@ -141,8 +162,51 @@ public class MainActivity extends BaseActivity{
 				setFlagScheduleSaved(true);
 				Toast.makeText(activity, "Can't get schedule from server\nPlease do relogin and have fast internet connection",Toast.LENGTH_LONG).show();
 			}
-		};
+		}
 	};
+
+	Handler scheduleHandlerTemp = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			Bundle bundle = msg.getData();
+			Gson gson = new Gson();
+			if (bundle.getString("json") != null) {
+				ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
+				if (scheduleResponseModel.status == 200) {
+					DeleteAllScheduleEvent deleteAllScheduleEvent = new DeleteAllScheduleEvent();
+					deleteAllScheduleEvent.scheduleResponseModel = scheduleResponseModel;
+					EventBus.getDefault().post(deleteAllScheduleEvent);
+				}
+			} else {
+				progressDialog.dismiss();
+				Toast.makeText(activity, "Can't get schedule from server\nPlease get an fast internet connection", Toast.LENGTH_LONG).show();
+			}
+		}
+	};
+
+	public void onEvent(ScheduleTempProgressEvent event) {
+		if (event.done) {
+			if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
+				DbRepository.getInstance().close();
+			progressDialog.dismiss();
+			Toast.makeText(activity, "Schedule Updated", Toast.LENGTH_SHORT).show();
+		} else
+			progressDialog.setMessage("saving schedule " + event.progress + " %...");
+	}
+
+	public void onEvent(DeleteAllScheduleEvent event) {
+		if (DbRepository.getInstance().getDB()!=null) {
+			if (DbRepository.getInstance().getDB().isOpen())
+				DbRepository.getInstance().clearData(DbManager.mSchedule);
+			else {
+				DbRepository.getInstance().open(activity);
+				DbRepository.getInstance().clearData(DbManager.mSchedule);
+			}
+		}
+
+		ScheduleTempSaver scheduleSaver = new ScheduleTempSaver();
+		scheduleSaver.setActivity(activity);
+		scheduleSaver.execute(event.scheduleResponseModel.data.toArray());
+	}
 
 	private void navigateToFragment(BaseFragment fragment,int viewContainerResId) {
 		if (fragment.equals(currentFragment))
@@ -295,8 +359,8 @@ public class MainActivity extends BaseActivity{
 						}
 					}
 			}
-			DebugLog.d("version saved : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
-			DebugLog.d("version saved value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
+			DebugLog.d("version saved : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
+			DebugLog.d("version saved value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
 			DebugLog.d("version saved value from web: "+formVersion);
 			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), formVersion);
 			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form),"not null");
@@ -378,7 +442,7 @@ public class MainActivity extends BaseActivity{
 					e.printStackTrace();
 				}
 				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) && !getPreference(R.string.url_update, "").equalsIgnoreCase("")){
-					Toast.makeText(activity, "There is new update for SAP Mobile Application\nPlease update the aplication from setting", Toast.LENGTH_LONG).show();
+					Toast.makeText(activity, "There is new update for STP Mobile Application\nPlease update the aplication from setting", Toast.LENGTH_LONG).show();
 				}
 			}else{
 				Toast.makeText(activity, "Check application update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
@@ -411,15 +475,15 @@ public class MainActivity extends BaseActivity{
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
 				formVersion = model.version;
-				DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""));
-				DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"));
+				DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
+				DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
 				DebugLog.d("check version value from web: "+formVersion);
-				if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form, ""), "no value"))){
+				if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
 					progressDialog.setMessage("Get new form from server");
 					APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
 				}else{
 					progressDialog.setMessage("Get schedule from server");
-					APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+					APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
 				}
 			}else{
 				progressDialog.dismiss();

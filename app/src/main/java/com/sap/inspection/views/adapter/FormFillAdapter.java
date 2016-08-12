@@ -119,6 +119,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		final ViewHolder holder;
 		if (convertView == null) {
 			holder = new ViewHolder();
+			DebugLog.d("position="+position+" type="+getItemViewType(position));
 			switch (getItemViewType(position)) {
 			case ItemFormRenderModel.TYPE_CHECKBOX:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_checkbox,null);
@@ -155,17 +156,21 @@ public class FormFillAdapter extends MyBaseAdapter {
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_photo_radio,null);
 				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
 				holder.photoRadio = (PhotoItemRadio) view.findViewById(R.id.item_form_photo);
+				holder.upload = (ImageView) view.findViewById(R.id.item_form_upload);
 				holder.photoRadio.setAudit(isAudit());
 				holder.photoRadio.setButtonClickListener(photoListener);
-                holder.photoRadio.setUploadClickListener(uploadListener);
+				holder.upload.setTag(position);
+				holder.upload.setOnClickListener(uploadListener);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_photo,null);
 				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
 				holder.photo = (PhotoItem) view.findViewById(R.id.item_form_photo);
+				holder.upload = (ImageView) view.findViewById(R.id.item_form_upload);
 				holder.photo.setAudit(isAudit());
 				holder.photo.setButtonClickListener(photoListener);
-                holder.photoRadio.setUploadClickListener(uploadListener);
+				holder.upload.setTag(position);
+                holder.upload.setOnClickListener(uploadListener);
 				holder.photo.setSavingRule(savingRule);
 				break;
 			case ItemFormRenderModel.TYPE_RADIO:
@@ -399,6 +404,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		RadioGroup radio;
 		ImageView picture;
 		TextView mandatory;
+		ImageView upload;
 	}
 
 	OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {

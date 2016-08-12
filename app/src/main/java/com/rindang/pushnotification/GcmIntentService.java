@@ -33,7 +33,7 @@ public class GcmIntentService extends IntentService {
 		DebugLog.d("messageType: " + messageType);
 //		DebugLog.d("all data : " + BundleToJson.convert(extras));
 		if(!extras.isEmpty()){
-			DebugLog.d("2.extras: " + extras);
+			DebugLog.d("extras: " + extras);
 			if(GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)){
 			}
 
@@ -63,9 +63,9 @@ public class GcmIntentService extends IntentService {
 		String messageType = gcm.getMessageType(intent);
 		DebugLog.d("messageType: " + messageType);
 		if(!extras.isEmpty()){
-			DebugLog.d("2.extras: " + extras);
+			DebugLog.d("extras: " + extras);
 			String extrasMessage = extras.getString("message");
-			DebugLog.d("message---- : " + extrasMessage);
+			DebugLog.d("message : " + extrasMessage);
 		}
 	}
 

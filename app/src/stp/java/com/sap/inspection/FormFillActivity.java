@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
@@ -38,6 +39,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.listener.FormTextChange;
+import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
@@ -49,9 +51,11 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -410,12 +414,35 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		public void onClick(View v) {
-			if (currentGeoPoint.latitude==0) {
-				Toast.makeText(activity, "GPS location is loading, please wait.", Toast.LENGTH_SHORT).show();
-				return;
+			if (Utility.checkGpsStatus(FormFillActivity.this)) {
+				if (currentGeoPoint.latitude==0) {
+					Toast.makeText(activity, "GPS location is loading, please wait.", Toast.LENGTH_SHORT).show();
+				} else {
+					photoItem = (PhotoItemRadio) v.getTag();
+					takePicture(photoItem.getItemId());
+				}
+			} else {
+				new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
+						.setTopColor(color(R.color.theme_color))
+						.setButtonsColor(color(R.color.theme_color))
+						.setIcon(R.drawable.logo_app)
+						.setTitle("Information")
+						.setMessage("Please enable your GPS")
+						.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								Intent gpsOptionsIntent = new Intent(
+										Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+								startActivity(gpsOptionsIntent);
+							}
+						})
+						.setNegativeButton(android.R.string.no, null)
+						.show();
 			}
+			/*
 			photoItem = (PhotoItemRadio) v.getTag();
 			takePicture(photoItem.getItemId());
+			*/
 		}
 	};
 
@@ -423,9 +450,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
         @Override
         public void onClick(View v) {
-			Toast.makeText(FormFillActivity.this,"upload",Toast.LENGTH_SHORT).show();
-//			photoItem = (PhotoItemRadio) v.getTag();
-//			takePicture(photoItem.getItemId());
+			DebugLog.d("");
+			int pos = (int)v.getTag();
+			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
+			if (itemFormRenderModel.itemValue!=null) {
+				DebugLog.d("pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
+						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
+						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
+				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);
+				Toast.makeText(activity, "Upload on progress,..", Toast.LENGTH_LONG).show();
+			}
         }
     };
 
@@ -493,7 +527,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (photoItem != null && mImageUri != null){
 				photoItem.initValue();
 				photoItem.deletePhoto();
-				File file = ImageUtil.resizeAndSaveImage(mImageUri.toString(), schedule.id);
+				File file = ImageUtil.resizeAndSaveImageCheckExif(mImageUri.toString(), schedule.id);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 					Intent mediaScanIntent = new Intent(
 							Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);

@@ -19,7 +19,7 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 26
+        versionCode 16081219
         versionName "0.0.26"
     }
 
@@ -48,7 +48,6 @@ android {
         }
         stp {
             applicationId 'com.stp.inspection'
-            versionCode 1
             versionName "1.0"
         }
     }

@@ -17,11 +17,12 @@ import com.sap.inspection.model.migrate.GeneralDropCreatePatch;
 import com.sap.inspection.model.migrate.GeneralPatch5;
 import com.sap.inspection.model.migrate.GeneralPatch6;
 import com.sap.inspection.model.migrate.GeneralPatch7;
+import com.sap.inspection.model.migrate.GeneralPatch8;
 
 public class DbManager extends SQLiteOpenHelper {
 
 	public static final String dbName = "sap.db";
-	static final int schema_version = 7;
+	static final int schema_version = 8;
 
 	public static final String colCreatedAt = "created_at";
 	public static final String colUpdatedAt = "updated_at";
@@ -78,6 +79,7 @@ public class DbManager extends SQLiteOpenHelper {
 	public static final String colStatus 		= "status";
 	public static final String colSumTask 		= "sumTask";
 	public static final String colSumDone 		= "sumDone";
+	public static final String colOperatorNumber 		= "operatorNumber";
 
 	// work form
 	public static final String mWorkForm 		= "WorkForms";
@@ -278,7 +280,8 @@ public class DbManager extends SQLiteOpenHelper {
 			new GeneralDropCreatePatch(),
 			new GeneralPatch5(),
 			new GeneralPatch6(),
-			new GeneralPatch7()
+			new GeneralPatch7(),
+			new GeneralPatch8()
 	};
 
 	public static void dropTable(SQLiteDatabase db){

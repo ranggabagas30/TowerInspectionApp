@@ -88,17 +88,20 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DebugLog.d("");
+        setContentView(R.layout.activity_setting);
         String version = null;
         int versionCode = 0;
         try {
             version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            TextView title = (TextView) findViewById(R.id.versioninfo);
+            title.setVisibility(View.VISIBLE);
+            title.setText("Version "+version+" Build "+versionCode);
         } catch (NameNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         DebugLog.d("version Name = " + version + " versionCode = " + versionCode);
-        setContentView(R.layout.activity_setting);
 
 
         TextView title = (TextView) findViewById(R.id.header_title);
@@ -239,10 +242,10 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             if (msg.getData() != null && msg.getData().getString("json") != null) {
                 VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
                 formVersion = model.version;
-                DebugLog.d("check version : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""));
-                DebugLog.d("check version value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"));
+                DebugLog.d("check version : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form));
+                DebugLog.d("check version value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), "no value"));
                 DebugLog.d("check version value from web: " + formVersion);
-                if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"))) {
+                if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), "no value"))) {
                     pDialog.setMessage("Get new form from server");
                     APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
                 } else {
@@ -331,8 +334,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                         }
                     }
             }
-            DebugLog.d("version saved : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""));
-            DebugLog.d("version saved value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form, ""), "no value"));
+            DebugLog.d("version saved : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form));
+            DebugLog.d("version saved value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), "no value"));
             DebugLog.d("version saved value from web: " + formVersion);
             writePreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), formVersion);
             writePreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.offline_form), "not null");

@@ -43,6 +43,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public int sumTaskDone = 0;
 	public boolean isSeparator = false;
 	public boolean isAnimated = false;
+	public int operator_number = 0;
 
 	@Override
 	public int describeContents() {
@@ -142,7 +143,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		if (schedule_values!=null)
 			for (ItemValueModel itemValueModel : schedule_values) {
-				if (downloadImage(itemValueModel.picture,itemValueModel.value))
+				if (downloadImage(itemValueModel.picture, itemValueModel.value))
 					itemValueModel.save();
 			}
 
@@ -167,7 +168,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		String sql = String
 				//				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,  COALESCE((SELECT %s FROM %s WHERE %s = ?), ?))",
-				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 						DbManager.mSchedule , DbManager.colID,
 						DbManager.colUserId,DbManager.colSiteId,
 						DbManager.colOperatorIds,DbManager.colProjectId,
@@ -175,7 +176,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 						DbManager.colWorkDate,DbManager.colProgress,
 						DbManager.colStatus,DbManager.colDayDate,
 						DbManager.colWorkDateStr,DbManager.colSumTask,
-						DbManager.colSumDone);
+						DbManager.colSumDone, DbManager.colOperatorNumber);
 		//						DbManager.colWorkDateStr,DbManager.colSumTask,
 		//						DbManager.colSumTask,DbManager.mSchedule,DbManager.colID);
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
@@ -222,6 +223,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		//		bindAndCheckNullString(stmt, 13, id);
 		stmt.bindLong(13, task);
 		stmt.bindLong(14, sumTaskDone);
+		stmt.bindLong(15, operator_number);
 
 		stmt.executeInsert();
 		stmt.close();
@@ -417,6 +419,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 				+ DbManager.colStatus + " varchar, "
 				+ DbManager.colSumTask + " integer, "
 				+ DbManager.colSumDone + " integer, "
+				+ DbManager.colOperatorNumber + " integer, "
 				+ "PRIMARY KEY (" + DbManager.colID + "))";
 	}
 
@@ -437,6 +440,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		scheduleBase.sumTask = (int) (c.getLong(c.getColumnIndex(DbManager.colSumTask)));
 		scheduleBase.sumTaskDone = (int) (c.getLong(c.getColumnIndex(DbManager.colSumDone)));
 		scheduleBase.status = (c.getString(c.getColumnIndex(DbManager.colStatus)));
+		scheduleBase.operator_number = (int) (c.getLong(c.getColumnIndex(DbManager.colOperatorNumber)));
 
 		//user
 		scheduleBase.user = new UserModel();

@@ -92,6 +92,17 @@ public class ItemUploadManager {
 		}
 	}
 
+	public void addItemValue(ItemValueModel itemvalue) {
+		this.itemValues.clear();
+		this.itemValues.add(itemvalue);
+		this.retry = 0;
+		if (!running){
+			uploadTask = null;
+			uploadTask = new UploadValue();
+			uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+	}
+
 	private class UploadValue extends AsyncTask<Void, String, Void> {
 
 		// private Activity activity;
@@ -239,7 +250,7 @@ public class ItemUploadManager {
 			try {
 				HttpClient client = new DefaultHttpClient();
 				HttpPost request = new HttpPost(APIList.uploadUrl()+"?access_token="+getAccessToken(MyApplication.getContext()));
-				log(request.getURI().toString());
+				DebugLog.d(request.getURI().toString());
 				SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 				if (mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), null) != null) {
 					request.setHeader("Cookie", mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), ""));
@@ -259,7 +270,7 @@ public class ItemUploadManager {
 				}
 
 				for (int i = 0; i < params.size(); i++) {
-					log(params.get(i).getName()+" || "+params.get(i).getValue());
+					DebugLog.d(params.get(i).getName()+" || "+params.get(i).getValue());
 					reqEntity.addPart(params.get(i).getName(), new StringBody(params.get(i).getValue()));
 				}
 
@@ -289,7 +300,7 @@ public class ItemUploadManager {
 					notJson = true;
 					return null;
 				}
-				log("########################################################");
+				DebugLog.d("########################################################");
 				return s;
 			} catch (SocketTimeoutException e) {
 				errMsg = e.getMessage();
@@ -418,10 +429,6 @@ public class ItemUploadManager {
 		return mpref.getString(context.getString(R.string.user_authToken), "");
 	}
 
-	private void log(String msg){
-		DebugLog.d(msg);
-	}
-	
 	private void stop(){
 		
 	}

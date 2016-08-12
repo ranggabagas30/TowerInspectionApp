@@ -177,6 +177,17 @@
                 android:text="Logout"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/versioninfo"
+                style="@style/list_sub"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/padding_medium"
+                android:visibility="gone"
+                />
+
         </LinearLayout>
     </ScrollView>
 

@@ -2,7 +2,6 @@ package com.sap.inspection.manager;
 
 
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -65,10 +64,10 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 		ScheduleBaseModel.resetAllSchedule();
 
 */
-		Resources r = MyApplication.getContext().getResources();
 		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 		mPref.edit().clear().commit();
 		/*
+		Resources r = MyApplication.getContext().getResources();
 		mPref.edit().putBoolean(Constants.LOADAFTERLOGIN, false).commit();
 		mPref.edit().putString(r.getString(R.string.user_name), "").commit();
 		mPref.edit().putString(r.getString(R.string.password), "").commit();

@@ -73,5 +73,6 @@ public class Constants {
 	public static String scheduleId = "scheduleId";
 
 	public static final String LOADAFTERLOGIN = "load";
+	public static final String LOADSCHEDULE = "load_schedule";
 
 } 

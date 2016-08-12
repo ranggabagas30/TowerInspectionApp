@@ -3,7 +3,6 @@ package com.sap.inspection.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -176,20 +175,20 @@ public class PhotoItemRadio extends RelativeLayout {
 			if (value.photoStatus != null){
 				if (value.photoStatus.equalsIgnoreCase("ok")){
 					button.setVisibility(View.VISIBLE);
-					remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+//					remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 					ok.setChecked(true);
 					setPhotoRootVisiblity("OK");
 				}
 				else if (value.photoStatus.equalsIgnoreCase("nok")){
 					button.setVisibility(View.VISIBLE);
-					remark.setVisibility(View.VISIBLE);
+//					remark.setVisibility(View.VISIBLE);
 					nok.setChecked(true);
 					setPhotoRootVisiblity("NOK");
 				}
 				else if (value.photoStatus.equalsIgnoreCase("na")){
 					button.setVisibility(View.GONE);
 					photoRoot.setVisibility(View.GONE);
-					remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+//					remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 					na.setChecked(true);
 					value.photoStatus="NA";
 				}
@@ -275,19 +274,19 @@ public class PhotoItemRadio extends RelativeLayout {
 			switch (checkedId) {
 			case R.id.radioOK:
 				button.setVisibility(View.VISIBLE);
-				remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+//				remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 				setPhotoRootVisiblity("OK");
 				break;
 
 			case R.id.radioNOK:
 				button.setVisibility(View.VISIBLE);
-				remark.setVisibility(View.VISIBLE);
+//				remark.setVisibility(View.VISIBLE);
 				setPhotoRootVisiblity("NOK");
 				break;
 
 			case R.id.radioNA:
 				button.setVisibility(View.GONE);
-				remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+//				remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 				photoRoot.setVisibility(View.GONE);
 				if (value!=null)
 					value.photoStatus = "NA";
@@ -409,7 +408,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		photoRoot.setVisibility(View.GONE);
 		//		failed.setVisibility(View.GONE);
 		remark.setText("");
-		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+//		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 		noPicture.setVisibility(View.VISIBLE);
 		radioGroup.clearCheck();
 	}
@@ -429,7 +428,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		progress.setVisibility(View.GONE);
 		photoRoot.setVisibility(View.GONE);
 		//		failed.setVisibility(View.GONE);
-		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+//		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 		radioGroup.clearCheck();
 	}
 
