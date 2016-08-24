@@ -76,6 +76,7 @@ public class APIHelper {
 	
 	public static void getForms(Context context,Handler handler, String userId){
 		getJsonFromUrl(context, handler, APIList.formsUrl()+"?template=full&user_id="+userId+"&access_token="+getAccessToken(context));
+//		getJsonFromUrl(context, handler, APIList.formGroupUrl()+"?template=full&user_id="+userId+"&access_token="+getAccessToken(context));
 	}
 
 	public static String getAccessToken(Context context){

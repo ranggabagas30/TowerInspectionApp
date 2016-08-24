@@ -33,7 +33,12 @@ public class APIList {
 	public static String formsUrl(){
 		return AppConfig.getInstance().getV1()+"/work_forms";
 	}
-	
+
+	//FormGroup
+	public static String formGroupUrl(){
+		return AppConfig.getInstance().getV1()+"/work_form_groups";
+	}
+
 	public static String formVersionUrl(){
 		return AppConfig.getInstance().getV1()+"/form_version";
 	}

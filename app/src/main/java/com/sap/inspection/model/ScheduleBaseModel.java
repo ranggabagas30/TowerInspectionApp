@@ -23,7 +23,7 @@ import java.util.Vector;
 public abstract class ScheduleBaseModel extends BaseModel {
 
 	public String id;
-	public float progress = -1;
+	public float progress = 0;
 	public String status;
 	public String work_date;
 	public String work_date_str;
@@ -39,7 +39,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public Vector<ItemValueModel> schedule_values;
 	public String statusColor;
 	public String taskColor;
-	public int sumTask = -1;
+	public int sumTask = 0;
 	public int sumTaskDone = 0;
 	public boolean isSeparator = false;
 	public boolean isAnimated = false;

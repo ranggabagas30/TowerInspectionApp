@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.sap.inspection.LoginActivity;
+import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 
 public class ScheduleNotification extends BaseNotification {
@@ -30,7 +31,7 @@ public class ScheduleNotification extends BaseNotification {
 	
 	@Override
 	protected String getTitle() {
-		return "SAP Mobile Application";
+		return context.getString(R.string.app_name);
 	}
 	
 	private String getOrderCode(){

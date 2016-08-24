@@ -38,6 +38,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.DbRepository;
@@ -66,6 +69,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+
+import de.greenrobot.event.EventBus;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -388,11 +393,22 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 	}
 
+	public void onEvent(UploadProgressEvent event) {
+		DebugLog.d("event="+new Gson().toJson(event));
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		EventBus.getDefault().unregister(this);
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -415,12 +431,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		public void onClick(View v) {
 			if (Utility.checkGpsStatus(FormFillActivity.this)) {
+				photoItem = (PhotoItemRadio) v.getTag();
+				takePicture(photoItem.getItemId());
+				/*
 				if (currentGeoPoint.latitude==0) {
 					Toast.makeText(activity, "GPS location is loading, please wait.", Toast.LENGTH_SHORT).show();
 				} else {
 					photoItem = (PhotoItemRadio) v.getTag();
 					takePicture(photoItem.getItemId());
-				}
+				}*/
 			} else {
 				new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
 						.setTopColor(color(R.color.theme_color))
@@ -439,10 +458,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						.setNegativeButton(android.R.string.no, null)
 						.show();
 			}
-			/*
-			photoItem = (PhotoItemRadio) v.getTag();
-			takePicture(photoItem.getItemId());
-			*/
 		}
 	};
 
@@ -451,14 +466,23 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         @Override
         public void onClick(View v) {
 			DebugLog.d("");
+			if (!GlobalVar.getInstance().anyNetwork(activity)) {
+				MyApplication.getInstance().toast("No internet connection. Please connect your network.", Toast.LENGTH_SHORT);
+				return;
+			}
 			int pos = (int)v.getTag();
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			if (itemFormRenderModel.itemValue!=null) {
+			if (itemFormRenderModel.itemModel.disable) {
+				Toast.makeText(activity, "Item is disable", Toast.LENGTH_LONG).show();
+			}
+			else if (itemFormRenderModel.itemValue!=null) {
 				DebugLog.d("pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
 						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
 						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);
-				Toast.makeText(activity, "Upload on progress,..", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, "Upload on progress...", Toast.LENGTH_LONG).show();
+			} else {
+				Toast.makeText(activity, "No Photo", Toast.LENGTH_LONG).show();
 			}
         }
     };
@@ -840,13 +864,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				ItemFormRenderModel.TYPE_CHECKBOX,
 				ItemFormRenderModel.TYPE_RADIO,
 				ItemFormRenderModel.TYPE_TEXT_INPUT,
-				ItemFormRenderModel.TYPE_PICTURE};
+				ItemFormRenderModel.TYPE_PICTURE,
+				ItemFormRenderModel.TYPE_EXPAND
+		};
 		ArrayList<Integer> list = new ArrayList<>();
 		list.add(ItemFormRenderModel.TYPE_PICTURE_RADIO);
 		list.add(ItemFormRenderModel.TYPE_CHECKBOX);
 		list.add(ItemFormRenderModel.TYPE_RADIO);
 		list.add(ItemFormRenderModel.TYPE_TEXT_INPUT);
 		list.add(ItemFormRenderModel.TYPE_PICTURE);
+		list.add(ItemFormRenderModel.TYPE_EXPAND);
 		adapter.notifyDataSetChanged();
 		if (adapter!=null && !adapter.isEmpty()) {
 			boolean mandatoryFound = false;

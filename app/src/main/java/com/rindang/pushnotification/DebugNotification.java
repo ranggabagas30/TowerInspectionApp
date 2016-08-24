@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.sap.inspection.LoginActivity;
+import com.sap.inspection.R;
 import com.sap.inspection.util.BundleToJson;
 
 public class DebugNotification extends BaseNotification {
@@ -29,7 +30,7 @@ public class DebugNotification extends BaseNotification {
 	
 	@Override
 	protected String getTitle() {
-		return "SAP Mobile Application";
+		return context.getString(R.string.app_name);
 	}
 	
 	private String getOrderCode(){

@@ -62,7 +62,10 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 			mainActivity.setFlagScheduleSaved(true);
 		if (activity != null)
 			try {
+				if (activity instanceof SettingActivity)
 				((SettingActivity)activity).hideDialog();
+				else
+					((MainActivity)activity).hideDialog();
 			} catch (Exception e) {
 				e.printStackTrace();
 		}

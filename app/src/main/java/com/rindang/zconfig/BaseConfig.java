@@ -2,7 +2,7 @@ package com.rindang.zconfig;
 
 public abstract class BaseConfig {
 	
-	protected String host = "http://54.169.4.84/api";
+	protected String host = "http://192.168.120.170:9292";
 
 	private static BaseConfig getConstructor() {
 		return new DevConfig();

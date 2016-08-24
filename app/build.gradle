@@ -19,7 +19,7 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 16081219
+        versionCode 16081800
         versionName "0.0.26"
     }
 

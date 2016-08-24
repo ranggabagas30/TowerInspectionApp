@@ -9,7 +9,7 @@ import com.sap.inspection.tools.DebugLog;
 public class DbManagerValue extends SQLiteOpenHelper {
 
 	public static final String dbName = "value.db";
-	static final int schema_version = 6;
+	static final int schema_version = 7;
 
 	public static final String colCreatedAt = "created_at";
 	public static final String colUpdatedAt = "updated_at";
@@ -34,6 +34,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 	public static final String colLongitude 	= "longitude";
 	public static final String colPhotoStatus 	= "photoStatus";
 	public static final String colUploadStatus 	= "uploadStatus";
+	public static final String colDisable		 = "disable";
 
 	// Row Value
 	public static final String mRowValue 		= "RowValues";
@@ -148,6 +149,15 @@ public class DbManagerValue extends SQLiteOpenHelper {
 				}
 				public void revert(SQLiteDatabase db) {
 					db.execSQL("ALTER TABLE "+mFormValue+" DROP COLUMN "+colCreatedAt+" TEXT");
+				}
+			},
+			new Patch() {
+				public void apply(SQLiteDatabase db) {
+					DebugLog.d("general patch 7");
+					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colDisable + " INTEGER DEFAULT 0");
+				}
+				public void revert(SQLiteDatabase db) {
+					db.execSQL("ALTER TABLE "+mFormValue+" DROP COLUMN "+colDisable+" INTEGER DEFAULT 0");
 				}
 			}
 

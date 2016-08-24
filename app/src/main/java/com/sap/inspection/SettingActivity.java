@@ -391,7 +391,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             }
             ItemUploadManager.getInstance().addItemValues(itemValueModels);
             progressDialog.dismiss();
-            Toast.makeText(activity, "Upload on progress,..", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Upload on progress...", Toast.LENGTH_LONG).show();
             DbRepositoryValue.getInstance().close();
         }
     };

@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
@@ -51,11 +50,9 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
-import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -385,10 +382,17 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		EventBus.getDefault().unregister(this);
+	}
+
+	@Override
 	protected void onResume() {
 		super.onResume();
 		DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -411,13 +415,17 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		public void onClick(View v) {
+
 			if (Utility.checkGpsStatus(FormFillActivity.this)) {
+				photoItem = (PhotoItemRadio) v.getTag();
+				takePicture(photoItem.getItemId());
+				/*
 				if (currentGeoPoint.latitude==0) {
 					Toast.makeText(activity, "GPS location is loading, please wait.", Toast.LENGTH_SHORT).show();
 				} else {
 					photoItem = (PhotoItemRadio) v.getTag();
 					takePicture(photoItem.getItemId());
-				}
+				}*/
 			} else {
 				new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
 						.setTopColor(color(R.color.theme_color))
@@ -444,14 +452,23 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         @Override
         public void onClick(View v) {
 			DebugLog.d("");
+			if (!GlobalVar.getInstance().anyNetwork(activity)) {
+				MyApplication.getInstance().toast("No internet connection. Please connect your network.", Toast.LENGTH_SHORT);
+				return;
+			}
 			int pos = (int)v.getTag();
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			if (itemFormRenderModel.itemValue!=null) {
+			if (itemFormRenderModel.itemModel.disable) {
+				Toast.makeText(activity, "Item is disable", Toast.LENGTH_LONG).show();
+			}
+			else if (itemFormRenderModel.itemValue!=null) {
 				DebugLog.d("pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
 						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
 						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);
-				Toast.makeText(activity, "Upload on progress,..", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, "Upload on progress...", Toast.LENGTH_LONG).show();
+			} else {
+				Toast.makeText(activity, "No Photo", Toast.LENGTH_LONG).show();
 			}
         }
     };

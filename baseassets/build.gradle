@@ -23,4 +23,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.yarolegovich:lovely-dialog:1.0.4'
+    compile 'com.github.aakira:expandable-layout:1.5.1@aar'
+
 }

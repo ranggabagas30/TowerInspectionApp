@@ -1,6 +1,5 @@
 package com.sap.inspection.model.form;
 
-import android.os.Debug;
 import android.os.Parcel;
 
 import com.google.gson.Gson;
@@ -29,7 +28,8 @@ public class ItemFormRenderModel extends BaseModel {
     public static final int TYPE_LABEL = 9;
     public static final int TYPE_HEADER_DEVIDER = 10;
     public static final int TYPE_PICTURE = 11;
-    public static final int MAX_TYPE = 12;
+    public static final int MAX_TYPE = 13;
+    public static final int TYPE_EXPAND = 12;
 
     public WorkFormItemModel itemModel;
     public ItemValueModel itemValue;
@@ -106,7 +106,7 @@ public class ItemFormRenderModel extends BaseModel {
 
     public void add(ItemFormRenderModel child) {
         if (children == null)
-            children = new ArrayList<ItemFormRenderModel>();
+            children = new ArrayList<>();
         child.setParent(this);
         children.add(child);
     }
@@ -178,7 +178,7 @@ public class ItemFormRenderModel extends BaseModel {
             DebugLog.d("====================== check if picture is not null : " + itemModel.pictureEndPoint);
             if (parentLabel != null)
                 itemModel.label = itemModel.label + " \n " + parentLabel;
-            if (firstItem.items.get(0).field_type.equalsIgnoreCase("label"))
+            if (firstItem.items.get(0).field_type.equalsIgnoreCase("label") && !firstItem.items.get(0).expand)
                 firstItem.items.remove(0);
 
             ItemFormRenderModel child = new ItemFormRenderModel();
@@ -289,9 +289,11 @@ public class ItemFormRenderModel extends BaseModel {
     }
 
     private void generateViewItem(int rowId, WorkFormItemModel itemModel, int operatorId) {
+        DebugLog.d("item label : " + itemModel.label + " id : " + itemModel.id + " expand="+itemModel.expand);
+        DebugLog.d("item description : " + itemModel.description + " id : " + itemModel.id + "");
         if (itemModel.pictureEndPoint != null)
             hasPicture = true;
-        if (itemModel.field_type.equalsIgnoreCase("label")) {
+        if (itemModel.field_type.equalsIgnoreCase("label") && !itemModel.expand) {
             ItemFormRenderModel child = new ItemFormRenderModel();
             child.type = TYPE_LABEL;
             child.itemModel = itemModel;
@@ -299,8 +301,6 @@ public class ItemFormRenderModel extends BaseModel {
             add(child);
             return;
         }
-        DebugLog.d("===================== item label : " + itemModel.label + " id : " + itemModel.id + "=================");
-        DebugLog.d("===================== item description : " + itemModel.description + " id : " + itemModel.id + "=================");
 
         DebugLog.d(schedule.id + " | " + itemModel.id + " | " + operatorId + " | " + rowId);
         ItemValueModel initValue = new ItemValueModel();
@@ -310,12 +310,16 @@ public class ItemFormRenderModel extends BaseModel {
         child.rowId = rowId;
         child.operatorId = operatorId;
         child.schedule = schedule;
-        DebugLog.d("================================================");
-        DebugLog.d("================================================");
-        DebugLog.d("================================================");
         DebugLog.d("value : " + initValue.value);
 
-        if (itemModel.field_type.equalsIgnoreCase("text_field")) {
+        if (itemModel.field_type.equalsIgnoreCase("label") && itemModel.expand) {
+            hasInput = true;
+            child.type = TYPE_EXPAND;
+            this.addFillableTask();
+            child.parent = this;
+            add(child);
+            return;
+        } else if (itemModel.field_type.equalsIgnoreCase("text_field")) {
             hasInput = true;
             child.type = TYPE_TEXT_INPUT;
             this.addFillableTask();

@@ -499,6 +499,13 @@ public class MainActivity extends BaseActivity{
 			}else{
 				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
 			}
-		};
+		}
 	};
+
+	public void hideDialog() {
+		if (progressDialog == null || !progressDialog.isShowing())
+			return;
+		progressDialog.dismiss();
+	}
+
 }

@@ -50,4 +50,10 @@ public class DbRepository {
 	public void clearData(String table){
 		 getDB().delete(table, null, null);
 	}
+
+	public void clearData(Context context,String table){
+		open(context);
+		getDB().delete(table, null, null);
+		close();
+	}
 }

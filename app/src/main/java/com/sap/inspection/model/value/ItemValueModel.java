@@ -41,6 +41,7 @@ public class ItemValueModel extends BaseModel {
 	public int uploadStatus = UPLOAD_NONE;
 	public boolean typePhoto;
 	public String picture;
+	public boolean disable;
 
 
 	@Override
@@ -235,14 +236,15 @@ public class ItemValueModel extends BaseModel {
 	}  
 
 	public void save(String scheduleId, String photoStatus){
-		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 				DbManagerValue.mFormValue , DbManagerValue.colScheduleId,
 				DbManagerValue.colItemId,DbManagerValue.colValue,
 				DbManagerValue.colIsPhoto,DbManagerValue.colOperatorId,
 				DbManagerValue.colRowId, DbManagerValue.colRemark,
 				DbManagerValue.colLatitude, DbManagerValue.colLongitude,
 				DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
-				DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt);
+				DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt,
+				DbManagerValue.colDisable);
 
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
@@ -258,6 +260,8 @@ public class ItemValueModel extends BaseModel {
 		bindAndCheckNullString(stmt, 10, photoStatus);
 		stmt.bindLong(11, gpsAccuracy);
 		stmt.bindLong(12, uploadStatus);
+		bindBooleanToInteger(stmt, 13, disable);
+
 
 		DebugLog.d("photo Date="+createdAt);
 		bindAndCheckNullString(stmt, 13, createdAt);
@@ -266,7 +270,7 @@ public class ItemValueModel extends BaseModel {
 				" typePhoto="+typePhoto+" operatorId="+operatorId+" rowId="+rowId+
 				" remark="+remark+" latitude="+latitude+" longitude="+longitude+
 				" photoStatus="+photoStatus+" gpsAccuracy="+gpsAccuracy+
-				" uploadStatus="+uploadStatus+" createdAt="+createdAt);
+				" uploadStatus="+uploadStatus+" createdAt="+createdAt+" disable="+disable);
 
 		stmt.executeInsert();
 		stmt.close();
@@ -309,8 +313,9 @@ public class ItemValueModel extends BaseModel {
 		FormValueModel.photoStatus = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoStatus)));
 		FormValueModel.value = (c.getString(c.getColumnIndex(DbManagerValue.colValue)));
 		FormValueModel.uploadStatus = (c.getInt(c.getColumnIndex(DbManagerValue.colUploadStatus)));
-		FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1 ? true : false;
+		FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1;
 		FormValueModel.createdAt = (c.getString(c.getColumnIndex(DbManagerValue.colCreatedAt)));
+		FormValueModel.disable = c.getInt(c.getColumnIndex(DbManagerValue.colDisable)) == 1;
 		return FormValueModel;
 	}
 
@@ -330,6 +335,7 @@ public class ItemValueModel extends BaseModel {
 				+ DbManagerValue.colUploadStatus + " integer, "
 				+ DbManagerValue.colIsPhoto + " integer, "
 				+ DbManagerValue.colCreatedAt + " varchar, "
+				+ DbManagerValue.colDisable + " integer, "
 				+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
 	}
 	

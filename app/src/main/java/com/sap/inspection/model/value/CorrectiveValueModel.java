@@ -286,7 +286,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 		FormValueModel.photoStatus = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoStatus)));
 		FormValueModel.value = (c.getString(c.getColumnIndex(DbManagerValue.colValue)));
 		FormValueModel.uploadStatus = (c.getInt(c.getColumnIndex(DbManagerValue.colUploadStatus)));
-		FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1 ? true : false;
+		FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1;
 
 		return FormValueModel;
 	}

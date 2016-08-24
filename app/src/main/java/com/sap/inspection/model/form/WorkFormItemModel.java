@@ -250,10 +250,10 @@ public class WorkFormItemModel extends BaseModel {
 
 		item.id = (c.getInt(c.getColumnIndex(DbManager.colID)));
 		item.position = (c.getInt(c.getColumnIndex(DbManager.colPosition)));
-		item.searchable = (int) (c.getLong(c.getColumnIndex(DbManager.colSearchable))) == 1 ? true : false;
-		item.mandatory = (int) (c.getLong(c.getColumnIndex(DbManager.colMandatory))) == 1 ? true : false;
-		item.visible = (int) (c.getLong(c.getColumnIndex(DbManager.colVisible))) == 1 ? true : false;
-		item.listable = (int) (c.getLong(c.getColumnIndex(DbManager.colListable))) == 1 ? true : false;
+		item.searchable = (int) (c.getLong(c.getColumnIndex(DbManager.colSearchable))) == 1;
+		item.mandatory = (int) (c.getLong(c.getColumnIndex(DbManager.colMandatory))) == 1;
+		item.visible = (int) (c.getLong(c.getColumnIndex(DbManager.colVisible))) == 1;
+		item.listable = (int) (c.getLong(c.getColumnIndex(DbManager.colListable))) == 1;
 		item.work_form_group_id = (c.getInt(c.getColumnIndex(DbManager.colWorkFormGroupId)));
 		item.field_type = (c.getString(c.getColumnIndex(DbManager.colFieldType)));
 		item.label = (c.getString(c.getColumnIndex(DbManager.colLable)));
@@ -265,9 +265,9 @@ public class WorkFormItemModel extends BaseModel {
 		item.updated_at = (c.getString(c.getColumnIndex(DbManager.colUpdatedAt)));
 		item.description = (c.getString(c.getColumnIndex(DbManager.colDescription)));
 		item.pictureEndPoint = (c.getString(c.getColumnIndex(DbManager.colPicture)));
-		item.disable = (int) (c.getLong(c.getColumnIndex(DbManager.colDisable))) == 1 ? true : false;
-		item.search = (int) (c.getLong(c.getColumnIndex(DbManager.colSearch))) == 1 ? true : false;
-		item.expand = (int) (c.getLong(c.getColumnIndex(DbManager.colExpand))) == 1 ? true : false;
+		item.disable = (int) (c.getLong(c.getColumnIndex(DbManager.colDisable))) == 1;
+		item.search = (int) (c.getLong(c.getColumnIndex(DbManager.colSearch))) == 1;
+		item.expand = (int) (c.getLong(c.getColumnIndex(DbManager.colExpand))) == 1;
 
 		return item;
 	}
