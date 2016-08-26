@@ -162,6 +162,7 @@ public class LoginActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		DebugLog.d("");
 
+		/*
 		if (!GlobalVar.getInstance().anyNetwork(this)){
 			new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
 					.setTopColor(color(R.color.theme_color))
@@ -179,7 +180,7 @@ public class LoginActivity extends BaseActivity {
 					})
 					.show();
 			return;
-		}
+		}*/
 
 		if (!Utility.checkGpsStatus(this)) {
 			new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)

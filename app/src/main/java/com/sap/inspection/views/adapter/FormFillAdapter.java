@@ -14,7 +14,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.R;
 import com.sap.inspection.listener.FormTextChange;
@@ -160,7 +159,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.upload = (ImageView) view.findViewById(R.id.item_form_upload);
 				holder.photoRadio.setAudit(isAudit());
 				holder.photoRadio.setButtonClickListener(photoListener);
-				holder.upload.setTag(position);
 				holder.upload.setOnClickListener(uploadListener);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
@@ -170,7 +168,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.upload = (ImageView) view.findViewById(R.id.item_form_upload);
 				holder.photo.setAudit(isAudit());
 				holder.photo.setButtonClickListener(photoListener);
-				holder.upload.setTag(position);
                 holder.upload.setOnClickListener(uploadListener);
 				holder.photo.setSavingRule(savingRule);
 				break;
@@ -187,6 +184,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.input = (FormInputText) view.findViewById(R.id.item_form_input);
 				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
 				break;
+			/*
 				case ItemFormRenderModel.TYPE_EXPAND:
 					view = LayoutInflater.from(context).inflate(R.layout.item_form_expand,null);
 					holder.label = (TextView) view.findViewById(R.id.item_form_expand_title);
@@ -197,7 +195,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 							holder.expandableLinearLayout.toggle();
 						}
 					});
-					break;
+					break;*/
 			default:
 				DebugLog.d("============== get default view : "+getItemViewType(position));
 				view = new View(context);
@@ -253,11 +251,13 @@ public class FormFillAdapter extends MyBaseAdapter {
 			holder.photoRadio.setItemFormRenderModel(getItem(position));
 			holder.photoRadio.setValue(getItem(position).itemValue,true);
 			setMandatory(holder,getItem(position));
+			holder.upload.setTag(position);
 			break;
 		case ItemFormRenderModel.TYPE_PICTURE:
 			holder.photo.setItemFormRenderModel(getItem(position));
 			holder.photo.setValue(getItem(position).itemValue,true);
 			setMandatory(holder,getItem(position));
+			holder.upload.setTag(position);
 			break;
 		case ItemFormRenderModel.TYPE_TEXT_INPUT:
 			holder.label.setText(getItem(position).itemModel.label);
@@ -279,8 +279,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 			check(position);
 			setMandatory(holder,getItem(position));
 			break;
+		/*
 			case ItemFormRenderModel.TYPE_EXPAND:
 				holder.label.setText(getItem(position).itemModel.label);
+				*/
 		default:
 			break;
 		}
@@ -419,7 +421,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		ImageView picture;
 		TextView mandatory;
 		ImageView upload;
-		ExpandableLinearLayout expandableLinearLayout;
+//		ExpandableLinearLayout expandableLinearLayout;
 	}
 
 	OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {

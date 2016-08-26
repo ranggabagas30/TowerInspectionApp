@@ -83,6 +83,8 @@ public class ItemUploadManager {
     }
 
     public void addItemValues(Collection<ItemValueModel> itemvalues) {
+        DebugLog.d("itemvalues="+itemvalues.size());
+        this.itemValues.clear();
         for (ItemValueModel item : itemvalues) {
             if (!item.disable) {
                 this.itemValues.add(item);
@@ -188,10 +190,11 @@ public class ItemUploadManager {
                         }
                     }
                 }
+                /*
                 retry++;
                 if (retry == 5) {
                     break;
-                }
+                }*/
             }
             for (ItemValueModel item : itemValuesFailed) {
                 item.uploadStatus = ItemValueModel.UPLOAD_NONE;

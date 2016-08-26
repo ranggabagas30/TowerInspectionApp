@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
@@ -37,6 +38,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.DbRepository;
@@ -50,9 +54,11 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,6 +69,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+
+import de.greenrobot.event.EventBus;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -381,6 +389,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 	}
 
+	public void onEvent(UploadProgressEvent event) {
+		DebugLog.d("event="+new Gson().toJson(event));
+	}
+
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -457,12 +469,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				return;
 			}
 			int pos = (int)v.getTag();
+			DebugLog.d("pos="+pos);
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
 			if (itemFormRenderModel.itemModel.disable) {
 				Toast.makeText(activity, "Item is disable", Toast.LENGTH_LONG).show();
 			}
 			else if (itemFormRenderModel.itemValue!=null) {
-				DebugLog.d("pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
+				DebugLog.d("itemId=" + itemFormRenderModel.itemValue.itemId+" pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
 						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
 						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);

@@ -864,8 +864,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				ItemFormRenderModel.TYPE_CHECKBOX,
 				ItemFormRenderModel.TYPE_RADIO,
 				ItemFormRenderModel.TYPE_TEXT_INPUT,
-				ItemFormRenderModel.TYPE_PICTURE,
-				ItemFormRenderModel.TYPE_EXPAND
+				ItemFormRenderModel.TYPE_PICTURE
+//				ItemFormRenderModel.TYPE_EXPAND
 		};
 		ArrayList<Integer> list = new ArrayList<>();
 		list.add(ItemFormRenderModel.TYPE_PICTURE_RADIO);
@@ -873,7 +873,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		list.add(ItemFormRenderModel.TYPE_RADIO);
 		list.add(ItemFormRenderModel.TYPE_TEXT_INPUT);
 		list.add(ItemFormRenderModel.TYPE_PICTURE);
-		list.add(ItemFormRenderModel.TYPE_EXPAND);
+//		list.add(ItemFormRenderModel.TYPE_EXPAND);
 		adapter.notifyDataSetChanged();
 		if (adapter!=null && !adapter.isEmpty()) {
 			boolean mandatoryFound = false;

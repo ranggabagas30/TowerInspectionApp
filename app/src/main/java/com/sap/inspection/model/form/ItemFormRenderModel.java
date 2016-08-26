@@ -29,7 +29,7 @@ public class ItemFormRenderModel extends BaseModel {
     public static final int TYPE_HEADER_DEVIDER = 10;
     public static final int TYPE_PICTURE = 11;
     public static final int MAX_TYPE = 13;
-    public static final int TYPE_EXPAND = 12;
+//    public static final int TYPE_EXPAND = 12;
 
     public WorkFormItemModel itemModel;
     public ItemValueModel itemValue;
@@ -178,7 +178,7 @@ public class ItemFormRenderModel extends BaseModel {
             DebugLog.d("====================== check if picture is not null : " + itemModel.pictureEndPoint);
             if (parentLabel != null)
                 itemModel.label = itemModel.label + " \n " + parentLabel;
-            if (firstItem.items.get(0).field_type.equalsIgnoreCase("label") && !firstItem.items.get(0).expand)
+            if (firstItem.items.get(0).field_type.equalsIgnoreCase("label")/* && !firstItem.items.get(0).expand*/)
                 firstItem.items.remove(0);
 
             ItemFormRenderModel child = new ItemFormRenderModel();
@@ -293,7 +293,7 @@ public class ItemFormRenderModel extends BaseModel {
         DebugLog.d("item description : " + itemModel.description + " id : " + itemModel.id + "");
         if (itemModel.pictureEndPoint != null)
             hasPicture = true;
-        if (itemModel.field_type.equalsIgnoreCase("label") && !itemModel.expand) {
+        if (itemModel.field_type.equalsIgnoreCase("label")/* && !itemModel.expand*/) {
             ItemFormRenderModel child = new ItemFormRenderModel();
             child.type = TYPE_LABEL;
             child.itemModel = itemModel;
@@ -312,14 +312,14 @@ public class ItemFormRenderModel extends BaseModel {
         child.schedule = schedule;
         DebugLog.d("value : " + initValue.value);
 
-        if (itemModel.field_type.equalsIgnoreCase("label") && itemModel.expand) {
+        /*if (itemModel.field_type.equalsIgnoreCase("label") && itemModel.expand) {
             hasInput = true;
             child.type = TYPE_EXPAND;
             this.addFillableTask();
             child.parent = this;
             add(child);
             return;
-        } else if (itemModel.field_type.equalsIgnoreCase("text_field")) {
+        } else*/ if (itemModel.field_type.equalsIgnoreCase("text_field")) {
             hasInput = true;
             child.type = TYPE_TEXT_INPUT;
             this.addFillableTask();

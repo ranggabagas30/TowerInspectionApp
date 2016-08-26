@@ -445,4 +445,10 @@ public class MainActivity extends BaseActivity{
 			}
 		};
 	};
+
+	public void hideDialog() {
+		if (progressDialog == null || !progressDialog.isShowing())
+			return;
+		progressDialog.dismiss();
+	}
 }
