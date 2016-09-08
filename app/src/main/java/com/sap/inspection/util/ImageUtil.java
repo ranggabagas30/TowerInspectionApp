@@ -1,6 +1,7 @@
 package com.sap.inspection.util;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.ExifUtil;
 
@@ -25,8 +27,12 @@ public class ImageUtil {
             BitmapFactory.Options options = new BitmapFactory.Options();
 
             options.inSampleSize = 4;
-//            File tempDir= Environment.getExternalStorageDirectory();
-            File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            File tempDir;
+            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            else
+                tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
+
             String path = tempDir.getAbsolutePath()+"/TowerInspection/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
             Bitmap bitmap = BitmapFactory.decodeFile(path,options);
@@ -54,9 +60,12 @@ public class ImageUtil {
 	public static File resizeAndSaveImage(String imageUri, String scheduleId) {
         File fileReturn = null;
         try {
+            File tempDir;
+            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            else
+                tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
 
-//            File tempDir= Environment.getExternalStorageDirectory();
-            File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -85,12 +94,17 @@ public class ImageUtil {
 
         return fileReturn;
     }
-    public static File resizeAndSaveImageCheckExif(String imageUri, String scheduleId) {
+    public static File resizeAndSaveImageCheckExif(Context ctx, String imageUri, String scheduleId) {
         File fileReturn = null;
+        File tempDir;
         try {
-
-//            File tempDir= Environment.getExternalStorageDirectory();
-            File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+                DebugLog.d("external storage available");
+                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            } else {
+                DebugLog.d("external storage not available");
+                tempDir = new File(ctx.getFilesDir()+"/Camera/");
+            }
             String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -141,14 +155,17 @@ public class ImageUtil {
         try {
         	Log.d("saving bitmap", "url : "+url);
         	Log.d("saving bitmap", "bitmap : "+bitmap);
-//            File tempDir= Environment.getExternalStorageDirectory();
-            File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            File tempDir;
+            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            else
+                tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
+
             String path = null;
             if (url.contains("?"))
             	path = tempDir.getAbsolutePath()+"/TowerInspection/"+url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
             else
             	path = tempDir.getAbsolutePath()+"/TowerInspection/"+url.substring(url.lastIndexOf('/')+1);
-            
 
             File file;
             file = new File(path);
@@ -210,8 +227,12 @@ public class ImageUtil {
 
 	private static File createTemporaryFile(String part, String ext) throws Exception
 	{
-		//File tempDir= Environment.getExternalStorageDirectory();
-        File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+        File tempDir;
+        if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+            tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+        else
+            tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
+
 		tempDir=new File(tempDir.getAbsolutePath()+"/TowerInspection/");
 		if(!tempDir.exists())
 		{

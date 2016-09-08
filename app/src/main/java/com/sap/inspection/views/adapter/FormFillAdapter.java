@@ -14,6 +14,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.R;
 import com.sap.inspection.listener.FormTextChange;
@@ -283,6 +284,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 			case ItemFormRenderModel.TYPE_EXPAND:
 				holder.label.setText(getItem(position).itemModel.label);
 				*/
+
 		default:
 			break;
 		}
@@ -421,7 +423,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		ImageView picture;
 		TextView mandatory;
 		ImageView upload;
-//		ExpandableLinearLayout expandableLinearLayout;
+		ExpandableLinearLayout expandableLinearLayout;
 	}
 
 	OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {

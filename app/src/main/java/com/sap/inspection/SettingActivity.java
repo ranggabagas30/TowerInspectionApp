@@ -47,6 +47,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.Utility;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -140,7 +141,13 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         deleteSchedule = (Button) findViewById(R.id.deleteSchedule);
         deleteSchedule.setOnClickListener(deleteScheduleClickListener);
 
-        tempFile = Environment.getExternalStorageDirectory();
+        if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+            DebugLog.d("external storage available");
+            tempFile = Environment.getExternalStorageDirectory();
+        } else {
+            DebugLog.d("external storage not available");
+            tempFile = getFilesDir();
+        }
         tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
 
         if (tempFile.exists())
@@ -427,7 +434,13 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     @Override
     protected void onResume() {
         super.onResume();
-        tempFile = Environment.getExternalStorageDirectory();
+        if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+            DebugLog.d("external storage available");
+            tempFile = Environment.getExternalStorageDirectory();
+        } else {
+            DebugLog.d("external storage not available");
+            tempFile = getFilesDir();
+        }
         tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
 
         if (tempFile.exists())
@@ -493,7 +506,14 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 // download the file
                 InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-                File tempDir = Environment.getExternalStorageDirectory();
+                File tempDir;
+                if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+                    DebugLog.d("external storage available");
+                    tempDir = Environment.getExternalStorageDirectory();
+                } else {
+                    DebugLog.d("external storage not available");
+                    tempDir = getFilesDir();
+                }
                 tempDir = new File(tempDir.getAbsolutePath() + "/Download");
                 if (!tempDir.exists()) {
                     tempDir.mkdir();
@@ -547,7 +567,14 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         protected void onPostExecute(String file_url) {
             dismissDialog(progress_bar_type);
 
-            File tempFile = Environment.getExternalStorageDirectory();
+            File tempFile;
+            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+                DebugLog.d("external storage available");
+                tempFile = Environment.getExternalStorageDirectory();
+            } else {
+                DebugLog.d("external storage not available");
+                tempFile = getFilesDir();
+            }
             tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
             if (!tempFile.exists()) {
                 finish();

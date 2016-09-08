@@ -527,18 +527,22 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	private File createTemporaryFile(String part, String ext) throws Exception
 	{
-//		File tempDir= Environment.getExternalStorageDirectory();
-		File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-		tempDir=new File(tempDir.getAbsolutePath()+"/TowerInspection"); // create temp folder
-		if(!tempDir.exists())
-		{
+		File tempDir;
+		if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+			DebugLog.d("external storage available");
+			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+		} else {
+			DebugLog.d("external storage not available");
+			tempDir = new File(getFilesDir()+"/Camera/");
+		}
+		tempDir = new File(tempDir.getAbsolutePath() + "/TowerInspection"); // create temp folder
+		if (!tempDir.exists()) {
 			tempDir.mkdir();
 		}
-        tempDir=new File(tempDir.getAbsolutePath()+"/"+schedule.id+"/"); // create schedule folder
-        if(!tempDir.exists())
-        {
-            tempDir.mkdir();
-        }
+		tempDir = new File(tempDir.getAbsolutePath() + "/" + schedule.id + "/"); // create schedule folder
+		if (!tempDir.exists()) {
+			tempDir.mkdir();
+		}
 		return File.createTempFile(part, ext, tempDir);
 	}
 
@@ -551,16 +555,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (photoItem != null && mImageUri != null){
 				photoItem.initValue();
 				photoItem.deletePhoto();
-				File file = ImageUtil.resizeAndSaveImageCheckExif(mImageUri.toString(), schedule.id);
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-					Intent mediaScanIntent = new Intent(
-							Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-					Uri contentUri = Uri.fromFile(file);
-					mediaScanIntent.setData(contentUri);
-					this.sendBroadcast(mediaScanIntent);
-				} else {
-					sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-							Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
+				File file = ImageUtil.resizeAndSaveImageCheckExif(this,mImageUri.toString(), schedule.id);
+				if (Utility.isExternalStorageAvailable()) {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+						Intent mediaScanIntent = new Intent(
+								Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+						Uri contentUri = Uri.fromFile(file);
+						mediaScanIntent.setData(contentUri);
+						this.sendBroadcast(mediaScanIntent);
+					} else {
+						sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+								Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
+					}
 				}
 				DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
 				photoItem.setPhotoDate();

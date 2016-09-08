@@ -196,6 +196,7 @@ public class ItemUploadManager {
                     break;
                 }*/
             }
+
             for (ItemValueModel item : itemValuesFailed) {
                 item.uploadStatus = ItemValueModel.UPLOAD_NONE;
                 if (!DbRepositoryValue.getInstance().getDB().isOpen())
@@ -204,9 +205,6 @@ public class ItemUploadManager {
             }
 
             if (itemValuesFailed.size() == 0) {
-                if (scheduleId != null)
-                    APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() +
-                            scheduleId + "/update");
                 MyApplication.getInstance().toast(syncDone, Toast.LENGTH_LONG);
                 publish(syncDone);
                 latestStatus = syncDone;
@@ -215,6 +213,10 @@ public class ItemUploadManager {
                 publish(syncFail);
                 latestStatus = syncFail;
             }
+            if (scheduleId != null)
+                APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() +
+                        scheduleId + "/update");
+
             return null;
         }
 

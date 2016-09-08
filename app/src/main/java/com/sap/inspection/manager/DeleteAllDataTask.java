@@ -10,6 +10,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.Utility;
 import com.slidinglayer.util.CommonUtils;
 
 import java.io.File;
@@ -25,8 +26,12 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 
 	@Override
 	protected Void doInBackground(Void... arg0) {
-//		File tempDir= Environment.getExternalStorageDirectory();
-		File tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+		File tempDir;
+		if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+		else
+			tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
+
 		String path = tempDir.getAbsolutePath()+"/TowerInspection/";
 		getFileCount(path);
 		File f;

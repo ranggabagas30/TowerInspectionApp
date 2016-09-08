@@ -13,6 +13,8 @@ public class NotificationProcessor {
 		if (extrasType == null);
 		else if (extrasType.startsWith("schedule"))
 			baseNotification = new ScheduleNotification(context, bundle);
+		else if (extrasType.startsWith("apk"))
+			baseNotification = new ApkNotification(context, bundle);
 		return baseNotification;
 	}
 }
