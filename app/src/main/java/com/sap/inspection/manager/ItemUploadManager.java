@@ -214,6 +214,7 @@ public class ItemUploadManager {
                 latestStatus = syncFail;
             }
             if (scheduleId != null)
+                DebugLog.d("hit corrective");
                 APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() +
                         scheduleId + "/update");
 

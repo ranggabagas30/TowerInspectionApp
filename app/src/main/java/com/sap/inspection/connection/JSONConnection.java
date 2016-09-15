@@ -10,9 +10,11 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ErrorSatutempatModel;
+import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.tools.DebugLog;
 
 import org.apache.http.Header;
@@ -54,6 +56,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 
 	@Override
 	protected void onPreExecute() {
+		DebugLog.d("url="+url);
 		super.onPreExecute();
 		//		activity.setProgressBarIndeterminateVisibility(true);
 	}
@@ -76,7 +79,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			request = new HttpGet(url);
 			
 			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
-			DebugLog.d("cooooooooooooo kieeeee ||   "+mPref.getString(context.getString(R.string.user_cookie), ""));
+			DebugLog.d("cookie = "+mPref.getString(context.getString(R.string.user_cookie), ""));
 			if (mPref.getString(context.getString(R.string.user_cookie), null) != null){
 				request.addHeader("Cookie", mPref.getString(context.getString(R.string.user_cookie), ""));
 			}
@@ -102,7 +105,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 				return null;
 			}
 			String s = ConvertInputStreamToString(data);
-			DebugLog.d("json /n"+s);
+			DebugLog.d("json = "+s);
 			return s;
 		}catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();
@@ -136,12 +139,18 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 		if (notJson && result == null)
 			Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
 		else if (result != null) {
+				BaseResponseModel responseModel = new Gson().fromJson(result, BaseResponseModel.class);
+					if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
+						MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
+					}
+
+/*
 			try {
 				if (JSONConnection.anyServerError(result, context))
 					result = null;
 			} catch (JSONException e) {
 				e.printStackTrace();
-			}
+			}*/
 		}
 		DebugLog.d(url);
 		Bundle bundle = new Bundle();
