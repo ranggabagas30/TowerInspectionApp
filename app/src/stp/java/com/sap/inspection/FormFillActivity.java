@@ -35,6 +35,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -507,6 +508,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		catch(Exception e)
 		{
+			Crashlytics.logException(e);
 			DebugLog.d(e.getMessage());
 			DebugLog.d("Can't create file to take picture!");
 //			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();

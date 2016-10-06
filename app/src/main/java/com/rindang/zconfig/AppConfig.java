@@ -7,9 +7,9 @@ public class AppConfig{
 	
 	private AppConfig() {
 //        config = new WawanConfig();
-//		config = new ProdConfig();
+		config = new ProdConfig();
 //		config = new ProdMobileConfig();
-		config = new DevConfig();
+//		config = new DevConfig();
 	}
 
 	public static AppConfig getInstance(){

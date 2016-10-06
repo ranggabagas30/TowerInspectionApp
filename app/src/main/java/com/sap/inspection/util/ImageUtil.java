@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.ExifUtil;
@@ -204,6 +205,7 @@ public class ImageUtil {
 		catch(Exception e)
 		{
 			DebugLog.d("Can't create file to take picture!");
+            Crashlytics.logException(e);
 //			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT);
 			return null;
 		}
