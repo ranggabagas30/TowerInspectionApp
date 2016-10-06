@@ -19,6 +19,8 @@ import android.telephony.TelephonyManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -173,6 +175,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		searchView = findViewById(R.id.layout_search);
 		list = (ListView) findViewById(R.id.list);
 		list.setOnItemSelectedListener(itemSelected);
+		list.setOnScrollListener(onScrollListener);
 		adapter = new FormFillAdapter(this);
 		adapter.setPhotoListener(photoClickListener);
         adapter.setUploadListener(uploadClickListener);
@@ -208,6 +211,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		FormLoader loader = new FormLoader();
 		loader.execute();
+		trackThisPage("Form Fill");
 	}
 	
 	OnItemSelectedListener itemSelected = new OnItemSelectedListener() {
@@ -505,7 +509,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		{
 			DebugLog.d(e.getMessage());
 			DebugLog.d("Can't create file to take picture!");
-			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
+//			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
 			return false;
 		}
 		mImageUri = Uri.fromFile(photo);
@@ -528,7 +532,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private File createTemporaryFile(String part, String ext) throws Exception
 	{
 		File tempDir;
-		if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+		if (Utility.isExternalStorageAvailable()) {
 			DebugLog.d("external storage available");
 			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
 		} else {
@@ -866,20 +870,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	@Override
 	public void onBackPressed() {
-		int[] arr = {ItemFormRenderModel.TYPE_PICTURE_RADIO,
-				ItemFormRenderModel.TYPE_CHECKBOX,
-				ItemFormRenderModel.TYPE_RADIO,
-				ItemFormRenderModel.TYPE_TEXT_INPUT,
-				ItemFormRenderModel.TYPE_PICTURE
-//				ItemFormRenderModel.TYPE_EXPAND
-		};
 		ArrayList<Integer> list = new ArrayList<>();
 		list.add(ItemFormRenderModel.TYPE_PICTURE_RADIO);
 		list.add(ItemFormRenderModel.TYPE_CHECKBOX);
 		list.add(ItemFormRenderModel.TYPE_RADIO);
 		list.add(ItemFormRenderModel.TYPE_TEXT_INPUT);
 		list.add(ItemFormRenderModel.TYPE_PICTURE);
-//		list.add(ItemFormRenderModel.TYPE_EXPAND);
+		list.add(ItemFormRenderModel.TYPE_EXPAND);
 		adapter.notifyDataSetChanged();
 		if (adapter!=null && !adapter.isEmpty()) {
 			boolean mandatoryFound = false;
@@ -912,5 +909,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			super.onBackPressed();
 	}
 
+	private AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener() {
+		@Override
+		public void onScrollStateChanged(AbsListView absListView, int i) {
+			InputMethodManager inputManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+			if (getCurrentFocus() != null) {
+				inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+				getCurrentFocus().clearFocus();
+			}
+		}
 
+		@Override
+		public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+
+		}
+	};
 }

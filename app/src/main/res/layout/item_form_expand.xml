@@ -1,33 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/item_form_expand_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:textSize="18sp"
-        />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_item_drill_red"
+        android:paddingBottom="@dimen/padding_medium"
+        android:paddingLeft="@dimen/padding_large"
+        android:paddingRight="@dimen/padding_large"
+        android:paddingTop="@dimen/padding_medium" >
 
-    <com.github.aakira.expandablelayout.ExpandableLinearLayout
-        android:id="@+id/expandableLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:ael_duration="200"
-        app:ael_expanded="false">
-
-        <TextView
-            android:layout_width="wrap_content"
+        <com.sap.inspection.view.MyTextView
+            android:id="@+id/item_form_expand_title"
+            style="@style/list_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="It’s always easy to write a Hello World application, the code looks simple and straight forward and the SDK feels very adapted to your needs. But if you have experience writing a more complex app on Android, you know that production code is not like this. You have spent hours trying to understand why your shopping cart won’t update after changing the orientation of the phone if there is no WiFi. You figured that the solution is probably to add yet another if statement to your already 457 lines long Activity’s onCreate() method, between the one that fixes that crash on Samsung devices running Android 4.1, and the one that shows a $5 coupon on the user’s birthday. Well, there is a better way." />
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:text="SAMPLE" />
+        <LinearLayout
+            android:id="@+id/item_form_expand_button"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:gravity="center"
+            >
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/trianglex"
+                />
+        </LinearLayout>
 
-    </com.github.aakira.expandablelayout.ExpandableLinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

@@ -98,6 +98,9 @@ public class RowColumnModel extends BaseModel {
 
 		String query = "SELECT t1."+DbManager.colID+",t1."+DbManager.colRowId+",t1."+DbManager.colColId+",t1."+DbManager.colWorkFormGroupId+",t1."+DbManager.colCreatedAt+",t1."+DbManager.colUpdatedAt+" FROM " + DbManager.mWorkFormRowCol + " t1 INNER JOIN " + DbManager.mWorkFormColumn + " t2 ON t1." + DbManager.colColId + "=t2." + DbManager.colID + " WHERE t1." + DbManager.colRowId + "=? ORDER BY t2." + DbManager.colPosition + " ASC";
 		String[] args = new String[] {String.valueOf(workFormRowId)};
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, args);
 
 		if (!cursor.moveToFirst()) {

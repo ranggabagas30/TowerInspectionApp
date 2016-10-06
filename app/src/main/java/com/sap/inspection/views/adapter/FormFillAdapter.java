@@ -1,6 +1,9 @@
 package com.sap.inspection.views.adapter;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,7 +17,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.github.aakira.expandablelayout.ExpandableLinearLayout;
+import com.github.aakira.expandablelayout.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.R;
 import com.sap.inspection.listener.FormTextChange;
@@ -30,6 +33,7 @@ import com.sap.inspection.view.PhotoItem;
 import com.sap.inspection.view.PhotoItemRadio;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FormFillAdapter extends MyBaseAdapter {
 
@@ -40,9 +44,15 @@ public class FormFillAdapter extends MyBaseAdapter {
 	private String workType;
 	private OnClickListener photoListener;
     private OnClickListener uploadListener;
+
+//	private List<ItemFormRenderModel> shownX = new ArrayList<>();
+	private SparseArray<List<ItemFormRenderModel>> sparseArray = new SparseArray<>();
+
 	//	private OnCheckedChangeListener onCheckedChangeListener;
 	private SavingRule savingRule;
-	
+
+	private SparseBooleanArray expandState = new SparseBooleanArray();
+
 	public void setWorkType(String workType) {
 		this.workType = workType;
 	}
@@ -86,6 +96,42 @@ public class FormFillAdapter extends MyBaseAdapter {
 		for (ItemFormRenderModel model : models) {
 			shown.addAll(model.getModels());
 		}
+
+		for (int i = 0; i < shown.size(); i++) {
+			ItemFormRenderModel model = shown.get(i);
+			if (model.column!=null && model.column.column_name!=null
+					&& model.column.column_name.equalsIgnoreCase("corrective"))
+				shown.remove(i);
+		}
+		DebugLog.d("models size = "+shown.size());
+		List<String> strings = new ArrayList<>();
+		for (int i = 0; i < this.shown.size(); i++) {
+			ItemFormRenderModel item = this.shown.get(i);
+			DebugLog.d("i="+i+" "+item.getLabel()+
+					" type="+item.type);
+			if (item.type==ItemFormRenderModel.TYPE_EXPAND)
+				strings.add(item.itemModel.label);
+		}
+
+		for (int i = 0; i < strings.size(); i++) {
+			String s = strings.get(i);
+			for (int j = 0; j < shown.size(); j++) {
+				if (s.equalsIgnoreCase(shown.get(j).getLabel()) && shown.get(j).type==ItemFormRenderModel.TYPE_HEADER) {
+					shown.remove(j);
+					break;
+				}
+			}
+		}
+
+		expandState.clear();
+		for (int i = 0; i < models.size(); i++) {
+			expandState.append(i, true);
+		}
+		super.notifyDataSetChanged();
+	}
+
+	public void updateView() {
+		DebugLog.d("aaa shown size="+shown.size()+" sparseArray size="+sparseArray.size());
 		super.notifyDataSetChanged();
 	}
 	
@@ -116,96 +162,92 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
-		View view = convertView;
 		final ViewHolder holder;
 		if (convertView == null) {
+			DebugLog.d("convertView == null");
 			holder = new ViewHolder();
 			DebugLog.d("position="+position+" type="+getItemViewType(position));
 			switch (getItemViewType(position)) {
 			case ItemFormRenderModel.TYPE_CHECKBOX:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_checkbox,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
-				holder.checkBox = (LinearLayout) view.findViewById(R.id.item_form_check);
-				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_checkbox,null);
+				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
+				holder.checkBox = (LinearLayout) convertView.findViewById(R.id.item_form_check);
+				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
 				break;
 			case ItemFormRenderModel.TYPE_COLUMN:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_column,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_column,null);
+				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_HEADER_DEVIDER:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_header_devider,null);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_header_devider,null);
 				break;
 			case ItemFormRenderModel.TYPE_HEADER:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_header,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
-				((MyTextView) view.findViewById(R.id.item_form_label)).setBold(context, true);
-				holder.colored = (TextView) view.findViewById(R.id.item_form_colored);
-				holder.plain = (TextView) view.findViewById(R.id.item_form_plain);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_header,null);
+				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
+				((MyTextView) convertView.findViewById(R.id.item_form_label)).setBold(context, true);
+				holder.colored = (TextView) convertView.findViewById(R.id.item_form_colored);
+				holder.plain = (TextView) convertView.findViewById(R.id.item_form_plain);
 				break;
 			case ItemFormRenderModel.TYPE_LABEL:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_label,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_label,null);
+				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_LINE_DEVIDER:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_line_devider,null);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_line_devider,null);
 				break;
 			case ItemFormRenderModel.TYPE_OPERATOR:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_operator,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_operator,null);
+				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE_RADIO:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_photo_radio,null);
-				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
-				holder.photoRadio = (PhotoItemRadio) view.findViewById(R.id.item_form_photo);
-				holder.upload = (ImageView) view.findViewById(R.id.item_form_upload);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_photo_radio,null);
+				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
+				holder.photoRadio = (PhotoItemRadio) convertView.findViewById(R.id.item_form_photo);
+				holder.upload = (ImageView) convertView.findViewById(R.id.item_form_upload);
 				holder.photoRadio.setAudit(isAudit());
 				holder.photoRadio.setButtonClickListener(photoListener);
 				holder.upload.setOnClickListener(uploadListener);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_photo,null);
-				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
-				holder.photo = (PhotoItem) view.findViewById(R.id.item_form_photo);
-				holder.upload = (ImageView) view.findViewById(R.id.item_form_upload);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_photo,null);
+				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
+				holder.photo = (PhotoItem) convertView.findViewById(R.id.item_form_photo);
+				holder.upload = (ImageView) convertView.findViewById(R.id.item_form_upload);
 				holder.photo.setAudit(isAudit());
 				holder.photo.setButtonClickListener(photoListener);
                 holder.upload.setOnClickListener(uploadListener);
 				holder.photo.setSavingRule(savingRule);
 				break;
 			case ItemFormRenderModel.TYPE_RADIO:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_radio,null);
-				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
-				holder.radio = (RadioGroup) view.findViewById(R.id.item_form_radio);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_radio,null);
+				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
+				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
+				holder.radio = (RadioGroup) convertView.findViewById(R.id.item_form_radio);
 				break;
 			case ItemFormRenderModel.TYPE_TEXT_INPUT:
-				view = LayoutInflater.from(context).inflate(R.layout.item_form_text_field,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
-				holder.description = (TextView) view.findViewById(R.id.item_form_description);
-				holder.input = (FormInputText) view.findViewById(R.id.item_form_input);
-				holder.mandatory = (TextView) view.findViewById(R.id.item_form_mandatory);
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_text_field,null);
+				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
+				holder.description = (TextView) convertView.findViewById(R.id.item_form_description);
+				holder.input = (FormInputText) convertView.findViewById(R.id.item_form_input);
+				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
 				break;
-			/*
-				case ItemFormRenderModel.TYPE_EXPAND:
-					view = LayoutInflater.from(context).inflate(R.layout.item_form_expand,null);
-					holder.label = (TextView) view.findViewById(R.id.item_form_expand_title);
-					holder.expandableLinearLayout = (ExpandableLinearLayout) view.findViewById(R.id.expandableLayout);
-					holder.label.setOnClickListener(new OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							holder.expandableLinearLayout.toggle();
-						}
-					});
-					break;*/
+			case ItemFormRenderModel.TYPE_EXPAND:
+				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_expand,null);
+				holder.label = (TextView) convertView.findViewById(R.id.item_form_expand_title);
+				((MyTextView) convertView.findViewById(R.id.item_form_expand_title)).setBold(context, true);
+				holder.expandButton = (LinearLayout) convertView.findViewById(R.id.item_form_expand_button);
+				break;
 			default:
 				DebugLog.d("============== get default view : "+getItemViewType(position));
-				view = new View(context);
+				convertView = new View(context);
 				break;
 			}
-			holder.picture = (ImageView) view.findViewById(R.id.picture);
-			view.setTag(holder);
-		} else
-			holder = (ViewHolder) view.getTag();
+			holder.picture = (ImageView) convertView.findViewById(R.id.picture);
+			convertView.setTag(holder);
+		} else {
+			DebugLog.d("convertView != null");
+			holder = (ViewHolder) convertView.getTag();
+		}
 		
 		if (getItem(position).itemModel != null)
 			DebugLog.d( "picture : "+getItem(position).itemModel.pictureEndPoint);
@@ -280,15 +322,27 @@ public class FormFillAdapter extends MyBaseAdapter {
 			check(position);
 			setMandatory(holder,getItem(position));
 			break;
-		/*
-			case ItemFormRenderModel.TYPE_EXPAND:
-				holder.label.setText(getItem(position).itemModel.label);
-				*/
-
+		case ItemFormRenderModel.TYPE_EXPAND:
+			holder.label.setText(getItem(position).itemModel.label);
+			holder.label.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					processExpand(holder,position);
+				}
+			});
+			DebugLog.d("position="+position+" state="+expandState.get(position));
+			holder.expandButton.setRotation(expandState.get(position) ? 180f : 0f);
+			holder.expandButton.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					processExpand(holder,position);
+				}
+			});
+			break;
 		default:
 			break;
 		}
-		return view; 
+		return convertView;
 	}
 
 	private void setMandatory(ViewHolder viewHolder, ItemFormRenderModel itemFormRenderModel) {
@@ -423,7 +477,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		ImageView picture;
 		TextView mandatory;
 		ImageView upload;
-		ExpandableLinearLayout expandableLinearLayout;
+		LinearLayout expandButton;
 	}
 
 	OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {
@@ -558,5 +612,47 @@ public class FormFillAdapter extends MyBaseAdapter {
 		if (workType == null)
 			return false;
 		return workType.equalsIgnoreCase("SITE AUDIT");
+	}
+
+	public ObjectAnimator createRotateAnimator(final View target, final float from, final float to) {
+		ObjectAnimator animator = ObjectAnimator.ofFloat(target, "rotation", from, to);
+		animator.setDuration(200);
+		animator.setInterpolator(Utils.createInterpolator(Utils.LINEAR_INTERPOLATOR));
+		return animator;
+	}
+
+	private void processExpand(ViewHolder holder, int position) {
+		if (shown.size()>position+1) {
+			DebugLog.d("aaa position=" + position);
+			if (expandState.get(position)) {
+				createRotateAnimator(holder.expandButton, 180f, 0f).start();
+				expandState.put(position, false);
+				DebugLog.d("aaa position=" + position + " state=false");
+//				shownX.clear();
+				List<ItemFormRenderModel> models = new ArrayList<>();
+				boolean collapse = true;
+				while (collapse) {
+					ItemFormRenderModel item = shown.get(position + 1);
+					if (item.type != ItemFormRenderModel.TYPE_EXPAND) {
+						models.add(shown.remove(position + 1));
+//						shownX.add(shown.remove(position + 1));
+					} else {
+						collapse = false;
+					}
+				}
+				sparseArray.put(position,models);
+			} else {
+				createRotateAnimator(holder.expandButton, 0f, 180f).start();
+				expandState.put(position, true);
+				DebugLog.d("aaa position=" + position + " state=true");
+				List<ItemFormRenderModel> models = sparseArray.get(position);
+				if (models!=null && !models.isEmpty()) {
+					for (int i = 0; i < models.size(); i++) {
+						shown.add(position + i + 1, models.get(i));
+					}
+				}
+			}
+			updateView();
+		}
 	}
 }

@@ -7,10 +7,12 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.PictureModel;
+import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.util.ImageUtil;
 
 import java.util.Vector;
@@ -170,6 +172,8 @@ public class WorkFormItemModel extends BaseModel {
 		String order = DbManager.colPosition+" ASC";
 		Cursor cursor;
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {

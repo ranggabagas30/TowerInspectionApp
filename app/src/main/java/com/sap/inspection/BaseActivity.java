@@ -9,9 +9,12 @@ import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.Window;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.manager.ScreenManager;
+import com.sap.inspection.tools.DebugLog;
 
 //import com.sap.inspection.gcm.GCMService;
 
@@ -123,4 +126,23 @@ public abstract class BaseActivity extends FragmentActivity{
 		return ContextCompat.getColor(this, colorRes);
 	}
 
+	protected void trackThisPage(String name) {
+// Obtain the shared Tracker instance.
+		MyApplication application = (MyApplication) getApplication();
+		Tracker mTracker = application.getDefaultTracker();
+		DebugLog.d("Track screen name: " + name);
+		mTracker.setScreenName(name);
+		mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+	}
+
+	protected void trackEvent(String name) {
+// Obtain the shared Tracker instance.
+		MyApplication application = (MyApplication) getApplication();
+		Tracker mTracker = application.getDefaultTracker();
+		DebugLog.d("Track event name: " + name);
+		mTracker.send(new HitBuilders.EventBuilder()
+				.setCategory("Event")
+				.setAction(name)
+				.build());
+	}
 }

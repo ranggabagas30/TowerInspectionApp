@@ -43,6 +43,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 	@Override
 	public void notifyDataSetChanged() {
 		shown = model.getModels();
+		DebugLog.d("shown size = "+shown.size());
 		super.notifyDataSetChanged();
 	}
 

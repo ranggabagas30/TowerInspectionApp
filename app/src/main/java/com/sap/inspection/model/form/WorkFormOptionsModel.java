@@ -98,6 +98,8 @@ public class WorkFormOptionsModel extends BaseModel {
 		String order = null;
 		Cursor cursor;
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {

@@ -100,6 +100,7 @@ public class MainActivity extends BaseActivity{
 
 		navigateToFragment(mainMenuFragment, R.id.fragment_behind);
 		navigateToFragment(scheduleFragment, R.id.fragment_front);
+		trackThisPage("Main");
 	}
 
 	@Override
@@ -180,30 +181,37 @@ public class MainActivity extends BaseActivity{
 			switch (i) {
 			case R.string.schedule:
 				DebugLog.d("schedule");
+				trackThisPage(getResources().getString(R.string.schedule));
 				scheduleFragment.setScheduleBy(R.string.schedule);
 				break;
 			case R.string.site_audit:
 				DebugLog.d("site audit");
+				trackThisPage(getResources().getString(R.string.site_audit));
 				scheduleFragment.setScheduleBy(R.string.site_audit);
 				break;
 			case R.string.preventive:
 				DebugLog.d("preventive");
+				trackThisPage(getResources().getString(R.string.preventive));
 				scheduleFragment.setScheduleBy(R.string.preventive);
 				break;
 			case R.string.corrective:
 				DebugLog.d("corrective");
+				trackThisPage(getResources().getString(R.string.corrective));
 				scheduleFragment.setScheduleBy(R.string.corrective);
 				break;
 			case R.string.newlocation:
 				DebugLog.d("new location");
+				trackThisPage(getResources().getString(R.string.newlocation));
 				scheduleFragment.setScheduleBy(R.string.newlocation);
 				break;
 			case R.string.colocation:
 				DebugLog.d("colocation");
+				trackThisPage(getResources().getString(R.string.colocation));
 				scheduleFragment.setScheduleBy(R.string.colocation);
 				break;
 			case R.string.settings:
 				DebugLog.d("settings");
+				trackThisPage(getResources().getString(R.string.settings));
 				Intent intent = new Intent(activity, SettingActivity.class);
 				startActivity(intent);
 				return;
@@ -239,7 +247,8 @@ public class MainActivity extends BaseActivity{
 		this.flagScheduleSaved = flagScheduleSaved;
 		//		progressDialog.setMessage("Generating forms");
 		//		if (this.flagFormSaved){
-		progressDialog.dismiss();
+		if (progressDialog != null && progressDialog.isShowing())
+			progressDialog.dismiss();
 		if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
 			DbRepository.getInstance().close();
 		//		}

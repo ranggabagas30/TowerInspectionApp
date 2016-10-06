@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.tools.DebugLog;
@@ -28,7 +27,7 @@ public class ImageUtil {
 
             options.inSampleSize = 4;
             File tempDir;
-            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+            if (Utility.isExternalStorageAvailable())
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             else
                 tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
@@ -61,7 +60,7 @@ public class ImageUtil {
         File fileReturn = null;
         try {
             File tempDir;
-            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+            if (Utility.isExternalStorageAvailable())
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             else
                 tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
@@ -98,7 +97,7 @@ public class ImageUtil {
         File fileReturn = null;
         File tempDir;
         try {
-            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+            if (Utility.isExternalStorageAvailable()) {
                 DebugLog.d("external storage available");
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             } else {
@@ -156,7 +155,7 @@ public class ImageUtil {
         	Log.d("saving bitmap", "url : "+url);
         	Log.d("saving bitmap", "bitmap : "+bitmap);
             File tempDir;
-            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+            if (Utility.isExternalStorageAvailable())
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             else
                 tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
@@ -205,7 +204,7 @@ public class ImageUtil {
 		catch(Exception e)
 		{
 			DebugLog.d("Can't create file to take picture!");
-			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT);
+//			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT);
 			return null;
 		}
 		Uri mImageUri = Uri.fromFile(photo);
@@ -228,7 +227,7 @@ public class ImageUtil {
 	private static File createTemporaryFile(String part, String ext) throws Exception
 	{
         File tempDir;
-        if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+        if (Utility.isExternalStorageAvailable())
             tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
         else
             tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");

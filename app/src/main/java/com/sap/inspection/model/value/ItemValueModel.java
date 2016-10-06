@@ -10,6 +10,7 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
+import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 
@@ -98,6 +99,9 @@ public class ItemValueModel extends BaseModel {
 		String where =DbManagerValue.colScheduleId+"=? AND "+DbManagerValue.colItemId+"=? AND "+DbManagerValue.colOperatorId+"=?";
 		String[] args = new String[]{scheduleId,String.valueOf(itemId),String.valueOf(operatorId)};
 		Cursor cursor;
+
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 

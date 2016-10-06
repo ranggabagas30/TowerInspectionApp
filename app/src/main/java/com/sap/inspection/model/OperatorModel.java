@@ -70,7 +70,8 @@ public class OperatorModel extends BaseModel {
 						DbManager.mOperator , DbManager.colID,
 						DbManager.colName);
 
-		DbRepository.getInstance().open(MyApplication.getContext());
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);

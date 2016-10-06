@@ -27,7 +27,7 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 	@Override
 	protected Void doInBackground(Void... arg0) {
 		File tempDir;
-		if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly())
+		if (Utility.isExternalStorageAvailable())
 			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
 		else
 			tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");

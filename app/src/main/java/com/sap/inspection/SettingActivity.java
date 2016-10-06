@@ -141,7 +141,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         deleteSchedule = (Button) findViewById(R.id.deleteSchedule);
         deleteSchedule.setOnClickListener(deleteScheduleClickListener);
 
-        if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+        if (Utility.isExternalStorageAvailable()) {
             DebugLog.d("external storage available");
             tempFile = Environment.getExternalStorageDirectory();
         } else {
@@ -171,6 +171,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         });
 
         findViewById(R.id.setting_logout).setOnClickListener(logoutClickListener);
+        trackThisPage("Setting");
     }
 
     OnClickListener deleteClickListener = new OnClickListener() {
@@ -434,7 +435,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     @Override
     protected void onResume() {
         super.onResume();
-        if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+        if (Utility.isExternalStorageAvailable()) {
             DebugLog.d("external storage available");
             tempFile = Environment.getExternalStorageDirectory();
         } else {
@@ -507,7 +508,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
                 File tempDir;
-                if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+                if (Utility.isExternalStorageAvailable()) {
                     DebugLog.d("external storage available");
                     tempDir = Environment.getExternalStorageDirectory();
                 } else {
@@ -568,7 +569,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             dismissDialog(progress_bar_type);
 
             File tempFile;
-            if (Utility.isExternalStorageAvailable() || !Utility.isExternalStorageReadOnly()) {
+            if (Utility.isExternalStorageAvailable()) {
                 DebugLog.d("external storage available");
                 tempFile = Environment.getExternalStorageDirectory();
             } else {

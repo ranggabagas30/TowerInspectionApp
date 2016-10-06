@@ -326,6 +326,9 @@ public class ItemUploadManager {
             } catch (IOException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
+            } catch (NullPointerException e) {
+                errMsg = e.getMessage();
+                e.printStackTrace();
             }
             return null;
         }

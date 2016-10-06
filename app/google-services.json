@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "934425217631",
+    "project_id": "tower-management-system"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934425217631:android:2741a170249c1e20",
+        "android_client_info": {
+          "package_name": "com.stp.inspection"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWeZ5jIQUaDRBR4GMJHlZzrc0AetohqiI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-84661614-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

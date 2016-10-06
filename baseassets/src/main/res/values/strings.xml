@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Base Assets</string>
+    <string name="sample">It’s always easy to write a Hello World application</string>
 </resources>

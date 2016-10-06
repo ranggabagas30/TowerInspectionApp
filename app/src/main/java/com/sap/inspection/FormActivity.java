@@ -109,6 +109,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		navigationFragment.setNavigationModel(rowModel);
 		navigationFragment.setWorkFormGroupId(workFormGroupId);
 		navigateToFragment(navigationFragment, R.id.fragment_behind);
+		trackThisPage("Form");
 	}
 
 	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
