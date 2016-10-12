@@ -21,7 +21,14 @@
 
 package com.slidinglayer.util;
 
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.R;
+import com.sap.inspection.tools.DebugLog;
 
 import java.io.File;
 import java.util.Random;
@@ -75,5 +82,57 @@ public class CommonUtils {
             return false;
         }
     }
+
+    public static void fixVersion(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String versionPref = prefs.getString(context.getString(R.string.latest_version), "");
+        ContextWrapper contextWrapper = (ContextWrapper)context;
+        try {
+            String versionApp = context.getPackageManager().getPackageInfo(contextWrapper.getPackageName(), 0).versionName;
+            DebugLog.d("versionPref="+versionPref+" versionApp="+versionApp);
+            if (!versionPref.isEmpty()) {
+                versionPref = versionPref.replace(".","");
+                int versionPrefInt = Integer.parseInt(versionPref);
+                String ver = versionApp.replace(".","");
+                int versionAppInt = Integer.parseInt(ver);
+                DebugLog.d("versionPrefInt="+versionPrefInt+" verApp="+versionAppInt);
+                if (versionAppInt>versionPrefInt) {
+                    DebugLog.d("app>pref, fix pref version!!");
+                    prefs.edit().putString(context.getString(R.string.latest_version), versionApp).commit();
+                }
+            } else {
+                prefs.edit().putString(context.getString(R.string.latest_version), versionApp).commit();
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean isUpdateAvailable(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String versionPref = prefs.getString(context.getString(R.string.latest_version), "");
+        ContextWrapper contextWrapper = (ContextWrapper)context;
+        try {
+            String versionApp = context.getPackageManager().getPackageInfo(contextWrapper.getPackageName(), 0).versionName;
+            DebugLog.d("versionPref="+versionPref+" versionApp="+versionApp);
+            if (!versionPref.isEmpty()) {
+                versionPref = versionPref.replace(".","");
+                int versionPrefInt = Integer.parseInt(versionPref);
+                String ver = versionApp.replace(".","");
+                int versionAppInt = Integer.parseInt(ver);
+                DebugLog.d("versionPrefInt="+versionPrefInt+" verApp="+versionAppInt);
+                if (versionAppInt<versionPrefInt) {
+                    DebugLog.d("update available!!");
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
 }

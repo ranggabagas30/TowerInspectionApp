@@ -19,6 +19,8 @@ import android.telephony.TelephonyManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -33,6 +35,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -503,6 +506,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		catch(Exception e)
 		{
+			Crashlytics.logException(e);
 			DebugLog.d(e.getMessage());
 			DebugLog.d("Can't create file to take picture!");
 //			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
@@ -513,8 +517,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 
 		//        intent.putExtra("crop", "true");
-		intent.putExtra("outputX", 1080);
-		intent.putExtra("outputY", 720);
+		intent.putExtra("outputX", 800);
+		intent.putExtra("outputY", 480);
 		intent.putExtra("aspectX", 1);
 		intent.putExtra("aspectY", 1);
 		intent.putExtra("scale", true);

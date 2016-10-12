@@ -42,7 +42,7 @@ public class ImageUtil {
             DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
                 out.flush();
                 out.close();
             } catch (Exception e) {
@@ -77,7 +77,7 @@ public class ImageUtil {
             DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
                 out.flush();
                 out.close();
                 fileReturn = file;
@@ -97,6 +97,8 @@ public class ImageUtil {
     public static File resizeAndSaveImageCheckExif(Context ctx, String imageUri, String scheduleId) {
         File fileReturn = null;
         File tempDir;
+        int x = 480;
+
         try {
             if (Utility.isExternalStorageAvailable()) {
                 DebugLog.d("external storage available");
@@ -108,17 +110,32 @@ public class ImageUtil {
             String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 4;
-            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
+            options.inJustDecodeBounds=true;
+            BitmapFactory.decodeFile(path,options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+
+            float factorH = x / (float)imageHeight;
+            float factorW = x / (float)imageWidth;
+            float factorToUse = (factorH > factorW) ? factorW : factorH;
+            DebugLog.d("factorToUse="+factorToUse);
+            Bitmap bitmap_Source = BitmapFactory.decodeFile(path);
+            Bitmap bitmap = Bitmap.createScaledBitmap(bitmap_Source,
+                    (int) (imageWidth * factorToUse),
+                    (int) (imageHeight * factorToUse),
+                    false);
+
+//            options.inSampleSize = 4;
+//            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
 
             bitmap = ExifUtil.rotateBitmap(path,bitmap);
-
+            DebugLog.d("width="+bitmap.getWidth()+" height="+bitmap.getHeight());
             File file;
             file = new File(path);
             DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
                 out.flush();
                 out.close();
                 fileReturn = file;
@@ -140,7 +157,7 @@ public class ImageUtil {
             try {
                 DebugLog.d("saving photo");
                 FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
                 out.flush();
                 out.close();
                 return true;
@@ -172,7 +189,7 @@ public class ImageUtil {
             DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
                 out.flush();
                 out.close();
             } catch (Exception e) {
@@ -214,8 +231,8 @@ public class ImageUtil {
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 
 		//        intent.putExtra("crop", "true");
-		intent.putExtra("outputX", 1080);
-		intent.putExtra("outputY", 720);
+		intent.putExtra("outputX", 480);
+		intent.putExtra("outputY", 360);
 		intent.putExtra("aspectX", 1);
 		intent.putExtra("aspectY", 1);
 		intent.putExtra("scale", true);

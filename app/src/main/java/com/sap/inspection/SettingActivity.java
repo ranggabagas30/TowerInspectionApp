@@ -48,6 +48,7 @@ import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.tools.PrefUtil;
 import com.sap.inspection.util.Utility;
+import com.slidinglayer.util.CommonUtils;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -113,9 +114,11 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         update = (Button) findViewById(R.id.update);
         updateForm = (Button) findViewById(R.id.update_form);
         updateStatus = (TextView) findViewById(R.id.updateStatus);
+        CommonUtils.fixVersion(getApplicationContext());
         DebugLog.d("latest_version" + prefs.getString(this.getString(R.string.latest_version), ""));
         DebugLog.d("url_update" + prefs.getString(this.getString(R.string.url_update), ""));
-        if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))) {
+//        if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) /*|| prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase("")*/)) {
+        if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
             update.setVisibility(View.VISIBLE);
             update.setEnabled(false);
             update.setText("No New Update");
@@ -166,6 +169,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
             @Override
             public void onClick(View v) {
+                trackEvent("user_refresh_schedule");
                 getSchedule();
             }
         });
@@ -188,6 +192,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
         @Override
         public void onClick(View v) {
+            trackEvent("user_delete_all_data");
             DeleteAllDataTask task = new DeleteAllDataTask();
             task.execute();
         }
@@ -207,6 +212,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
         @Override
         public void onClick(View v) {
+            trackEvent("user_delete_schedule");
             getScheduleTemp();
         }
     };
@@ -215,6 +221,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
         @Override
         public void onClick(View v) {
+            trackEvent("user_update_apk");
             //Chek if the file already downloaded before
             //			if(!tempFile.exists()){
             new DownloadFileFromURL().execute(file_url);
@@ -231,6 +238,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     OnClickListener updateFormClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            trackEvent("user_update_form");
             checkFormVersion();
         }
     };
@@ -373,6 +381,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
         @Override
         public void onClick(View v) {
+            trackEvent("user_upload");
             CorrectiveValueModel correctiveValueModel = new CorrectiveValueModel();
 //			correctiveValueModel.deleteAll(activity);
 
@@ -420,6 +429,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                             uploadInfo.setText("Resetting upload status");
                             ItemValueModel.resetAllUploadStatus();
                             CorrectiveValueModel.resetAllUploadStatus();
+                            trackEvent("user_reupload");
                             upload.performClick();
                         }
                     })
@@ -741,6 +751,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                     .setPositiveButton(android.R.string.yes, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            trackEvent("user_logout");
                             writePreference(R.string.keep_login,false);
                             gotoLogin();
                         }

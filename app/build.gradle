@@ -19,8 +19,8 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 16100600
-        versionName "0.0.27"
+        versionCode 16101216
+        versionName "1.0"
     }
 
 //    signingConfigs {
@@ -48,7 +48,7 @@ android {
         }
         stp {
             applicationId 'com.stp.inspection'
-            versionName "1.2"
+            versionName "1.4"
         }
     }
 

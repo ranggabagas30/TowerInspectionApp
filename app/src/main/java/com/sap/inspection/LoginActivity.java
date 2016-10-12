@@ -46,6 +46,7 @@ import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.Utility;
+import com.slidinglayer.util.CommonUtils;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -94,6 +95,7 @@ public class LoginActivity extends BaseActivity {
 	private View developmentLayout;
 	private Button change;
 	private EditText endpoint;
+	private LovelyStandardDialog gpsDialog;
 
 	// Progress dialog type (0 - for Horizontal progress bar)
 	public static final int progress_bar_type = 0; 
@@ -158,10 +160,34 @@ public class LoginActivity extends BaseActivity {
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		if (!Utility.checkGpsStatus(this)) {
+			gpsDialog.show();
+		}
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		DebugLog.d("");
-
+		trackThisPage("Login");
+		gpsDialog = new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
+				.setTopColor(color(R.color.theme_color))
+				.setButtonsColor(color(R.color.theme_color))
+				.setIcon(R.drawable.logo_app)
+				.setTitle("Information")
+				.setMessage("Please enable your GPS")
+				.setCancelable(false)
+				.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Intent gpsOptionsIntent = new Intent(
+								Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+						startActivity(gpsOptionsIntent);
+//						finish();
+					}
+				});
 		/*
 		if (!GlobalVar.getInstance().anyNetwork(this)){
 			new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
@@ -181,27 +207,6 @@ public class LoginActivity extends BaseActivity {
 					.show();
 			return;
 		}*/
-
-		if (!Utility.checkGpsStatus(this)) {
-			new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
-					.setTopColor(color(R.color.theme_color))
-					.setButtonsColor(color(R.color.theme_color))
-					.setIcon(R.drawable.logo_app)
-					.setTitle("Information")
-					.setMessage("Please enable your GPS")
-					.setCancelable(false)
-					.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Intent gpsOptionsIntent = new Intent(
-									Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-							startActivity(gpsOptionsIntent);
-							finish();
-						}
-					})
-					.show();
-			return;
-		}
 
 		if (getPreference(R.string.keep_login,false) && !getPreference(R.string.user_authToken,"").isEmpty()) {
 			Intent intent = new Intent(this, jumto);
@@ -276,11 +281,14 @@ public class LoginActivity extends BaseActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		CommonUtils.fixVersion(getApplicationContext());
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		file_url = prefs.getString(this.getString(R.string.url_update), "");
+//		file_url = prefs.getString(this.getString(R.string.url_update), "");
 		update = (Button) findViewById(R.id.update);
 		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
-		if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase(""))){
+		DebugLog.d("pref version Name = " + getPreference(R.string.latest_version,""));
+//		if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), ""))/* || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase("")*/)){
+		if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
 			update.setVisibility(View.GONE);
 		}else{
 			update.setVisibility(View.VISIBLE);
@@ -295,11 +303,14 @@ public class LoginActivity extends BaseActivity {
 			public void onClick(View v) {
 
 				//Chek if the file already downloaded before
+				trackEvent("user_update_apk");
 				if(!tempFile.exists()){
+					trackEvent("user_download_apk");
 					new DownloadFileFromURL().execute(file_url);
 				}
 
 				else{
+					trackEvent("user_install_apk");
 					Intent intent = new Intent(Intent.ACTION_VIEW)
 					.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
 					intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
@@ -351,6 +362,7 @@ public class LoginActivity extends BaseActivity {
 
 		@Override
 		public void onClick(View v) {
+			trackEvent("user_login");
 			UserModel userModel = new UserModel();
 			userModel.username = username.getText().toString();
 			userModel.password = password.getText().toString();

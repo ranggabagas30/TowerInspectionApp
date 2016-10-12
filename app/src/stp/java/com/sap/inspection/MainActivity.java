@@ -39,6 +39,7 @@ import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PrefUtil;
 import com.slidinglayer.SlidingLayer;
+import com.slidinglayer.util.CommonUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -438,10 +439,11 @@ public class MainActivity extends BaseActivity{
 
 	private Handler apkHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
+			CommonUtils.fixVersion(getApplicationContext());
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
 				writePreference(R.string.latest_version, model.version);
-				writePreference(R.string.url_update, model.download);
+//				writePreference(R.string.url_update, model.download);
 				String version = null;
 				try {
 					version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -450,7 +452,8 @@ public class MainActivity extends BaseActivity{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) && !getPreference(R.string.url_update, "").equalsIgnoreCase("")){
+//				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) /*&& !getPreference(R.string.url_update, "").equalsIgnoreCase("")*/){
+				if (CommonUtils.isUpdateAvailable(getApplicationContext())) {
 					Toast.makeText(activity, "There is new update for STP Mobile Application\nPlease update the aplication from setting", Toast.LENGTH_LONG).show();
 				}
 			}else{
