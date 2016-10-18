@@ -123,11 +123,13 @@ public class LoginActivity extends BaseActivity {
 	                dst.close();
 	            }
 	        }
-			Toast.makeText(activity, "Copy database successful", Toast.LENGTH_SHORT).show();
+			//string copy database sukses
+			Toast.makeText(activity, getString(R.string.copydatabasesuccess), Toast.LENGTH_SHORT).show();
 	    } catch (Exception e) {
 			DebugLog.e(e.getMessage());
 			DebugLog.e(e.getCause().getMessage());
-			Toast.makeText(activity, "Copy database fail", Toast.LENGTH_SHORT).show();
+			//string copy database gagal
+			Toast.makeText(activity, getString(R.string.copydatabasefailed), Toast.LENGTH_SHORT).show();
 	    }
 	}
 	
@@ -176,8 +178,9 @@ public class LoginActivity extends BaseActivity {
 				.setTopColor(color(R.color.theme_color))
 				.setButtonsColor(color(R.color.theme_color))
 				.setIcon(R.drawable.logo_app)
-				.setTitle("Information")
-				.setMessage("Please enable your GPS")
+				//string title information GPS
+				.setTitle(getString(R.string.informationGPS))
+				.setMessage("Silahkan aktifkan GPS")
 				.setCancelable(false)
 				.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
 					@Override
@@ -229,7 +232,7 @@ public class LoginActivity extends BaseActivity {
 			
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(activity, "Endpoint changed!!!", Toast.LENGTH_SHORT).show();
+				Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
 				AppConfig.getInstance().config.setHost(endpoint.getText().toString());
 			}
 		});
@@ -484,7 +487,7 @@ public class LoginActivity extends BaseActivity {
 	}
 
 	private void onlineLogin(UserModel userModel){
-		progressDialog.setMessage("Login to server please wait!");
+		progressDialog.setMessage("Masuk ke server, silakan tunggu");
 		progressDialog.show();
 		APIHelper.login(activity, handler, userModel.username, userModel.password);
 	}
@@ -536,7 +539,7 @@ public class LoginActivity extends BaseActivity {
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
-			progressDialog.setMessage("saving forms "+values[0]+" %...");
+			progressDialog.setMessage("menyimpan forms "+values[0]+" %...");
 		}
 
 		@Override

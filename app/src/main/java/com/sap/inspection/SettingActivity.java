@@ -107,7 +107,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
 
         TextView title = (TextView) findViewById(R.id.header_title);
-        title.setText("Settings");
+        //pengaturan
+        title.setText(getString(R.string.pengaturan));
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         file_url = prefs.getString(this.getString(R.string.url_update), "");
         // show progress bar button
@@ -121,12 +122,14 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
             update.setVisibility(View.VISIBLE);
             update.setEnabled(false);
-            update.setText("No New Update");
+            //tidak ada new Update
+            update.setText(getString(R.string.noNewUpdateAvail));
             update.setBackgroundResource(R.drawable.selector_button_gray_small_padding);
             //updateStatus.setText("No New Update");
         } else {
             update.setVisibility(View.VISIBLE);
-            updateStatus.setText("New Update Available");
+            //new update available
+            updateStatus.setText(getString(R.string.newUpdateAvail));
         }
 
         upload = (Button) findViewById(R.id.uploadData);
@@ -135,9 +138,11 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             if (!ItemUploadManager.getInstance().getLatestStatus().equals(ItemUploadManager.getInstance().syncDone) && !ItemUploadManager.getInstance().getLatestStatus().equals(ItemUploadManager.getInstance().syncFail))
                 uploadInfo.setText(ItemUploadManager.getInstance().getLatestStatus());
             else
-                uploadInfo.setText("Latest status " + ItemUploadManager.getInstance().getLatestStatus().toLowerCase());
+            //lastest status
+                uploadInfo.setText("Status Terakhir " + ItemUploadManager.getInstance().getLatestStatus().toLowerCase());
         } else
-            uploadInfo.setText("Waiting to upload");
+        //waiting to uplaod
+            uploadInfo.setText(getString(R.string.waitingUpload));
 
         delete = (Button) findViewById(R.id.deleteData);
         delete.setOnClickListener(deleteClickListener);
@@ -154,7 +159,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
 
         if (tempFile.exists())
-            update.setText("Install");
+            //install
+            update.setText(getString(R.string.install));
 
         update.setOnClickListener(updateClickListener);
         updateForm.setOnClickListener(updateFormClickListener);
@@ -175,6 +181,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         });
 
         findViewById(R.id.setting_logout).setOnClickListener(logoutClickListener);
+        //setting (check ulang)
         trackThisPage("Setting");
     }
 
@@ -247,7 +254,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
     private void checkFormVersion() {
         pDialog = new ProgressDialog(activity);
-        pDialog.setMessage("Check form version");
+        pDialog.setMessage(getString(R.string.checkfromversion));
         pDialog.setCancelable(false);
         pDialog.show();
         APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
@@ -262,15 +269,18 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 DebugLog.d("check version value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), "no value"));
                 DebugLog.d("check version value from web: " + formVersion);
                 if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), "no value"))) {
-                    pDialog.setMessage("Get new form from server");
+                    //string get new from server
+                    pDialog.setMessage(getString(R.string.getNewfromServer));
                     APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
                 } else {
-                    pDialog.setMessage("Get schedule from server");
+                    //string get schedule from server
+                    pDialog.setMessage(getString(R.string.getScheduleFromServer));
                     APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
                 }
             } else {
                 pDialog.dismiss();
-                Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+                //string form update failed
+                Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
             }
         }
 
@@ -283,7 +293,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 initForm(msg.getData().getString("json"));
             } else {
                 pDialog.dismiss();
-                Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+                //String form update failed
+                Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
             }
         }
 
@@ -303,7 +314,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pDialog.setMessage("Prepare for saving");
+            //prepare for saving
+            pDialog.setMessage("Persiapan Menyimpan");
             DbRepository.getInstance().open(getApplicationContext());
             DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
             DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
@@ -364,14 +376,15 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
             DebugLog.d("saving forms " + values[0] + " %...");
-            pDialog.setMessage("saving forms " + values[0] + " %...");
+            //saving forms
+            pDialog.setMessage("menyimpan forms " + values[0] + " %...");
         }
 
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             //			setFlagFormSaved(true);
-            pDialog.setMessage("Get schedule from server");
+            pDialog.setMessage(getString(R.string.getScheduleFromServer));
             APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 //			DbRepository.getInstance().close();
         }
@@ -387,7 +400,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
             DbRepositoryValue.getInstance().open(activity);
             ProgressDialog progressDialog = new ProgressDialog(activity);
-            progressDialog.setMessage("preparing item for upload");
+            //string preparing item for upload
+            progressDialog.setMessage(getString(R.string.preparingItemForUpload));
             progressDialog.show();
             ItemValueModel itemValueModel = new ItemValueModel();
             ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload();
@@ -395,20 +409,23 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             itemValueModels.addAll(correctiveValueModel.getItemValuesForUpload());
             if (itemValueModels.size() == 0) {
                 progressDialog.dismiss();
-                Toast.makeText(activity, "There is no new item to upload...", Toast.LENGTH_LONG).show();
-                uploadInfo.setText("There is no new item to upload...");
+                //there is no new to upload
+                Toast.makeText(activity, getString(R.string.noItemNewToUpload), Toast.LENGTH_LONG).show();
+                uploadInfo.setText(getString(R.string.noItemNewToUpload));
                 return;
             }
             int i = 0;
             for (ItemValueModel model : itemValueModels) {
                 i++;
-                progressDialog.setMessage("preparing " + (100 * i / itemValueModels.size()) + "%");
+                //preparing
+                progressDialog.setMessage("persiapan " + (100 * i / itemValueModels.size()) + "%");
                 model.uploadStatus = ItemValueModel.UPLOAD_ONGOING;
                 model.save();
             }
             ItemUploadManager.getInstance().addItemValues(itemValueModels);
             progressDialog.dismiss();
-            Toast.makeText(activity, "Upload on progress...", Toast.LENGTH_LONG).show();
+            //String progress upload
+            Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_LONG).show();
             DbRepositoryValue.getInstance().close();
         }
     };
@@ -419,21 +436,24 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         public void onClick(View v) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
             // set title
-            alertDialogBuilder.setTitle("Reupload all data");
+            //String reupload all data
+            alertDialogBuilder.setTitle(getString(R.string.reuploadAllData));
             // set dialog message
             alertDialogBuilder
-                    .setMessage("Are you sure want to re-upload all data?")
+                    //String Are you sure want to re-upload all data
+                    .setMessage(getString(R.string.areyousurereuploaddata))
                     .setPositiveButton("Upload", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.dismiss();
-                            uploadInfo.setText("Resetting upload status");
+                            //String Resetting upload
+                            uploadInfo.setText(getString(R.string.reSettingUpload));
                             ItemValueModel.resetAllUploadStatus();
                             CorrectiveValueModel.resetAllUploadStatus();
                             trackEvent("user_reupload");
                             upload.performClick();
                         }
                     })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    .setNegativeButton("Batal", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.dismiss();
                         }
@@ -455,7 +475,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
 
         if (tempFile.exists())
-            update.setText("Install");
+            update.setText(getString(R.string.install));
 
         EventBus.getDefault().register(this);
     }
@@ -474,7 +494,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         switch (id) {
             case progress_bar_type: // we set this to 0
                 pDialog = new ProgressDialog(this);
-                pDialog.setMessage("Downloading file. Please wait...");
+                pDialog.setMessage(getString(R.string.downloadfile));
                 pDialog.setIndeterminate(false);
                 pDialog.setMax(100);
                 pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -626,7 +646,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     private void getScheduleTemp() {
         DbRepository.getInstance().open(activity);
         pDialog = new ProgressDialog(activity);
-        pDialog.setMessage("Get schedule from server...");
+        pDialog.setMessage(getString(R.string.getScheduleFromServer));
         pDialog.setCancelable(false);
         pDialog.show();
         APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
@@ -635,7 +655,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     private void getSchedule() {
         DbRepository.getInstance().open(activity);
         pDialog = new ProgressDialog(activity);
-        pDialog.setMessage("Get schedule from server...");
+        //get schedule from server
+        pDialog.setMessage(getString(R.string.getScheduleFromServer));
         pDialog.setCancelable(false);
         pDialog.show();
         APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
@@ -654,7 +675,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 }
             } else {
                 pDialog.dismiss();
-                Toast.makeText(activity, "Can't get schedule from server\nPlease get an fast internet connection", Toast.LENGTH_LONG).show();
+                //String cant get schedule fast internet
+                Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
             }
         }
 
@@ -674,7 +696,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 }
             } else {
                 pDialog.dismiss();
-                Toast.makeText(activity, "Can't get schedule from server\nPlease get an fast internet connection", Toast.LENGTH_LONG).show();
+                Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
             }
         }
 
@@ -686,7 +708,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
                 DbRepository.getInstance().close();
         } else
-            showDialog("saving schedule " + event.progress + " %...", true);
+            showDialog("Menyimpan jadwal " + event.progress + " %...", true);
     }
 
     public void onEvent(ScheduleTempProgressEvent event) {
@@ -694,7 +716,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
                 DbRepository.getInstance().close();
         } else
-            showDialog("saving schedule " + event.progress + " %...", true);
+            showDialog("Menyimpan jadwal " + event.progress + " %...", true);
     }
 
     private void showDialog(String msg, boolean blockable) {
@@ -731,7 +753,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     }
 
     public void onEvent(DeleteAllScheduleEvent event) {
-        Toast.makeText(activity, "Schedule Updated", Toast.LENGTH_SHORT).show();
+        Toast.makeText(activity, "Jadwal diperbaharui", Toast.LENGTH_SHORT).show();
         DbRepository.getInstance().clearData(DbManager.mSchedule);
 
         ScheduleTempSaver scheduleSaver = new ScheduleTempSaver();
@@ -746,8 +768,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                     .setTopColor(color(R.color.theme_color))
                     .setButtonsColor(color(R.color.theme_color))
                     .setIcon(R.drawable.logo_app)
-                    .setTitle("Confirmation")
-                    .setMessage("Are you sure you want to logout?")
+                    .setTitle("Konfirmasi")
+                    .setMessage("Apa anda yakin ingin keluar?")
                     .setPositiveButton(android.R.string.yes, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

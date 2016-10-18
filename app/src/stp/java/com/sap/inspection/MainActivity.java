@@ -76,7 +76,7 @@ public class MainActivity extends BaseActivity{
 		progressDialog.setCancelable(false);
 
 		if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false)) {
-			progressDialog.setMessage("Get schedule from server");
+			progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 			APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
 			try {
 				progressDialog.show();
@@ -162,7 +162,7 @@ public class MainActivity extends BaseActivity{
 				}
 			}else{
 				setFlagScheduleSaved(true);
-				Toast.makeText(activity, "Can't get schedule from server\nPlease do relogin and have fast internet connection",Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet),Toast.LENGTH_LONG).show();
 			}
 		}
 	};
@@ -180,7 +180,7 @@ public class MainActivity extends BaseActivity{
 				}
 			} else {
 				progressDialog.dismiss();
-				Toast.makeText(activity, "Can't get schedule from server\nPlease get an fast internet connection", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
 			}
 		}
 	};
@@ -190,9 +190,9 @@ public class MainActivity extends BaseActivity{
 			if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
 				DbRepository.getInstance().close();
 			progressDialog.dismiss();
-			Toast.makeText(activity, "Schedule Updated", Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity, "Schedule diperbaharui", Toast.LENGTH_SHORT).show();
 		} else
-			progressDialog.setMessage("saving schedule " + event.progress + " %...");
+			progressDialog.setMessage("menyimpan schedule " + event.progress + " %...");
 	}
 
 	public void onEvent(DeleteAllScheduleEvent event) {
@@ -323,7 +323,7 @@ public class MainActivity extends BaseActivity{
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			progressDialog.setMessage("Prepare for saving");
+			progressDialog.setMessage("Persiapan menyimpan");
 			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
@@ -390,7 +390,7 @@ public class MainActivity extends BaseActivity{
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			//			setFlagFormSaved(true);
-			progressDialog.setMessage("Get schedule from server");
+			progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 		}
 	}
@@ -433,7 +433,7 @@ public class MainActivity extends BaseActivity{
 
 	private void checkAPKVersion(){
 		DebugLog.d("check apk version");
-		progressDialog.setMessage("Check application version");
+		progressDialog.setMessage(getString(R.string.checkversionapplication));
 		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
 	}
 
@@ -454,10 +454,11 @@ public class MainActivity extends BaseActivity{
 				}
 //				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) /*&& !getPreference(R.string.url_update, "").equalsIgnoreCase("")*/){
 				if (CommonUtils.isUpdateAvailable(getApplicationContext())) {
-					Toast.makeText(activity, "There is new update for STP Mobile Application\nPlease update the aplication from setting", Toast.LENGTH_LONG).show();
+					//String update STP version
+					Toast.makeText(activity, getString(R.string.newUpdateSTPapplication), Toast.LENGTH_LONG).show();
 				}
 			}else{
-				Toast.makeText(activity, "Check application update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.memriksaUpdateGagal), Toast.LENGTH_LONG).show();
 			}
 			checkFormVersion();
 			//checkFormVersionOffline();
@@ -465,7 +466,7 @@ public class MainActivity extends BaseActivity{
 	};
 
 	private void checkFormVersion(){
-		progressDialog.setMessage("Check form version");
+		progressDialog.setMessage(getString(R.string.checkversionapplication));
 		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
 	}
 	
@@ -473,7 +474,7 @@ public class MainActivity extends BaseActivity{
 		DebugLog.d("check form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
 		DebugLog.d("check form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
 		if (getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null) != null){
-			progressDialog.setMessage("Get schedule from server");
+			progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 		}
 		else{
@@ -491,15 +492,15 @@ public class MainActivity extends BaseActivity{
 				DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
 				DebugLog.d("check version value from web: "+formVersion);
 				if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
-					progressDialog.setMessage("Get new form from server");
+					progressDialog.setMessage(getString(R.string.getNewfromServer));
 					APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
 				}else{
-					progressDialog.setMessage("Get schedule from server");
+					progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 					APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
 				}
 			}else{
 				progressDialog.dismiss();
-				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
 			}
 		};
 	};
@@ -509,7 +510,7 @@ public class MainActivity extends BaseActivity{
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				initForm(msg.getData().getString("json"));
 			}else{
-				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
 			}
 		}
 	};

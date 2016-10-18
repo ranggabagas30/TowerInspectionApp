@@ -73,7 +73,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingBottom="@dimen/padding_medium"
-                    android:text="Upload current data to server" />
+                    android:text="Upload data saat ini ke server" />
 
                 <Button
                     android:id="@+id/uploadData"
@@ -90,7 +90,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_button_green_small_padding"
-                    android:text="Re-Upload All Data"
+                    android:text="Upload Ulang semua Data"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
 
@@ -119,14 +119,14 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingBottom="@dimen/padding_medium"
-                    android:text="Schedule" />
+                    android:text="Jadwal" />
 
                 <Button
                     android:id="@+id/updateSchedule"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_button_green_small_padding"
-                    android:text="Refresh Schedule"
+                    android:text="Muat Ulang Jadwal"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
                 <Button
@@ -134,7 +134,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_button_green_small_padding"
-                    android:text="Refresh &amp; Delete Schedule"
+                    android:text="Muat Ulang &amp; Hapus Jadwal"
                     android:textColor="@android:color/white"
                     android:layout_marginTop="@dimen/padding_medium"
                     android:textStyle="bold" />
@@ -156,14 +156,14 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingBottom="@dimen/padding_medium"
-                    android:text="Delete All Data" />
+                    android:text="Hapus semua data" />
 
                 <Button
                     android:id="@+id/deleteData"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_button_green_small_padding"
-                    android:text="Delete"
+                    android:text="Hapus"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -174,7 +174,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/selector_button_green_small_padding"
-                android:text="Logout"
+                android:text="Keluar"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
 

@@ -43,7 +43,7 @@ public class UpdateActivity extends BaseActivity {
 		DebugLog.d("");
 		setContentView(R.layout.activity_update);
 		TextView title = (TextView) findViewById(R.id.header_title);
-		title.setText("Application Update");
+		title.setText("Aplikasi Update");
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		file_url = prefs.getString(this.getString(R.string.url_update), "");
 
@@ -82,7 +82,8 @@ public class UpdateActivity extends BaseActivity {
 		switch (id) {
 		case progress_bar_type: // we set this to 0
 			pDialog = new ProgressDialog(this);
-			pDialog.setMessage("Downloading file. Please wait...");
+			//string downloadfile
+			pDialog.setMessage(getString(R.string.downloadfile));
 			pDialog.setIndeterminate(false);
 			pDialog.setMax(100);
 			pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);

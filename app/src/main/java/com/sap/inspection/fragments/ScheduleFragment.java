@@ -28,7 +28,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	private Vector<ScheduleBaseModel> models;
 	private int filterBy = 0;
     private ProgressDialog dialog;
-	
 
 	public static ScheduleFragment newInstance() {
 		ScheduleFragment fragment = new ScheduleFragment();
@@ -89,7 +88,8 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	
 	@Override
 	public String getTitle() {
-		return "Schedule";
+		//Schedule
+		return "Jadwal";
 	}
 
 	public void setScheduleBy(int resId){

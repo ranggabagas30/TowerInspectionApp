@@ -57,8 +57,8 @@ public class ItemUploadManager {
     private ArrayList<ItemValueModel> itemValuesFailed;
     //	private ArrayList<UploadListener> listeners;
     private boolean running = false;
-    public String syncDone = "Syncronize Done";
-    public String syncFail = "Syncronize Failed";
+    public String syncDone = "Sinkronasi selesai";
+    public String syncFail = "Sinkronasi gagal";
     private int retry = 0;
     private String latestStatus;
     private UploadValue uploadTask;
@@ -97,7 +97,8 @@ public class ItemUploadManager {
             uploadTask = new UploadValue();
             uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
-            MyApplication.getInstance().toast("There is upload process, please wait until finish", Toast.LENGTH_SHORT);
+            //"There is upload process, please wait until finish"
+            MyApplication.getInstance().toast("Proses upload sedang berjalan, silahkan tunggu sampai proses selesai", Toast.LENGTH_SHORT);
         }
     }
 
@@ -111,7 +112,8 @@ public class ItemUploadManager {
             uploadTask = new UploadValue();
             uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
-            MyApplication.getInstance().toast("There is upload process, please wait until finish", Toast.LENGTH_SHORT);
+            //There is upload process, please wait until finish
+            MyApplication.getInstance().toast("Proses upload sedang berjalan, silahkan tunggu sampai proses selesai", Toast.LENGTH_SHORT);
         }
     }
 
@@ -152,8 +154,8 @@ public class ItemUploadManager {
             String response = null;
             itemValuesFailed = new ArrayList<>();
             while (itemValues.size() > 0) {
-                publish(itemValues.size() + " items remaining");
-                latestStatus = itemValues.size() + " items remaining";
+                publish(itemValues.size() + " item yang tersisa");
+                latestStatus = itemValues.size() + " item yang tersisa";
                 //				Log.d(getClass().getName(),"=========================================================");
                 //				Log.d(getClass().getName(),"=========================================================");
                 //				Log.d(getClass().getName(),"=========================================================");
@@ -209,7 +211,9 @@ public class ItemUploadManager {
                 publish(syncDone);
                 latestStatus = syncDone;
             } else {
-                MyApplication.getInstance().toast("Syncronize failed\nsum item not uploaded = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
+                //Syncronize failed \nsum item not uploaded =
+                        MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size()
+                        + " items", Toast.LENGTH_LONG);
                 publish(syncFail);
                 latestStatus = syncFail;
             }

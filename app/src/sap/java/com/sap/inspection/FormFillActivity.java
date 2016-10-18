@@ -447,8 +447,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						.setTopColor(color(R.color.theme_color))
 						.setButtonsColor(color(R.color.theme_color))
 						.setIcon(R.drawable.logo_app)
-						.setTitle("Information")
-						.setMessage("Please enable your GPS")
+						//String informasi GPS
+						.setTitle(getString(R.string.informationGPS))
+						.setMessage(getString(R.string.enableGPS))
 						.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
@@ -469,23 +470,26 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         public void onClick(View v) {
 			DebugLog.d("");
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast("No internet connection. Please connect your network.", Toast.LENGTH_SHORT);
+				//string checkConnection
+				MyApplication.getInstance().toast(getString(R.string.checkConnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
 			DebugLog.d("pos="+pos);
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
 			if (itemFormRenderModel.itemModel.disable) {
-				Toast.makeText(activity, "Item is disable", Toast.LENGTH_LONG).show();
+				//item is disable
+				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
 			}
 			else if (itemFormRenderModel.itemValue!=null) {
 				DebugLog.d("itemId=" + itemFormRenderModel.itemValue.itemId+" pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
 						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
 						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);
-				Toast.makeText(activity, "Upload on progress...", Toast.LENGTH_LONG).show();
+				//String progress upload
+				Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_LONG).show();
 			} else {
-				Toast.makeText(activity, "No Photo", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, "Tidak ada foto", Toast.LENGTH_LONG).show();
 			}
         }
     };
@@ -892,7 +896,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				if (list.contains(item.type)) {
 					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
 						if (item.itemModel != null && item.itemModel.mandatory && !item.itemModel.disable) {
-							Toast.makeText(activity, item.itemModel.label + " is mandatory", Toast.LENGTH_SHORT).show();
+							Toast.makeText(activity, item.itemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
 							mandatoryFound = true;
 							break;
 						}

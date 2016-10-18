@@ -45,7 +45,8 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		DebugLog.d("");
 
 		ProgressDialog dialog = new ProgressDialog(activity);
-		dialog.setMessage("Please wait... \n Generating Inspection Form...");
+		//String generatingInspectionForm
+		dialog.setMessage(getString(R.string.generatingInspectionForm));
 		dialog.show();
 		
 		//get data from bundle

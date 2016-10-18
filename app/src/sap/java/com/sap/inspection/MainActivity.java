@@ -71,7 +71,8 @@ public class MainActivity extends BaseActivity{
 		progressDialog.setCancelable(false);
 
 		if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false)) {
-			progressDialog.setMessage("Get schedule from server");
+			//mendapatkan schedule dari server
+			progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 			try {
 				progressDialog.show();
@@ -150,7 +151,7 @@ public class MainActivity extends BaseActivity{
 				}
 			}else{
 				setFlagScheduleSaved(true);
-				Toast.makeText(activity, "Can't get schedule from server\nPlease do relogin and have fast internet connection",Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet),Toast.LENGTH_LONG).show();
 			}
 		};
 	};
@@ -267,7 +268,7 @@ public class MainActivity extends BaseActivity{
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			progressDialog.setMessage("Prepare for saving");
+			progressDialog.setMessage("Menyiapkan untuk penyimpanan");
 			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
@@ -327,14 +328,14 @@ public class MainActivity extends BaseActivity{
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
 			DebugLog.d("saving forms "+values[0]+" %...");
-			progressDialog.setMessage("saving forms "+values[0]+" %...");
+			progressDialog.setMessage("Menyimpan form "+values[0]+" %...");
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			//			setFlagFormSaved(true);
-			progressDialog.setMessage("Get schedule from server");
+			progressDialog.setMessage("Mendapatkan Schedule dari server..");
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 		}
 	}
@@ -377,7 +378,8 @@ public class MainActivity extends BaseActivity{
 
 	private void checkAPKVersion(){
 		DebugLog.d("check apk version");
-		progressDialog.setMessage("Check application version");
+		//check application version
+		progressDialog.setMessage(getString(R.string.checkapplicationpermission));
 		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
 	}
 
@@ -398,10 +400,12 @@ public class MainActivity extends BaseActivity{
 				}
 //				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) /*&& !getPreference(R.string.url_update, "").equalsIgnoreCase("")*/){
 				if (CommonUtils.isUpdateAvailable(getApplicationContext())) {
-					Toast.makeText(activity, "There is new update for SAP Mobile Application\nPlease update the aplication from setting", Toast.LENGTH_LONG).show();
+					//perubahan string
+					Toast.makeText(activity, getString(R.string.thereisnewapllicationupdatefromsetting), Toast.LENGTH_LONG).show();
 				}
 			}else{
-				Toast.makeText(activity, "Check application update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+				//perubahan string
+				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
 			}
 			checkFormVersion();
 			//checkFormVersionOffline();
@@ -409,7 +413,7 @@ public class MainActivity extends BaseActivity{
 	};
 
 	private void checkFormVersion(){
-		progressDialog.setMessage("Check form version");
+		progressDialog.setMessage(getString(R.string.checkfromversion));
 		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
 	}
 
@@ -417,7 +421,7 @@ public class MainActivity extends BaseActivity{
 		DebugLog.d("check form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
 		DebugLog.d("check form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
 		if (getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null) != null){
-			progressDialog.setMessage("Get schedule from server");
+			progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 		}
 		else{
@@ -435,15 +439,16 @@ public class MainActivity extends BaseActivity{
 				DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
 				DebugLog.d("check version value from web: "+formVersion);
 				if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
-					progressDialog.setMessage("Get new form from server");
+					progressDialog.setMessage("Medapatkan form baru dari server");
 					APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
 				}else{
-					progressDialog.setMessage("Get schedule from server");
+					//perubahan string
+					progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 					APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 				}
 			}else{
 				progressDialog.dismiss();
-				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
 			}
 		};
 	};
@@ -453,7 +458,7 @@ public class MainActivity extends BaseActivity{
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				initForm(msg.getData().getString("json"));
 			}else{
-				Toast.makeText(activity, "Form update failed\nPlease do relogin and have fast internet connection", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
 			}
 		};
 	};

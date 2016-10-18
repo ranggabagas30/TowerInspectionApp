@@ -135,7 +135,7 @@
             <CheckBox
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Keep Me Logged In"
+                android:text="Buat Saya Tetap Masuk"
                 android:layout_marginLeft="@dimen/padding_large"
                 android:layout_marginRight="@dimen/padding_large"
                 android:textColor="@color/keepme"
@@ -150,7 +150,7 @@
                 android:layout_marginRight="@dimen/padding_large"
                 android:layout_marginTop="@dimen/padding_large"
                 android:background="@drawable/bg_button_plain_blue"
-                android:text="@string/signin"
+                android:text="@string/masuk"
                 android:textColor="@android:color/white"
                 />
 
@@ -171,7 +171,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/padding_large"
                 android:background="@drawable/selector_button_green_small_padding"
-                android:text="Update Now"
+                android:text="Update Sekarang"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
         </LinearLayout>
