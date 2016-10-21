@@ -97,7 +97,8 @@ public class ImageUtil {
     public static File resizeAndSaveImageCheckExif(Context ctx, String imageUri, String scheduleId) {
         File fileReturn = null;
         File tempDir;
-        int x = 480;
+        //tinggi foto
+        int x = 640;
 
         try {
             if (Utility.isExternalStorageAvailable()) {
@@ -135,7 +136,8 @@ public class ImageUtil {
             DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
+                //kualitas 50
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out);
                 out.flush();
                 out.close();
                 fileReturn = file;
