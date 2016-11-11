@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 
 import com.rindang.zconfig.APIList;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.AndroidUID;
 
@@ -38,8 +39,11 @@ public class APIHelper {
 		NameValuePair nvp = new BasicNameValuePair("username", userName);
 		params.add(nvp);
 		nvp = new BasicNameValuePair("password", password);
+//		penambahan irwan
+//		nvp = new BasicNameValuePair("version", BuildConfig.VERSION_NAME);
 		params.add(nvp);
 		postParams(context, APIList.loginUrl(), handler, params);
+
 	}
 
 	public static void registerGCMToken(Context context, Handler handler, String token){

@@ -106,6 +106,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			}
 			String s = ConvertInputStreamToString(data);
 			DebugLog.d("json = "+s);
+
 			return s;
 		}catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();

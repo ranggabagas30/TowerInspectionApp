@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -260,6 +261,8 @@ public class LoginActivity extends BaseActivity {
 		password = (EditText) findViewById(R.id.password);
 		version =  (TextView) findViewById(R.id.app_version);
 		version.setText(getVersionName());
+
+		DebugLog.d("tster" + getVersionName());
 
 		cbKeep = (CheckBox)findViewById(R.id.cbkeep);
 		cbKeep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

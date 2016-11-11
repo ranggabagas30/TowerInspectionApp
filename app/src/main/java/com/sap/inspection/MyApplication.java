@@ -10,13 +10,13 @@ import android.os.Message;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.facebook.stetho.Stetho;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.HashMap;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -101,6 +101,9 @@ public class MyApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		Fabric.with(this, new Crashlytics());
+		if (BuildConfig.DEBUG) {
+			Stetho.initializeWithDefaults(this);
+		}
 
 //		defaultUEH = Thread.getDefaultUncaughtExceptionHandler();
 //

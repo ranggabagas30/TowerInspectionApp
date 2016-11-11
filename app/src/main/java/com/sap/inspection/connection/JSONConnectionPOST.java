@@ -3,12 +3,14 @@ package com.sap.inspection.connection;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 
@@ -88,6 +90,10 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 			client = new DefaultHttpClient(httpParameters);
 			request = new HttpPost(url);
             DebugLog.d("POST "+url);
+
+			//penambahan irwan
+			request.setHeader("Content-Type", BuildConfig.VERSION_NAME);
+//			request.setHeader("Content-Type", String.valueOf(Build.VERSION.SDK_INT));
 			request.setHeader("Content-Type", "application/x-www-form-urlencoded");
 			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
 			if (mPref.getString(context.getString(R.string.user_cookie), null) != null){
@@ -191,6 +197,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 	
 	public static String ConvertInputStreamToString(InputStream is) {
 		String str = null;
+//		String version = BuildConfig.VERSION_NAME;
 		byte[] b = null;
 		try {
 			StringBuffer buffer = new StringBuffer();
@@ -199,6 +206,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 				buffer.append(new String(b, 0, n));
 			}
 			str = buffer.toString();
+//			version.toString();
 
 		} catch (IOException ex) {
 			ex.printStackTrace();

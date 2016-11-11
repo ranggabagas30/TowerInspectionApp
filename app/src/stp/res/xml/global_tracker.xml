@@ -6,7 +6,8 @@
 
     <bool name="ga_dryRun">false</bool>
 
-    <string name="ga_trackingId">UA-84661614-1</string>
+    <!--UA-84661614-1 trackerid yang lama-->
+    <string name="ga_trackingId">UA-34703616-9</string>
     <string name="ga_sampleFrequency">100</string>
 
     <bool name="ga_autoActivityTracking">true</bool>

@@ -97,7 +97,7 @@ public class ImageUtil {
     public static File resizeAndSaveImageCheckExif(Context ctx, String imageUri, String scheduleId) {
         File fileReturn = null;
         File tempDir;
-        //tinggi foto
+        //change to 480 from 640
         int x = 640;
 
         try {
@@ -136,8 +136,8 @@ public class ImageUtil {
             DebugLog.d(file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
-                //kualitas 50
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out);
+                //kualitas
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
                 out.flush();
                 out.close();
                 fileReturn = file;
@@ -155,7 +155,7 @@ public class ImageUtil {
         return fileReturn;
     }
     public static boolean resizeAndSaveImage2(Bitmap bitmap, File file) {
-            DebugLog.d("path to save = "+file.getPath());
+            DebugLog.d("path to save = " + file.getPath());
             try {
                 DebugLog.d("saving photo");
                 FileOutputStream out = new FileOutputStream(file);
@@ -233,8 +233,9 @@ public class ImageUtil {
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 
 		//        intent.putExtra("crop", "true");
+        //480 , 360
 		intent.putExtra("outputX", 480);
-		intent.putExtra("outputY", 360);
+		intent.putExtra("outputY", 480);
 		intent.putExtra("aspectX", 1);
 		intent.putExtra("aspectY", 1);
 		intent.putExtra("scale", true);

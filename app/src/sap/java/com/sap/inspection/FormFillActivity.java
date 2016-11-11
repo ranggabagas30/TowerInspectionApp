@@ -521,7 +521,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 
 		//        intent.putExtra("crop", "true");
-		intent.putExtra("outputX", 800);
+		intent.putExtra("outputX", 480);
 		intent.putExtra("outputY", 480);
 		intent.putExtra("aspectX", 1);
 		intent.putExtra("aspectY", 1);

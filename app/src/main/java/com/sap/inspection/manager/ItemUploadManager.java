@@ -256,6 +256,8 @@ public class ItemUploadManager {
                 params.add(new BasicNameValuePair("photo_status", itemValue.photoStatus));
             if (itemValue.remark != null)
                 params.add(new BasicNameValuePair("remark", itemValue.remark));
+            if (itemValue.material_request != null)
+                params.add(new BasicNameValuePair("material_request", itemValue.material_request));
             if (itemValue.latitude != null && !itemValue.latitude.equalsIgnoreCase("0"))
                 params.add(new BasicNameValuePair("latitude", itemValue.latitude));
             if (itemValue.longitude != null && !itemValue.longitude.equalsIgnoreCase("0"))

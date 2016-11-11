@@ -39,6 +39,7 @@ public class PhotoItem extends RelativeLayout {
 	protected TextView longitude;
 	protected TextView accuracy;
 	protected EditText remark;
+	protected EditText material_request;
 	protected ImageButtonForList button;
 	protected View noPicture;
 	protected ImageView imageView;
@@ -121,7 +122,10 @@ public class PhotoItem extends RelativeLayout {
 		label = (TextView) root.findViewById(R.id.label);
 		progress = (ProgressBar) root.findViewById(R.id.progress);
 		remark = (EditText) root.findViewById(R.id.remark);
+		material_request = (EditText) root.findViewById(R.id.request_material);
+
 		remark.addTextChangedListener(textWatcher);
+		material_request.addTextChangedListener(textWatcher);
 //		remark.setVisibility(View.VISIBLE);
 		root.findViewById(R.id.radioGroup).setVisibility(View.GONE);
 		value = new ItemValueModel();
@@ -228,6 +232,10 @@ public class PhotoItem extends RelativeLayout {
 			initValue();
 			if (value != null){
 				value.remark = s.toString();
+				save();
+			}
+			else if (value != null){
+				value.material_request = s.toString();
 				save();
 			}
 		}
