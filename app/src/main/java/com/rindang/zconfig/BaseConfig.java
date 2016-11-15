@@ -1,7 +1,8 @@
 package com.rindang.zconfig;
 
 public abstract class BaseConfig {
-	
+
+	//mengganti sementara ip dengan ip uji coba "http://192.168.120.170:9292"
 	protected String host = "http://192.168.120.170:9292";
 
 	private static BaseConfig getConstructor() {

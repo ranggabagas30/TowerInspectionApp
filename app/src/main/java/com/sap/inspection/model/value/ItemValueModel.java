@@ -240,7 +240,7 @@ public class ItemValueModel extends BaseModel {
 	}  
 
 	public void save(String scheduleId, String photoStatus){
-		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 				DbManagerValue.mFormValue , DbManagerValue.colScheduleId,
 				DbManagerValue.colItemId,DbManagerValue.colValue,
 				DbManagerValue.colIsPhoto,DbManagerValue.colOperatorId,
@@ -248,7 +248,7 @@ public class ItemValueModel extends BaseModel {
 				DbManagerValue.colLatitude, DbManagerValue.colLongitude,
 				DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
 				DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt,
-				DbManagerValue.colDisable);
+				DbManagerValue.colDisable,DbManagerValue.material_request);
 
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
@@ -265,6 +265,7 @@ public class ItemValueModel extends BaseModel {
 		stmt.bindLong(11, gpsAccuracy);
 		stmt.bindLong(12, uploadStatus);
 		bindBooleanToInteger(stmt, 13, disable);
+		bindAndCheckNullString(stmt,14, material_request);
 
 
 		DebugLog.d("photo Date="+createdAt);
@@ -272,7 +273,7 @@ public class ItemValueModel extends BaseModel {
 
 		DebugLog.d("scheduleId="+scheduleId+" itemId="+itemId+" value="+value+
 				" typePhoto="+typePhoto+" operatorId="+operatorId+" rowId="+rowId+
-				" remark="+remark+" latitude="+latitude+" longitude="+longitude+
+				" remark="+remark+ " material_request="+material_request+ " latitude="+latitude+" longitude="+longitude+
 				" photoStatus="+photoStatus+" gpsAccuracy="+gpsAccuracy+
 				" uploadStatus="+uploadStatus+" createdAt="+createdAt+" disable="+disable);
 
@@ -312,6 +313,7 @@ public class ItemValueModel extends BaseModel {
 		FormValueModel.rowId = (c.getInt(c.getColumnIndex(DbManagerValue.colRowId)));
 		FormValueModel.gpsAccuracy = (c.getInt(c.getColumnIndex(DbManagerValue.colGPSAccuracy)));
 		FormValueModel.remark = (c.getString(c.getColumnIndex(DbManagerValue.colRemark)));
+		FormValueModel.material_request= (c.getString(c.getColumnIndex(DbManagerValue.material_request)));
 		FormValueModel.latitude = (c.getString(c.getColumnIndex(DbManagerValue.colLatitude)));
 		FormValueModel.longitude = (c.getString(c.getColumnIndex(DbManagerValue.colLongitude)));
 		FormValueModel.photoStatus = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoStatus)));
@@ -332,6 +334,7 @@ public class ItemValueModel extends BaseModel {
 				+ DbManagerValue.colGPSAccuracy + " integer, "
 				+ DbManagerValue.colRowId + " integer, "
 				+ DbManagerValue.colRemark + " varchar, "
+				+ DbManagerValue.material_request + " varchar, "
 				+ DbManagerValue.colPhotoStatus + " varchar, "
 				+ DbManagerValue.colLatitude + " varchar, "
 				+ DbManagerValue.colLongitude + " varchar, "

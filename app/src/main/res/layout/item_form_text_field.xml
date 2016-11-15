@@ -56,4 +56,5 @@
         android:text="SAMPLE"
         android:textColor="#333333" />
 
+
 </RelativeLayout>

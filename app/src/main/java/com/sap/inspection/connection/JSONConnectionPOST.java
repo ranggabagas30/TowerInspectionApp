@@ -3,7 +3,6 @@ package com.sap.inspection.connection;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -171,6 +170,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 				e.printStackTrace();
 			}
 		}
+
 		DebugLog.d(url);
 		Bundle bundle = new Bundle();
 		bundle.putString("json", result);

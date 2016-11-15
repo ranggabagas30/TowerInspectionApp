@@ -152,7 +152,10 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}*/
+
+			//perubahan irwan
 		}
+
 		DebugLog.d(url);
 		Bundle bundle = new Bundle();
 		bundle.putString("json", result);
