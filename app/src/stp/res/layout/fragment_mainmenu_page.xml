@@ -64,6 +64,8 @@
             <FrameLayout android:id="@+id/s5" android:layout_width="match_parent"
                 android:layout_height="match_parent" android:layout_weight="0.5"
                 android:scaleType="centerCrop">
+
+                <include layout="@layout/item_mainmenu" />
             </FrameLayout>
 
             <View android:layout_width="@dimen/padding_xxs"

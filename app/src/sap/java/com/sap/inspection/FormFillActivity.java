@@ -16,6 +16,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -816,7 +817,23 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (ada)
 				searchView.setVisibility(View.GONE);
 //			SearchAdapter searchAdapter = new SearchAdapter(activity, android.R.layout.select_dialog_item, android.R.id.text1, indexes);
-			ArrayAdapter<String> searchAdapter = new ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, labels);
+			ArrayAdapter<String> searchAdapter =
+					new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, labels){
+
+				public View getView(int position, View convertView, ViewGroup parent) {
+					View v = super.getView(position, convertView, parent);
+					int i = 10;
+					((TextView) v).setTextSize(14);
+
+//					Typeface Type = getFont () ;  // custom method to get a font from "assets" folder
+//					((TextView) v).setTypeface(Type);
+//					((TextView) v).setTextColor(Color.RED);
+					((TextView) v) .setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);
+
+					return v;
+				}
+			};
+
 			search.setAdapter(searchAdapter);
 			super.onPostExecute(result);
 		}

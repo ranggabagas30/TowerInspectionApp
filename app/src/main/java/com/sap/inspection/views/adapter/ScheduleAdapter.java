@@ -1,10 +1,5 @@
 package com.sap.inspection.views.adapter;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Vector;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -22,7 +17,9 @@ import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
-import com.sap.inspection.tools.DateTools;
+
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class ScheduleAdapter extends MyBaseAdapter {
 
@@ -123,6 +120,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			String[] date = getItem(position).day_date.split("[-]",3);
 			
 			holder.title.setText(Constants.MONTHS[Integer.parseInt(date[1]) - 1 ] +" "+ date[2] +","+ date[0]);
+
 			break;
 
 		case 1:

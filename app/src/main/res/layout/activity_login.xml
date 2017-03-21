@@ -70,7 +70,7 @@
             android:id="@+id/logo"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:src="@drawable/logo_app"
+            android:src="@drawable/bg_login"
             android:visibility="invisible" />
 
         <TextView
@@ -83,7 +83,7 @@
             android:layout_marginTop="@dimen/padding_xtra_large"
             android:gravity="center_horizontal"
             android:text="MOBILE APPLICATION"
-            android:textColor="@color/logo_text"
+            android:textColor="@android:color/white"
             android:textStyle="bold"
             android:visibility="invisible" />
 
@@ -133,14 +133,12 @@
             </LinearLayout>
 
             <CheckBox
-                android:layout_width="wrap_content"
+                android:text="Tetap login"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Buat Saya Tetap Masuk"
-                android:layout_marginLeft="@dimen/padding_large"
-                android:layout_marginRight="@dimen/padding_large"
-                android:textColor="@color/keepme"
                 android:id="@+id/cbkeep"
-                />
+                android:layout_marginLeft="10dp"/>
+
             <Button
                 android:id="@id/submit"
                 style="@style/list_title"
@@ -150,9 +148,8 @@
                 android:layout_marginRight="@dimen/padding_large"
                 android:layout_marginTop="@dimen/padding_large"
                 android:background="@drawable/bg_button_plain_blue"
-                android:text="@string/masuk"
-                android:textColor="@android:color/white"
-                />
+                android:text="@string/signin"
+                android:textColor="@android:color/white" />
 
             <TextView
                 android:id="@id/forgot_password"
@@ -171,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/padding_large"
                 android:background="@drawable/selector_button_green_small_padding"
-                android:text="Update Sekarang"
+                android:text="Update Now"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
         </LinearLayout>

@@ -69,6 +69,9 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		scheduleBaseModels = new ScheduleGeneral();
 		scheduleBaseModels = scheduleBaseModels.getScheduleById(bundle.getString("scheduleId"));
 		DebugLog.d("===================================4 worktype id : "+scheduleBaseModels.work_type.id);
+						//penambahan debug tester untuk form_id
+//		DebugLog.d("===================================4 workform id : "+scheduleBaseModels.work_form.id);
+
 		workFormModel = new WorkFormModel();
 		workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModels.work_type.id);
 		DebugLog.d("===================================4 form model max level : "+workFormModel.id);

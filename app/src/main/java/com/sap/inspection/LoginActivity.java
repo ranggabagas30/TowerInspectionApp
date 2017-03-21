@@ -17,7 +17,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -126,6 +125,7 @@ public class LoginActivity extends BaseActivity {
 	        }
 			//string copy database sukses
 			Toast.makeText(activity, getString(R.string.copydatabasesuccess), Toast.LENGTH_SHORT).show();
+
 	    } catch (Exception e) {
 			DebugLog.e(e.getMessage());
 			DebugLog.e(e.getCause().getMessage());
@@ -238,7 +238,7 @@ public class LoginActivity extends BaseActivity {
 			}
 		});
 		
-		Button copy = (Button) findViewById(R.id.copy);
+		Button copy = (Button) findViewById(	R.id.copy);
 		copy.setOnClickListener(new OnClickListener() {
 			
 			@Override

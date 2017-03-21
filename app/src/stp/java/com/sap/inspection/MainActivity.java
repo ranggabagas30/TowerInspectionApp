@@ -261,6 +261,12 @@ public class MainActivity extends BaseActivity{
 				trackEvent(getResources().getString(R.string.newlocation));
 				scheduleFragment.setScheduleBy(R.string.newlocation);
 				break;
+			case R.string.fiber_optic:
+				 DebugLog.d("fiber optik");
+				 trackEvent(getResources().getString(R.string.fiber_optic));
+				 scheduleFragment.setScheduleBy(R.string.fiber_optic);
+//				Toast.makeText(activity, "tester", Toast.LENGTH_SHORT).show();
+				 break;
 			case R.string.colocation:
 				DebugLog.d("colocation");
 				trackEvent(getResources().getString(R.string.colocation));
@@ -502,7 +508,7 @@ public class MainActivity extends BaseActivity{
 				progressDialog.dismiss();
 				Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
 			}
-		};
+		}
 	};
 
 	private Handler formSaverHandler = new Handler(){

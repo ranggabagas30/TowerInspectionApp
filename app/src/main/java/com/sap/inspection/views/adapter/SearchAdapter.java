@@ -1,15 +1,17 @@
 package com.sap.inspection.views.adapter;
 
-import java.util.ArrayList;
-
-import org.apache.http.NameValuePair;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import org.apache.http.NameValuePair;
+
+import java.util.ArrayList;
+
+//import javax.swing.text.View;
 
 public class SearchAdapter extends ArrayAdapter<NameValuePair> {
 

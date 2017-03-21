@@ -5,5 +5,6 @@ public interface MainMenuListener {
 	public static int PREVENTIVE = 1;
 	public static int NEW_LOCATION = 2;
 	public static int COLOCATION = 3;
+	public static int FIBEROPTIK = 4;
 	public void changeFrameRight(int fragmentId);
 }

@@ -56,7 +56,8 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.drawable.ic_corrective,
 /*					R.drawable.ic_siteaudit,
 					R.drawable.ic_newlocation,*/
-					R.drawable.ic_settings
+					R.drawable.ic_settings,
+					R.drawable.fofo
 //					R.drawable.ic_colocation
 			};
 			this.icons = getArrayList(icons);
@@ -71,7 +72,8 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.string.corrective,
 /*					R.string.site_audit,
 					R.string.newlocation,*/
-					R.string.settings
+					R.string.settings,
+					R.string.fiber_optic
 //					R.string.colocation
 			};
 			this.titles = getArrayList(titles);

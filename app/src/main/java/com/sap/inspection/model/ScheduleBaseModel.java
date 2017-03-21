@@ -35,6 +35,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public ArrayList<Integer> general_corrective_item_ids;
 	public UserModel user;
 	public WorkTypeModel work_type;
+	//penambahan irwan
+	public WorkFormModel work_form;
 	public ProjectModel project;
 	public Vector<ItemValueModel> schedule_values;
 	public String statusColor;
@@ -303,7 +305,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		String table = DbManager.mSchedule;
 		String[] columns = null;
-		String where =DbManager.colWorkTypeName+"= UPPER(?)";
+		String where = DbManager.colWorkTypeName+"= UPPER(?)";
 		//		String[] args = new String[]{workType};
 		Cursor cursor;
 
@@ -361,6 +363,17 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return model;
 	}
 
+	//penambahan irwan method getScheduleByForm
+//	public ScheduleBaseModel getScheduleByForm(String id){
+//
+//		ScheduleBaseModel model = null;
+//
+//		String table = DbManager.mWorkForm;
+//		String[] columns = null;
+//		String where = DbManager.mWorkType;
+//
+//		return model;
+//	}
 
 
 	public Vector<ScheduleBaseModel> getListScheduleForScheduleAdapter(Vector<ScheduleBaseModel> rawList) {

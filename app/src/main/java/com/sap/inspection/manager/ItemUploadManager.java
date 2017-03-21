@@ -258,8 +258,8 @@ public class ItemUploadManager {
             if (itemValue.remark != null)
                 params.add(new BasicNameValuePair("remark", itemValue.remark));
 
-            if (itemValue.material_request != null)
-                params.add(new BasicNameValuePair("material_request", itemValue.material_request));
+//            if (itemValue.material_request != null)
+//                params.add(new BasicNameValuePair("material_request", itemValue.material_request));
 
             if (itemValue.latitude != null && !itemValue.latitude.equalsIgnoreCase("0"))
                 params.add(new BasicNameValuePair("latitude", itemValue.latitude));
@@ -272,7 +272,6 @@ public class ItemUploadManager {
 
         private String uploadPhoto(ItemValueModel itemValue) {
             try {
-
                 HttpClient client = new DefaultHttpClient();
                 HttpPost request = new HttpPost(APIList.uploadUrl() + "?access_token=" + getAccessToken(MyApplication.getContext()));
                 DebugLog.d(request.getURI().toString());

@@ -154,9 +154,10 @@ public class NavigationAdapter extends MyBaseAdapter {
 				intent.putExtra("scheduleId", scheduleId);
 				DebugLog.d("----schedule id----- "+scheduleId);
 				context.startActivity(intent);
+//				Toast.makeText(context, "tester", Toast.LENGTH_SHORT).show();
 			}else
 				toogleExpand(position);
-			//			Toast.makeText(context, getItem(position).position, Toast.LENGTH_SHORT).show();
+//						Toast.makeText(context, "tester "+getItem(position).position, Toast.LENGTH_SHORT).show();
 		}
 	};
 

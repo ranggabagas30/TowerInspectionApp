@@ -1,7 +1,5 @@
 package com.sap.inspection.fragments;
 
-import java.util.Vector;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,6 +16,8 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.views.adapter.ScheduleAdapter;
+
+import java.util.Vector;
 
 public class ScheduleFragmentByOperator extends BaseListTitleFragment implements OnItemClickListener{
 	private ScheduleAdapter adapter;
@@ -90,6 +90,9 @@ public class ScheduleFragmentByOperator extends BaseListTitleFragment implements
 		}else if (resId == R.string.colocation){
 			ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
 			models = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity,getString(R.string.colocation)));
+		}else if (resId == R.string.fiber_optic){
+			ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
+			models = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity,getString(R.string.fiber_optic)));
 		}
 		adapter.setItems(models);
 	}

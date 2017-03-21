@@ -112,6 +112,9 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		}else if (resId == R.string.site_audit){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.site_audit)));
+		} else if (resId == R.string.fiber_optic){
+			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.fiber_optic)));
 		}
 		
 //		ScheduleBySiteModel siteModel = new ScheduleBySiteModel();
@@ -147,6 +150,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		intent.putExtra("dayDate", models.get(position).day_date);
 		intent.putExtra("workTypeId", models.get(position).work_type.id);
 		startActivity(intent);
+
 	}
 
     public void onEvent(UploadProgressEvent event){

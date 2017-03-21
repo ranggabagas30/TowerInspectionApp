@@ -30,7 +30,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 	public static final String colIsPhoto 		= "isPhoto";
 	public static final String colValue 		= "value";
 	public static final String colRemark 		= "remark";
-	public static final String material_request = "material_request";
+//	public static final String material_request = "material_request";
 	public static final String colLatitude 		= "latitude";
 	public static final String colLongitude 	= "longitude";
 	public static final String colPhotoStatus 	= "photoStatus";

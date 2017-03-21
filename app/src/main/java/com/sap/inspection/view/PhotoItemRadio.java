@@ -43,6 +43,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	protected TextView longitude;
 	protected TextView accuracy;
 	protected EditText remark;
+	protected EditText material_request;
 	protected RadioGroup radioGroup;
 	protected ImageButtonForList button;
 	protected RadioButton ok;
@@ -122,7 +123,11 @@ public class PhotoItemRadio extends RelativeLayout {
 		label = (TextView) root.findViewById(R.id.label);
 		progress = (ProgressBar) root.findViewById(R.id.progress);
 		remark = (EditText) root.findViewById(R.id.remark);
+//		material_request = (EditText) root.findViewById(R.id.request_material);
+
+
 		remark.addTextChangedListener(textWatcher);
+//		material_request.addTextChangedListener(textWatcher2);
 		/*
 		int maxLength = 60;    
 		remark.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
@@ -197,8 +202,12 @@ public class PhotoItemRadio extends RelativeLayout {
 				button.setVisibility(View.VISIBLE);
 				photoRoot.setVisibility(View.GONE);
 			}
-			if (value.remark != null)
-				remark.setText(value.remark);
+			//penambahan irwan
+//			if (value.remark != null)
+//				remark.setText(value.remark);
+//
+//			if (value.material_request != null)
+//				material_request.setText(value.material_request);
 
 		}else reset();
 	}
@@ -256,6 +265,7 @@ public class PhotoItemRadio extends RelativeLayout {
 
 		@Override
 		public void afterTextChanged(Editable s) {
+			DebugLog.d("remark photo radio: " + s.toString());
 			if (onInit)
 				return;
 			initValue();
@@ -265,6 +275,32 @@ public class PhotoItemRadio extends RelativeLayout {
 			}
 		}
 	};
+
+	//penambahan override method irwan
+//	TextWatcher textWatcher2 = new TextWatcher() {
+//
+//		@Override
+//		public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//		}
+//
+//		@Override
+//		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//		}
+//
+//		@Override
+//		public void afterTextChanged(Editable s) {
+//			DebugLog.d("material photo radio: " + s.toString());
+//			if (onInit)
+//				return;
+//			initValue();
+//			if (value != null){
+//				value.material_request = s.toString();
+//				save();
+//			}
+//		}
+//	};
 
 	OnCheckedChangeListener changeListener = new OnCheckedChangeListener() {
 

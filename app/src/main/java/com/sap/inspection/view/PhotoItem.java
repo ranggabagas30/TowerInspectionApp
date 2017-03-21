@@ -122,10 +122,11 @@ public class PhotoItem extends RelativeLayout {
 		label = (TextView) root.findViewById(R.id.label);
 		progress = (ProgressBar) root.findViewById(R.id.progress);
 		remark = (EditText) root.findViewById(R.id.remark);
-		material_request = (EditText) root.findViewById(R.id.request_material);
+//		material_request = (EditText) root.findViewById(R.id.request_material);
 
 		remark.addTextChangedListener(textWatcher);
-		material_request.addTextChangedListener(textWatcher);
+//		material_request.addTextChangedListener(textWatcher2);
+
 //		remark.setVisibility(View.VISIBLE);
 		root.findViewById(R.id.radioGroup).setVisibility(View.GONE);
 		value = new ItemValueModel();
@@ -227,6 +228,7 @@ public class PhotoItem extends RelativeLayout {
 
 		@Override
 		public void afterTextChanged(Editable s) {
+			DebugLog.d("remark photo");
 			if (onInit)
 				return;
 			initValue();
@@ -234,12 +236,33 @@ public class PhotoItem extends RelativeLayout {
 				value.remark = s.toString();
 				save();
 			}
-			else if (value != null){
-				value.material_request = s.toString();
-				save();
-			}
 		}
 	};
+
+//	TextWatcher textWatcher2 = new TextWatcher() {
+//
+//		@Override
+//		public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//		}
+//
+//		@Override
+//		public void beforeTextChanged(CharSequence s, int start, int count,
+//									  int after) {
+//
+//		}
+//
+//		@Override
+//		public void afterTextChanged(Editable s) {
+//			if (onInit)
+//				return;
+//			initValue();
+//			if (value != null){
+//				value.material_request = s.toString();
+//				save();
+//			}
+//		}
+//	};
 
 	private void setPhotoRootVisiblity(String photoStatus){
 		if (value!=null){

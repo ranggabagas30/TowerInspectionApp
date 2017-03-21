@@ -9,7 +9,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 
@@ -91,7 +90,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
             DebugLog.d("POST "+url);
 
 			//penambahan irwan
-			request.setHeader("Content-Type", BuildConfig.VERSION_NAME);
+//			request.setHeader("Content-Type", BuildConfig.VERSION_NAME);
 //			request.setHeader("Content-Type", String.valueOf(Build.VERSION.SDK_INT));
 			request.setHeader("Content-Type", "application/x-www-form-urlencoded");
 			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);

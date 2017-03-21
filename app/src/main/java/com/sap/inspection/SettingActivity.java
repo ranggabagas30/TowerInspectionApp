@@ -541,22 +541,25 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 if (Utility.isExternalStorageAvailable()) {
                     DebugLog.d("external storage available");
                     tempDir = Environment.getExternalStorageDirectory();
+                    DebugLog.d("temp dir present");
                 } else {
                     DebugLog.d("external storage not available");
                     tempDir = getFilesDir();
                 }
+                DebugLog.d("asign temp dir");
                 tempDir = new File(tempDir.getAbsolutePath() + "/Download");
+                DebugLog.d("get tempratur dir");
                 if (!tempDir.exists()) {
                     tempDir.mkdir();
                 }
-
+                DebugLog.d("get exist dir");
                 // Output stream
                 OutputStream output = new FileOutputStream(tempDir.getAbsolutePath() + "/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
-
+                DebugLog.d("get output sream");
                 byte data[] = new byte[1024];
 
                 long total = 0;
-
+                DebugLog.d("start download");
                 while ((count = input.read(data)) != -1) {
                     total += count;
                     // publishing the progress....
@@ -566,7 +569,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                     // writing data to file
                     output.write(data, 0, count);
                 }
-
+                DebugLog.d("finish download");
                 // flushing output
                 output.flush();
 

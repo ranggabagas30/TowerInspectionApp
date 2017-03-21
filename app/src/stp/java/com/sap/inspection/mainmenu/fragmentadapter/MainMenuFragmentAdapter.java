@@ -13,7 +13,8 @@ import java.util.List;
 public class MainMenuFragmentAdapter extends BaseFragmentAdapter{
 	private ArrayList<Integer> iconRes;
 	private ArrayList<Integer> titleRes;
-	private final int SUM_ITEM_PER_PAGE = 4;
+	//perubahan irwan menambahkan SUM_ITEM_PER_PAGE menjadi 5 dari 4
+	private final int SUM_ITEM_PER_PAGE = 5;
 
 	public MainMenuFragmentAdapter(FragmentManager fm, ArrayList<Integer> iconRes, ArrayList<Integer> titleRes, OnClickListener mainMenuClickListener) {
 		super(fm);
