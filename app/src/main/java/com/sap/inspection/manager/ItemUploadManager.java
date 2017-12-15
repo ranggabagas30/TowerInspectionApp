@@ -57,8 +57,8 @@ public class ItemUploadManager {
     private ArrayList<ItemValueModel> itemValuesFailed;
     //	private ArrayList<UploadListener> listeners;
     private boolean running = false;
-    public String syncDone = "Sinkronasi selesai";
-    public String syncFail = "Sinkronasi gagal";
+    public String syncDone = "Sinkronisasi selesai";
+    public String syncFail = "Sinkronisasi gagal";
     private int retry = 0;
     private String latestStatus;
     private UploadValue uploadTask;

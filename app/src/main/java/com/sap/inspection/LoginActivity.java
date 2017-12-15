@@ -175,6 +175,7 @@ public class LoginActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		DebugLog.d("");
 		trackThisPage("Login");
+
 		gpsDialog = new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
 				.setTopColor(color(R.color.theme_color))
 				.setButtonsColor(color(R.color.theme_color))
@@ -189,7 +190,7 @@ public class LoginActivity extends BaseActivity {
 						Intent gpsOptionsIntent = new Intent(
 								Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 						startActivity(gpsOptionsIntent);
-//						finish();
+						finish();
 					}
 				});
 		/*

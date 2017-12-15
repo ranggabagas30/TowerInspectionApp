@@ -69,7 +69,7 @@
     <string name="copydatabasefailed">Copy database fail</string>
     <string name="informationGPS">Information</string>
     <string name="enableGPS">Silahkan aktifkan GPS</string>
-    <string name="getScheduleFromServer">Medapatkan Schedule dari server</string>
+    <string name="getScheduleFromServer">Mendapatkan Schedule dari server</string>
     <string name="cantgetschedulefastinternet">Tidak dapat mendapatkan Schedule dari server\nsilahkan login ulang untuk mendapatkan internet yang cepat</string>
     <string name="checkapplicationpermission">Memeriksa izin aplikasi</string>
     <string name="thereisnewapllicationupdatefromsetting">Yang terbaru dari SAP Mobile Aplikasi, Silahkan Update aplikasi dari menu pengaturan</string>

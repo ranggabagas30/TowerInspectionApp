@@ -42,13 +42,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/sap/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/sap/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/sap/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/sap/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/sap/debug" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/sap/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/sap/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/assets" type="java-test-resource" />
@@ -56,6 +49,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/sap/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/sap/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/sap/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/sap/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/sap/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/sap/debug" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/sap/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/sap/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/sap/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/sap/assets" type="java-resource" />
@@ -63,13 +63,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sap/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sap/rs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sap/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testSap/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testSap/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testSap/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testSap/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testSap/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testSap/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testSap/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/assets" type="java-test-resource" />
@@ -77,6 +70,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
@@ -116,7 +116,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/blame" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/builds" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dependency-cache" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-runtime-classes" />
@@ -137,17 +136,14 @@
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 24 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android API 25 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="support-v4-24.2.1" level="project" />
-    <orderEntry type="library" exported="" name="support-compat-24.2.1" level="project" />
-    <orderEntry type="library" exported="" name="animated-vector-drawable-24.2.1" level="project" />
-    <orderEntry type="library" exported="" name="support-fragment-24.2.1" level="project" />
     <orderEntry type="library" exported="" name="gson-2.2.2" level="project" />
     <orderEntry type="library" exported="" name="nineoldandroids-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
     <orderEntry type="library" exported="" name="stetho-1.4.1" level="project" />
+    <orderEntry type="library" exported="" name="support-core-ui-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="httpmime-4.1" level="project" />
     <orderEntry type="library" exported="" name="crashlytics-core-2.3.12" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.0.0" level="project" />
@@ -156,21 +152,24 @@
     <orderEntry type="library" exported="" name="svg-android" level="project" />
     <orderEntry type="library" exported="" name="play-services-gcm-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="jsr305-2.0.1" level="project" />
-    <orderEntry type="library" exported="" name="support-media-compat-24.2.1" level="project" />
+    <orderEntry type="library" exported="" name="support-core-utils-25.3.1" level="project" />
+    <orderEntry type="library" exported="" name="support-fragment-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="lovely-dialog-1.0.4" level="project" />
     <orderEntry type="library" exported="" name="crashlytics-2.6.3" level="project" />
     <orderEntry type="library" exported="" name="fabric-1.3.14" level="project" />
-    <orderEntry type="library" exported="" name="support-core-ui-24.2.1" level="project" />
-    <orderEntry type="library" exported="" name="appcompat-v7-24.2.1" level="project" />
-    <orderEntry type="library" exported="" name="support-vector-drawable-24.2.1" level="project" />
     <orderEntry type="library" exported="" name="beta-1.2.2" level="project" />
-    <orderEntry type="library" exported="" name="support-core-utils-24.2.1" level="project" />
     <orderEntry type="library" exported="" name="universal-image-loader-1.9.3" level="project" />
     <orderEntry type="library" exported="" name="answers-1.3.10" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-24.2.1" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-25.3.1" level="project" />
+    <orderEntry type="library" exported="" name="support-media-compat-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="eventbus" level="project" />
     <orderEntry type="library" exported="" name="play-services-analytics-7.0.0" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-25.3.1" level="project" />
+    <orderEntry type="library" exported="" name="appcompat-v7-25.3.1" level="project" />
+    <orderEntry type="library" exported="" name="support-vector-drawable-25.3.1" level="project" />
+    <orderEntry type="library" exported="" name="support-compat-25.3.1" level="project" />
+    <orderEntry type="library" exported="" name="animated-vector-drawable-25.3.1" level="project" />
     <orderEntry type="module" module-name="baseassets" exported="" />
-    <orderEntry type="library" exported="" name="org.apache.http.legacy-android-24" level="project" />
+    <orderEntry type="library" exported="" name="org.apache.http.legacy-android-25" level="project" />
   </component>
 </module>

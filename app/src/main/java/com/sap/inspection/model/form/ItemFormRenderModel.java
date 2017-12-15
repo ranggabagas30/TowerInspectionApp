@@ -65,12 +65,12 @@ public class ItemFormRenderModel extends BaseModel {
         return percent == 0 ? "" : percent + "%";
     }
 
-    public void setPercent() {
+    /*public void setPercent() {
         ItemValueModel model = new ItemValueModel();
         filledTask = model.countTaskDone(schedule.id, rowId);
         countPercent();
     }
-
+*/
     public void addFillableTask() {
         fillableTask++;
     }
