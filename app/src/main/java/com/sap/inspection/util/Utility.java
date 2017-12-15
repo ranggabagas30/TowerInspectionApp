@@ -6,8 +6,23 @@ import android.os.Environment;
 
 public class Utility {
     public static boolean checkGpsStatus(Context context){
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
         LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        /*return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);*/
+        try {
+            gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+
+        }
+
+        try {
+            network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex) {
+
+        }
+
+        return (gps_enabled || network_enabled);
     }
 
     public static boolean isExternalStorageReadOnly() {
