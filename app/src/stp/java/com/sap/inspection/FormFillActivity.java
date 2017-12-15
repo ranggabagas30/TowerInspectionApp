@@ -55,6 +55,7 @@ import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.Utility;
@@ -86,6 +87,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private int rowId;
 	private ScheduleBaseModel schedule;
 	private ItemValueModel itemValueForShare;
+	public ItemValueModel PhotographModel;
 	private Uri mImageUri;
 	private HashMap<Integer, ItemUpdateResultViewModel> itemValuesProgressView;
 	public ArrayList<Integer> indexes;
@@ -102,6 +104,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 //	private LocationManager locationManager;
 //	private LocationListener locationListener;
+	public Pair<String, String> PhotographLocation;
 	private LatLng currentGeoPoint;
 	private int accuracy;
 	private String make;
@@ -194,6 +197,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+scheduleId);
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(scheduleId);
+		PhotographModel = new ItemValueModel();
+		PhotographModel.getInstancePhotograpLocation();
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+bundle.getString("scheduleId"));
 		adapter.setWorkType(schedule.work_type.name);
 
@@ -311,11 +316,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			return;
 		}
 		//
-		if (itemValueForShare == null)
+		if (itemValueForShare == null) {
 			itemValueForShare = new ItemValueModel();
+		}
 
 		itemValueForShare = itemValueForShare.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
 		if (itemValueForShare == null){
+
 			itemValueForShare = new ItemValueModel();
 			itemValueForShare.scheduleId = schedule.id;
 			itemValueForShare.rowId = Integer.parseInt(itemProperties[0]);
@@ -323,6 +330,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			itemValueForShare.operatorId = Integer.parseInt(itemProperties[2]);
 			itemValueForShare.value = "";
 			itemValueForShare.typePhoto = itemProperties[4].equalsIgnoreCase("1");
+			itemValueForShare.PhotographLocation(schedule.id, String.valueOf(currentGeoPoint.latitude), String.valueOf(currentGeoPoint.longitude));
+			PhotographLocation = new Pair<>(String.valueOf(currentGeoPoint.latitude), String.valueOf(currentGeoPoint.longitude));
 		}
 		DebugLog.d("=================================================================");
 		DebugLog.d("===== value : "+itemValueForShare.value);
@@ -380,11 +389,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		setPercentage(itemValueForShare.rowId);
 	}
 
-	private int getTaskDone(int rowId,String scheduleId){
+	/*private int getTaskDone(int rowId,String scheduleId){
 		ItemValueModel valueModel = new ItemValueModel();
 		return valueModel.countTaskDone(scheduleId, rowId);
 
-	}
+	}*/
 
 	@Override
 	public void onTextChange(String string, View view) {
@@ -419,7 +428,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	@Override
 	protected void onStop() {
+		DebugLog.d("onStop");
 		googleApiClient.disconnect();
+		PhotographModel.clearPersistentLocation();
 		DbRepository.getInstance().close();
 		DbRepositoryValue.getInstance().close();
 		super.onStop();
@@ -427,6 +438,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	@Override
 	protected void onStart() {
+		DebugLog.d("onStart");
 		super.onStart();
 		// Connect the client.
 		googleApiClient.connect();
@@ -575,9 +587,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 								Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
 					}
 				}
-				DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
-				photoItem.setPhotoDate();
-				photoItem.setImage(mImageUri.toString(),String.valueOf(currentGeoPoint.latitude),String.valueOf(currentGeoPoint.longitude),accuracy);
+				//DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
+				String latitude = PhotographLocation.first();
+				String longitude = PhotographLocation.second();
+				DebugLog.d(latitude+" || "+longitude);
+				if (latitude != null && longitude != null) {
+
+					photoItem.setPhotoDate();
+					photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+				}
+
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -867,6 +886,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		public void onLocationChanged(Location location) {
 			accuracy = (int)location.getAccuracy();
 			setCurrentGeoPoint(new LatLng(location.getLatitude(), location.getLongitude()));
+			if (PhotographModel.isPersistentLocationEmpty(schedule.id)){
+
+				PhotographModel.PhotographLocation(schedule.id, String.valueOf(currentGeoPoint.latitude), String.valueOf(currentGeoPoint.longitude));
+				PhotographLocation = PhotographModel.getPersistentLatLng(schedule.id);
+				PhotographModel.showPersistentSiteLocation();
+			}
 			DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
 		}
 	};

@@ -4,18 +4,24 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Debug;
 import android.os.Parcel;
 
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
+import com.sap.inspection.tools.DebugLog;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -40,6 +46,10 @@ public class ItemValueModel extends BaseModel {
 	public int gpsAccuracy;
 	public String remark;
 //	public String material_request;
+	private Pair<String, String> PersistentLatLng;
+	private HashMap< String, Pair<String, String> > PersistentSiteLocation;
+	private String persistent_latitude;
+	private String persistent_longitude;
 	public String latitude;
 	public String longitude;
 	public String photoStatus;
@@ -47,7 +57,6 @@ public class ItemValueModel extends BaseModel {
 	public boolean typePhoto;
 	public String picture;
 	public boolean disable;
-
 
 	@Override
 	public int describeContents() {
@@ -57,6 +66,51 @@ public class ItemValueModel extends BaseModel {
 	@Override
 	public void writeToParcel(Parcel arg0, int arg1) {
 	}
+
+	/*Photograph persistent location*/
+
+	public void getInstancePhotograpLocation(){
+		PersistentSiteLocation = new HashMap<>();
+
+	}
+	public void PhotographLocation (String scheduleId, String persistent_latitude, String persistent_longitude) {
+		this.persistent_latitude = persistent_latitude;
+		this.persistent_longitude = persistent_longitude;
+		PersistentLatLng = new Pair<>(persistent_latitude, persistent_longitude);
+		PersistentSiteLocation.put(scheduleId, PersistentLatLng);
+	}
+
+	public void deletePersistentLocation(String scheduleId) {
+		PersistentSiteLocation.remove(scheduleId);
+	}
+
+	public void clearPersistentLocation() {
+		PersistentSiteLocation.clear();
+	}
+	public Pair<String, String> getPersistentLatLng(String scheduleId) {
+		return PersistentSiteLocation.get(scheduleId);
+	}
+
+	public void showPersistentSiteLocation() {
+		Set set = PersistentSiteLocation.entrySet();
+		Iterator iterator = set.iterator();
+		DebugLog.d("Persistent Site Location list : \n ");
+		while(iterator.hasNext()) {
+			Map.Entry mentry = (Map.Entry)iterator.next();
+			String latitude = PersistentSiteLocation.get(mentry.getKey()).first();
+			String longitude = PersistentSiteLocation.get(mentry.getKey()).second();
+			DebugLog.d("Schedule id = " + mentry.getKey() + "\n" +
+					   "LatLng ( " + latitude + " , " + longitude +  " ) \n");
+		}
+	}
+	public boolean isPersistentLocationEmpty(String scheduleId) {
+		if (PersistentSiteLocation.isEmpty()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	 /*end of Photograph persistent location*/
 
 	public static void delete(Context ctx, String scheduleId, int itemId, int operatorId){
 		DbRepositoryValue.getInstance().open(ctx);

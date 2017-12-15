@@ -1,9 +1,14 @@
 package com.sap.inspection.util;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.model.value.Pair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PrefUtil {
 
@@ -60,5 +65,38 @@ public class PrefUtil {
 	public static void removeStringPref(int resId){
 		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getInstance());
 		mPref.edit().remove(MyApplication.getInstance().getString(resId)).commit();
+	}
+
+	private static final String KEYCODE = "persistentdata";
+
+	public static String getSharedPreference(Context context, String key) {
+		return context.getSharedPreferences(KEYCODE, Context.MODE_PRIVATE).getString(key,"");
+	}
+
+	public static void setSharedPreference(Context context, String key, String value) {
+		context.getSharedPreferences(KEYCODE, Context.MODE_PRIVATE).edit().putString(key,value).commit();
+	}
+
+	public static void setPersistentLatitude(Context context, String scheduleId, String latitude) {
+		String compiledpersistentdata = scheduleId + "," + latitude;
+		setSharedPreference(context, KEY.PREFPERSISTENTLATITUDE, compiledpersistentdata);
+	}
+
+	public static void setPersistentLongitude(Context context, String scheduleId, String longitude) {
+		String compiledpersistentdata = scheduleId + "," + longitude;
+		setSharedPreference(context, KEY.PREFPERSISTENTLONGITUDE, compiledpersistentdata);
+	}
+
+	public static void setPersistenLatLng(Context context, String scheduleId, String latitude, String longitude) {
+		String compiledpersistentdata = scheduleId + "," + latitude + "," + longitude;
+		setSharedPreference(context, KEY.PREFPERSISTENTLATLNG, compiledpersistentdata);
+		setPersistentLatitude(context, scheduleId, latitude);
+		setPersistentLongitude(context, scheduleId, longitude);
+	}
+
+	private static class KEY {
+		private static final String PREFPERSISTENTLATITUDE = "PREFPERSISTENTLATITUDE";
+		private static final String PREFPERSISTENTLONGITUDE = "PREFPERSISTENTLONGITUDE";
+		private static final String PREFPERSISTENTLATLNG = "PREFPERSISTENTLATLNG";
 	}
 }
