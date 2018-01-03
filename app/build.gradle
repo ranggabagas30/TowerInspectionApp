@@ -69,4 +69,5 @@ dependencies {
         transitive = true;
     }
     compile 'com.facebook.stetho:stetho:1.4.1'
+    debugCompile 'com.amitshekhar.android:debug-db:1.0.0'
 }
