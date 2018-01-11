@@ -46,7 +46,11 @@ public class APIList {
 	public static String uploadUrl(){
 		return AppConfig.getInstance().getV1()+"/schedules/upload_item";
 	}
-	
+
+	public static String uploadStatusUrl() {
+		return AppConfig.getInstance().getV1()+"/schedules/upload_status";
+	}
+
 	//APK
 	public static String apkUrl(){
 		return AppConfig.getInstance().getV1()+"/apk";
