@@ -931,7 +931,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						if (item.workItemModel.work_form_group_id == 3 && item.type == 2) {
 							DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
 							DebugLog.d("remark : " + item.itemValue.remark);
-							if (item.workItemModel.mandatory && !item.workItemModel.disable && item.itemValue.value != null) {
+							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
 								if (item.itemValue.photoStatus.equalsIgnoreCase("nok")) {
 									if (item.itemValue.remark == null) {
 										Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
@@ -950,7 +950,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 				}
 
-				if (list.contains(item.type)) {
+				if (list.contains(item.type) && item.workItemModel.work_form_group_id != 3) {
 					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
 						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
 							Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();

@@ -112,7 +112,6 @@ public class PhotoItemRadio extends RelativeLayout {
 		this.context = context;
 
 		root = LayoutInflater.from(context).inflate(R.layout.photo_layout, this, true);
-		//		photoRoot = root.findViewById(R.id.layout_helper1);
 		photoRoot = root.findViewById(R.id.photolayout);
 		button = (ImageButtonForList) root.findViewById(R.id.button);
 		button.setTag(this);
@@ -121,7 +120,6 @@ public class PhotoItemRadio extends RelativeLayout {
 		noPicture =  root.findViewById(R.id.no_picture);
 		imageView = (ImageView) root.findViewById(R.id.photo);
 		imageView.setTag(this);
-		//		failed = (TextView) root.findViewById(R.id.failed);
 		latitude = (TextView) root.findViewById(R.id.latitude);
 		longitude = (TextView) root.findViewById(R.id.longitude);
 		mandatory = (TextView) root.findViewById(R.id.mandatory);
@@ -131,15 +129,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		label = (TextView) root.findViewById(R.id.label);
 		progress = (ProgressBar) root.findViewById(R.id.progress);
 		remark = (EditText) root.findViewById(R.id.remark);
-//		material_request = (EditText) root.findViewById(R.id.request_material);
-
-
 		remark.addTextChangedListener(textWatcher);
-//		material_request.addTextChangedListener(textWatcher2);
-		/*
-		int maxLength = 60;    
-		remark.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
-		*/
 		radioGroup = (RadioGroup) root.findViewById(R.id.radioGroup);
 		ok = (RadioButton) root.findViewById(R.id.radioOK);
 		nok = (RadioButton) root.findViewById(R.id.radioNOK);
@@ -150,12 +140,10 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	public void setButtonClickListener(OnClickListener buttonClickListener){
 		button.setOnClickListener(buttonClickListener);
-		//		imageView.setOnClickListener(buttonClickListener);
 	}
 
     public void setUploadClickListener(OnClickListener uploadClickListener){
         upload.setOnClickListener(uploadClickListener);
-        //		imageView.setOnClickListener(buttonClickListener);
     }
 
 	public void setValue(ItemValueModel value, boolean initValue) {
@@ -177,8 +165,6 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
 			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", "")
 					);
-		//		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all"))
-		//			label.setText(itemFormRenderModel.operator.name);
 		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
 			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
 
@@ -195,12 +181,6 @@ public class PhotoItemRadio extends RelativeLayout {
 				} else {
 					remark.setText("");
 				}
-
-				if (radioGroup.getCheckedRadioButtonId() == -1 ) {
-					//no radio button is checked
-					DebugLog.d("no radio button is checked");
-					mandatory.setVisibility(View.GONE);
-				}
 			}
 			// if no picture then show no picture icon
 			if (value.value == null)
@@ -209,15 +189,20 @@ public class PhotoItemRadio extends RelativeLayout {
 			DebugLog.d("value.photoStatus : " + value.photoStatus );
 			if (value.photoStatus != null){
 				if (value.photoStatus.equalsIgnoreCase("ok")){
+
 					button.setVisibility(View.VISIBLE);
-					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
-						mandatory.setVisibility(View.GONE);
-//					remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 					ok.setChecked(true);
 					setPhotoRootVisiblity("OK");
+
+					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
+						mandatory.setVisibility(View.GONE);
 				}
 				else if (value.photoStatus.equalsIgnoreCase("nok")){
+
 					button.setVisibility(View.VISIBLE);
+					nok.setChecked(true);
+					setPhotoRootVisiblity("NOK");
+
 					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
 						if(remark.getText().toString().equalsIgnoreCase("") || value.remark.equalsIgnoreCase("")){
 							mandatory.setVisibility(View.VISIBLE);
@@ -225,28 +210,26 @@ public class PhotoItemRadio extends RelativeLayout {
 							mandatory.setVisibility(View.GONE);
 						}
 					}
-//					remark.setVisibility(View.VISIBLE);
-					nok.setChecked(true);
-					setPhotoRootVisiblity("NOK");
 				}
 				else if (value.photoStatus.equalsIgnoreCase("na")){
+
 					button.setVisibility(View.GONE);
 					photoRoot.setVisibility(View.GONE);
-					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
-						mandatory.setVisibility(View.GONE);
-//					remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 					na.setChecked(true);
 					value.photoStatus="NA";
+
+					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
+						mandatory.setVisibility(View.GONE);
 				}
 			}
 			else{
 				button.setVisibility(View.VISIBLE);
 				photoRoot.setVisibility(View.GONE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+				/*if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
 					radioGroup.check(R.id.radioNOK);
 					setPhotoRootVisiblity("NOK");
 					mandatory.setVisibility(View.VISIBLE);
-				}
+				}*/
 			}
 		}else reset();
 	}
@@ -316,7 +299,8 @@ public class PhotoItemRadio extends RelativeLayout {
 				if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
 
 					if (s.toString().equalsIgnoreCase("")) {
-						mandatory.setVisibility(View.VISIBLE);
+						if (nok.isChecked() || value.photoStatus.equalsIgnoreCase("nok"))
+							mandatory.setVisibility(View.VISIBLE);
 					} else {
 						mandatory.setVisibility(View.GONE);
 					}
