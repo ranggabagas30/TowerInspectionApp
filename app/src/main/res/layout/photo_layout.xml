@@ -12,6 +12,7 @@
         android:layout_marginBottom="@dimen/padding_large"
         android:visibility="gone" >
 
+
         <TextView
             android:id="@+id/failed"
             android:layout_width="wrap_content"
@@ -66,6 +67,14 @@
                     android:layout_below="@id/longitude"
                     android:text="Accuracy up to : 100 m"
                     android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/uploadstatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/accuracy"
+                    android:textColor="@android:color/white"/>
+
             </RelativeLayout>
         </RelativeLayout>
     </RelativeLayout>
@@ -112,12 +121,21 @@
                 android:ellipsize="end"
                 android:text="SAMPLE"
                 android:textColor="#333333" />
+            <TextView
+                android:id="@+id/mandatory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/label"
+                android:textColor="@android:color/holo_red_light"
+                android:textStyle="italic|bold"
+                android:text="Mandatory"
+                android:visibility="gone" />
 
             <RadioGroup
                 android:id="@+id/radioGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/label"
+                android:layout_below="@id/mandatory"
                 android:orientation="horizontal" >
 
                 <RadioButton

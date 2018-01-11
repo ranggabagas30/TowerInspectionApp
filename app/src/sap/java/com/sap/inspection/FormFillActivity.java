@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -56,7 +57,9 @@ import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormItem;
@@ -69,6 +72,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -94,6 +98,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	public ArrayList<FormItem> formItems;
 	private ArrayList<ItemFormRenderModel> formModels;
 	private PhotoItemRadio photoItem;
+	private ItemUploadManager itemUploadManager;
 	private ScrollView scroll;
 	private AutoCompleteTextView search;
 	private ListView list;
@@ -101,8 +106,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	
 	private FormFillAdapter adapter;
 
-//	private LocationManager locationManager;
-//	private LocationListener locationListener;
 	private LatLng currentGeoPoint;
 	private int accuracy;
 	private String make;
@@ -197,7 +200,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(scheduleId);
 		adapter.setWorkType(schedule.work_type.name);
-
+		adapter.setWorkFormGroupId(workFormGroupId);
 		scroll = (ScrollView) findViewById(R.id.scroll);
 		search = (AutoCompleteTextView) findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);
@@ -433,7 +436,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		public void onClick(View v) {
 
-			if (Utility.checkGpsStatus(FormFillActivity.this)) {
+			if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
 				takePicture(photoItem.getItemId());
 				/*
@@ -478,7 +481,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			int pos = (int)v.getTag();
 			DebugLog.d("pos="+pos);
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			if (itemFormRenderModel.itemModel.disable) {
+			if (itemFormRenderModel.workItemModel.disable) {
 				//item is disable
 				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
 			}
@@ -716,7 +719,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			rowModel = rowModel.getItemById(workFormGroupId, rowId);
 			ColumnModel colModel = new ColumnModel();
 			column = colModel.getAllItemByWorkFormGroupId(workFormGroupId);
-			ItemFormRenderModel form = null;
+			ItemFormRenderModel form;
 			setPageTitle();
 			//check if the head has a form
 			for(int i = 0; i < rowModel.row_columns.size(); i++){
@@ -727,7 +730,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					DebugLog.d("========================= head row ancestry : "+rowModel.ancestry);
 					checkHeaderName(rowModel);
 					DebugLog.d("-----------------------------------------------");
-					
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
 					form.setColumn(column);
@@ -751,9 +753,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			//check if the child has a form
 			String parentLabel = null;
 			String ancestry = null;
+			DebugLog.d("looping row childrens : ");
+			DebugLog.d("\n\n========================= children size : " + rowModel.children.size());
 			for (RowModel model : rowModel.children) {
-				checkHeaderName(model);
 				x++;
+				DebugLog.d("\nchildren ke-" + x);
+				DebugLog.d("checking header name ...");
+				checkHeaderName(model);
 				publishProgress(x*100/rowModel.children.size());
 				finishInflate = false;
 				DebugLog.d("-----------------------------------------------");
@@ -772,6 +778,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 					labels.add(label);
 					formModels.add(form);
+					DebugLog.d("indexes : " + indexes.get(indexes.size()-1));
+					DebugLog.d("label : " + label);
+					DebugLog.d("lables now : " + labels.get(labels.size()-1));
 				}else
 					parentLabel = form.getLabel();
 //				setPercentage(model.id);
@@ -787,10 +796,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				DebugLog.d("========================= head row label : "+rowModel.row_columns.get(0).items.get(0).label);
 				if (rowModel.row_columns.get(0).items.get(0).label != null && !rowModel.row_columns.get(0).items.get(0).label.equalsIgnoreCase(""))
 					this.lastLable = rowModel.row_columns.get(0).items.get(0).label;
-					rowModel.row_columns.get(0).items.get(0).labelHeader = this.lastLable;
+				rowModel.row_columns.get(0).items.get(0).labelHeader = this.lastLable;
+				DebugLog.d("item label : " + rowModel.row_columns.get(0).items.get(0).label + ", item id : " + rowModel.row_columns.get(0).items.get(0).id);
+				DebugLog.d("labelHeader : " + this.lastLable);
 			}
 		}
 
+		private void checkUploadStatus(RowModel rowModel) {
+
+		}
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
@@ -807,9 +821,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 			adapter.setItems(formModels);
 			boolean ada = false;
+			DebugLog.d("total formModels items : " + formModels.size());
 			for (ItemFormRenderModel item : formModels) {
-				DebugLog.d("search="+item.itemModel.search);
-				if (item.itemModel!=null&&!item.itemModel.search) {
+				DebugLog.d("search="+item.workItemModel.search);
+				if (item.workItemModel!=null&&!item.workItemModel.search) {
 					ada = true;
 					break;
 				}
@@ -902,18 +917,43 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			for (int i = 0; i < adapter.getCount(); i++) {
 				ItemFormRenderModel item = adapter.getItem(i);
 				DebugLog.d("count "+i);
-				if (item.itemModel!=null) {
-					DebugLog.d("type="+item.type+" mandatory="+item.itemModel.mandatory+
-					" disable="+item.itemModel.disable);
+				if (item.workItemModel!=null) {
+					DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+
+					" disable="+item.workItemModel.disable);
 				}
+
 				if (item.itemValue!=null) {
-					DebugLog.d("itemValue="+item.itemValue.value);
+					DebugLog.d("item label : " + item.workItemModel.label);
+					DebugLog.d("itemValue.value="+item.itemValue.value); // belum ada foto
+					DebugLog.d("scheduleId=" + item.itemValue.scheduleId);
+					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+
+						if (item.workItemModel.work_form_group_id == 3 && item.type == 2) {
+							DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
+							DebugLog.d("remark : " + item.itemValue.remark);
+							if (item.workItemModel.mandatory && !item.workItemModel.disable && item.itemValue.value != null) {
+								if (item.itemValue.photoStatus.equalsIgnoreCase("nok")) {
+									if (item.itemValue.remark == null) {
+										Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+										mandatoryFound = true;
+										break;
+									} else {
+										if (item.itemValue.remark.isEmpty()) {
+											Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+											mandatoryFound = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 
 				if (list.contains(item.type)) {
 					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
-						if (item.itemModel != null && item.itemModel.mandatory && !item.itemModel.disable) {
-							Toast.makeText(activity, item.itemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
+							Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
 							mandatoryFound = true;
 							break;
 						}

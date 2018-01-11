@@ -10,9 +10,12 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
@@ -164,12 +167,16 @@ public class ScheduleAdapter extends MyBaseAdapter {
     View.OnClickListener upload = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String id = (String) v.getTag();
-            DbRepositoryValue.getInstance().open(context);
-            ItemValueModel itemValueModel = new ItemValueModel();
-            ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(id);
-            ItemUploadManager.getInstance().addItemValues(itemValueModels);
-            DbRepositoryValue.getInstance().close();
+			if (!GlobalVar.getInstance().anyNetwork(MyApplication.getContext())) {
+				MyApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
+			} else {
+				String id = (String) v.getTag();
+				DbRepositoryValue.getInstance().open(context);
+				ItemValueModel itemValueModel = new ItemValueModel();
+				ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(id);
+				ItemUploadManager.getInstance().addItemValues(itemValueModels);
+				DbRepositoryValue.getInstance().close();
+			}
         }
     };
 

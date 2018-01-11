@@ -17,6 +17,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.AbstractMap;
+import java.util.HashMap;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -27,6 +29,7 @@ public class MyApplication extends Application {
 
 	private UncaughtExceptionHandler defaultUEH;
 	private static MyApplication instance;
+	private HashMap< String, AbstractMap.SimpleEntry<String, String> > hashMapSiteLocation;
 
 	public MyApplication() {
 		instance = this;
@@ -38,6 +41,23 @@ public class MyApplication extends Application {
 
 	public static Context getContext() {
 		return instance;
+	}
+
+	public boolean isHashMapInitialized() {
+		if (hashMapSiteLocation == null) {
+			hashMapSiteLocation = new HashMap<>();
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public HashMap<String, AbstractMap.SimpleEntry<String, String>> getHashMapSiteLocation() {
+		return hashMapSiteLocation;
+	}
+
+	public void setHashMapSiteLocation(HashMap<String, AbstractMap.SimpleEntry<String, String>> hashMapSiteLocation) {
+		this.hashMapSiteLocation = hashMapSiteLocation;
 	}
 
 	public void toast(String message,int duration){
@@ -147,4 +167,6 @@ public class MyApplication extends Application {
 		}
 		return mTracker;
 	}
+
+
 }

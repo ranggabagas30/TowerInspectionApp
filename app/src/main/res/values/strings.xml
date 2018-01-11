@@ -99,5 +99,8 @@
     <string name="noNewUpdateAvail">Tidak ada pembaharuan</string>
     <string name="pengaturan">Pengaturan</string>
 
+    <!-- penambahan string rangga-->
+    <!-- persistent site location string value-->
+    <string name="keypersistentsitelocation">Persistent Site Location</string>
 
 </resources>

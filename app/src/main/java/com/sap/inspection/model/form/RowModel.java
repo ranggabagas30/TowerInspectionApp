@@ -3,6 +3,7 @@ package com.sap.inspection.model.form;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Debug;
 import android.os.Parcel;
 
 import com.sap.inspection.model.BaseModel;
@@ -193,8 +194,8 @@ public class RowModel extends BaseModel {
 	}
 
 	public Vector<RowModel> getAllItemByWorkFormGroupIdAndAncestry(int workFormGroupId,String ancestry) {
+		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
 		Vector<RowModel> result = new Vector<RowModel>();
-
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
 		String where = null;
@@ -242,8 +243,8 @@ public class RowModel extends BaseModel {
 	}
 	
 	public Vector<RowModel> getAllItemByWorkFormGroupIdAndLikeAncestry(int workFormGroupId,String ancestry) {
+		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
 		Vector<RowModel> result = new Vector<RowModel>();
-
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
 		String where = null;

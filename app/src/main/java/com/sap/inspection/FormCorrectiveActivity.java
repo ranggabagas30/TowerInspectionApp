@@ -215,7 +215,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 				ItemFormRenderModel header = new ItemFormRenderModel();
 				if (lastModel == null || lastModel.itemId != correctiveValueModel.itemId || lastModel.operatorId != correctiveValueModel.operatorId){
 					header.type = ItemFormRenderModel.TYPE_HEADER;
-					header.itemModel = item;
+					header.workItemModel = item;
 					header.itemValue = correctiveValueModel;
 					header.setSchedule(schedule);
 					item.labelHeader = item.label+"\n"+operatorNameForHeader(item, operatorModel);
@@ -225,14 +225,14 @@ public class FormCorrectiveActivity extends BaseActivity {
 					
 					ItemFormRenderModel child = new ItemFormRenderModel();
 					child.setSchedule(schedule);
-					child.type = ItemFormRenderModel.TYPE_HEADER_DEVIDER;
+					child.type = ItemFormRenderModel.TYPE_HEADER_DIVIDER;
 					formModels.get(formModels.size() - 1).add(child);
 				}
 
 				lastModel = correctiveValueModel;
 				ItemFormRenderModel form = new ItemFormRenderModel();
 				form.type = ItemFormRenderModel.TYPE_PICTURE;
-				form.itemModel = item;
+				form.workItemModel = item;
 				form.itemValue = correctiveValueModel;
 				form.label = correctiveValueModel.photoStatus;
 				form.setSchedule(schedule);
@@ -278,8 +278,8 @@ public class FormCorrectiveActivity extends BaseActivity {
 		}
 	};
 	
-	private boolean ruleAddItem(CorrectiveValueModel curentModel, CorrectiveValueModel lastModel, WorkFormItemModel itemModel){
-		DebugLog.d( "================================================================ : " + itemModel.scope_type);
+	private boolean ruleAddItem(CorrectiveValueModel curentModel, CorrectiveValueModel lastModel, WorkFormItemModel workItemModel){
+		DebugLog.d( "================================================================ : " + workItemModel.scope_type);
 		DebugLog.d( "current item id : "+curentModel.itemId+" current operator : "+curentModel.operatorId+" status : "+curentModel.photoStatus);
 		if (lastModel != null){
 			DebugLog.d( "last item id : "+lastModel.itemId+" last operator : "+lastModel.operatorId+" status : "+lastModel.photoStatus);
@@ -287,8 +287,8 @@ public class FormCorrectiveActivity extends BaseActivity {
 			DebugLog.d( "same id with same operator : "+isSameOperatorAndItemId(curentModel, lastModel));
 		}
 		return lastModel == null || //if first model
-				itemModel.scope_type.equalsIgnoreCase("operator") || // if the scope is operator
-				(!itemModel.scope_type.equalsIgnoreCase("operator") && //if the scope for all operator
+				workItemModel.scope_type.equalsIgnoreCase("operator") || // if the scope is operator
+				(!workItemModel.scope_type.equalsIgnoreCase("operator") && //if the scope for all operator
 				(isDifferentItemId(curentModel, lastModel) ||
 				isSameOperatorAndItemId(curentModel, lastModel)));
 	}

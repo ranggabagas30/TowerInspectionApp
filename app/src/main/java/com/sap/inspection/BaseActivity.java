@@ -8,11 +8,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.tools.DebugLog;
 
@@ -58,7 +60,7 @@ public abstract class BaseActivity extends FragmentActivity{
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		ScreenManager.getInstance().setHeight(metrics.heightPixels);
-		ScreenManager.getInstance().setWidth(metrics.widthPixels); 
+		ScreenManager.getInstance().setWidth(metrics.widthPixels);
 	}
 	
 	@Override

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.JSONConnection;
+import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
@@ -42,9 +44,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import de.greenrobot.event.EventBus;
 
@@ -69,6 +74,7 @@ public class ItemUploadManager {
 
     private ItemUploadManager() {
         itemValues = new ArrayList<ItemValueModel>();
+        itemValuesFailed = new ArrayList<>();
     }
 
     public static ItemUploadManager getInstance() {
@@ -85,6 +91,7 @@ public class ItemUploadManager {
     public void addItemValues(Collection<ItemValueModel> itemvalues) {
         DebugLog.d("itemvalues="+itemvalues.size());
         this.itemValues.clear();
+        this.itemValuesFailed.clear();
         for (ItemValueModel item : itemvalues) {
             if (!item.disable) {
                 this.itemValues.add(item);
@@ -105,6 +112,7 @@ public class ItemUploadManager {
     public void addItemValue(ItemValueModel itemvalue) {
         if (itemvalue.disable) return;
         this.itemValues.clear();
+        this.itemValuesFailed.clear();
         this.itemValues.add(itemvalue);
         this.retry = 0;
         if (!running) {
@@ -152,7 +160,9 @@ public class ItemUploadManager {
         @Override
         protected Void doInBackground(Void... arg0) {
             String response = null;
-            itemValuesFailed = new ArrayList<>();
+            String messageToServer = null;
+            String messageFromServer = null;
+            int itemValueSuccessCount = 0;
             while (itemValues.size() > 0) {
                 publish(itemValues.size() + " item yang tersisa");
                 latestStatus = itemValues.size() + " item yang tersisa";
@@ -174,23 +184,32 @@ public class ItemUploadManager {
 				boolean isSuccess = isSuccess(response);
 				DebugLog.d("isSuccess="+isSuccess);*/
                 if (response != null) {
-                    BaseResponseModel responseModel = gson.fromJson(response, BaseResponseModel.class);
-                    if (responseModel.status == 201) {
+                    BaseResponseModel responseUploadItemModel = gson.fromJson(response, BaseResponseModel.class);
+                    scheduleId = itemValues.get(0).scheduleId;
+                    if (responseUploadItemModel.status == 201) {
+                        DebugLog.d("status code : " + responseUploadItemModel.status);
                         ItemValueModel item = itemValues.remove(0);
                         item.uploadStatus = ItemValueModel.UPLOAD_DONE;
-                        scheduleId = item.scheduleId;
+                        itemValueSuccessCount++;
+                        DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
+                        DebugLog.d("upload status : " + item.uploadStatus);
+                        //scheduleId = item.scheduleId;
                         if (!DbRepositoryValue.getInstance().getDB().isOpen())
                             DbRepositoryValue.getInstance().open(MyApplication.getContext());
                         item.save();
                     }
-
                     //retry until 5 times
                     else {
                         itemValuesFailed.add(itemValues.remove(0));
-                        if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
-                            MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
+                        if (responseUploadItemModel.status == 422 || responseUploadItemModel.status == 403 || responseUploadItemModel.status == 404) {
+                            messageFromServer = responseUploadItemModel.messages;
+                            DebugLog.d("status code : " + responseUploadItemModel.status);
                         }
                     }
+                } else {
+                    latestStatus = syncFail;
+                    DebugLog.d("response upload item = null");
+                    break;
                 }
                 /*
                 retry++;
@@ -200,28 +219,53 @@ public class ItemUploadManager {
             }
 
             for (ItemValueModel item : itemValuesFailed) {
-                item.uploadStatus = ItemValueModel.UPLOAD_NONE;
+                //item.uploadStatus = ItemValueModel.UPLOAD_NONE;
+                item.uploadStatus = ItemValueModel.UPLOAD_FAIL;
+                DebugLog.d("scheduleIdFailed : " + item.scheduleId);
                 if (!DbRepositoryValue.getInstance().getDB().isOpen())
                     DbRepositoryValue.getInstance().open(MyApplication.getContext());
                 item.save();
             }
 
             if (itemValuesFailed.size() == 0) {
-                MyApplication.getInstance().toast(syncDone, Toast.LENGTH_LONG);
-                publish(syncDone);
                 latestStatus = syncDone;
+                messageToServer = "success";
             } else {
-                //Syncronize failed \nsum item not uploaded =
-                        MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size()
-                        + " items", Toast.LENGTH_LONG);
-                publish(syncFail);
                 latestStatus = syncFail;
+                messageToServer = "failed";
             }
+
             if (scheduleId != null)
                 DebugLog.d("hit corrective");
                 APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() +
                         scheduleId + "/update");
 
+            //after uploading data, then send messageToServer to the backend server whether the upload success or failed
+            response = uploadStatus(scheduleId, messageToServer);
+            if (response != null) {
+                BaseResponseModel responseUploadStatusModel = gson.fromJson(response, BaseResponseModel.class);
+                if (responseUploadStatusModel.status == 201) {
+                    if (getLatestStatus().equalsIgnoreCase(syncDone)) {
+                        MyApplication.getInstance().toast(syncDone + "\njumlah item berhasil upload = " + itemValueSuccessCount, Toast.LENGTH_LONG);
+                        publish(syncDone);
+                    } else
+                    if (getLatestStatus().equalsIgnoreCase(syncFail)) {
+                        MyApplication.getInstance().toast(messageFromServer, Toast.LENGTH_SHORT);
+                        MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
+                        publish(syncFail);
+                    }
+                } else {
+                    if (responseUploadStatusModel.status == 422 || responseUploadStatusModel.status == 403 || responseUploadStatusModel.status == 404 || responseUploadStatusModel.status == 405) {
+                        MyApplication.getInstance().toast(responseUploadStatusModel.messages, Toast.LENGTH_SHORT);
+                        MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
+                        publish(syncFail);
+                    }
+                }
+            } else {
+                MyApplication.getInstance().toast("Connection Timeout. Check your internet connection!", Toast.LENGTH_SHORT);
+                publish(syncFail);
+                DebugLog.d("response uploadStatus = null");
+            }
             return null;
         }
 
@@ -247,6 +291,7 @@ public class ItemUploadManager {
 
         private ArrayList<NameValuePair> getParams(ItemValueModel itemValue) {
             ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+            //params.add(new BasicNameValuePair("schedule_id", "119689099")); // dummy scheduleid to produce status : 404
             params.add(new BasicNameValuePair("schedule_id", itemValue.scheduleId));
             params.add(new BasicNameValuePair("operator_id", String.valueOf(itemValue.operatorId)));
             params.add(new BasicNameValuePair("item_id", String.valueOf(itemValue.itemId)));
@@ -272,7 +317,17 @@ public class ItemUploadManager {
 
         private String uploadPhoto(ItemValueModel itemValue) {
             try {
-                HttpClient client = new DefaultHttpClient();
+                HttpParams httpParameters = new BasicHttpParams();
+                // Set the timeout in milliseconds until a connection is established.
+                // The default value is zero, that means the timeout is not used.
+                int timeoutConnection = 60000;
+                HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+                // Set the default socket timeout (SO_TIMEOUT)
+                // in milliseconds which is the timeout for waiting for data.
+                int timeoutSocket = 60000;
+                HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+
+                HttpClient client = new DefaultHttpClient(httpParameters);
                 HttpPost request = new HttpPost(APIList.uploadUrl() + "?access_token=" + getAccessToken(MyApplication.getContext()));
                 DebugLog.d(request.getURI().toString());
                 SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
@@ -308,6 +363,7 @@ public class ItemUploadManager {
                 InputStream data = null;
                 HttpResponse response;
                 request.setEntity(reqEntity);
+                DebugLog.d("execute request .... ");
                 response = client.execute(request);
 
                 Header cookie = response.getFirstHeader("Set-Cookie");
@@ -316,13 +372,19 @@ public class ItemUploadManager {
                 }
 
                 data = response.getEntity().getContent();
+                DebugLog.d("response string data : " + data);
                 statusCode = response.getStatusLine().getStatusCode();
+                DebugLog.d("response string status code : " + statusCode);
                 String s = ConvertInputStreamToString(data);
                 DebugLog.d("json /n" + s);
                 if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
                     DebugLog.d("not json type");
                     notJson = true;
-                    return null;
+                    if (statusCode == 404) {
+                        return s;
+                    } else {
+                        return null;
+                    }
                 }
                 DebugLog.d("########################################################");
                 return s;
@@ -340,6 +402,13 @@ public class ItemUploadManager {
                 e.printStackTrace();
             }
             return null;
+        }
+
+        private LinkedList<NameValuePair> getParamUploadStatus(String schedule_id, String messageToServer) {
+            LinkedList<NameValuePair> params = new LinkedList<>();
+            params.add(new BasicNameValuePair("schedule_id", schedule_id));
+            params.add(new BasicNameValuePair("message", messageToServer));
+            return params;
         }
 
         private String uploadItem(ItemValueModel itemValue) {
@@ -412,6 +481,43 @@ public class ItemUploadManager {
             return null;
         }
 
+        private String uploadStatus(String schedule_id, String messageToServer) {
+            String responseStringData = null;
+            try {
+                //Request Part
+                HttpParams httpParameters = new BasicHttpParams();
+                // Set the timeout in milliseconds until a connection is established.
+                // The default value is zero, that means the timeout is not used.
+                int timeoutConnection = 60000;
+                HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+                // Set the default socket timeout (SO_TIMEOUT)
+                // in milliseconds which is the timeout for waiting for data.
+                int timeoutSocket = 60000;
+                HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+
+                HttpClient client = new DefaultHttpClient(httpParameters);
+                HttpPost request = new HttpPost(APIList.uploadStatusUrl() + "?access_token=" + getAccessToken(MyApplication.getContext()));
+                DebugLog.d(request.getURI().toString());
+                LinkedList<NameValuePair> params = getParamUploadStatus(schedule_id, messageToServer);
+                request.setEntity(new UrlEncodedFormEntity(params));
+
+                //Response Part
+                InputStream data;
+                HttpResponse response;
+                response = client.execute(request);
+                data = response.getEntity().getContent();
+                int statusCode = response.getStatusLine().getStatusCode();
+                String contentType = response.getEntity().getContentType().getValue();
+                responseStringData = ConvertInputStreamToString(data);
+                DebugLog.d("schedule_id : " + schedule_id);
+                DebugLog.d("messageToServer : " + messageToServer);
+                DebugLog.d("response status code : " + statusCode);
+                DebugLog.d("response string data : " + responseStringData);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return responseStringData;
+        }
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);

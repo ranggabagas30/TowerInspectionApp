@@ -145,22 +145,22 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 			holder.label.setText(getItem(position).column.column_name);
 			break;
 		case ItemFormRenderModel.TYPE_LABEL:
-			holder.label.setText(getItem(position).itemModel.label);
+			holder.label.setText(getItem(position).workItemModel.label);
 			break;
 		case ItemFormRenderModel.TYPE_OPERATOR:
 			holder.label.setText(getItem(position).operator.name);
 			break;
 		case ItemFormRenderModel.TYPE_CHECKBOX:
-			if (getItem(position).itemModel.label != null)
-				holder.label.setText(getItem(position).itemModel.label);
-			reviseCheckBox(holder.checkBox, getItem(position).itemModel, getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
+			if (getItem(position).workItemModel.label != null)
+				holder.label.setText(getItem(position).workItemModel.label);
+			reviseCheckBox(holder.checkBox, getItem(position).workItemModel, getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
 			break;
 		case ItemFormRenderModel.TYPE_RADIO:
-			holder.label.setText(getItem(position).itemModel.label);
-			reviseRadio(holder.radio, getItem(position).itemModel, getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
+			holder.label.setText(getItem(position).workItemModel.label);
+			reviseRadio(holder.radio, getItem(position).workItemModel, getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
 			break;
 		case ItemFormRenderModel.TYPE_HEADER:
-			holder.label.setText(getItem(position).itemModel.label);
+			holder.label.setText(getItem(position).workItemModel.label);
 			holder.colored.setText(getItem(position).getPercent());
 			holder.plain.setText(getItem(position).getWhen());
 			break;
@@ -168,12 +168,12 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 			holder.photo.setValue(getItem(position).itemValue);
 			break;
 		case ItemFormRenderModel.TYPE_TEXT_INPUT:
-			holder.label.setText(getItem(position).itemModel.label);
-			if(getItem(position).itemModel.description == null)
+			holder.label.setText(getItem(position).workItemModel.label);
+			if(getItem(position).workItemModel.description == null)
 				holder.description.setVisibility(view.GONE);
 			else{
 				holder.description.setVisibility(view.VISIBLE);
-				holder.description.setText(getItem(position).itemModel.description);
+				holder.description.setText(getItem(position).workItemModel.description);
 			}
 			if (getItem(position).itemValue != null)
 				holder.input.setText(getItem(position).itemValue.value);

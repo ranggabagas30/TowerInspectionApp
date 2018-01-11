@@ -89,7 +89,7 @@ public class ColumnModel extends BaseModel {
 		return result;
 	}
 
-	public ArrayList<ColumnModel> getAllItemByWorkFormGroupId(int workFormGroupId) {
+	public ArrayList<ColumnModel>  getAllItemByWorkFormGroupId(int workFormGroupId) {
 		ArrayList<ColumnModel> result = new ArrayList<ColumnModel>();
 
 		String table = DbManager.mWorkFormColumn;

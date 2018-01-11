@@ -57,6 +57,7 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormItem;
@@ -104,7 +105,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 //	private LocationManager locationManager;
 //	private LocationListener locationListener;
-	public Pair<String, String> PhotographLocation;
 	private LatLng currentGeoPoint;
 	private int accuracy;
 	private String make;
@@ -198,7 +198,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(scheduleId);
 		PhotographModel = new ItemValueModel();
-		PhotographModel.getInstancePhotograpLocation();
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+bundle.getString("scheduleId"));
 		adapter.setWorkType(schedule.work_type.name);
 
@@ -330,8 +329,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			itemValueForShare.operatorId = Integer.parseInt(itemProperties[2]);
 			itemValueForShare.value = "";
 			itemValueForShare.typePhoto = itemProperties[4].equalsIgnoreCase("1");
-			itemValueForShare.PhotographLocation(schedule.id, String.valueOf(currentGeoPoint.latitude), String.valueOf(currentGeoPoint.longitude));
-			PhotographLocation = new Pair<>(String.valueOf(currentGeoPoint.latitude), String.valueOf(currentGeoPoint.longitude));
 		}
 		DebugLog.d("=================================================================");
 		DebugLog.d("===== value : "+itemValueForShare.value);
@@ -430,7 +427,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	protected void onStop() {
 		DebugLog.d("onStop");
 		googleApiClient.disconnect();
-		PhotographModel.clearPersistentLocation();
 		DbRepository.getInstance().close();
 		DbRepositoryValue.getInstance().close();
 		super.onStop();
@@ -448,7 +444,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		public void onClick(View v) {
-			if (Utility.checkGpsStatus(FormFillActivity.this)) {
+			if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
 				takePicture(photoItem.getItemId());
 				/*
@@ -490,7 +486,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 			int pos = (int)v.getTag();
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			if (itemFormRenderModel.itemModel.disable) {
+			if (itemFormRenderModel.workItemModel.disable) {
 				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
 			}
 			else if (itemFormRenderModel.itemValue!=null) {
@@ -569,6 +565,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent)
 	{
+		String siteLatitude;
+		String siteLongitude;
+		Pair<String, String> photoLocation;
 		if(requestCode==MenuShootImage && resultCode==RESULT_OK)
 		{
 			if (photoItem != null && mImageUri != null){
@@ -587,19 +586,58 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 								Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
 					}
 				}
-				//DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
-				String latitude = PhotographLocation.first();
-				String longitude = PhotographLocation.second();
-				DebugLog.d(latitude+" || "+longitude);
-				if (latitude != null && longitude != null) {
-
-					photoItem.setPhotoDate();
-					photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
-				}
+				photoLocation = setPersistentLocation();
+				siteLatitude = photoLocation.first();
+				siteLongitude =  photoLocation.second();
+				DebugLog.d( "persistent site location : " + siteLatitude + " , " + siteLongitude);
+				photoItem.setPhotoDate();
+				photoItem.setImage(mImageUri.toString(),siteLatitude, siteLongitude,accuracy);
 
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	/**
+	 * tambahan Rangga
+	 *
+	 * PersistentLocation untuk mengambil data lokasi tetap dari data lokasi yang
+	 * didapatkan (realtime gps/network location) saat operator pertama kali melakukan pengambilan
+	 * foto (Photograph), sehingga dapat digunakan untuk acuan data lokasi pengambilan foto selanjutnya
+	 * pada scheduleid yang sama
+	 *
+	 * */
+	public Pair<String, String> setPersistentLocation() {
+		String siteLatitude;
+		String siteLongitude;
+		//PersistentLocation.getInstance().deletePersistentLatLng();
+		if (!MyApplication.getInstance().isHashMapInitialized()) {
+			// if hashMap had not been initialized yet
+			// ... then inizialize it and retreiveMap from sharedPref
+			DebugLog.d("hasMap site Location had not been initialized yet");
+			MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
+		}
+		if (PersistentLocation.getInstance().isScheduleIdPersistentLocationExist(photoItem.getValue().scheduleId)) {
+			//if persistent location of scheduleId is existed
+			// ... then assign the pair location value to siteLatitude and siteLongitude
+			MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
+			siteLatitude = PersistentLocation.getInstance().getPersistent_latitude();
+			siteLongitude = PersistentLocation.getInstance().getPersistent_longitude();
+			DebugLog.d("Use saved persistent site location with loc : " + siteLatitude + "," + siteLongitude);
+		} else {
+			//else if not
+			// ... then assign current geo point to site location. photoItem.setImage() will insert
+			//these new site location to local sqlite database
+			MyApplication.getInstance().toast("Persistent lat lng doesn't exist", Toast.LENGTH_SHORT);
+			siteLatitude = String.valueOf(currentGeoPoint.latitude);
+			siteLongitude = String.valueOf(currentGeoPoint.longitude);
+			DebugLog.d( "location from current geo points : " + siteLatitude + " , " + siteLongitude);
+			// save schedule persistent site location in pref
+			PersistentLocation.getInstance().setPersistent_latitude(siteLatitude);
+			PersistentLocation.getInstance().setPersistent_longitude(siteLongitude);
+			PersistentLocation.getInstance().savePersistentLatLng(photoItem.getValue().scheduleId);
+		}
+		return new Pair<>(siteLatitude, siteLongitude);
 	}
 
 	/*
@@ -829,7 +867,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			adapter.setItems(formModels);
 			boolean ada = false;
 			for (ItemFormRenderModel item : formModels) {
-				if (item.itemModel!=null&&!item.itemModel.search) {
+				if (item.workItemModel!=null&&!item.workItemModel.search) {
 					ada = true;
 					break;
 				}
@@ -886,12 +924,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		public void onLocationChanged(Location location) {
 			accuracy = (int)location.getAccuracy();
 			setCurrentGeoPoint(new LatLng(location.getLatitude(), location.getLongitude()));
-			if (PhotographModel.isPersistentLocationEmpty(schedule.id)){
-
-				PhotographModel.PhotographLocation(schedule.id, String.valueOf(currentGeoPoint.latitude), String.valueOf(currentGeoPoint.longitude));
-				PhotographLocation = PhotographModel.getPersistentLatLng(schedule.id);
-				PhotographModel.showPersistentSiteLocation();
-			}
 			DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
 		}
 	};
@@ -912,9 +944,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			for (int i = 0; i < adapter.getCount(); i++) {
 				ItemFormRenderModel item = adapter.getItem(i);
 				DebugLog.d("count "+i);
-				if (item.itemModel!=null) {
-					DebugLog.d("type="+item.type+" mandatory="+item.itemModel.mandatory+
-							" disable="+item.itemModel.disable);
+				if (item.workItemModel!=null) {
+					DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+
+							" disable="+item.workItemModel.disable);
 				}
 				if (item.itemValue!=null) {
 					DebugLog.d("itemValue="+item.itemValue.value);
@@ -922,8 +954,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				if (list.contains(item.type)) {
 					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
-						if (item.itemModel != null && item.itemModel.mandatory && !item.itemModel.disable) {
-							Toast.makeText(activity, item.itemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
+							Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
 							mandatoryFound = true;
 							break;
 						}

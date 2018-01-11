@@ -319,8 +319,8 @@ public class MainActivity extends BaseActivity{
 			DebugLog.d("version saved value from web: "+formVersion);
 			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), formVersion);
 			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form),"not null");
-			DebugLog.d("form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
-			DebugLog.d("form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
+			DebugLog.d("form offline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
+			DebugLog.d("form offline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
 			return null;
 		}
 

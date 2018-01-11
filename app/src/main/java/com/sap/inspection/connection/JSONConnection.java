@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.nostra13.universalimageloader.utils.IoUtils;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
@@ -85,7 +86,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			}
 			
 //			request.setHeader("Content-Type", "application/x-www-form-urlencoded");
-			
+			DebugLog.d("execute request ... ");
 			response = client.execute(request);
 			
 			//pull cookie
@@ -189,6 +190,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			b = new byte[4096];
 			for (int n; (n = is.read(b)) != -1;) {
 				buffer.append(new String(b, 0, n));
+				DebugLog.d("== (b:" + b + ";b.length:" + b.length + ";n:" + n );
 			}
 			str = buffer.toString();
 

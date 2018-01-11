@@ -23,20 +23,24 @@ android {
         versionName "1.4"
     }
 
-//    signingConfigs {
-//
-//        release {
-//
-//            storeFile file('android.keystore')
-//            storePassword "pwd"
-//            keyAlias "alias"
-//            keyPassword "pwd"
-//        }
-//    }
+    /*signingConfigs {
+
+        release {
+            storeFile file('android.keystore')
+            storePassword "pwd"
+            keyAlias "alias"
+            keyPassword "pwd"
+        }
+    }*/
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
 
     buildTypes {
         release {
-//            signingConfig signingConfigs.release
+            //signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -67,6 +71,9 @@ dependencies {
     compile project(':baseassets')
     compile('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
         transitive = true;
+    }
+    compile("com.google.code.gson:gson:2.3") {
+        exclude module: 'gson:2.2.4'
     }
     compile 'com.facebook.stetho:stetho:1.4.1'
     debugCompile 'com.amitshekhar.android:debug-db:1.0.0'

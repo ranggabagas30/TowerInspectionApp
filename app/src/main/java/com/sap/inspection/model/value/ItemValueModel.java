@@ -34,6 +34,7 @@ public class ItemValueModel extends BaseModel {
 	public static final int UPLOAD_NONE = 0;
 	public static final int UPLOAD_ONGOING = 1;
 	public static final int UPLOAD_DONE = 2;
+	public static final int UPLOAD_FAIL = 3;
 
 	public String scheduleId;
 	public int operatorId;
@@ -46,10 +47,6 @@ public class ItemValueModel extends BaseModel {
 	public int gpsAccuracy;
 	public String remark;
 //	public String material_request;
-	private Pair<String, String> PersistentLatLng;
-	private HashMap< String, Pair<String, String> > PersistentSiteLocation;
-	private String persistent_latitude;
-	private String persistent_longitude;
 	public String latitude;
 	public String longitude;
 	public String photoStatus;
@@ -67,50 +64,7 @@ public class ItemValueModel extends BaseModel {
 	public void writeToParcel(Parcel arg0, int arg1) {
 	}
 
-	/*Photograph persistent location*/
 
-	public void getInstancePhotograpLocation(){
-		PersistentSiteLocation = new HashMap<>();
-
-	}
-	public void PhotographLocation (String scheduleId, String persistent_latitude, String persistent_longitude) {
-		this.persistent_latitude = persistent_latitude;
-		this.persistent_longitude = persistent_longitude;
-		PersistentLatLng = new Pair<>(persistent_latitude, persistent_longitude);
-		PersistentSiteLocation.put(scheduleId, PersistentLatLng);
-	}
-
-	public void deletePersistentLocation(String scheduleId) {
-		PersistentSiteLocation.remove(scheduleId);
-	}
-
-	public void clearPersistentLocation() {
-		PersistentSiteLocation.clear();
-	}
-	public Pair<String, String> getPersistentLatLng(String scheduleId) {
-		return PersistentSiteLocation.get(scheduleId);
-	}
-
-	public void showPersistentSiteLocation() {
-		Set set = PersistentSiteLocation.entrySet();
-		Iterator iterator = set.iterator();
-		DebugLog.d("Persistent Site Location list : \n ");
-		while(iterator.hasNext()) {
-			Map.Entry mentry = (Map.Entry)iterator.next();
-			String latitude = PersistentSiteLocation.get(mentry.getKey()).first();
-			String longitude = PersistentSiteLocation.get(mentry.getKey()).second();
-			DebugLog.d("Schedule id = " + mentry.getKey() + "\n" +
-					   "LatLng ( " + latitude + " , " + longitude +  " ) \n");
-		}
-	}
-	public boolean isPersistentLocationEmpty(String scheduleId) {
-		if (PersistentSiteLocation.isEmpty()) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	 /*end of Photograph persistent location*/
 
 	public static void delete(Context ctx, String scheduleId, int itemId, int operatorId){
 		DbRepositoryValue.getInstance().open(ctx);
@@ -132,6 +86,36 @@ public class ItemValueModel extends BaseModel {
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
+	}
+
+	public ArrayList<ItemValueModel> getAllItemValueByScheduleId (Context context, String scheduleId) {
+		ArrayList<ItemValueModel> listModel = null;
+		DbRepositoryValue.getInstance().open(context);
+		listModel = getAllItemValueByScheduleId(scheduleId);
+		DbRepositoryValue.getInstance().close();
+		return listModel;
+	}
+
+	public ArrayList<ItemValueModel> getAllItemValueByScheduleId (String scheduleId) {
+		ArrayList<ItemValueModel> listModel = null;
+		String table = DbManagerValue.mFormValue;
+		String[] columns = null;
+		String where = DbManagerValue.colScheduleId+"=?";
+		String[] args = new String[]{scheduleId};
+		Cursor cursor;
+
+		cursor = DbRepositoryValue.getInstance().getDB().query(false, table, columns, where, args, null, null,null, null);
+
+		if (cursor.moveToFirst()) {
+			do {
+				ItemValueModel model;
+				model = getSiteFromCursor(cursor);
+				listModel.add(model);
+			} while (cursor.moveToNext());
+		}
+
+		cursor.close();
+		return listModel;
 	}
 
 	public ItemValueModel getItemValue(Context context,String scheduleId, int itemId, int operatorId) {
@@ -204,6 +188,32 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
+    public ItemValueModel getPersistentLocationItemValue(Context context, String scheduleId) {
+        ItemValueModel model = null;
+        DbRepositoryValue.getInstance().open(context);
+        model = getPersistentLocationItemValue(scheduleId);
+        DbRepositoryValue.getInstance().close();
+        return model;
+    }
+
+    public ItemValueModel getPersistentLocationItemValue(String scheduleId) {
+        ItemValueModel model = null;
+        String table = DbManagerValue.mFormValue;
+        String[] columns = null;
+        String where = DbManagerValue.colScheduleId+"=?";
+        String[] args = new String[]{scheduleId};
+        Cursor cursor;
+
+        cursor = DbRepositoryValue.getInstance().getDB().query(false, table, columns, where, args, null, null, DbManagerValue.colCreatedAt + " DESC ", "1");
+
+        if (!cursor.moveToFirst())
+            return model;
+
+        model = getSiteFromCursor(cursor);
+
+        cursor.close();
+        return model;
+    }
 
 	public ArrayList<ItemValueModel> getItemValuesForUpload() {
 		ArrayList<ItemValueModel> model = new ArrayList<ItemValueModel>();

@@ -172,7 +172,7 @@ public class PhotoItem extends RelativeLayout {
 		DebugLog.d("itemFormRenderModel.itemValue.value : "+itemFormRenderModel.itemValue.value);
 		//		CorrectiveValueModel temp = new CorrectiveValueModel();
 		//		try{
-		//			temp = temp.getItemValue(itemFormRenderModel.schedule.id, itemFormRenderModel.itemModel.id, itemFormRenderModel.operatorId);
+		//			temp = temp.getItemValue(itemFormRenderModel.schedule.id, itemFormRenderModel.workItemModel.id, itemFormRenderModel.operatorId);
 		//		}catch(Exception e){}
 		if (!onTaskDone){
 			itemFormRenderModel.schedule.sumTaskDone++;
@@ -196,12 +196,12 @@ public class PhotoItem extends RelativeLayout {
 		if (!DbRepositoryValue.getInstance().getDB().isOpen())
 			DbRepositoryValue.getInstance().open(context);
 		DebugLog.d(value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
-		DebugLog.d("scope type : "+itemFormRenderModel.itemModel.scope_type);
+		DebugLog.d("scope type : "+itemFormRenderModel.workItemModel.scope_type);
 		setItemFormRenderedValue();
 		if (savingRule == null)
 			savingRule = new PreventiveSave();
 		savingRule.save(itemFormRenderModel, value);
-		//		if(!itemFormRenderModel.itemModel.scope_type.equalsIgnoreCase("operator")){
+		//		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
 		//			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
 		//				value.operatorId = operatorModel.id;
 		//				value.uploadStatus = ItemValueModel.UPLOAD_NONE;
@@ -372,7 +372,7 @@ public class PhotoItem extends RelativeLayout {
 		if (value == null){
 			value = new ItemValueModel();
 			if (itemFormRenderModel != null){
-				value.itemId = itemFormRenderModel.itemModel.id;
+				value.itemId = itemFormRenderModel.workItemModel.id;
 				value.scheduleId = itemFormRenderModel.schedule.id;
 				value.operatorId = itemFormRenderModel.operatorId;
 			}

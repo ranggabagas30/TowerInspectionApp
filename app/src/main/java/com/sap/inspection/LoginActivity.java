@@ -165,7 +165,7 @@ public class LoginActivity extends BaseActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (!Utility.checkGpsStatus(this)) {
+		if (!Utility.checkGpsStatus(this) && !Utility.checkNetworkStatus(this)) {
 			gpsDialog.show();
 		}
 	}
@@ -464,7 +464,7 @@ public class LoginActivity extends BaseActivity {
 					progressDialog.dismiss();
 				Toast.makeText(activity, R.string.network_connection_problem, Toast.LENGTH_SHORT).show();
 			}
-		};
+		}
 	};
 
 	private void checkLoginState(boolean canLogin){

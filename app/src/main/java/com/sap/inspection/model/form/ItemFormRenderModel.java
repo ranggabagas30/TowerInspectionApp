@@ -1,5 +1,6 @@
 package com.sap.inspection.model.form;
 
+import android.os.Debug;
 import android.os.Parcel;
 
 import com.google.gson.Gson;
@@ -26,12 +27,13 @@ public class ItemFormRenderModel extends BaseModel {
     public static final int TYPE_TEXT_INPUT = 7;
     public static final int TYPE_COLUMN = 8;
     public static final int TYPE_LABEL = 9;
-    public static final int TYPE_HEADER_DEVIDER = 10;
+    public static final int TYPE_HEADER_DIVIDER = 10;
     public static final int TYPE_PICTURE = 11;
     public static final int MAX_TYPE = 13;
     public static final int TYPE_EXPAND = 12;
 
-    public WorkFormItemModel itemModel;
+    public RowColumnModel firstItem;
+    public WorkFormItemModel workItemModel;
     public ItemValueModel itemValue;
     public ItemFormRenderModel parent;
     public OperatorModel operator;
@@ -77,6 +79,10 @@ public class ItemFormRenderModel extends BaseModel {
 
     public void setSchedule(ScheduleBaseModel schedule) {
         this.schedule = schedule;
+    }
+
+    public void setItemValue(ItemValueModel itemValue) {
+        this.itemValue = itemValue;
     }
 
     public void addFilled() {
@@ -147,7 +153,7 @@ public class ItemFormRenderModel extends BaseModel {
 //		}
 //		while (firstItem.items.size() == 0);
         //init the header
-        RowColumnModel firstItem = null;
+        firstItem = null;
         int firstColId = -1;
         for (ColumnModel columnModel : columns) {
             if (columnModel.position == 1) {
@@ -167,22 +173,31 @@ public class ItemFormRenderModel extends BaseModel {
                 DebugLog.d("first item id : " + firstItem.id);
             }
         }
+
         if (firstItem == null)
             return;
         //generate first cell
         if (firstItem.items.size() != 0) {
             this.type = TYPE_HEADER;
-            this.itemModel = firstItem.items.get(0);
-            this.label = itemModel.label;
-            this.hasPicture = itemModel.pictureEndPoint != null;
-            DebugLog.d("====================== check if picture is not null : " + itemModel.pictureEndPoint);
+            this.workItemModel = firstItem.items.get(0);
+            this.label = workItemModel.label;
+            this.hasPicture = workItemModel.pictureEndPoint != null;
+            DebugLog.d("====================== check if picture is not null : " + workItemModel.pictureEndPoint);
             if (parentLabel != null)
-                itemModel.label = itemModel.label + " \n " + parentLabel;
-            if (firstItem.items.get(0).field_type.equalsIgnoreCase("label") && !firstItem.items.get(0).expand)
+                workItemModel.label = workItemModel.label + " \n " + parentLabel;
+            if (this.workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
                 firstItem.items.remove(0);
-
+            }
+            else if (workItemModel.field_type.equalsIgnoreCase("file")) {
+                DebugLog.d("item details : ");
+                DebugLog.d("item parent label : " + workItemModel.label);
+                DebugLog.d("id : " + workItemModel.id);
+                DebugLog.d("field type : file");
+                DebugLog.d("scope type : " + workItemModel.scope_type);
+                DebugLog.d("isExpand type : " + workItemModel.expand);
+            }
             ItemFormRenderModel child = new ItemFormRenderModel();
-            child.type = TYPE_HEADER_DEVIDER;
+            child.type = TYPE_HEADER_DIVIDER;
             child.parent = this;
             add(child);
         }
@@ -212,6 +227,7 @@ public class ItemFormRenderModel extends BaseModel {
         } else {
             DebugLog.d("operator loop");
             for (int i = 0; i < schedule.operators.size(); i++) {
+                DebugLog.d("operator id " + schedule.operators.get(i).id);
                 ItemFormRenderModel child = new ItemFormRenderModel();
                 child.type = TYPE_OPERATOR;
                 child.operator = schedule.operators.get(i);
@@ -260,7 +276,7 @@ public class ItemFormRenderModel extends BaseModel {
 
     private void generateItemsPerOperator(RowColumnModel rowCol, int operatorId) {
         for (int i = 0; i < rowCol.items.size(); i++) {
-            DebugLog.d("item : " + rowCol.items.get(i).label + " id : " + rowCol.items.get(i).id);
+            DebugLog.d("item : " + rowCol.items.get(i).label + " id : " + rowCol.items.get(i).id + " operator id : " + operatorId);
             if (rowCol.items.get(i).id == 441)
                 DebugLog.d("===================== item : " + rowCol.items.get(i).label + " id : " + rowCol.items.get(i).id + "=================");
             if (rowCol.items.get(i).field_type == null)
@@ -288,61 +304,65 @@ public class ItemFormRenderModel extends BaseModel {
         return false;
     }
 
-    private void generateViewItem(int rowId, WorkFormItemModel itemModel, int operatorId) {
-        DebugLog.d("item label : " + itemModel.label + " id : " + itemModel.id + " expand="+itemModel.expand);
-        DebugLog.d("item description : " + itemModel.description + " id : " + itemModel.id + "");
-        if (itemModel.pictureEndPoint != null)
+    private void generateViewItem(int rowId, WorkFormItemModel workItemModel, int operatorId) {
+        DebugLog.d("item label : " + workItemModel.label + " id : " + workItemModel.id + " expand="+workItemModel.expand);
+        DebugLog.d("item description : " + workItemModel.description + " id : " + workItemModel.id + "");
+        if (workItemModel.pictureEndPoint != null)
             hasPicture = true;
-        if (itemModel.field_type.equalsIgnoreCase("label") && !itemModel.expand) {
+        if (workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
             ItemFormRenderModel child = new ItemFormRenderModel();
             child.type = TYPE_LABEL;
-            child.itemModel = itemModel;
+            child.workItemModel = workItemModel;
             child.parent = this;
             add(child);
             return;
         }
 
-        DebugLog.d(schedule.id + " | " + itemModel.id + " | " + operatorId + " | " + rowId);
+        DebugLog.d(schedule.id + " | " + workItemModel.id + " | " + operatorId + " | " + rowId);
         ItemValueModel initValue = new ItemValueModel();
         ItemFormRenderModel child = new ItemFormRenderModel();
-        child.itemModel = itemModel;
-        child.itemValue = initValue.getItemValue(schedule.id, itemModel.id, operatorId);
+        child.workItemModel = workItemModel;
+        child.itemValue = initValue.getItemValue(schedule.id, workItemModel.id, operatorId);
         child.rowId = rowId;
         child.operatorId = operatorId;
         child.schedule = schedule;
         DebugLog.d("value : " + initValue.value);
-
-        if (itemModel.field_type.equalsIgnoreCase("label") && itemModel.expand) {
+        DebugLog.d("uploadstatus : " + initValue.uploadStatus);
+        if (workItemModel.field_type.equalsIgnoreCase("label") && workItemModel.expand) {
             hasInput = true;
             child.type = TYPE_EXPAND;
             this.addFillableTask();
             child.parent = this;
             add(child);
             return;
-        } else if (itemModel.field_type.equalsIgnoreCase("text_field")) {
+        } else if (workItemModel.field_type.equalsIgnoreCase("text_field")) {
             hasInput = true;
             child.type = TYPE_TEXT_INPUT;
             this.addFillableTask();
             child.parent = this;
             add(child);
             return;
-        } else if (itemModel.field_type.equalsIgnoreCase("checkbox")) {
+        } else if (workItemModel.field_type.equalsIgnoreCase("checkbox")) {
             hasInput = true;
             child.type = TYPE_CHECKBOX;
             this.addFillableTask();
             child.parent = this;
             add(child);
             return;
-        } else if (itemModel.field_type.equalsIgnoreCase("radio") || itemModel.field_type.equalsIgnoreCase("dropdown")) {
+        } else if (workItemModel.field_type.equalsIgnoreCase("radio") || workItemModel.field_type.equalsIgnoreCase("dropdown")) {
             hasInput = true;
             child.type = TYPE_RADIO;
             this.addFillableTask();
             child.parent = this;
             add(child);
             return;
-        } else if (itemModel.field_type.equalsIgnoreCase("file")) {
+        } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
             hasInput = true;
             child.type = TYPE_PICTURE_RADIO;
+            if (workItemModel.work_form_group_id == 3) {
+                child.workItemModel.mandatory = true;
+                child.workItemModel.save();
+            }
             this.addFillableTask();
             child.parent = this;
             if (this.children.get(this.children.size() - 1).type == TYPE_OPERATOR)
