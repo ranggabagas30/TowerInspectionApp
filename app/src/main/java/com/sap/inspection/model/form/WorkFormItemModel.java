@@ -214,6 +214,29 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 
+	public WorkFormItemModel getItemById(int id, int workFormGroupId) {
+
+		WorkFormItemModel result = new WorkFormItemModel();
+
+		String table = DbManager.mWorkFormItem;
+		String[] columns = null;
+		String where = DbManager.colID + "=? AND "+ DbManager.colWorkFormGroupId + "=? ";
+		String[] args = new String[] {String.valueOf(id), String.valueOf(workFormGroupId)};
+		String order = DbManager.colID+" DESC";
+		Cursor cursor;
+
+		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
+
+		if (!cursor.moveToFirst()) {
+			cursor.close();
+			return result;
+		}
+		result = getItemFromCursor(cursor);
+		result.options = getWorkFormOptionsModels(result.id);
+
+		cursor.close();
+		return result;
+	}
 	
 	private Vector<WorkFormOptionsModel> getWorkFormOptionsModels(int workFormItemId){
 		WorkFormOptionsModel model = new WorkFormOptionsModel();

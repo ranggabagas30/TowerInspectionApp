@@ -9,15 +9,17 @@ import com.sap.inspection.tools.PrefUtil;
 public class DevConfig extends BaseConfig{
 
 	private final String SENDER_ID = "934425217631";
-	
+	// rangga
+	protected String host = "http://operation-api.sekap.net";
 	@Override
 	public String getHost() {
-		return PrefUtil.getStringPref(R.string.url_endpoint, host);
+		return host;
+		//return PrefUtil.getStringPref(R.string.url_endpoint, host);
 	}
 
 	@Override
 	public void setHost(String host) {
-		PrefUtil.putStringPref(R.string.url_endpoint, host);
+		//PrefUtil.putStringPref(R.string.url_endpoint, host);
 		this.host = host;
 	}
 

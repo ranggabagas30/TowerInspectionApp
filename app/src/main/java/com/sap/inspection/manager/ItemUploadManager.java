@@ -1,6 +1,7 @@
 package com.sap.inspection.manager;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
@@ -97,7 +99,6 @@ public class ItemUploadManager {
                 this.itemValues.add(item);
             }
         }
-//		this.itemValues.addAll(itemvalues);
         this.retry = 0;
         if (!running) {
             uploadTask = null;
@@ -105,7 +106,7 @@ public class ItemUploadManager {
             uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             //"There is upload process, please wait until finish"
-            MyApplication.getInstance().toast("Proses upload sedang berjalan, silahkan tunggu sampai proses selesai", Toast.LENGTH_SHORT);
+            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
         }
     }
 
@@ -121,7 +122,7 @@ public class ItemUploadManager {
             uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             //There is upload process, please wait until finish
-            MyApplication.getInstance().toast("Proses upload sedang berjalan, silahkan tunggu sampai proses selesai", Toast.LENGTH_SHORT);
+            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
         }
     }
 
@@ -142,6 +143,7 @@ public class ItemUploadManager {
         protected void onPreExecute() {
             super.onPreExecute();
             running = true;
+            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_LONG);
             // activity.setProgressBarIndeterminateVisibility(true);
         }
 
@@ -159,34 +161,27 @@ public class ItemUploadManager {
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            String response = null;
-            String messageToServer = null;
+            String response;
+            String messageToServer;
             String messageFromServer = null;
             int itemValueSuccessCount = 0;
+
             while (itemValues.size() > 0) {
+
                 publish(itemValues.size() + " item yang tersisa");
                 latestStatus = itemValues.size() + " item yang tersisa";
-                //				Log.d(getClass().getName(),"=========================================================");
-                //				Log.d(getClass().getName(),"=========================================================");
-                //				Log.d(getClass().getName(),"=========================================================");
-                //				Log.d(getClass().getName(),"ids : "+itemValues.get(0).scheduleId+" | "+itemValues.get(0).operatorId+" | "+itemValues.get(0).itemId+" | "+itemValues.get(0).value);
                 notJson = false;
 
-                //check if upload with photo or default item
-                //				if (itemValues.get(0).typePhoto)
+                /** upload Photo **/
                 response = uploadPhoto(itemValues.get(0));
                 DebugLog.d("response=" + response);
-                //				else
-                //					response = uploadItem(itemValues.get(0));
 
-                //success then save the flag to done
-                /*
-				boolean isSuccess = isSuccess(response);
-				DebugLog.d("isSuccess="+isSuccess);*/
                 if (response != null) {
+
                     BaseResponseModel responseUploadItemModel = gson.fromJson(response, BaseResponseModel.class);
                     scheduleId = itemValues.get(0).scheduleId;
                     if (responseUploadItemModel.status == 201) {
+
                         DebugLog.d("status code : " + responseUploadItemModel.status);
                         ItemValueModel item = itemValues.remove(0);
                         item.uploadStatus = ItemValueModel.UPLOAD_DONE;
@@ -194,32 +189,26 @@ public class ItemUploadManager {
                         DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
                         DebugLog.d("upload status : " + item.uploadStatus);
                         //scheduleId = item.scheduleId;
+
                         if (!DbRepositoryValue.getInstance().getDB().isOpen())
                             DbRepositoryValue.getInstance().open(MyApplication.getContext());
                         item.save();
                     }
-                    //retry until 5 times
                     else {
-                        itemValuesFailed.add(itemValues.remove(0));
                         if (responseUploadItemModel.status == 422 || responseUploadItemModel.status == 403 || responseUploadItemModel.status == 404) {
                             messageFromServer = responseUploadItemModel.messages;
                             DebugLog.d("status code : " + responseUploadItemModel.status);
                         }
+                        itemValuesFailed.add(itemValues.remove(0));
                     }
                 } else {
                     latestStatus = syncFail;
                     DebugLog.d("response upload item = null");
                     break;
                 }
-                /*
-                retry++;
-                if (retry == 5) {
-                    break;
-                }*/
             }
 
             for (ItemValueModel item : itemValuesFailed) {
-                //item.uploadStatus = ItemValueModel.UPLOAD_NONE;
                 item.uploadStatus = ItemValueModel.UPLOAD_FAIL;
                 DebugLog.d("scheduleIdFailed : " + item.scheduleId);
                 if (!DbRepositoryValue.getInstance().getDB().isOpen())
@@ -240,53 +229,46 @@ public class ItemUploadManager {
                 APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() +
                         scheduleId + "/update");
 
-            //after uploading data, then send messageToServer to the backend server whether the upload success or failed
-            response = uploadStatus(scheduleId, messageToServer);
-            if (response != null) {
-                BaseResponseModel responseUploadStatusModel = gson.fromJson(response, BaseResponseModel.class);
-                if (responseUploadStatusModel.status == 201) {
-                    if (getLatestStatus().equalsIgnoreCase(syncDone)) {
-                        MyApplication.getInstance().toast(syncDone + "\njumlah item berhasil upload = " + itemValueSuccessCount, Toast.LENGTH_LONG);
-                        publish(syncDone);
-                    } else
-                    if (getLatestStatus().equalsIgnoreCase(syncFail)) {
-                        MyApplication.getInstance().toast(messageFromServer, Toast.LENGTH_SHORT);
-                        MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
-                        publish(syncFail);
+            //after uploading data, then send messageToServer to the backend server
+            if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")){
+                response = uploadStatus(scheduleId, messageToServer);
+                if (response != null) {
+                    BaseResponseModel responseUploadStatusModel = gson.fromJson(response, BaseResponseModel.class);
+                    if (responseUploadStatusModel.status == 201) {
+                        if (getLatestStatus().equalsIgnoreCase(syncDone)) {
+                            MyApplication.getInstance().toast(syncDone + "\njumlah item berhasil upload = " + itemValueSuccessCount, Toast.LENGTH_LONG);
+                            publish(syncDone);
+                        } else
+                        if (getLatestStatus().equalsIgnoreCase(syncFail)) {
+                            MyApplication.getInstance().toast(messageFromServer, Toast.LENGTH_SHORT);
+                            MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
+                            publish(syncFail);
+                        }
+                    } else {
+                        if (responseUploadStatusModel.status == 422 || responseUploadStatusModel.status == 403 || responseUploadStatusModel.status == 404 || responseUploadStatusModel.status == 405) {
+                            MyApplication.getInstance().toast(responseUploadStatusModel.messages, Toast.LENGTH_SHORT);
+                            MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
+                            publish(syncFail);
+                        }
                     }
                 } else {
-                    if (responseUploadStatusModel.status == 422 || responseUploadStatusModel.status == 403 || responseUploadStatusModel.status == 404 || responseUploadStatusModel.status == 405) {
-                        MyApplication.getInstance().toast(responseUploadStatusModel.messages, Toast.LENGTH_SHORT);
-                        MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
-                        publish(syncFail);
-                    }
+                    MyApplication.getInstance().toast("Connection Timeout. Check your internet connection!", Toast.LENGTH_SHORT);
+                    publish(syncFail);
+                    DebugLog.d("response uploadStatus = null");
                 }
             } else {
-                MyApplication.getInstance().toast("Connection Timeout. Check your internet connection!", Toast.LENGTH_SHORT);
-                publish(syncFail);
-                DebugLog.d("response uploadStatus = null");
-            }
-            return null;
-        }
-
-        private boolean isSuccess(String response) {
-            if (response == null) {
-                return false;
-            } else
-                try {
-                    Gson gson = new Gson();
-                    BaseResponseModel responseModel = gson.fromJson(json, BaseResponseModel.class);
-                    if (responseModel.status != 201) {
-                        DebugLog.d("set false");
-                        return false;
-                    } else {
-                        DebugLog.d("set true");
-                        return true;
-                    }
-                } catch (Exception e) {
-                    return false;
+                if (getLatestStatus().equalsIgnoreCase(syncDone)) {
+                    MyApplication.getInstance().toast(syncDone + "\njumlah item berhasil upload = " + itemValueSuccessCount, Toast.LENGTH_LONG);
+                    publish(syncDone);
+                } else
+                if (getLatestStatus().equalsIgnoreCase(syncFail)) {
+                    MyApplication.getInstance().toast(messageFromServer, Toast.LENGTH_SHORT);
+                    MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
+                    publish(syncFail);
                 }
-            //return true;
+            }
+
+            return null;
         }
 
         private ArrayList<NameValuePair> getParams(ItemValueModel itemValue) {
@@ -303,9 +285,6 @@ public class ItemUploadManager {
             if (itemValue.remark != null)
                 params.add(new BasicNameValuePair("remark", itemValue.remark));
 
-//            if (itemValue.material_request != null)
-//                params.add(new BasicNameValuePair("material_request", itemValue.material_request));
-
             if (itemValue.latitude != null && !itemValue.latitude.equalsIgnoreCase("0"))
                 params.add(new BasicNameValuePair("latitude", itemValue.latitude));
             if (itemValue.longitude != null && !itemValue.longitude.equalsIgnoreCase("0"))
@@ -317,6 +296,8 @@ public class ItemUploadManager {
 
         private String uploadPhoto(ItemValueModel itemValue) {
             try {
+                DebugLog.d("===== START UPLOADING PHOTO === \n");
+                DebugLog.d("** set params ** ");
                 HttpParams httpParameters = new BasicHttpParams();
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
@@ -336,15 +317,16 @@ public class ItemUploadManager {
                 }
 
                 MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-
-                ByteArrayOutputStream bos;
-                Bitmap bm;
-                byte[] dataFile;
-                ByteArrayBody bab;
                 ArrayList<NameValuePair> params = getParams(itemValue);
                 if (null != itemValue.value && null != itemValue.photoStatus) {
-                    params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
-                    DebugLog.d("createdAt" + itemValue.createdAt);
+                    if (itemValue.photoDate == null) {
+                        params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
+                        DebugLog.d("photo_datetime : " + itemValue.createdAt);
+                    }
+                    else {
+                        params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.photoDate)));
+                        DebugLog.d("photo_datetime : " + itemValue.photoDate);
+                    }
                     reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
                 }
 
@@ -352,18 +334,12 @@ public class ItemUploadManager {
                     DebugLog.d(params.get(i).getName() + " || " + params.get(i).getValue());
                     reqEntity.addPart(params.get(i).getName(), new StringBody(params.get(i).getValue()));
                 }
-
-
-                bm = null;
-                bos = null;
-                dataFile = null;
-                bab = null;
                 System.gc();
 
-                InputStream data = null;
+                InputStream data;
                 HttpResponse response;
                 request.setEntity(reqEntity);
-                DebugLog.d("execute request .... ");
+                DebugLog.d("\n\n** execute request ** ");
                 response = client.execute(request);
 
                 Header cookie = response.getFirstHeader("Set-Cookie");
@@ -372,6 +348,7 @@ public class ItemUploadManager {
                 }
 
                 data = response.getEntity().getContent();
+                DebugLog.d("** response ** ");
                 DebugLog.d("response string data : " + data);
                 statusCode = response.getStatusLine().getStatusCode();
                 DebugLog.d("response string status code : " + statusCode);
@@ -386,7 +363,7 @@ public class ItemUploadManager {
                         return null;
                     }
                 }
-                DebugLog.d("########################################################");
+                DebugLog.d("====== END OF UPLOAD PHOTO ===== \n\n");
                 return s;
             } catch (SocketTimeoutException e) {
                 errMsg = e.getMessage();
@@ -482,6 +459,8 @@ public class ItemUploadManager {
         }
 
         private String uploadStatus(String schedule_id, String messageToServer) {
+            DebugLog.d("===== START UPLOADING STATUS === \n");
+            DebugLog.d("** set params ** ");
             String responseStringData = null;
             try {
                 //Request Part
@@ -501,18 +480,24 @@ public class ItemUploadManager {
                 LinkedList<NameValuePair> params = getParamUploadStatus(schedule_id, messageToServer);
                 request.setEntity(new UrlEncodedFormEntity(params));
 
-                //Response Part
+
+                //Execution Part
+                DebugLog.d("\n\n** execute request ** ");
                 InputStream data;
                 HttpResponse response;
                 response = client.execute(request);
+
+
+                //Response Part
+                DebugLog.d("** response ** ");
                 data = response.getEntity().getContent();
                 int statusCode = response.getStatusLine().getStatusCode();
-                String contentType = response.getEntity().getContentType().getValue();
                 responseStringData = ConvertInputStreamToString(data);
                 DebugLog.d("schedule_id : " + schedule_id);
                 DebugLog.d("messageToServer : " + messageToServer);
                 DebugLog.d("response status code : " + statusCode);
                 DebugLog.d("response string data : " + responseStringData);
+                DebugLog.d("====== END OF UPLOAD STATUS ===== \n\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -562,8 +547,5 @@ public class ItemUploadManager {
         return mpref.getString(context.getString(R.string.user_authToken), "");
     }
 
-    private void stop() {
-
-    }
 
 }

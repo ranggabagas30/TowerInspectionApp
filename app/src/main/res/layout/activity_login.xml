@@ -30,7 +30,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@id/copy"
-            android:text="change url" />
+            android:text="change url"
+            android:visibility="invisible"/>
 
         <EditText
             android:id="@+id/endPoint"
@@ -38,7 +39,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/copy"
-            android:layout_toLeftOf="@id/change" />
+            android:layout_toLeftOf="@id/change"
+            android:visibility="invisible"/>
     </RelativeLayout>
 
     <!-- android:background="@color/theme_color" > -->

@@ -39,6 +39,7 @@ public class ItemFormRenderModel extends BaseModel {
     public OperatorModel operator;
     public int operatorId;
     public int rowId;
+    public String workFormGroupName;
     public ArrayList<ItemFormRenderModel> children;
     public int type = TYPE_NONE;
     public boolean open = true;
@@ -81,8 +82,8 @@ public class ItemFormRenderModel extends BaseModel {
         this.schedule = schedule;
     }
 
-    public void setItemValue(ItemValueModel itemValue) {
-        this.itemValue = itemValue;
+    public void setWorkFormGroupName(String workFormGroupName) {
+        this.workFormGroupName = workFormGroupName;
     }
 
     public void addFilled() {
@@ -359,7 +360,9 @@ public class ItemFormRenderModel extends BaseModel {
         } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
             hasInput = true;
             child.type = TYPE_PICTURE_RADIO;
-            if (workItemModel.work_form_group_id == 3) {
+            DebugLog.d("fieldType : file");
+            DebugLog.d("workFormGroupName : " + workFormGroupName);
+            if (workFormGroupName.equalsIgnoreCase("Photograph")) {
                 child.workItemModel.mandatory = true;
                 child.workItemModel.save();
             }

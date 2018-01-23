@@ -72,15 +72,15 @@ public class LoginActivity extends BaseActivity {
 	AlertDialogManager alert = new AlertDialogManager();
 
 	private Button submit;
+	private Button copy;
 	private EditText username;
 	private EditText password;
 	private TextView version;
 	private CheckBox cbKeep;
-	public static final String SENDER_ID = "494949404342";
 	private LoginLogModel loginLogModel;
 
 	//camera properties
-	//	private CameraPreview preview;
+	//private CameraPreview preview;
 	private Button buttonClick;
 	private String fileName;
 
@@ -95,14 +95,14 @@ public class LoginActivity extends BaseActivity {
 	private View developmentLayout;
 	private Button change;
 	private EditText endpoint;
-	private LovelyStandardDialog gpsDialog;
 
 	// Progress dialog type (0 - for Horizontal progress bar)
-	public static final int progress_bar_type = 0; 
+	public static final int progress_bar_type = 0;
 
-	// File url to download
+	/** File url to download **/
 	private static String file_url = "http://api.androidhive.info/progressdialog/hive.jpg";
-	
+
+	/** Backup local SQLite Database **/
 	private void copyDB(String dbname,String dstName){
 	    try {
 	        File sd = Environment.getExternalStorageDirectory();
@@ -129,11 +129,11 @@ public class LoginActivity extends BaseActivity {
 	    } catch (Exception e) {
 			DebugLog.e(e.getMessage());
 			DebugLog.e(e.getCause().getMessage());
+
 			//string copy database gagal
 			Toast.makeText(activity, getString(R.string.copydatabasefailed), Toast.LENGTH_SHORT).show();
 	    }
 	}
-	
 	private void copyDB2(String dbname,String dstName){
 	    try {
 //	        File sd = Environment.getExternalStorageDirectory();
@@ -162,21 +162,9 @@ public class LoginActivity extends BaseActivity {
 	    }
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (!Utility.checkGpsStatus(this) && !Utility.checkNetworkStatus(this)) {
-			gpsDialog.show();
-		}
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		DebugLog.d("");
-		trackThisPage("Login");
-
-		gpsDialog = new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
+	/** Dialog for asking GPS permission to user **/
+	private LovelyStandardDialog gpsDialog() {
+		return new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
 				.setTopColor(color(R.color.theme_color))
 				.setButtonsColor(color(R.color.theme_color))
 				.setIcon(R.drawable.logo_app)
@@ -193,8 +181,16 @@ public class LoginActivity extends BaseActivity {
 						finish();
 					}
 				});
-		/*
-		if (!GlobalVar.getInstance().anyNetwork(this)){
+	}
+
+	/** checking any network is available or not **/
+	private boolean isNetworkAvailable() {
+		return GlobalVar.getInstance().anyNetwork(this);
+	}
+
+	/** Showing network permission dialog if network is not available **/
+	private void networkPermissionDialog() {
+		if (!isNetworkAvailable()){
 			new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
 					.setTopColor(color(R.color.theme_color))
 					.setButtonsColor(color(R.color.theme_color))
@@ -211,8 +207,11 @@ public class LoginActivity extends BaseActivity {
 					})
 					.show();
 			return;
-		}*/
+		}
+	}
 
+	/** Get login session from preference **/
+	private void getLoginSessionFromPreference() {
 		if (getPreference(R.string.keep_login,false) && !getPreference(R.string.user_authToken,"").isEmpty()) {
 			Intent intent = new Intent(this, jumto);
 			if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false))
@@ -221,25 +220,64 @@ public class LoginActivity extends BaseActivity {
 			finish();
 			return;
 		}
+	}
+
+	/** Get version, checking update, and triggering update if need update **/
+	private void getVersionCheckingUpdate() {
+		String version = null;
+		int versionCode = 0;
+		try {
+			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		CommonUtils.fixVersion(getApplicationContext());
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		update = (Button) findViewById(R.id.update);
+		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
+		DebugLog.d("pref version Name = " + getPreference(R.string.latest_version,""));
+		if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
+			update.setVisibility(View.GONE);
+		}else{
+			update.setVisibility(View.VISIBLE);
+		}
+	}
+
+	/** Ensure that Location GPS and Location Networkf had been enabled when app is resumed **/
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (!Utility.checkGpsStatus(this) && !Utility.checkNetworkStatus(this)) {
+			gpsDialog().show();
+		}
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_login);
+		DebugLog.d("");
+		trackThisPage("Login");
+
+		networkPermissionDialog();
+		getLoginSessionFromPreference();
 
 		progressDialog = new ProgressDialog(activity);
-		setContentView(R.layout.activity_login);
 		developmentLayout = findViewById(R.id.devLayout);
 		developmentLayout.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
-		
 		endpoint = (EditText) findViewById(R.id.endPoint);
 		endpoint.setText(AppConfig.getInstance().config.getHost());
 		change = (Button) findViewById(R.id.change);
 		change.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
 				AppConfig.getInstance().config.setHost(endpoint.getText().toString());
 			}
 		});
-		
-		Button copy = (Button) findViewById(	R.id.copy);
+		copy = (Button) findViewById(R.id.copy);
 		copy.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -263,7 +301,7 @@ public class LoginActivity extends BaseActivity {
 		version =  (TextView) findViewById(R.id.app_version);
 		version.setText(getVersionName());
 
-		DebugLog.d("tster" + getVersionName());
+		DebugLog.d("tester" + getVersionName());
 
 		cbKeep = (CheckBox)findViewById(R.id.cbkeep);
 		cbKeep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -272,34 +310,11 @@ public class LoginActivity extends BaseActivity {
 				DebugLog.d("checked="+b);
 			}
 		});
-		
+
 		if (getPreference(R.string.user_name, null) != null)
 			username.setText(getPreference(R.string.user_name, null));
-//		if (getPreference(R.string.password, null) != null)
-//			password.setText(getPreference(R.string.password, null).substring(0, getPreference(R.string.password, null).length() - 2));
 
-		//update things
-		String version = null;
-		int versionCode = 0;
-		try {
-			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-			versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		CommonUtils.fixVersion(getApplicationContext());
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//		file_url = prefs.getString(this.getString(R.string.url_update), "");
-		update = (Button) findViewById(R.id.update);
-		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
-		DebugLog.d("pref version Name = " + getPreference(R.string.latest_version,""));
-//		if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), ""))/* || prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase("")*/)){
-		if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
-			update.setVisibility(View.GONE);
-		}else{
-			update.setVisibility(View.VISIBLE);
-		}
+		getVersionCheckingUpdate();
 
 		tempFile= Environment.getExternalStorageDirectory();
 		tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(LoginActivity.this.getString(R.string.latest_version), "")+".apk");
@@ -309,17 +324,16 @@ public class LoginActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 
-				//Chek if the file already downloaded before
+				//Check if the file already downloaded before
 				trackEvent("user_update_apk");
 				if(!tempFile.exists()){
 					trackEvent("user_download_apk");
 					new DownloadFileFromURL().execute(file_url);
 				}
-
 				else{
 					trackEvent("user_install_apk");
 					Intent intent = new Intent(Intent.ACTION_VIEW)
-					.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
+							.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
 					intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
 				}
@@ -383,27 +397,22 @@ public class LoginActivity extends BaseActivity {
 			loginLogModel.time = simpleDateFormat.format(new Date());
 			loginLogModel.fileName = loginLogModel.time + " " + loginLogModel.userName;
 			setFileName(loginLogModel.fileName);
-			//			preview.camera.takePicture(shutterCallback, rawCallback,jpegCallback);
-
 			switch (v.getId()) {
 			case R.id.submit:
-				if (GlobalVar.getInstance().anyNetwork(activity)){
+				if (isNetworkAvailable()){
 					onlineLogin(userModel);
 					DebugLog.d("any network");
 				}else{
-					DebugLog.d("no network");
 					if (progressDialog != null && progressDialog.isShowing())
 						progressDialog.dismiss();
 					Toast.makeText(activity, R.string.network_connection_problem, Toast.LENGTH_SHORT).show();
-//					checkLoginState(offlineLogin(userModel.username, userModel.password));
+					DebugLog.d("no network");
 				}
 				break;
 
 			default:
 				break;
 			}
-
-//			throw new RuntimeException("This is a test crash");
 		}
 	};
 
@@ -426,9 +435,6 @@ public class LoginActivity extends BaseActivity {
 				String root = Environment.getExternalStorageDirectory().toString();
 				outStream = new FileOutputStream(String.format(
 						root+"/%s.jpg", fileName));
-
-				//				outStream.write(data);
-				//				outStream.close();
 
 				Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
 				bitmap.compress(CompressFormat.JPEG, 75, outStream);
@@ -554,8 +560,6 @@ public class LoginActivity extends BaseActivity {
 		}
 	}
 
-	Handler handler2 = new Handler();
-
 	/**
 	 * Background Async Task to download file
 	 * */
@@ -568,10 +572,6 @@ public class LoginActivity extends BaseActivity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-//			ProgressDialog progressDialog = new ProgressDialog(activity);
-//			progressDialog.
-//			showDialog(progress_bar_type);
-			//
 			pDialog = new ProgressDialog(activity, ProgressDialog.STYLE_SPINNER);
 			pDialog.show();
 		}
@@ -586,6 +586,7 @@ public class LoginActivity extends BaseActivity {
 				URL url = new URL(f_url[0]);
 				URLConnection conection = url.openConnection();
 				conection.connect();
+
 				// this will be useful so that you can show a tipical 0-100% progress bar
 				int lenghtOfFile = conection.getContentLength();
 

@@ -28,8 +28,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	private SlidingLayer mSlidingLayer;
 	public static final int REQUEST_CODE = 100;
 	private RowModel rowModel = null;
-	private String workFormGroupId="1";
-	private WorkTypeModel workTypeModel;
 	private WorkFormModel workFormModel;
 	private Vector<WorkFormGroupModel> workFormGroupModels;
 	private String dayDate;
@@ -92,26 +90,20 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		rowModel.children = new Vector<RowModel>();
 		for (WorkFormGroupModel model : workFormGroupModels) {
 			DebugLog.d("===================================4 form group model max level : "+model.id+" | "+model.name);
-//			rowModel.children.addAll(rowModel.getAllItemByWorkFormGroupId(model.id));
 			RowModel groupRow = new RowModel();
+			groupRow.work_form_group_id = model.id;
 			groupRow.children = rowModel.getAllItemByWorkFormGroupId(model.id);
 			groupRow.text = model.name;
 			groupRow.level = 0;
 			rowModel.children.add(groupRow);
 		}
-		
-//		rowModel.children.add(generateOthersModel());
-		DbRepository.getInstance().close();
-//		for (RowModel model : rowModel.getModels()) {
-//			log("========= "+model.level+" | "+model.id+" | "+model.ancestry);
-//		}
 
+		DbRepository.getInstance().close();
 		dialog.dismiss();
 
 		navigationFragment.setFormActivityListener(this);
 		navigationFragment.setSchedule(scheduleBaseModels);
 		navigationFragment.setNavigationModel(rowModel);
-		navigationFragment.setWorkFormGroupId(workFormGroupId);
 		navigateToFragment(navigationFragment, R.id.fragment_behind);
 		trackThisPage("Form");
 	}

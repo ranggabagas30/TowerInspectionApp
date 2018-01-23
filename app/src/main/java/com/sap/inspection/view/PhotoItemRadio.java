@@ -259,7 +259,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (!DbRepositoryValue.getInstance().getDB().isOpen())
 			DbRepositoryValue.getInstance().open(context);
 		setItemFormRenderedValue();
-		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
+		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value+ " | " +value.createdAt);
 		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
 			DebugLog.d("scopeType : operator");
 			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
@@ -429,7 +429,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	public void setPhotoDate() {
-		value.createdAt = DateTools.getCurrentDate();
+		value.photoDate = value.createdAt = DateTools.getCurrentDate();
 	}
 	public void setUploadstatus(String uploadstatus) {
 		this.uploadstatus.setText(uploadstatus);

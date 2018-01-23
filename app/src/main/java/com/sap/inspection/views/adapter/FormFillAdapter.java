@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.github.aakira.expandablelayout.Utils;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.OperatorModel;
@@ -48,6 +49,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 	private ArrayList<ItemFormRenderModel> shown;
 	private String scheduleId;
 	private String workType;
+	private String workFormGroupName;
 	private int workFormGroupId;
 	private OnClickListener photoListener;
     private OnClickListener uploadListener;
@@ -67,6 +69,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 	public void setWorkFormGroupId(int workFormGroupId) {
 		this.workFormGroupId = workFormGroupId;
 	}
+
+	public void setWorkFormGroupName(String workFormGroupName) {
+		this.workFormGroupName = workFormGroupName;
+	}
+
 	public void setSavingRule(SavingRule savingRule) {
 		this.savingRule = savingRule;
 	}
@@ -306,7 +313,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 			case ItemFormRenderModel.TYPE_HEADER:
 				DebugLog.d("TYPE HEADER");
-				if (workFormGroupId == 3 && workType.equalsIgnoreCase("PREVENTIVE")) {
+				DebugLog.d("workFormGroupId = " + workFormGroupId);
+                DebugLog.d("workFormGroupName = " + workFormGroupName);
+				DebugLog.d("workType = " + workType);
+				if (workFormGroupName.equalsIgnoreCase("Photograph") && BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
 					DebugLog.d("Parent label : " + getItem(position).label);
 					holder.upload_status.setVisibility(View.VISIBLE);
 					int i = 0;

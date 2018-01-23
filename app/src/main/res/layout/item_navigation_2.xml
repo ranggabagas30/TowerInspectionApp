@@ -34,6 +34,17 @@
         android:paddingLeft="@dimen/padding_large"
         android:text="Load Picture" />
 
+    <com.sap.inspection.view.ImageViewForList
+        android:id="@+id/workformgroup_upload"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/padding_small"
+        android:src="@drawable/ic_upload"
+        android:visibility="gone"/>
+
     <View
         android:layout_width="1dp"
         android:layout_height="@dimen/action_bar"

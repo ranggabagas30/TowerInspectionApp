@@ -439,7 +439,7 @@ public class MainActivity extends BaseActivity{
 				DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
 				DebugLog.d("check version value from web: "+formVersion);
 				if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
-					progressDialog.setMessage("Medapatkan form baru dari server");
+					progressDialog.setMessage("Mendapatkan form baru dari server");
 					APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
 				}else{
 					//perubahan string

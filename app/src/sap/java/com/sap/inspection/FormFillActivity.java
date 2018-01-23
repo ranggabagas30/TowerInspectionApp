@@ -88,6 +88,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private RowModel rowModel;
 	private ArrayList<ColumnModel> column;
 	private int workFormGroupId;
+    private String scheduleId;
+    private String workFormGroupName;
 	private int rowId;
 	private ScheduleBaseModel schedule;
 	private ItemValueModel itemValueForShare;
@@ -140,41 +142,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				.addConnectionCallbacks(connectionCallbacks)
 				.addOnConnectionFailedListener(onConnectionFailedListener)
 				.build();
-		/*
-		locationListener = new LocationListener() {
 
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onProviderEnabled(String provider) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onProviderDisabled(String provider) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onLocationChanged(Location location) {
-				// TODO Update the Latitude and Longitude of the location
-				accuracy = initiateLocation();
-				setCurrentGeoPoint(new LatLng(location.getLatitude(), location.getLongitude()));
-			}
-		};
-//
-		locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-//		locationManager.removeUpdates(locationListener);
-		//dummygeopoint
-//		currentGeoPoint = new GeoPoint(0, 0);
-		// initiate the location using GPS
-		setCurrentGeoPoint(new LatLng(0, 0));
-		accuracy = initiateLocation();
-		DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
-		*/
 		setCurrentGeoPoint(new LatLng(0, 0));
 		setContentView(R.layout.activity_form_fill);
 
@@ -190,17 +158,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		Bundle bundle = getIntent().getExtras();
 		rowId = bundle.getInt("rowId");
 		workFormGroupId = bundle.getInt("workFormGroupId");
+        workFormGroupName = bundle.getString("workFormGroupName");
+        scheduleId = bundle.getString("scheduleId");
 
 		DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);
-
-		String scheduleId = bundle.getString("scheduleId");
-
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+scheduleId);
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(scheduleId);
 		adapter.setWorkType(schedule.work_type.name);
 		adapter.setWorkFormGroupId(workFormGroupId);
+		DebugLog.d("workFormGroupName : " + workFormGroupName);
+        adapter.setWorkFormGroupName(workFormGroupName);
 		scroll = (ScrollView) findViewById(R.id.scroll);
 		search = (AutoCompleteTextView) findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);
@@ -485,13 +454,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				//item is disable
 				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
 			}
-			else if (itemFormRenderModel.itemValue!=null) {
+			else if (itemFormRenderModel.itemValue!=null && itemFormRenderModel.itemValue.value!=null) {
 				DebugLog.d("itemId=" + itemFormRenderModel.itemValue.itemId+" pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
 						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
 						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);
-				//String progress upload
-				Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_LONG).show();
 			} else {
 				Toast.makeText(activity, "Tidak ada foto", Toast.LENGTH_LONG).show();
 			}
@@ -769,6 +736,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
 				form.setColumn(column);
+                form.setWorkFormGroupName(workFormGroupName);
 				form.setRowColumnModels(model.row_columns,parentLabel);
 				if (form.hasInput){
 					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
@@ -928,7 +896,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					DebugLog.d("scheduleId=" + item.itemValue.scheduleId);
 					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
 
-						if (item.workItemModel.work_form_group_id == 3 && item.type == 2) {
+                        DebugLog.d("workFormGroupName : " + workFormGroupName);
+						if (workFormGroupName.equalsIgnoreCase("Photograph") && item.type == 2) {
 							DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
 							DebugLog.d("remark : " + item.itemValue.remark);
 							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
@@ -950,7 +919,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 				}
 
-				if (list.contains(item.type) && item.workItemModel.work_form_group_id != 3) {
+				if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
 					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
 						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
 							Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();

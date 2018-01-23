@@ -3,6 +3,7 @@ package com.sap.inspection.model.value;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Debug;
 import android.os.Parcel;
@@ -40,13 +41,13 @@ public class ItemValueModel extends BaseModel {
 	public int operatorId;
 	public int itemId;
 	public int siteId;
+	public int work_form_group_id;
+	public String photoDate;
 	public String createdAt;
 	public String value;
-	public String picture_updated_at;
 	public int rowId;
 	public int gpsAccuracy;
 	public String remark;
-//	public String material_request;
 	public String latitude;
 	public String longitude;
 	public String photoStatus;
@@ -155,15 +156,6 @@ public class ItemValueModel extends BaseModel {
 
 	public ItemValueModel getItemValue(int itemId, int operatorId, String userName) {
 		ItemValueModel model = null;
-//		String table = DbManagerValue.mFormValue;
-//		String[] columns = null;
-//		String where =DbManagerValue.colItemId+"=? AND "+DbManagerValue.colOperatorId+"=?";
-//		String[] args = new String[]{scheduleId,String.valueOf(itemId),String.valueOf(operatorId)};
-//		String order = DbManagerValue.colWorkTypeId+" ASC";
-//		Cursor cursor;
-//
-//		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
-
 		DbRepositoryValue.getInstance().getDB().execSQL("attach database "+userName+"_"+DbManager.dbName+" as general");
 
 		String query = "SELECT * FROM " + DbManagerValue.mFormValue + " t1 INNER JOIN general." + DbManager.mSchedule + " t2 ON t1." + DbManagerValue.colScheduleId + "=t2." + DbManager.colID +" ORDER BY t2." + DbManager.colWorkDate + " DESC";
@@ -301,14 +293,54 @@ public class ItemValueModel extends BaseModel {
 	}
 
 	public void save(String scheduleId, String photoStatus){
-		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-				DbManagerValue.mFormValue , DbManagerValue.colScheduleId,
-				DbManagerValue.colItemId,DbManagerValue.colValue,
-				DbManagerValue.colIsPhoto,DbManagerValue.colOperatorId,
-				DbManagerValue.colRowId, DbManagerValue.colRemark,
-				DbManagerValue.colLatitude, DbManagerValue.colLongitude,
-				DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
-				DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt);
+
+		String sql = null;
+		switch (DbManagerValue.schema_version) {
+			case 1 : {
+				break;
+			}
+			case 2 : {
+				break;
+			}
+			case 3 : {
+				break;
+			}
+			case 4 : {
+				break;
+			}
+			case 5 : {
+				break;
+			}
+			case 6 : {
+				break;
+			}
+			case 7 : {
+				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+						DbManagerValue.mFormValue , DbManagerValue.colScheduleId,
+						DbManagerValue.colItemId,DbManagerValue.colValue,
+						DbManagerValue.colIsPhoto,DbManagerValue.colOperatorId,
+						DbManagerValue.colRowId, DbManagerValue.colRemark,
+						DbManagerValue.colLatitude, DbManagerValue.colLongitude,
+						DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
+						DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt);
+				break;
+			}
+			case 8 : {
+				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+						DbManagerValue.mFormValue , DbManagerValue.colScheduleId,
+						DbManagerValue.colItemId,DbManagerValue.colValue,
+						DbManagerValue.colIsPhoto,DbManagerValue.colOperatorId,
+						DbManagerValue.colRowId, DbManagerValue.colRemark,
+						DbManagerValue.colLatitude, DbManagerValue.colLongitude,
+						DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
+						DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt,
+						DbManagerValue.colPhotoDate);
+
+				break;
+			}
+			default:
+				break;
+		}
 
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
@@ -324,11 +356,42 @@ public class ItemValueModel extends BaseModel {
 		bindAndCheckNullString(stmt, 10, photoStatus);
 		stmt.bindLong(11, gpsAccuracy);
 		stmt.bindLong(12, uploadStatus);
-
 		bindAndCheckNullString(stmt, 13, getCurrentDate());
 
+		if (DbManagerValue.schema_version == 8)
+			bindAndCheckNullString(stmt, 14, photoDate);
 		stmt.executeInsert();
 		stmt.close();
+	}
+
+	private boolean isColumnExist(String colName) {
+		boolean isExist = false;
+		Cursor res = null;
+		try {
+
+			res = DbRepositoryValue.getInstance().getDB().rawQuery("Select * from "+ DbManagerValue.mFormValue +" limit 1", null);
+
+			int colIndex = res.getColumnIndex(colName);
+			if (colIndex!=-1){
+				isExist = true;
+			}
+
+		} catch (Exception e) {
+		} finally {
+			try { if (res !=null){ res.close(); } } catch (Exception e1) {}
+		}
+		return isExist;
+	}
+
+	private void AddColumn(String colName, String colType) {
+		String sql = String.format("ALTER TABLE %s ADD COLUMN %s %s",
+				DbManagerValue.mFormValue, colName, colType);
+		try {
+			DbRepositoryValue.getInstance().getDB().execSQL(sql);
+		} catch (Exception e) {
+			e.printStackTrace();
+			DebugLog.d("error add columns");
+		}
 	}
 
 	private String getCurrentDate(){
@@ -345,39 +408,155 @@ public class ItemValueModel extends BaseModel {
 			return FormValueModel;
 
 		FormValueModel = new ItemValueModel();
-		FormValueModel.scheduleId = (c.getString(c.getColumnIndex(DbManagerValue.colScheduleId)));
-		FormValueModel.operatorId = (c.getInt(c.getColumnIndex(DbManagerValue.colOperatorId)));
-		FormValueModel.itemId = (c.getInt(c.getColumnIndex(DbManagerValue.colItemId)));
-		FormValueModel.rowId = (c.getInt(c.getColumnIndex(DbManagerValue.colRowId)));
-		FormValueModel.gpsAccuracy = (c.getInt(c.getColumnIndex(DbManagerValue.colGPSAccuracy)));
-		FormValueModel.remark = (c.getString(c.getColumnIndex(DbManagerValue.colRemark)));
-		FormValueModel.latitude = (c.getString(c.getColumnIndex(DbManagerValue.colLatitude)));
-		FormValueModel.longitude = (c.getString(c.getColumnIndex(DbManagerValue.colLongitude)));
-		FormValueModel.photoStatus = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoStatus)));
-		FormValueModel.value = (c.getString(c.getColumnIndex(DbManagerValue.colValue)));
-		FormValueModel.uploadStatus = (c.getInt(c.getColumnIndex(DbManagerValue.colUploadStatus)));
-		FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1 ? true : false;
-		FormValueModel.createdAt = (c.getString(c.getColumnIndex(DbManagerValue.colCreatedAt)));
+		switch (DbManagerValue.schema_version) {
+			case 1 : {
+				//continue 1 to 2
+			}
+			case 2 : {
+				//continue 2 to 3
+			}
+			case 3 : {
+				//continue 3 to 4
+			}
+			case 4 : {
+				//continue 4 to 5
+			}
+			case 5 : {
+				FormValueModel.scheduleId = (c.getString(c.getColumnIndex(DbManagerValue.colScheduleId)));
+				FormValueModel.operatorId = (c.getInt(c.getColumnIndex(DbManagerValue.colOperatorId)));
+				FormValueModel.itemId = (c.getInt(c.getColumnIndex(DbManagerValue.colItemId)));
+				FormValueModel.rowId = (c.getInt(c.getColumnIndex(DbManagerValue.colRowId)));
+				FormValueModel.gpsAccuracy = (c.getInt(c.getColumnIndex(DbManagerValue.colGPSAccuracy)));
+				FormValueModel.remark = (c.getString(c.getColumnIndex(DbManagerValue.colRemark)));
+				FormValueModel.latitude = (c.getString(c.getColumnIndex(DbManagerValue.colLatitude)));
+				FormValueModel.longitude = (c.getString(c.getColumnIndex(DbManagerValue.colLongitude)));
+				FormValueModel.photoStatus = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoStatus)));
+				FormValueModel.value = (c.getString(c.getColumnIndex(DbManagerValue.colValue)));
+				FormValueModel.uploadStatus = (c.getInt(c.getColumnIndex(DbManagerValue.colUploadStatus)));
+				FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1;
+				break;
+			}
+			case 6 : {
+				//continue 6 to 7
+			}
+			case 7 : {
+				FormValueModel.scheduleId = (c.getString(c.getColumnIndex(DbManagerValue.colScheduleId)));
+				FormValueModel.operatorId = (c.getInt(c.getColumnIndex(DbManagerValue.colOperatorId)));
+				FormValueModel.itemId = (c.getInt(c.getColumnIndex(DbManagerValue.colItemId)));
+				FormValueModel.rowId = (c.getInt(c.getColumnIndex(DbManagerValue.colRowId)));
+				FormValueModel.gpsAccuracy = (c.getInt(c.getColumnIndex(DbManagerValue.colGPSAccuracy)));
+				FormValueModel.remark = (c.getString(c.getColumnIndex(DbManagerValue.colRemark)));
+				FormValueModel.latitude = (c.getString(c.getColumnIndex(DbManagerValue.colLatitude)));
+				FormValueModel.longitude = (c.getString(c.getColumnIndex(DbManagerValue.colLongitude)));
+				FormValueModel.photoStatus = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoStatus)));
+				FormValueModel.value = (c.getString(c.getColumnIndex(DbManagerValue.colValue)));
+				FormValueModel.uploadStatus = (c.getInt(c.getColumnIndex(DbManagerValue.colUploadStatus)));
+				FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1;
+				FormValueModel.createdAt = (c.getString(c.getColumnIndex(DbManagerValue.colCreatedAt)));
+				break;
+			}
+			case 8 : {
+				FormValueModel.scheduleId = (c.getString(c.getColumnIndex(DbManagerValue.colScheduleId)));
+				FormValueModel.operatorId = (c.getInt(c.getColumnIndex(DbManagerValue.colOperatorId)));
+				FormValueModel.itemId = (c.getInt(c.getColumnIndex(DbManagerValue.colItemId)));
+				FormValueModel.rowId = (c.getInt(c.getColumnIndex(DbManagerValue.colRowId)));
+				FormValueModel.gpsAccuracy = (c.getInt(c.getColumnIndex(DbManagerValue.colGPSAccuracy)));
+				FormValueModel.remark = (c.getString(c.getColumnIndex(DbManagerValue.colRemark)));
+				FormValueModel.latitude = (c.getString(c.getColumnIndex(DbManagerValue.colLatitude)));
+				FormValueModel.longitude = (c.getString(c.getColumnIndex(DbManagerValue.colLongitude)));
+				FormValueModel.photoStatus = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoStatus)));
+				FormValueModel.value = (c.getString(c.getColumnIndex(DbManagerValue.colValue)));
+				FormValueModel.uploadStatus = (c.getInt(c.getColumnIndex(DbManagerValue.colUploadStatus)));
+				FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1;
+				FormValueModel.createdAt = (c.getString(c.getColumnIndex(DbManagerValue.colCreatedAt)));
+				FormValueModel.photoDate = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoDate)));
+				break;
+			}
+			default:
+				break;
+		}
 		return FormValueModel;
 	}
 
 	public static String createDB(){
-		return "create table if not exists " + DbManagerValue.mFormValue
-				+ " ("+ DbManagerValue.colScheduleId + " integer, "
-				+ DbManagerValue.colOperatorId + " integer, "
-				+ DbManagerValue.colItemId + " integer, "
-				+ DbManagerValue.colSiteId + " integer, "
-				+ DbManagerValue.colGPSAccuracy + " integer, "
-				+ DbManagerValue.colRowId + " integer, "
-				+ DbManagerValue.colRemark + " varchar, "
-				+ DbManagerValue.colPhotoStatus + " varchar, "
-				+ DbManagerValue.colLatitude + " varchar, "
-				+ DbManagerValue.colLongitude + " varchar, "
-				+ DbManagerValue.colValue + " varchar, "
-				+ DbManagerValue.colUploadStatus + " integer, "
-				+ DbManagerValue.colIsPhoto + " integer, "
-				+ DbManagerValue.colCreatedAt + " varchar, "
-				+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
+		String createTable = null;
+		switch (DbManagerValue.schema_version) {
+			case 1 : {
+				//continue 1 to 2
+			}
+			case 2 : {
+				//continue 2 to 3
+			}
+			case 3 : {
+				//continue 3 to 4
+			}
+			case 4 : {
+				//continue 4 to 5
+			}
+			case 5 : {
+				createTable =  "create table if not exists " + DbManagerValue.mFormValue
+								+ " ("+ DbManagerValue.colScheduleId + " integer, "
+								+ DbManagerValue.colOperatorId + " integer, "
+								+ DbManagerValue.colItemId + " integer, "
+								+ DbManagerValue.colSiteId + " integer, "
+								+ DbManagerValue.colGPSAccuracy + " integer, "
+								+ DbManagerValue.colRowId + " integer, "
+								+ DbManagerValue.colRemark + " varchar, "
+								+ DbManagerValue.colPhotoStatus + " varchar, "
+								+ DbManagerValue.colLatitude + " varchar, "
+								+ DbManagerValue.colLongitude + " varchar, "
+								+ DbManagerValue.colValue + " varchar, "
+								+ DbManagerValue.colUploadStatus + " integer, "
+								+ DbManagerValue.colIsPhoto + " integer, "
+								+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
+				break;
+			}
+			case 6 : {
+				//continue 6 to 7
+			}
+			case 7 : {
+				createTable =  "create table if not exists " + DbManagerValue.mFormValue
+								+ " ("+ DbManagerValue.colScheduleId + " integer, "
+								+ DbManagerValue.colOperatorId + " integer, "
+								+ DbManagerValue.colItemId + " integer, "
+								+ DbManagerValue.colSiteId + " integer, "
+								+ DbManagerValue.colGPSAccuracy + " integer, "
+								+ DbManagerValue.colRowId + " integer, "
+								+ DbManagerValue.colRemark + " varchar, "
+								+ DbManagerValue.colPhotoStatus + " varchar, "
+								+ DbManagerValue.colLatitude + " varchar, "
+								+ DbManagerValue.colLongitude + " varchar, "
+								+ DbManagerValue.colValue + " varchar, "
+								+ DbManagerValue.colUploadStatus + " integer, "
+								+ DbManagerValue.colIsPhoto + " integer, "
+								+ DbManagerValue.colCreatedAt + " varchar, "
+								+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
+				break;
+			}
+			case 8 : {
+				createTable =  "create table if not exists " + DbManagerValue.mFormValue
+								+ " ("+ DbManagerValue.colScheduleId + " integer, "
+								+ DbManagerValue.colOperatorId + " integer, "
+								+ DbManagerValue.colItemId + " integer, "
+								+ DbManagerValue.colSiteId + " integer, "
+								+ DbManagerValue.colGPSAccuracy + " integer, "
+								+ DbManagerValue.colRowId + " integer, "
+								+ DbManagerValue.colRemark + " varchar, "
+								+ DbManagerValue.colPhotoStatus + " varchar, "
+								+ DbManagerValue.colLatitude + " varchar, "
+								+ DbManagerValue.colLongitude + " varchar, "
+								+ DbManagerValue.colValue + " varchar, "
+								+ DbManagerValue.colUploadStatus + " integer, "
+								+ DbManagerValue.colIsPhoto + " integer, "
+								+ DbManagerValue.colCreatedAt + " varchar, "
+								+ DbManagerValue.colPhotoDate + "varchar,"
+								+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
+				break;
+			}
+			default:
+				break;
+		}
+		return createTable;
 	}
 
 	public static void resetAllUploadStatus(){

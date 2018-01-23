@@ -20,7 +20,6 @@ public class NavigationFragment extends BaseFragment{
 	private ListView list;
 	private View back, mainmenu;
 	private TextView title, subTitle;
-	private String workFormGroupId;
 	private RowModel navigationModel;
 	private ScheduleBaseModel schedule;
 	
@@ -44,7 +43,6 @@ public class NavigationFragment extends BaseFragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_navigation, null);
-//		this.adapter.setWorkFormGroupId(workFormGroupId);
 		list = (ListView) root.findViewById(R.id.list);
 		title = (TextView) root.findViewById(R.id.header_title);
 		title.setText(schedule.site.name);
@@ -78,10 +76,6 @@ public class NavigationFragment extends BaseFragment{
 	
 	public void setNavigationModel(RowModel navigationModel) {
 		this.navigationModel = navigationModel;
-	}
-	
-	public void setWorkFormGroupId(String workFormGroupId) {
-		this.workFormGroupId = workFormGroupId;
 	}
 	
 }
