@@ -23,15 +23,15 @@ android {
         versionName "1.4"
     }
 
-    /*signingConfigs {
+    signingConfigs {
 
         release {
-            storeFile file('android.keystore')
-            storePassword "pwd"
-            keyAlias "alias"
-            keyPassword "pwd"
+            storeFile file('release.keystore.jks')
+            storePassword "domikado"
+            keyAlias "saptower"
+            keyPassword "saptower"
         }
-    }*/
+    }
 
     lintOptions {
         checkReleaseBuilds false
@@ -40,7 +40,7 @@ android {
 
     buildTypes {
         release {
-            //signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

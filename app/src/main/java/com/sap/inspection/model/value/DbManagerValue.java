@@ -75,7 +75,8 @@ public class DbManagerValue extends SQLiteOpenHelper {
 
 	@Override
 	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		for (int i=oldVersion; i>newVersion; i++) {
+		for (int i=oldVersion; i>newVersion; i--) {
+			DebugLog.d("i : " + i);
 			PATCHES[i-1].revert(db);
 		}
 	}
@@ -147,6 +148,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colCreatedAt + " TEXT");
 				}
 				public void revert(SQLiteDatabase db) {
+					DebugLog.d("revert patch to 5");
 					db.execSQL("ALTER TABLE "+mFormValue+" DROP COLUMN "+colCreatedAt+" TEXT");
 				}
 			},
@@ -156,6 +158,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colDisable + " INTEGER DEFAULT 0");
 				}
 				public void revert(SQLiteDatabase db) {
+					DebugLog.d("revert patch to 6");
 					db.execSQL("ALTER TABLE "+mFormValue+" DROP COLUMN "+colDisable+" INTEGER DEFAULT 0");
 				}
 			},
@@ -165,6 +168,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colPhotoDate + " VARCHAR");
 				}
 				public void revert(SQLiteDatabase db) {
+					DebugLog.d("revert patch to 7");
 					db.execSQL("ALTER TABLE " + mFormValue + " RENAME TO " + mFormValue +"temp");
 					onCreate(db);
 					db.execSQL("INSERT INTO " + mFormValue + " SELECT "

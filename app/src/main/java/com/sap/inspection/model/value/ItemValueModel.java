@@ -549,7 +549,7 @@ public class ItemValueModel extends BaseModel {
 								+ DbManagerValue.colUploadStatus + " integer, "
 								+ DbManagerValue.colIsPhoto + " integer, "
 								+ DbManagerValue.colCreatedAt + " varchar, "
-								+ DbManagerValue.colPhotoDate + "varchar,"
+								+ DbManagerValue.colPhotoDate + " varchar,"
 								+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
 				break;
 			}

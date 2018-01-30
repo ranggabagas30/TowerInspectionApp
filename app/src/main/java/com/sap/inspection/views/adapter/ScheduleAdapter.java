@@ -174,7 +174,11 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				DbRepositoryValue.getInstance().open(context);
 				ItemValueModel itemValueModel = new ItemValueModel();
 				ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(id);
-				ItemUploadManager.getInstance().addItemValues(itemValueModels);
+				if (itemValueModels.size() != 0) {
+					ItemUploadManager.getInstance().addItemValues(itemValueModels);
+				} else {
+					MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+				}
 				DbRepositoryValue.getInstance().close();
 			}
         }

@@ -18,6 +18,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
@@ -78,6 +79,8 @@ public class JSONConnectionPOSTMultiPart extends AsyncTask<Void, Void, String>{
 	protected String doInBackground(Void... arg0) {
 		try {
 			HttpParams httpParameters = new BasicHttpParams();
+
+
 			// Set the timeout in milliseconds until a connection is established.
 			// The default value is zero, that means the timeout is not used. 
 			int timeoutConnection = 3000;

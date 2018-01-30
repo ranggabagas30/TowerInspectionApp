@@ -19,6 +19,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -74,15 +75,15 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 		try {
 			DebugLog.d("=============== post do BG");
 			HttpParams httpParameters = new BasicHttpParams();
+
+
 			// Set the timeout in milliseconds until a connection is established.
-			// The default value is zero, that means the timeout is not used. 
-//			int timeoutConnection = 3000;
-			int timeoutConnection = 120000;
+			// The default value is zero, that means the timeout is not used.
+			int timeoutConnection = 3000;
 			HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
 			// Set the default socket timeout (SO_TIMEOUT) 
 			// in milliseconds which is the timeout for waiting for data.
-//			int timeoutSocket = 5000;
-			int timeoutSocket = 120000;
+			int timeoutSocket = 5000;
 			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
 			client = new DefaultHttpClient(httpParameters);

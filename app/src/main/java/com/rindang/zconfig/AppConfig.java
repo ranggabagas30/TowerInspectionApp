@@ -1,15 +1,21 @@
 package com.rindang.zconfig;
 
+import com.sap.inspection.BuildConfig;
+
 public class AppConfig{
 
 	private static AppConfig instance;
 	public BaseConfig config;
 	
 	private AppConfig() {
-//        config = new WawanConfig();
-//		config = new ProdConfig();
-//		config = new ProdMobileConfig();
-		config = new DevConfig();
+//      config = new WawanConfig();
+// 		config = new ProdMobileConfig();
+
+		if (BuildConfig.DEBUG) {
+			config = new DevConfig();
+		} else {
+			config = new ProdConfig();
+		}
 	}
 
 	public static AppConfig getInstance(){

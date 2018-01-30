@@ -17,6 +17,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -54,21 +55,22 @@ public class JSONConnectionDelete extends AsyncTask<Void, Void, String>{
 	@Override
 	protected String doInBackground(Void... arg0) {
 		try {
-			HttpParams httpParams = new BasicHttpParams();
+			HttpParams httpParameters = new BasicHttpParams();
+
+
 			// Set the timeout in milliseconds until a connection is established.
 			// The default value is zero, that means the timeout is not used. 
 			int timeoutConnection = 3000;
-			HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
+			HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
 			// Set the default socket timeout (SO_TIMEOUT) 
 			// in milliseconds which is the timeout for waiting for data.
 			int timeoutSocket = 5000;
-			HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
+			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
-			HttpClient client = new DefaultHttpClient(httpParams);
+			HttpClient client = new DefaultHttpClient(httpParameters);
 			
 			request = new HttpDelete(url);
-			
-			HttpParams httpParameters = new BasicHttpParams();
+
 			for (int i = 0; i < params.size(); i++)
 				httpParameters.setParameter(params.get(i).getName(), params.get(i).getValue());
 			

@@ -10,17 +10,18 @@ public class DevConfig extends BaseConfig{
 
 	private final String SENDER_ID = "934425217631";
 	// rangga
-	protected String host = "http://operation-api.sekap.net";
+	protected String host = "http://192.168.120.165:9292"; // stagging
+
 	@Override
 	public String getHost() {
-		return host;
-		//return PrefUtil.getStringPref(R.string.url_endpoint, host);
+		//return host;
+		return PrefUtil.getStringPref(R.string.url_endpoint, host);
 	}
 
 	@Override
 	public void setHost(String host) {
-		//PrefUtil.putStringPref(R.string.url_endpoint, host);
-		this.host = host;
+		PrefUtil.putStringPref(R.string.url_endpoint, host);
+		//this.host = host;
 	}
 
 	@Override

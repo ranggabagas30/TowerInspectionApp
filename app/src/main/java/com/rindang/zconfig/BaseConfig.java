@@ -3,8 +3,8 @@ package com.rindang.zconfig;
 public abstract class BaseConfig {
 
 	//mengganti sementara ip dengan ip uji coba "http://192.168.120.170:9292   ---   http://mobile-api.sekap.net/"
-	protected String host = "http://operation-api.sekap.net"; // production
-	//protected String host = "http://192.168.120.165:9292"; // stagging
+	//protected String host = "http://operation-api.sekap.net"; // production
+	protected String host = "http://192.168.120.165:9292"; // stagging
 
 	private static BaseConfig getConstructor() {
 		return new DevConfig();

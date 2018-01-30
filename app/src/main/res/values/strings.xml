@@ -89,6 +89,7 @@
     <string name="uploadProses">Proses upload sedang berjalan, silahkan tunggu sampai proses selesai</string>
     <string name="masuk">Masuk</string>
     <string name="checkversionapplication">Memeriksa versi aplikasi</string>
+    <string name="tidakadaitem">Tidak ada item</string>
     <!--"There is new update for STP Mobile Application\nPlease update the aplication from setting"-->
     <string name="newUpdateSTPapplication">Pembaharuan STP Mobile Application\nSilahkan perbaharui dari menu pengaturan</string>
     <!--"Check application update failed\nPlease do relogin and have fast internet connection"-->
@@ -98,7 +99,6 @@
     <string name="newUpdateAvail">Update terbaru</string>
     <string name="noNewUpdateAvail">Tidak ada pembaharuan</string>
     <string name="pengaturan">Pengaturan</string>
-
     <!-- penambahan string rangga-->
     <!-- persistent site location string value-->
     <string name="keypersistentsitelocation">Persistent Site Location</string>

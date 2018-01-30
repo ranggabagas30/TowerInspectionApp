@@ -30,6 +30,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
@@ -299,13 +300,15 @@ public class ItemUploadManager {
                 DebugLog.d("===== START UPLOADING PHOTO === \n");
                 DebugLog.d("** set params ** ");
                 HttpParams httpParameters = new BasicHttpParams();
+
+
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
-                int timeoutConnection = 60000;
+                int timeoutConnection = 3000;
                 HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
                 // Set the default socket timeout (SO_TIMEOUT)
                 // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 60000;
+                int timeoutSocket = 5000;
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
@@ -368,6 +371,7 @@ public class ItemUploadManager {
             } catch (SocketTimeoutException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
+                MyApplication.getInstance().toast("Time out connection", Toast.LENGTH_SHORT);
             } catch (ClientProtocolException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
@@ -392,6 +396,8 @@ public class ItemUploadManager {
             try {
                 DebugLog.d("=============== post do BG");
                 HttpParams httpParameters = new BasicHttpParams();
+
+
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
                 int timeoutConnection = 3000;
@@ -465,13 +471,15 @@ public class ItemUploadManager {
             try {
                 //Request Part
                 HttpParams httpParameters = new BasicHttpParams();
+
+
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
-                int timeoutConnection = 60000;
+                int timeoutConnection = 3000;
                 HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
                 // Set the default socket timeout (SO_TIMEOUT)
                 // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 60000;
+                int timeoutSocket = 5000;
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
@@ -498,11 +506,22 @@ public class ItemUploadManager {
                 DebugLog.d("response status code : " + statusCode);
                 DebugLog.d("response string data : " + responseStringData);
                 DebugLog.d("====== END OF UPLOAD STATUS ===== \n\n");
-            } catch (IOException e) {
+            } catch (SocketTimeoutException e) {
+                errMsg = e.getMessage();
                 e.printStackTrace();
+                DebugLog.d("uploadStatus err " + errMsg);
+            } catch (ClientProtocolException e) {
+                errMsg = e.getMessage();
+                e.printStackTrace();
+                DebugLog.d("uploadStatus err ||||| " + errMsg);
+            } catch (IOException e) {
+                errMsg = e.getMessage();
+                e.printStackTrace();
+                DebugLog.d("uploadStatus err ||||| " + errMsg);
             }
             return responseStringData;
         }
+
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);

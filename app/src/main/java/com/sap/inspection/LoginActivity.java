@@ -134,6 +134,7 @@ public class LoginActivity extends BaseActivity {
 			Toast.makeText(activity, getString(R.string.copydatabasefailed), Toast.LENGTH_SHORT).show();
 	    }
 	}
+
 	private void copyDB2(String dbname,String dstName){
 	    try {
 //	        File sd = Environment.getExternalStorageDirectory();
@@ -267,25 +268,31 @@ public class LoginActivity extends BaseActivity {
 		progressDialog = new ProgressDialog(activity);
 		developmentLayout = findViewById(R.id.devLayout);
 		developmentLayout.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
-		endpoint = (EditText) findViewById(R.id.endPoint);
-		endpoint.setText(AppConfig.getInstance().config.getHost());
-		change = (Button) findViewById(R.id.change);
-		change.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
-				AppConfig.getInstance().config.setHost(endpoint.getText().toString());
-			}
-		});
-		copy = (Button) findViewById(R.id.copy);
-		copy.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				copyDB(getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
-				copyDB(getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
-			}
-		});
+
+		if (BuildConfig.DEBUG) {
+			endpoint = (EditText) findViewById(R.id.endPoint);
+			endpoint.setVisibility(View.VISIBLE);
+			endpoint.setText(AppConfig.getInstance().config.getHost());
+			change = (Button) findViewById(R.id.change);
+			change.setVisibility(View.VISIBLE);
+			change.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
+					AppConfig.getInstance().config.setHost(endpoint.getText().toString());
+				}
+			});
+			copy = (Button) findViewById(R.id.copy);
+			copy.setVisibility(View.VISIBLE);
+			copy.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					copyDB(getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
+					copyDB(getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
+				}
+			});
+		}
 
 		if (isJump){
 			Intent intent = new Intent(this, jumto);

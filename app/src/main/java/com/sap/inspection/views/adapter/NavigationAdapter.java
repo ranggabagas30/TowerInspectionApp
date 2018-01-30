@@ -213,10 +213,17 @@ public class NavigationAdapter extends MyBaseAdapter {
 							DebugLog.d("t1.operatorId : " + model.operatorId);
 							DebugLog.d("t1.itemId : " + model.itemId);
 							DebugLog.d("t1.remark : " + model.remark);
+							DebugLog.d("t1.value : "  + model.value);
 						}
 						DebugLog.d("\n\n");
 					}
-					ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
+
+					if (listItemUploadByWorkFormGroupId.size()!= 0) {
+						ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
+					} else {
+						MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+					}
+
 					DbRepositoryValue.getInstance().close();
 					DbRepository.getInstance().close();
 				} else {
