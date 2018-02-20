@@ -69,7 +69,6 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			DebugLog.d("GET JSON URL");
 			HttpParams httpParameters = new BasicHttpParams();
 
-
 			// Set the timeout in milliseconds until a connection is established.
 			// The default value is zero, that means the timeout is not used. 
 			int timeoutConnection = 3000;
