@@ -69,18 +69,24 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			DebugLog.d("GET JSON URL");
 			HttpParams httpParameters = new BasicHttpParams();
 
-			// Set the timeout in milliseconds until a connection is established.
+			/*// Set the timeout in milliseconds until a connection is established.
 			// The default value is zero, that means the timeout is not used. 
-			int timeoutConnection = 3000;
+			int timeoutConnection = 6000;
 			HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
 			// Set the default socket timeout (SO_TIMEOUT) 
 			// in milliseconds which is the timeout for waiting for data.
-			int timeoutSocket = 5000;
+			int timeoutSocket = 6000;
 			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-
+*/
 			client = new DefaultHttpClient(httpParameters);
-			request = new HttpGet(url);
-			
+			try {
+
+				request = new HttpGet(url);
+			} catch (Exception e) {
+				e.printStackTrace();
+				MyApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
+			}
+
 			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
 			DebugLog.d("cookie = "+mPref.getString(context.getString(R.string.user_cookie), ""));
 			if (mPref.getString(context.getString(R.string.user_cookie), null) != null){

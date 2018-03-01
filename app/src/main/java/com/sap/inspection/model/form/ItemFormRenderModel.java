@@ -4,6 +4,7 @@ import android.os.Debug;
 import android.os.Parcel;
 
 import com.google.gson.Gson;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -362,7 +363,7 @@ public class ItemFormRenderModel extends BaseModel {
             child.type = TYPE_PICTURE_RADIO;
             DebugLog.d("fieldType : file");
             DebugLog.d("workFormGroupName : " + workFormGroupName);
-            if (workFormGroupName.equalsIgnoreCase("Photograph")) {
+            if ("Photograph".equalsIgnoreCase(workFormGroupName) && BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
                 child.workItemModel.mandatory = true;
                 child.workItemModel.save();
             }

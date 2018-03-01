@@ -147,7 +147,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 			holder.title = (TextView) view.findViewById(R.id.title);
 			holder.title.setOnClickListener(ItemClickListener);
 
-			if (BuildConfig.FLAVOR.equalsIgnoreCase("sap") && getItemViewType(position) == 0){
+			if (getItemViewType(position) == 0){
 				holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
 			}
 

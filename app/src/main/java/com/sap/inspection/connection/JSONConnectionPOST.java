@@ -9,6 +9,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 
@@ -86,51 +87,63 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 			int timeoutSocket = 5000;
 			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
+			boolean isUrlOk = true;
 			client = new DefaultHttpClient(httpParameters);
-			request = new HttpPost(url);
+			try {
+				request = new HttpPost(url);
+			} catch (Exception e) {
+				isUrlOk = false;
+				e.printStackTrace();
+				MyApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
+			}
             DebugLog.d("POST "+url);
 
-			//penambahan irwan
+			if (isUrlOk) {
+
+				//penambahan irwan
 //			request.setHeader("Content-Type", BuildConfig.VERSION_NAME);
 //			request.setHeader("Content-Type", String.valueOf(Build.VERSION.SDK_INT));
-			request.setHeader("Content-Type", "application/x-www-form-urlencoded");
-			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
-			if (mPref.getString(context.getString(R.string.user_cookie), null) != null){
-				request.setHeader("Cookie", mPref.getString(context.getString(R.string.user_cookie), ""));
-			}
-			
-			UrlEncodedFormEntity entity = null;
-			entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
-			request.setEntity(entity);
+				request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+				SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
+				if (mPref.getString(context.getString(R.string.user_cookie), null) != null){
+					request.setHeader("Cookie", mPref.getString(context.getString(R.string.user_cookie), ""));
+				}
 
-			DebugLog.d("=============== before response");
-			response = client.execute(request);
-			
-			for (Header header : response.getAllHeaders()){
-				DebugLog.d(header.getName()+" ||| "+header.getValue());
-			}
-			
-			//pull cookie
-			Header cookie = response.getFirstHeader("Set-Cookie");
-			if (cookie != null){
-				mPref.edit().putString(context.getString(R.string.user_cookie), cookie.getValue()).commit();
-			}
-			
-			DebugLog.d("=============== after response");
-			data = response.getEntity().getContent();
-			DebugLog.d("=============== after get content");
-			statusCode = response.getStatusLine().getStatusCode();
-			DebugLog.d("content type name  : "+response.getEntity().getContentType().getName());
-			DebugLog.d("content type value : "+response.getEntity().getContentType().getValue());
-			if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
-				DebugLog.d("not json type");
-				DebugLog.d( ConvertInputStreamToString(data));
-				notJson = true;
+				UrlEncodedFormEntity entity = null;
+				entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+				request.setEntity(entity);
+
+				DebugLog.d("=============== before response");
+				response = client.execute(request);
+
+				for (Header header : response.getAllHeaders()){
+					DebugLog.d(header.getName()+" ||| "+header.getValue());
+				}
+
+				//pull cookie
+				Header cookie = response.getFirstHeader("Set-Cookie");
+				if (cookie != null){
+					mPref.edit().putString(context.getString(R.string.user_cookie), cookie.getValue()).commit();
+				}
+
+				DebugLog.d("=============== after response");
+				data = response.getEntity().getContent();
+				DebugLog.d("=============== after get content");
+				statusCode = response.getStatusLine().getStatusCode();
+				DebugLog.d("content type name  : "+response.getEntity().getContentType().getName());
+				DebugLog.d("content type value : "+response.getEntity().getContentType().getValue());
+				if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
+					DebugLog.d("not json type");
+					DebugLog.d( ConvertInputStreamToString(data));
+					notJson = true;
+					return null;
+				}
+				String s = ConvertInputStreamToString(data);
+				DebugLog.d("json /n"+s);
+				return s;
+			} else {
 				return null;
 			}
-			String s = ConvertInputStreamToString(data);
-			DebugLog.d("json /n"+s);
-			return s;
 		}catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();

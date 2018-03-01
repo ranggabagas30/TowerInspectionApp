@@ -9,7 +9,8 @@ public class ProdConfig extends BaseConfig{
 	
 	@Override
 	public String getHost() {
-		return "http://103.17.55.74";
+		//return "http://103.17.55.74";
+		return "http://pmt-api.domikado.com";
 	}
 
 	@Override

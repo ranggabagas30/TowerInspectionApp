@@ -23,12 +23,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.rindang.pushnotification.RegisterGCM;
 import com.rindang.zconfig.AppConfig;
+import com.rindang.zconfig.ProdConfig;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
@@ -71,6 +73,7 @@ public class LoginActivity extends BaseActivity {
 	ProgressDialog progressDialog;
 	AlertDialogManager alert = new AlertDialogManager();
 
+	private ImageView imagelogo;
 	private Button submit;
 	private Button copy;
 	private EditText username;
@@ -269,30 +272,30 @@ public class LoginActivity extends BaseActivity {
 		developmentLayout = findViewById(R.id.devLayout);
 		developmentLayout.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
 
-		if (BuildConfig.DEBUG) {
-			endpoint = (EditText) findViewById(R.id.endPoint);
-			endpoint.setVisibility(View.VISIBLE);
-			endpoint.setText(AppConfig.getInstance().config.getHost());
-			change = (Button) findViewById(R.id.change);
-			change.setVisibility(View.VISIBLE);
-			change.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
-					AppConfig.getInstance().config.setHost(endpoint.getText().toString());
-				}
-			});
-			copy = (Button) findViewById(R.id.copy);
-			copy.setVisibility(View.VISIBLE);
-			copy.setOnClickListener(new OnClickListener() {
+		imagelogo = (ImageView) findViewById(R.id.imagelogo);
+		imagelogo.setVisibility(View.VISIBLE);
+		endpoint = (EditText) findViewById(R.id.endPoint);
+		endpoint.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
+		endpoint.setText(AppConfig.getInstance().config.getHost());
+		change = (Button) findViewById(R.id.change);
+		change.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
+		change.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
+				AppConfig.getInstance().config.setHost(endpoint.getText().toString());
+			}
+		});
+		copy = (Button) findViewById(R.id.copy);
+		copy.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
+		copy.setOnClickListener(new OnClickListener() {
 
-				@Override
-				public void onClick(View v) {
-					copyDB(getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
-					copyDB(getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
-				}
-			});
-		}
+			@Override
+			public void onClick(View v) {
+				copyDB(getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
+				copyDB(getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
+			}
+		});
 
 		if (isJump){
 			Intent intent = new Intent(this, jumto);

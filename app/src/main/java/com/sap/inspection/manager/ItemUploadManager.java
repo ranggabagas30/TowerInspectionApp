@@ -162,8 +162,8 @@ public class ItemUploadManager {
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            String response;
-            String messageToServer;
+            String response = null;
+            String messageToServer = null;
             String messageFromServer = null;
             int itemValueSuccessCount = 0;
 
@@ -204,25 +204,32 @@ public class ItemUploadManager {
                     }
                 } else {
                     latestStatus = syncFail;
+                    messageFromServer = MyApplication.getContext().getResources().getString(R.string.disconnected);
+                    messageToServer = "failed";
                     DebugLog.d("response upload item = null");
                     break;
                 }
             }
 
-            for (ItemValueModel item : itemValuesFailed) {
-                item.uploadStatus = ItemValueModel.UPLOAD_FAIL;
-                DebugLog.d("scheduleIdFailed : " + item.scheduleId);
-                if (!DbRepositoryValue.getInstance().getDB().isOpen())
-                    DbRepositoryValue.getInstance().open(MyApplication.getContext());
-                item.save();
-            }
+            if (response != null) {
 
-            if (itemValuesFailed.size() == 0) {
-                latestStatus = syncDone;
-                messageToServer = "success";
-            } else {
-                latestStatus = syncFail;
-                messageToServer = "failed";
+                for (ItemValueModel item : itemValuesFailed) {
+                    item.uploadStatus = ItemValueModel.UPLOAD_FAIL;
+                    DebugLog.d("scheduleIdFailed : " + item.scheduleId);
+                    if (!DbRepositoryValue.getInstance().getDB().isOpen())
+                        DbRepositoryValue.getInstance().open(MyApplication.getContext());
+                    item.save();
+                }
+
+                if (itemValuesFailed.size() == 0) {
+                    DebugLog.d("syncdone");
+                    latestStatus = syncDone;
+                    messageToServer = "success";
+                } else {
+                    DebugLog.d("syncfail");
+                    latestStatus = syncFail;
+                    messageToServer = "failed";
+                }
             }
 
             if (scheduleId != null)

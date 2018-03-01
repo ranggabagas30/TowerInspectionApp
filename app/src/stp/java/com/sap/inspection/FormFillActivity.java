@@ -85,6 +85,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private RowModel rowModel;
 	private ArrayList<ColumnModel> column;
 	private int workFormGroupId;
+	private String scheduleId;
+	private String workFormGroupName;
 	private int rowId;
 	private ScheduleBaseModel schedule;
 	private ItemValueModel itemValueForShare;
@@ -188,11 +190,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		Bundle bundle = getIntent().getExtras();
 		rowId = bundle.getInt("rowId");
 		workFormGroupId = bundle.getInt("workFormGroupId");
-
+		workFormGroupName = bundle.getString("workFormGroupName");
 		DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);
 
-		String scheduleId = bundle.getString("scheduleId");
+		scheduleId = bundle.getString("scheduleId");
 
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+scheduleId);
 		schedule = new ScheduleGeneral();
@@ -200,7 +202,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		PhotographModel = new ItemValueModel();
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+bundle.getString("scheduleId"));
 		adapter.setWorkType(schedule.work_type.name);
-
+		DebugLog.d("workFormGroupName : " + workFormGroupName);
+		adapter.setWorkFormGroupName(workFormGroupName);
 		scroll = (ScrollView) findViewById(R.id.scroll);
 		search = (AutoCompleteTextView) findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);
@@ -481,7 +484,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         public void onClick(View v) {
 			DebugLog.d("");
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(getResources().getString(R.string.checkConnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
@@ -494,9 +497,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
 						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);
-				Toast.makeText(activity, "Upload dalam proses...", Toast.LENGTH_LONG).show();
 			} else {
-				Toast.makeText(activity, "Tidak ada photo", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, "Data belum terisi", Toast.LENGTH_LONG).show();
 			}
         }
     };
@@ -601,7 +603,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	/**
 	 * tambahan Rangga
 	 *
-	 * PersistentLocation untuk mengambil data lokasi tetap dari data lokasi yang
+	 * PersistentLocation : menyimpan data lokasi tetap yang
 	 * didapatkan (realtime gps/network location) saat operator pertama kali melakukan pengambilan
 	 * foto (Photograph), sehingga dapat digunakan untuk acuan data lokasi pengambilan foto selanjutnya
 	 * pada scheduleid yang sama
@@ -618,7 +620,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
 		}
 		if (PersistentLocation.getInstance().isScheduleIdPersistentLocationExist(photoItem.getValue().scheduleId)) {
-			//if persistent location of scheduleId is existed
+			//if persistent location of scheduleId has been existed
 			// ... then assign the pair location value to siteLatitude and siteLongitude
 			MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
 			siteLatitude = PersistentLocation.getInstance().getPersistent_latitude();
@@ -786,6 +788,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
 					form.setColumn(column);
+					form.setWorkFormGroupName(workFormGroupName);
 					form.setRowColumnModels(rowModel.row_columns, null);
 					if (form.hasInput){
 						DebugLog.d("========================= head row has input : ");

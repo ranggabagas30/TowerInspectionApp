@@ -169,19 +169,18 @@ public class PhotoItemRadio extends RelativeLayout {
 			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
 
 		if (value != null){
-			if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
-
-				if (this.value.remark != null) {
-					if (this.value.remark.isEmpty()) {
-						remark.setText("");
-					} else {
-						DebugLog.d("value remark : " + this.value.remark);
-						remark.setText(this.value.remark);
-					}
-				} else {
+			//rangga
+			if (this.value.remark != null) {
+				if (this.value.remark.isEmpty()) {
 					remark.setText("");
+				} else {
+					DebugLog.d("value remark : " + this.value.remark);
+					remark.setText(this.value.remark);
 				}
+			} else {
+				remark.setText("");
 			}
+
 			// if no picture then show no picture icon
 			if (value.value == null)
 				noPicture.setVisibility(View.VISIBLE);
@@ -231,7 +230,10 @@ public class PhotoItemRadio extends RelativeLayout {
 					mandatory.setVisibility(View.VISIBLE);
 				}*/
 			}
-		}else reset();
+		}else {
+			DebugLog.d("value = null, reset");
+			reset();
+		}
 	}
 
 	private void setItemFormRenderedValue(){
