@@ -20,7 +20,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 16112210
-        versionName "1.4"
+        versionName "1.5"
     }
 
     signingConfigs {
@@ -39,6 +39,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+        }
         release {
             signingConfig signingConfigs.release
             minifyEnabled false
@@ -46,13 +49,17 @@ android {
         }
     }
 
+    flavorDimensions "default"
+
     productFlavors {
         sap {
             applicationId 'com.sap.inspection'
+            dimension "default"
         }
         stp {
             applicationId 'com.stp.inspection'
-            versionName "1.7"
+            versionName "1.7.2"
+            dimension "default"
         }
     }
 

@@ -476,8 +476,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		{
 			// place where to store camera taken picture
 			photo = this.createTemporaryFile("picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-", ".jpg");
-			DebugLog.d("photo url : "+photo.getName());
+			mImageUri = Uri.fromFile(photo);
 			photo.delete();
+			DebugLog.d("photo url : "+photo.getName());
+			DebugLog.d("mimage url : "+mImageUri.getPath());
 		}
 		catch(Exception e)
 		{
@@ -487,10 +489,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 //			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
 			return false;
 		}
-		mImageUri = Uri.fromFile(photo);
-		DebugLog.d("mimage url : "+mImageUri.getPath());
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 		//        intent.putExtra("crop", "true");
 		intent.putExtra("outputX", 480);
 		intent.putExtra("outputY", 480);
@@ -534,7 +534,17 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (photoItem != null && mImageUri != null){
 				photoItem.initValue();
 				photoItem.deletePhoto();
-				File file = ImageUtil.resizeAndSaveImageCheckExif(this,mImageUri.toString(), schedule.id);
+
+				String[] textMarks = new String[3];
+				String photoDate = photoItem.setPhotoDate();
+				String latitude = String.valueOf(currentGeoPoint.latitude);
+				String longitude = String.valueOf(currentGeoPoint.longitude);
+
+				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
+				textMarks[1] = "Accurate up to : "+accuracy+" meters";
+				textMarks[2] = "Photo date : "+photoDate;
+
+				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this,mImageUri.toString(), schedule.id, textMarks);
 				if (Utility.isExternalStorageAvailable()) {
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 						Intent mediaScanIntent = new Intent(
@@ -547,9 +557,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 								Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
 					}
 				}
-				DebugLog.d( String.valueOf(currentGeoPoint.latitude)+" || "+String.valueOf(currentGeoPoint.longitude));
-				photoItem.setPhotoDate();
-				photoItem.setImage(mImageUri.toString(),String.valueOf(currentGeoPoint.latitude),String.valueOf(currentGeoPoint.longitude),accuracy);
+				DebugLog.d( latitude+" || "+longitude);
+				photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);

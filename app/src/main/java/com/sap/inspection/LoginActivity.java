@@ -103,7 +103,7 @@ public class LoginActivity extends BaseActivity {
 	public static final int progress_bar_type = 0;
 
 	/** File url to download **/
-	private static String file_url = "http://api.androidhive.info/progressdialog/hive.jpg";
+	private static String file_url;
 
 	/** Backup local SQLite Database **/
 	private void copyDB(String dbname,String dstName){
@@ -242,11 +242,14 @@ public class LoginActivity extends BaseActivity {
 		update = (Button) findViewById(R.id.update);
 		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
 		DebugLog.d("pref version Name = " + getPreference(R.string.latest_version,""));
-		if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
+		//rangga
+		update.setVisibility(View.GONE);
+		/*if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
 			update.setVisibility(View.GONE);
-		}else{
-			update.setVisibility(View.VISIBLE);
 		}
+		else{
+			update.setVisibility(View.VISIBLE);
+		}*/
 	}
 
 	/** Ensure that Location GPS and Location Networkf had been enabled when app is resumed **/
@@ -475,6 +478,7 @@ public class LoginActivity extends BaseActivity {
 				}
 				else
 					checkLoginState(false);
+				DebugLog.d("userReponseModel.status = " + userResponseModel.status);
 			}else{
 				if (progressDialog != null && progressDialog.isShowing())
 					progressDialog.dismiss();
@@ -611,7 +615,7 @@ public class LoginActivity extends BaseActivity {
 				}
 
 				// Output stream
-				OutputStream output = new FileOutputStream(tempDir.getAbsolutePath()+"/sapInspection"+prefs.getString(LoginActivity.this.getString(R.string.latest_version), "")+".apk.temp");
+				OutputStream output = new FileOutputStream(tempDir.getAbsolutePath()+"/sapInspection"+prefs.getString(LoginActivity.this.getString(R.string.latest_version), "")+".apk");
 
 				byte data[] = new byte[1024];
 
@@ -657,24 +661,27 @@ public class LoginActivity extends BaseActivity {
 		@SuppressWarnings("deprecation")
 		@Override
 		protected void onPostExecute(String file_url) {
-			
-//			dismissDialog(progress_bar_type);
+
 			pDialog.dismiss();
 
-			File tempFile= Environment.getExternalStorageDirectory();
-			tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(LoginActivity.this.getString(R.string.latest_version), "")+".apk.temp");
-			if(!tempFile.exists())
-			{
+			File tempFile;
+			if (Utility.isExternalStorageAvailable()) {
+				DebugLog.d("external storage available");
+				tempFile = Environment.getExternalStorageDirectory();
+			} else {
+				DebugLog.d("external storage not available");
+				tempFile = getFilesDir();
+			}
+			tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(LoginActivity.this.getString(R.string.latest_version), "") + ".apk");
+			if (tempFile.exists()) {
+				Intent intent = new Intent(Intent.ACTION_VIEW)
+						.setDataAndType(Uri.fromFile(tempFile), "application/vnd.android.package-archive");
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+			} else {
+				MyApplication.getInstance().toast(getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
 				finish();
 			}
-
-			File  existing = new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(LoginActivity.this.getString(R.string.latest_version), "")+".apk");
-			tempFile.renameTo(existing);
-			
-			Intent intent = new Intent(Intent.ACTION_VIEW)
-			.setDataAndType(Uri.fromFile(existing),"application/vnd.android.package-archive");
-			intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);  
 		}
 	}
 	

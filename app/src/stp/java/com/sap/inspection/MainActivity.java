@@ -1,5 +1,6 @@
 package com.sap.inspection;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -443,13 +444,14 @@ public class MainActivity extends BaseActivity{
 		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
 	}
 
+	@SuppressLint("HandlerLeak")
 	private Handler apkHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			CommonUtils.fixVersion(getApplicationContext());
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
 				writePreference(R.string.latest_version, model.version);
-//				writePreference(R.string.url_update, model.download);
+				writePreference(R.string.url_update, model.download);
 				String version = null;
 				try {
 					version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;

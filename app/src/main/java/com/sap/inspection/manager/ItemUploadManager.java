@@ -76,7 +76,7 @@ public class ItemUploadManager {
     }
 
     private ItemUploadManager() {
-        itemValues = new ArrayList<ItemValueModel>();
+        itemValues = new ArrayList<>();
         itemValuesFailed = new ArrayList<>();
     }
 

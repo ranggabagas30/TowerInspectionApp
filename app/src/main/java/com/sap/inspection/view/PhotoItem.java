@@ -2,6 +2,7 @@ package com.sap.inspection.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -24,6 +25,7 @@ import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.rules.SavingRule;
 import com.sap.inspection.rules.saving.PreventiveSave;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.ImageUtil;
 
 import java.io.File;
 
@@ -358,6 +360,8 @@ public class PhotoItem extends RelativeLayout {
 			}
 
 		});
+
+
 	}
 
 	private void reset(){

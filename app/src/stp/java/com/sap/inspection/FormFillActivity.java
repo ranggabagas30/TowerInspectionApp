@@ -514,8 +514,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		{
 			// place where to store camera taken picture
 			photo = this.createTemporaryFile("picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-", ".jpg");
-			DebugLog.d("photo url : "+photo.getName());
+			mImageUri = Uri.fromFile(photo);
 			photo.delete();
+			DebugLog.d("mimage url : "+mImageUri.getPath());
+			DebugLog.d("photo url : "+photo.getName());
+
 		}
 		catch(Exception e)
 		{
@@ -525,8 +528,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 //			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
 			return false;
 		}
-		mImageUri = Uri.fromFile(photo);
-		DebugLog.d("mimage url : "+mImageUri.getPath());
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 
 		//        intent.putExtra("crop", "true");
@@ -575,7 +576,22 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (photoItem != null && mImageUri != null){
 				photoItem.initValue();
 				photoItem.deletePhoto();
-				File file = ImageUtil.resizeAndSaveImageCheckExif(this,mImageUri.toString(), schedule.id);
+
+				/*photoLocation = setPersistentLocation();
+				siteLatitude = photoLocation.first();
+				siteLongitude =  photoLocation.second();
+				DebugLog.d( "persistent site location : " + siteLatitude + " , " + siteLongitude);*/
+
+				String[] textMarks = new String[3];
+				String photoDate = photoItem.setPhotoDate();
+				String latitude = String.valueOf(currentGeoPoint.latitude);
+				String longitude = String.valueOf(currentGeoPoint.longitude);
+
+				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
+				textMarks[1] = "Accurate up to : "+accuracy+" meters";
+				textMarks[2] = "Photo date : "+photoDate;
+
+				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this,mImageUri.toString(), schedule.id, textMarks);
 				if (Utility.isExternalStorageAvailable()) {
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 						Intent mediaScanIntent = new Intent(
@@ -588,13 +604,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 								Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
 					}
 				}
-				photoLocation = setPersistentLocation();
-				siteLatitude = photoLocation.first();
-				siteLongitude =  photoLocation.second();
-				DebugLog.d( "persistent site location : " + siteLatitude + " , " + siteLongitude);
-				photoItem.setPhotoDate();
-				photoItem.setImage(mImageUri.toString(),siteLatitude, siteLongitude,accuracy);
 
+				//photoItem.setImage(mImageUri.toString(),siteLatitude, siteLongitude,accuracy);
+				DebugLog.d( latitude+" || "+longitude);
+				photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -612,6 +625,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	public Pair<String, String> setPersistentLocation() {
 		String siteLatitude;
 		String siteLongitude;
+
+		//uncomment below statement to delete existed persistent lat lng data in SharedPref
 		//PersistentLocation.getInstance().deletePersistentLatLng();
 		if (!MyApplication.getInstance().isHashMapInitialized()) {
 			// if hashMap had not been initialized yet
@@ -622,7 +637,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if (PersistentLocation.getInstance().isScheduleIdPersistentLocationExist(photoItem.getValue().scheduleId)) {
 			//if persistent location of scheduleId has been existed
 			// ... then assign the pair location value to siteLatitude and siteLongitude
-			MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
+			//MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
 			siteLatitude = PersistentLocation.getInstance().getPersistent_latitude();
 			siteLongitude = PersistentLocation.getInstance().getPersistent_longitude();
 			DebugLog.d("Use saved persistent site location with loc : " + siteLatitude + "," + siteLongitude);
@@ -630,14 +645,23 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			//else if not
 			// ... then assign current geo point to site location. photoItem.setImage() will insert
 			//these new site location to local sqlite database
-			MyApplication.getInstance().toast("Persistent lat lng doesn't exist", Toast.LENGTH_SHORT);
+			//MyApplication.getInstance().toast("Persistent lat lng doesn't exist", Toast.LENGTH_SHORT);
 			siteLatitude = String.valueOf(currentGeoPoint.latitude);
 			siteLongitude = String.valueOf(currentGeoPoint.longitude);
 			DebugLog.d( "location from current geo points : " + siteLatitude + " , " + siteLongitude);
-			// save schedule persistent site location in pref
-			PersistentLocation.getInstance().setPersistent_latitude(siteLatitude);
-			PersistentLocation.getInstance().setPersistent_longitude(siteLongitude);
-			PersistentLocation.getInstance().savePersistentLatLng(photoItem.getValue().scheduleId);
+
+			double dLat = Math.abs(Double.parseDouble(siteLatitude));
+			double dLng = Math.abs(Double.parseDouble(siteLongitude));
+
+			if (!(dLat < 1 || dLng < 1)) {
+				//if acquired new location (lat , lng) >= (1.0 , 1.0)
+				//... then save schedule persistent site location in pref
+				PersistentLocation.getInstance().setPersistent_latitude(siteLatitude);
+				PersistentLocation.getInstance().setPersistent_longitude(siteLongitude);
+				PersistentLocation.getInstance().savePersistentLatLng(photoItem.getValue().scheduleId);
+			} else {
+				MyApplication.getInstance().toast(getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
+			}
 		}
 		return new Pair<>(siteLatitude, siteLongitude);
 	}
