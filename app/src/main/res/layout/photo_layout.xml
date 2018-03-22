@@ -40,6 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@id/photo"
                 android:background="#802b3134"
+                android:visibility="gone"
                 android:padding="@dimen/padding_small" >
 
                 <TextView

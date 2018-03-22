@@ -79,6 +79,7 @@
     <string name="checkConnection">Tidak ada koneksi internet, silahkan periksa jaringan anda.</string>
     <string name="progressUpload">Upload dalam proses. Silahkan tunggu</string>
     <string name="downloadfile">Mengunduh file. Silahkan tunggu..</string>
+    <string name="apkforupdateisnotfound">Update aplikasi gagal ! File APK tidak terunduh atau tidak ditemukan</string>
     <string name="getNewfromServer">Mendapatkan terbaru dari server..</string>
     <string name="formUpdateFailedFastInternet">Pembaharuan form gagal\nsilahkan login ulang untuk mendapatkan internet yang cepat</string>
     <string name="preparingItemForUpload">Persiapan item untuk di Upload</string>
@@ -103,5 +104,5 @@
     <!-- penambahan string rangga-->
     <!-- persistent site location string value-->
     <string name="keypersistentsitelocation">Persistent Site Location</string>
-
+    <string name="sitelocationisnotaccurate">Silahkan foto kembali. Latitude longitude photo belum akurat</string>
 </resources>

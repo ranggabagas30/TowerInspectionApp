@@ -2,6 +2,7 @@ package com.sap.inspection.tools;
 
 import android.location.Location;
 import android.os.Debug;
+import android.widget.Toast;
 
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
@@ -25,7 +26,7 @@ public class PersistentLocation{
     private String stringWithoutColons(String source) {
         String result;
         StringBuffer buffer = new StringBuffer();
-        for (byte b = 0; b < source.length(); b++) {
+        for (int b = 0; b < source.length(); b++) {
             char c = source.charAt(b);
             if (c != '{' && c != '}')
                 buffer.append(c);
@@ -66,20 +67,25 @@ public class PersistentLocation{
             persistentSitelocation = new HashMap<>();
         }
         String stringSavedFromPref =  PrefUtil.getStringPref(R.string.keypersistentsitelocation, "");
+        DebugLog.d("stringSavedFromPref : " + stringSavedFromPref);
         if (!stringSavedFromPref.equalsIgnoreCase("")){
-            stringSavedFromPref = stringWithoutColons(stringSavedFromPref);
-            DebugLog.d("stringSavedFromPref : " + stringSavedFromPref);
-            String[] pairs = stringSavedFromPref.split(",");
-            for (String pair : pairs) {
-                DebugLog.d("pair : " + pair);
-                String[] keyValue = pair.split("=");
-                String scheduleId = keyValue[0];
-                setPersistent_latitude(keyValue[1]);
-                setPersistent_longitude(keyValue[2]);
-                DebugLog.d("scheduleId :  " + scheduleId + ", lat : " + getPersistent_latitude() + ", lng : " + getPersistent_longitude());
-                persistentLatLng = new AbstractMap.SimpleEntry<>(getPersistent_latitude(), getPersistent_longitude());
-                persistentSitelocation.put(keyValue[0], persistentLatLng);
-                DebugLog.d("save to hashmap = " + persistentSitelocation.get(keyValue[0]));
+            if (stringSavedFromPref.length() > Integer.MAX_VALUE) {
+                MyApplication.getInstance().toast("Data yang tersimpan penuh. Silahkan muat ulang dan hapus jadwal", Toast.LENGTH_LONG);
+                return null;
+            } else  {
+                stringSavedFromPref = stringWithoutColons(stringSavedFromPref);
+                String[] pairs = stringSavedFromPref.split(",");
+                for (String pair : pairs) {
+                    DebugLog.d("pair : " + pair);
+                    String[] keyValue = pair.split("=");
+                    String scheduleId = keyValue[0];
+                    setPersistent_latitude(keyValue[1]);
+                    setPersistent_longitude(keyValue[2]);
+                    DebugLog.d("scheduleId :  " + scheduleId + ", lat : " + getPersistent_latitude() + ", lng : " + getPersistent_longitude());
+                    persistentLatLng = new AbstractMap.SimpleEntry<>(getPersistent_latitude(), getPersistent_longitude());
+                    persistentSitelocation.put(keyValue[0], persistentLatLng);
+                    DebugLog.d("save to hashmap = " + persistentSitelocation.get(keyValue[0]));
+                }
             }
         }
         return persistentSitelocation;

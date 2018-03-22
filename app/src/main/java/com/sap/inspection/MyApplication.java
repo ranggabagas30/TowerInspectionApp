@@ -4,6 +4,9 @@ import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,8 +16,11 @@ import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.sap.inspection.model.TextMarkDisplayOptionsModel;
+import com.sap.inspection.model.TextMarkModel;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.AbstractMap;
@@ -151,6 +157,17 @@ public class MyApplication extends Application {
 		.build();
 		// Initialize ImageLoader with configuration.
 		ImageLoader.getInstance().init(config);
+
+		TextMarkDisplayOptionsModel textOption = new TextMarkDisplayOptionsModel.Builder(getApplicationContext())
+				.setTextColor(Color.WHITE)
+				.setTextColorStyle(Paint.Style.FILL)
+				.setTextAlign(Paint.Align.LEFT)
+				.setTextStyle(Typeface.NORMAL)
+				.setTextFamilyName("Helvetica")
+				.setTextSize(40)
+				.build();
+
+		TextMarkModel.getInstance().init(textOption);
 	}
 
 	private Tracker mTracker;

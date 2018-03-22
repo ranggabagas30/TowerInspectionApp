@@ -84,7 +84,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     public static final int progress_bar_type = 0;
 
     // File url to download
-    private static String file_url = "http://api.androidhive.info/progressdialog/hive.jpg";
+
+    private static String file_url;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -610,14 +611,17 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 tempFile = getFilesDir();
             }
             tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
-            if (!tempFile.exists()) {
+            if (tempFile.exists()) {
+                Intent intent = new Intent(Intent.ACTION_VIEW)
+                        .setDataAndType(Uri.fromFile(tempFile), "application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } else {
+                MyApplication.getInstance().toast(getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
                 finish();
             }
 
-            Intent intent = new Intent(Intent.ACTION_VIEW)
-                    .setDataAndType(Uri.fromFile(tempFile), "application/vnd.android.package-archive");
-            intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+
         }
     }
 

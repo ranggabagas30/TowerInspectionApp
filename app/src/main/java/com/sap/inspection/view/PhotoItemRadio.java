@@ -1,8 +1,11 @@
 package com.sap.inspection.view;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Debug;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -17,6 +20,7 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.sap.inspection.BaseActivity;
@@ -30,8 +34,12 @@ import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
+import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.util.Utility;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Calendar;
 
 
 public class PhotoItemRadio extends RelativeLayout {
@@ -430,9 +438,11 @@ public class PhotoItemRadio extends RelativeLayout {
 		}
 	}
 
-	public void setPhotoDate() {
+	public String setPhotoDate() {
 		value.photoDate = value.createdAt = DateTools.getCurrentDate();
+		return value.photoDate;
 	}
+
 	public void setUploadstatus(String uploadstatus) {
 		this.uploadstatus.setText(uploadstatus);
 	}
@@ -462,6 +472,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		//		ImageSize i = ImageSizeUtils.defineTargetSizeForView(imageView, 480, 360);
 		//		imageView.setMaxWidth(i.getWidth());
 		//		imageView.setMaxHeight(i.getHeight());
+
 		BaseActivity.imageLoader.displayImage(uri,imageView,new ImageLoadingListener() {
 
 			@Override
@@ -538,4 +549,25 @@ public class PhotoItemRadio extends RelativeLayout {
 		return itemFormRenderModel.workItemModel.id;
 	}
 
+	private File createTemporaryFile(String part, String ext) throws Exception
+	{
+		File tempDir;
+		ContextWrapper contextWrapper = new ContextWrapper(context);
+		if (Utility.isExternalStorageAvailable()) {
+			DebugLog.d("external storage available");
+			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+		} else {
+			DebugLog.d("external storage not available");
+			tempDir = new File(contextWrapper.getFilesDir()+"/Camera/");
+		}
+		tempDir = new File(tempDir.getAbsolutePath() + "/TowerInspection"); // create temp folder
+		if (!tempDir.exists()) {
+			tempDir.mkdir();
+		}
+		tempDir = new File(tempDir.getAbsolutePath() + "/" + value.scheduleId+ "/"); // create schedule folder
+		if (!tempDir.exists()) {
+			tempDir.mkdir();
+		}
+		return File.createTempFile(part, ext, tempDir);
+	}
 }
