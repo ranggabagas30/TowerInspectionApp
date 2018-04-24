@@ -21,6 +21,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.sap.inspection.model.TextMarkDisplayOptionsModel;
 import com.sap.inspection.model.TextMarkModel;
+import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.util.Utility;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.AbstractMap;
@@ -162,12 +165,17 @@ public class MyApplication extends Application {
 				.setTextColor(Color.WHITE)
 				.setTextColorStyle(Paint.Style.FILL)
 				.setTextAlign(Paint.Align.LEFT)
-				.setTextStyle(Typeface.NORMAL)
+				.setTextStyle(Typeface.BOLD)
 				.setTextFamilyName("Helvetica")
-				.setTextSize(40)
 				.build();
 
 		TextMarkModel.getInstance().init(textOption);
+
+		DebugLog.d("Storage dirs list : \n");
+		String[] storageDirectories = Utility.getStorageDirectories(getApplicationContext());
+		for (String dir : storageDirectories) {
+			DebugLog.d(dir + "\n");
+		}
 	}
 
 	private Tracker mTracker;

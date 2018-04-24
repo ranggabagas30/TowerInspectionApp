@@ -582,14 +582,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				siteLongitude =  photoLocation.second();
 				DebugLog.d( "persistent site location : " + siteLatitude + " , " + siteLongitude);*/
 
-				String[] textMarks = new String[3];
+				String[] textMarks = new String[2];
 				String photoDate = photoItem.setPhotoDate();
 				String latitude = String.valueOf(currentGeoPoint.latitude);
 				String longitude = String.valueOf(currentGeoPoint.longitude);
 
 				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				textMarks[1] = "Accurate up to : "+accuracy+" meters";
-				textMarks[2] = "Photo date : "+photoDate;
+				//textMarks[1] = "Accurate up to : "+accuracy+" meters";
+				textMarks[1] = "Photo date : "+photoDate;
 
 				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this,mImageUri.toString(), schedule.id, textMarks);
 				if (Utility.isExternalStorageAvailable()) {

@@ -14,7 +14,7 @@ public class DateTools {
 
 	public static String getCurrentDate(){
 		Date currentDate = Calendar.getInstance().getTime();
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.getDefault());
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 		return simpleDateFormat.format(currentDate);
 	}
 

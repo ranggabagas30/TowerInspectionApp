@@ -16,14 +16,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    buildToolsVersion '27.0.3'
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
-    compile 'com.yarolegovich:lovely-dialog:1.0.4'
-    compile 'com.github.aakira:expandable-layout:1.6.0@aar'
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    api "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+    api 'com.yarolegovich:lovely-dialog:1.0.4'
+    api 'com.github.aakira:expandable-layout:1.6.0@aar'
 
 }

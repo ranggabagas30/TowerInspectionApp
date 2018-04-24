@@ -11,10 +11,13 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -27,6 +30,7 @@ import com.sap.inspection.tools.ExifUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class ImageUtil {
 	public static final int MenuShootImage = 101;
@@ -184,24 +188,8 @@ public class ImageUtil {
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds=true;
-            BitmapFactory.decodeFile(path,options);
-            int imageHeight = options.outHeight;
-            int imageWidth = options.outWidth;
+            Bitmap bitmap = writeTextOnDrawable(ctx, path, x, options, textMarks);
 
-            float factorH = x / (float)imageHeight;
-            float factorW = x / (float)imageWidth;
-            float factorToUse = (factorH > factorW) ? factorW : factorH;
-            DebugLog.d("factorToUse="+factorToUse);
-            Bitmap bitmap_Source = writeTextOnDrawable(ctx, path, textMarks);
-            Bitmap bitmap = Bitmap.createScaledBitmap(bitmap_Source,
-                    (int) (imageWidth * factorToUse),
-                    (int) (imageHeight * factorToUse),
-                    false);
-
-//            options.inSampleSize = 4;
-//            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
-
-            bitmap = ExifUtil.rotateBitmap(path,bitmap);
             DebugLog.d("width="+bitmap.getWidth()+" height="+bitmap.getHeight());
             File file;
             file = new File(path);
@@ -322,6 +310,8 @@ public class ImageUtil {
 	private static File createTemporaryFile(String part, String ext) throws Exception
 	{
         File tempDir;
+        boolean createDirStatus;
+
         if (Utility.isExternalStorageAvailable())
             tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
         else
@@ -330,7 +320,16 @@ public class ImageUtil {
 		tempDir=new File(tempDir.getAbsolutePath()+"/TowerInspection/");
 		if(!tempDir.exists())
 		{
-			tempDir.mkdir();
+            createDirStatus = tempDir.mkdir();
+            if (!createDirStatus) {
+                createDirStatus = tempDir.mkdirs();
+                if (!createDirStatus) {
+                    DebugLog.e("fail to create dir");
+                    Crashlytics.log("fail to create dir");
+                } else {
+                    DebugLog.d("create dir success");
+                }
+            }
 		}
 		return File.createTempFile(part, ext, tempDir);
 	}
@@ -369,45 +368,150 @@ public class ImageUtil {
         return bm;
     }
 
-    public static Bitmap writeTextOnDrawable(Context mContext, String imagePath, String[] texts) {
+    public static Bitmap writeTextOnDrawable(Context mContext, String imagePath, int x, BitmapFactory.Options options,  String[] texts) {
 
-        Bitmap bm = BitmapFactory.decodeFile(imagePath)
+        BitmapFactory.decodeFile(imagePath,options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+
+        float factorH = x / (float)imageHeight;
+        float factorW = x / (float)imageWidth;
+        float factorToUse = (factorH > factorW) ? factorW : factorH;
+        DebugLog.d("factorToUse="+factorToUse);
+
+        Bitmap bitmap_Source = BitmapFactory.decodeFile(imagePath)
                 .copy(Bitmap.Config.ARGB_8888, true);
 
-        Canvas canvas = new Canvas(bm);
+        Bitmap bitmap_Result = Bitmap.createScaledBitmap(bitmap_Source,
+                (int) (imageWidth * factorToUse),
+                (int) (imageHeight * factorToUse),
+                false);
+
+        float bitmapRotation = imageOrientation(imagePath);
+        bitmap_Result = ExifUtil.rotateBitmap(imagePath,bitmap_Result);
+        Canvas canvas = new Canvas(bitmap_Result);
 
         Paint greyPaint = new Paint();
         greyPaint.setColor(mContext.getResources().getColor(R.color.transparent_gray));
-        canvas.drawRect(0, canvas.getHeight() * 3 / 4, canvas.getWidth(), canvas.getHeight(), greyPaint);
+        if (imageWidth <= imageHeight) { // landscape
+            DebugLog.d("bitmapRotation : " + bitmapRotation);
+            canvas.drawRect(0, canvas.getHeight() * 83/100, canvas.getWidth(), canvas.getHeight(), greyPaint);
+        } else
+        if (imageWidth > imageHeight) { // potrait
+            DebugLog.d("bitmapRotation : " + bitmapRotation);
+            canvas.drawRect(0, canvas.getHeight() * 60/100, canvas.getWidth(), canvas.getHeight(), greyPaint);
+        }
 
         TextMarkModel textMark = TextMarkModel.getInstance();
 
         for (int i = 0; i < texts.length; i++) {
             textMark.setTextMark(texts[i]);
             Paint textPaint = textMark.generateTextPaint();
+            float xPos = 0.0f;
+            float yPos = 0.0f;
 
+            //If the text is bigger than the canvas , reduce the font size;
 
-            //If the text is bigger than the canvas , reduce the font size
-            if(textMark.getTextRect().width() >= (canvas.getWidth() - 4))     //the padding on either sides is considered as 4, so as to appropriately fit in the text
-                textPaint.setTextSize(convertToPixels(mContext, 36));        //Scaling needs to be used for different dpi's
-            DebugLog.d("Canvas width : " + canvas.getWidth());
-            //Calculate the positions
-            int xPos = convertToPixels(mContext, canvas.getWidth() / 50);    //-2 is for regulating the x position offset
+            float px;
+            int textWidth  = textMark.getTextRect().width();
+            int textHeight = textMark.getTextRect().height();
+            px = getPXFromLineWidth(textWidth, texts[i].length());
+            if(textWidth > canvas.getWidth())  {
+                px = 22.f;
+            } else {
+                px = getPXFromLineWidth(textWidth, texts[i].length()-5);
+            }
 
-            //"- ((paint.descent() + paint.ascent()) / 2)" is the distance from the baseline to the center.
-            /*int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));*/
-            int yPos = (int) ((canvas.getHeight() * 13/16) + convertToPixels(mContext,i * 60));
-            //canvas.translate(xPos, yPos);
+            DebugLog.d("text mark width : " + textWidth);
+            DebugLog.d("px : " + px);
+            DebugLog.d("Canvas width x height : " + canvas.getWidth() + " x " + canvas.getHeight());
+
+            textPaint.setTextSize(px);
+
+            if (imageWidth <= imageHeight) { // landscape
+                xPos = convertToPixels(mContext, canvas.getWidth() / 50) * factorToUse;    //-2 is for regulating the x position offset
+                yPos = (canvas.getHeight() * 83/100) + convertToPixels(mContext,i * textHeight);
+            } else
+            if (imageWidth > imageHeight) { // potrait
+                xPos = convertToPixels(mContext, canvas.getWidth() / 50) * factorToUse;
+                yPos = (canvas.getHeight() * 70/100) + convertToPixels(mContext,i * textHeight);
+            }
+
             canvas.drawText(textMark.getTextMark(), xPos, yPos, textPaint);
         }
-        return bm;
+        return bitmap_Result;
+    }
+
+    public static float imageOrientation(String src) {
+        int orientation = 0;
+        float degree = 0;
+        try {
+            orientation = ExifUtil.getExifOrientation(src);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_NORMAL:
+                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 0;
+                    break;
+                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                case ExifInterface.ORIENTATION_TRANSPOSE:
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                case ExifInterface.ORIENTATION_TRANSVERSE:
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 90;
+                    break;
+                default:
+                    degree = 0;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        DebugLog.d("orientation="+orientation);
+
+        return degree;
     }
 
     public static int convertToPixels(Context context, int nDP)
     {
         final float conversionScale = context.getResources().getDisplayMetrics().density;
-
+        DebugLog.d("density : " + conversionScale);
         return (int) ((nDP * conversionScale) + 0.5f) ;
 
+    }
+
+    public static float getDPFromPixels(Context context, float pixels) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        switch(metrics.densityDpi){
+            case DisplayMetrics.DENSITY_LOW:
+                pixels = (float) (pixels * 0.75);
+                break;
+            case DisplayMetrics.DENSITY_MEDIUM:
+                //pixels = pixels * 1;
+                break;
+            case DisplayMetrics.DENSITY_HIGH:
+                pixels = (float) (pixels * 1.5);
+                break;
+            case DisplayMetrics.DENSITY_XHIGH:
+                pixels = (float) (pixels * 2);
+                break;
+            case DisplayMetrics.DENSITY_XXHIGH:
+                pixels = (float) (pixels * 3);
+                break;
+            case DisplayMetrics.DENSITY_XXXHIGH:
+                pixels = (float) (pixels * 4);
+                break;
+        }
+        return pixels;
+    }
+
+    public static double getDPIFromPX(Context context, double px, float factorToUse) {
+        final float density = context.getResources().getDisplayMetrics().density;
+	    return px / (density * factorToUse);
+    }
+
+    public static float getPXFromLineWidth(int lineWidth, float cpl) {
+	    final float RATIO = 1.618f;
+	    return lineWidth * RATIO / cpl;
     }
 }

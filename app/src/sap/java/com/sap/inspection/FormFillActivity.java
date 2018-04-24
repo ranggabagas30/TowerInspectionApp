@@ -507,21 +507,49 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private File createTemporaryFile(String part, String ext) throws Exception
 	{
 		File tempDir;
+		boolean createDirStatus;
+		if (Utility.isExternalStorageReadOnly()) {
+			DebugLog.d("external storage is read only");
+		}
 		if (Utility.isExternalStorageAvailable()) {
 			DebugLog.d("external storage available");
 			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+			if (!tempDir.exists()) {
+				DebugLog.d("using legacy path");
+				tempDir = new File( "/storage/emulated/legacy/" + Environment.DIRECTORY_DCIM + "/Camera/");
+			}
+
 		} else {
 			DebugLog.d("external storage not available");
 			tempDir = new File(getFilesDir()+"/Camera/");
 		}
 		tempDir = new File(tempDir.getAbsolutePath() + "/TowerInspection"); // create temp folder
 		if (!tempDir.exists()) {
-			tempDir.mkdir();
+			createDirStatus = tempDir.mkdir();
+			if (!createDirStatus) {
+				createDirStatus = tempDir.mkdirs();
+				if (!createDirStatus) {
+					DebugLog.e("fail to create dir");
+					Crashlytics.log("fail to create dir");
+				} else {
+					DebugLog.d("create dir success");
+				}
+			}
 		}
+
 		tempDir = new File(tempDir.getAbsolutePath() + "/" + schedule.id + "/"); // create schedule folder
 		if (!tempDir.exists()) {
-			tempDir.mkdir();
+			createDirStatus = tempDir.mkdir();
+			if (!createDirStatus) {
+				createDirStatus = tempDir.mkdirs();
+				if (!createDirStatus) {
+					DebugLog.e("fail to create dir");
+				} else {
+					DebugLog.d("create dir success");
+				}
+			}
 		}
+		DebugLog.d("tempDir path : " + tempDir.getAbsolutePath());
 		return File.createTempFile(part, ext, tempDir);
 	}
 
@@ -557,8 +585,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 								Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
 					}
 				}
-				DebugLog.d( latitude+" || "+longitude);
-				photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+
+				double dLat = Math.abs(Double.parseDouble(latitude));
+				double dLng = Math.abs(Double.parseDouble(longitude));
+
+				if (!(dLat < 1 || dLng < 1)) {
+					//if acquired new location (lat , lng) >= (1.0 , 1.0)
+					//... then set image lat long
+					DebugLog.d( latitude+" || "+longitude);
+					photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+				} else {
+					MyApplication.getInstance().toast(getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
+				}
+
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);

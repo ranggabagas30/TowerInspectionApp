@@ -61,7 +61,7 @@ public class ExifUtil {
         return bitmap;
     }
     
-    private static int getExifOrientation(String src) throws IOException {
+    public static int getExifOrientation(String src) throws IOException {
         int orientation = 1;
         
         try {
