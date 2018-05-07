@@ -25,6 +25,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.OperatorModel;
@@ -36,6 +37,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.Utility;
+import com.sap.inspection.views.adapter.FormFillAdapter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -144,6 +146,8 @@ public class PhotoItemRadio extends RelativeLayout {
 		na = (RadioButton) root.findViewById(R.id.radioNA);
 		radioGroup.setOnCheckedChangeListener(changeListener);
 		value = new ItemValueModel();
+
+		toggleEditable();
 	}
 
 	public void setButtonClickListener(OnClickListener buttonClickListener){
@@ -569,5 +573,24 @@ public class PhotoItemRadio extends RelativeLayout {
 			tempDir.mkdir();
 		}
 		return File.createTempFile(part, ext, tempDir);
+	}
+
+	private void toggleEditable() {
+		if (MyApplication.getInstance().IsInCheckHasilPm()) {
+			DebugLog.d("input is disabled");
+			if (remark!=null) remark.setEnabled(false);
+			if (material_request!=null) material_request.setEnabled(false);
+			if (radioGroup!=null) radioGroup.setEnabled(false);
+			if (ok!=null) ok.setEnabled(false);
+			if (nok!=null) nok.setEnabled(false);
+			if (na!=null) na.setEnabled(false);
+		} else {
+			if (remark!=null) remark.setEnabled(true);
+			if (material_request!=null) material_request.setEnabled(true);
+			if (radioGroup!=null) radioGroup.setEnabled(true);
+			if (ok!=null) ok.setEnabled(true);
+			if (nok!=null) nok.setEnabled(true);
+			if (na!=null) na.setEnabled(true);
+		}
 	}
 }
