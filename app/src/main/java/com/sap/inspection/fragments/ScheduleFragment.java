@@ -10,8 +10,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import com.sap.inspection.CallendarActivity;
+import com.sap.inspection.CheckInActivity;
 import com.sap.inspection.FormActivity;
 import com.sap.inspection.MainActivity;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -30,6 +32,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
     private ProgressDialog dialog;
 
 	public static ScheduleFragment newInstance() {
+		MyApplication.getInstance().setIsScheduleNeedCheckIn(false);
 		ScheduleFragment fragment = new ScheduleFragment();
 		return fragment;
 	}
@@ -115,6 +118,9 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		} else if (resId == R.string.fiber_optic){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.fiber_optic)));
+		} else if (resId == R.string.hasil_PM){
+			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
 		}
 		
 //		ScheduleBySiteModel siteModel = new ScheduleBySiteModel();
@@ -136,16 +142,19 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-		Intent intent = null;
-		log("-=-="+models.get(position).work_type.name+"-=-=-=");
-		/*
-		if (models.get(position).work_type.name.equalsIgnoreCase("corrective"))
-			intent = new Intent(activity, FormCorrectiveActivity.class);
-		else
+		Intent intent;
+		String workTypeName = models.get(position).work_type.name;
+		int workTypeId = models.get(position).work_type.id;
+		log("-=-="+ workTypeName +"-=-=-=");
+		log("-=-="+ workTypeId +"-=-=-=");
+
+		if (workTypeId == Constants.SAP_PREVENTIVE_WORKTYPE_ID && !MyApplication.getInstance().IsInCheckHasilPm()) {
+			MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
+			intent = new Intent(activity, CheckInActivity.class);
+		} else {
 			intent = new Intent(activity, FormActivity.class);
-			*/
-		intent = new Intent(activity, FormActivity.class);
-		intent.putExtra(Constants.scheduleId, models.get(position).id);
+		}
+		intent.putExtra("scheduleId", models.get(position).id);
 		intent.putExtra("siteId", models.get(position).site.id);
 		intent.putExtra("dayDate", models.get(position).day_date);
 		intent.putExtra("workTypeId", models.get(position).work_type.id);
