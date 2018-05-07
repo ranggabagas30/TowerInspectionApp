@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 
@@ -154,8 +155,10 @@ public class JSONConnectionPOSTMultiPart extends AsyncTask<Void, Void, String>{
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
 		//		setJson(result);
-		if (notJson && result == null)
-			Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+		if (notJson && result == null) {
+			//Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+			Crashlytics.log("response from server is not json format and result is null");
+		}
 		else if (result != null) {
 			try {
 				if (JSONConnection.anyServerError(result, context))

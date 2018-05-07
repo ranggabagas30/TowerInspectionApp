@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.utils.IoUtils;
 import com.sap.inspection.MyApplication;
@@ -120,6 +122,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 		}catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
+			Crashlytics.log(Log.ERROR, "jsonconnection", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.TIMEOUT_EXCEPTION);
@@ -127,6 +130,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 		catch (ClientProtocolException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
+			Crashlytics.log(Log.ERROR, "jsonconnection", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
@@ -134,6 +138,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 		catch (IOException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
+			Crashlytics.log(Log.ERROR, "jsonconnection", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
@@ -146,11 +151,15 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
 		//		setJson(result);
-		if (notJson && result == null)
-			Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+		if (notJson && result == null) {
+
+			//Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+			Crashlytics.log("response from server is not json format and result is null");
+		}
 		else if (result != null) {
 				BaseResponseModel responseModel = new Gson().fromJson(result, BaseResponseModel.class);
 					if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
+						Crashlytics.log(Log.ERROR, "jsonconnection", "error status code : " + responseModel.status);
 						MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
 					}
 

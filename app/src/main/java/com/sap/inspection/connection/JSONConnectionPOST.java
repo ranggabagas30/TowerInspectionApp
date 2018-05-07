@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
@@ -147,6 +149,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 		}catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
+			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.TIMEOUT_EXCEPTION);
@@ -154,6 +157,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 		catch (ClientProtocolException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
+			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
@@ -161,6 +165,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 		catch (IOException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
+			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
 			//			ErrorManager.getInstance().setError(errMsg);
 			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
@@ -173,8 +178,11 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
 		//		setJson(result);
-		if (notJson && result == null)
-			Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+		if (notJson && result == null) {
+
+			//Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+			Crashlytics.log("response from server is not json format and result is null");
+		}
 		else if (result != null) {
 			try {
 				if (JSONConnection.anyServerError(result, context))
