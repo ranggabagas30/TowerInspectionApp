@@ -3,12 +3,15 @@ package com.sap.inspection;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.widget.Toast;
 
 import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.fragments.NavigationFragment;
 import com.sap.inspection.listener.FormActivityListener;
 import com.sap.inspection.model.DbRepository;
@@ -23,6 +26,8 @@ import com.slidinglayer.SlidingLayer;
 
 import java.util.Vector;
 
+import de.greenrobot.event.EventBus;
+
 public class FormActivity extends BaseActivity implements FormActivityListener{
 
 	private SlidingLayer mSlidingLayer;
@@ -32,6 +37,8 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	private Vector<WorkFormGroupModel> workFormGroupModels;
 	private String dayDate;
 	private ScheduleBaseModel scheduleBaseModels;
+	private boolean usingCheckin;
+	private ProgressDialog dialog;
 
 	ViewPager pager;
 //	FragmentsAdapter fragmentsAdapter;
@@ -40,16 +47,22 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		usingCheckin = MyApplication.getInstance().isScheduleNeedCheckIn();
+
+		if (usingCheckin) {
+			//startCheckoutCountdown();
+		}
+
 		DebugLog.d("");
 
-		ProgressDialog dialog = new ProgressDialog(activity);
+		dialog = new ProgressDialog(activity);
 		//String generatingInspectionForm
 		dialog.setMessage(getString(R.string.generatingInspectionForm));
 		dialog.show();
 		
-		//get data from bundle
+		//get data bundle from ScheduleFragment
 		Bundle bundle = getIntent().getExtras();
-		
+
 		dayDate = bundle.getString("dayDate");
 
 		DebugLog.d("scheduleId="+bundle.getString(Constants.scheduleId));
@@ -57,7 +70,10 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		DebugLog.d("workTypeId="+bundle.getInt("workTypeId"));
 		DebugLog.d("dayDate="+dayDate);
 
-		DbRepository.getInstance().open(activity);
+
+
+		if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin)
+			DbRepository.getInstance().open(activity);
 
 		RowModel rModel = new RowModel();
 		DebugLog.d("===================================1 row model max level : "+rModel.getMaxLevel("1"));
@@ -65,7 +81,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		DebugLog.d("===================================3 row model max level : "+rModel.getMaxLevel("3"));
 		
 		scheduleBaseModels = new ScheduleGeneral();
-		scheduleBaseModels = scheduleBaseModels.getScheduleById(bundle.getString("scheduleId"));
+		scheduleBaseModels = scheduleBaseModels.getScheduleById(bundle.getString(Constants.scheduleId));
 		DebugLog.d("===================================4 worktype id : "+scheduleBaseModels.work_type.id);
 						//penambahan debug tester untuk form_id
 //		DebugLog.d("===================================4 workform id : "+scheduleBaseModels.work_form.id);
@@ -98,7 +114,9 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			rowModel.children.add(groupRow);
 		}
 
-		DbRepository.getInstance().close();
+		if (DbRepository.getInstance().getDB().isOpen() && !usingCheckin)
+			DbRepository.getInstance().close();
+
 		dialog.dismiss();
 
 		navigationFragment.setFormActivityListener(this);
@@ -106,6 +124,18 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		navigationFragment.setNavigationModel(rowModel);
 		navigateToFragment(navigationFragment, R.id.fragment_behind);
 		trackThisPage("Form");
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		EventBus.getDefault().unregister(this);
 	}
 
 	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
@@ -121,7 +151,9 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		if (mSlidingLayer.isOpened())
 			mSlidingLayer.closeLayer(true);
 		else
+		{
 			finish();
+		}
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -154,5 +186,14 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		groupRow.level = 1;
 		return groupRow;
 	}
-	
+
+	public void onEvent(UploadProgressEvent event){
+		if (dialog.isShowing()){
+			dialog.setMessage(event.progressString);
+			if (event.done) dialog.dismiss();
+		}else if (!event.done) {
+			dialog.show();
+			dialog.setMessage(event.progressString);
+		}
+	}
 }
