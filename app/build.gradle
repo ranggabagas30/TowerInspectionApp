@@ -13,7 +13,7 @@ apply plugin: 'io.fabric'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
-    useLibrary  'org.apache.http.legacy'
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "com.sap.inspection"
@@ -71,6 +71,10 @@ android {
 
         }
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 def renameAPK(variant) {
@@ -80,7 +84,7 @@ def renameAPK(variant) {
     }
 }
 
-repositories{
+repositories {
     maven { url 'https://maven.fabric.io/public' }
 }
 
@@ -97,5 +101,6 @@ dependencies {
         exclude module: 'gson:2.2.4'
     }
     api 'com.facebook.stetho:stetho:1.4.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.0'
 }
