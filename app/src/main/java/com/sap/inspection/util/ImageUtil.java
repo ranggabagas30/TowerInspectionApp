@@ -23,6 +23,7 @@ import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.TextMarkDisplayOptionsModel;
 import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.tools.DebugLog;
@@ -404,43 +405,48 @@ public class ImageUtil {
 
         TextMarkModel textMark = TextMarkModel.getInstance();
 
+        float dy = 30.0f;
+        float xPos = 0.0f;
+        float yPos = 0.0f;
+
         for (int i = 0; i < texts.length; i++) {
             textMark.setTextMark(texts[i]);
             Paint textPaint = textMark.generateTextPaint();
-            float xPos = 0.0f;
-            float yPos = 0.0f;
 
             //If the text is bigger than the canvas , reduce the font size;
 
-            float px;
+            float px = 0.0f;
             int textWidth  = textMark.getTextRect().width();
             int textHeight = textMark.getTextRect().height();
-            px = getPXFromLineWidth(textWidth, texts[i].length());
-            if(textWidth > canvas.getWidth())  {
-                px = 22.f;
-            } else {
-                px = getPXFromLineWidth(textWidth, texts[i].length()-5);
+            int textSize;
+
+            if (imageWidth <= imageHeight) { // potrait
+                textSize = PrefUtil.getIntPref(R.string.textmarksizepotrait, Constants.TEXT_SIZE_POTRAIT);
+                px = convertToPixels(mContext, textSize);
+
+                textPaint.setTextSize(px);
+
+                xPos = convertToPixels(mContext, 10);
+                yPos = (canvas.getHeight() * 83/100) + convertToPixels(mContext, textHeight) + dy * i;
+            } else
+            if (imageWidth > imageHeight) { // landscape
+                textSize = PrefUtil.getIntPref(R.string.textmarksizelandscape, Constants.TEXT_SIZE_LANDSCAPE);
+                px = convertToPixels(mContext, textSize);
+
+                textPaint.setTextSize(px);
+                xPos = convertToPixels(mContext, 10);
+                yPos = (canvas.getHeight() * 70/100) + convertToPixels(mContext, textHeight) + dy * i;
             }
 
             DebugLog.d("text mark width : " + textWidth);
             DebugLog.d("px : " + px);
             DebugLog.d("Canvas width x height : " + canvas.getWidth() + " x " + canvas.getHeight());
 
-            textPaint.setTextSize(px);
-
-            if (imageWidth <= imageHeight) { // landscape
-                xPos = convertToPixels(mContext, canvas.getWidth() / 50) * factorToUse;    //-2 is for regulating the x position offset
-                yPos = (canvas.getHeight() * 83/100) + convertToPixels(mContext,i * textHeight);
-            } else
-            if (imageWidth > imageHeight) { // potrait
-                xPos = convertToPixels(mContext, canvas.getWidth() / 50) * factorToUse;
-                yPos = (canvas.getHeight() * 70/100) + convertToPixels(mContext,i * textHeight);
-            }
-
             canvas.drawText(textMark.getTextMark(), xPos, yPos, textPaint);
         }
         return bitmap_Result;
     }
+
 
     public static float imageOrientation(String src) {
         int orientation = 0;
