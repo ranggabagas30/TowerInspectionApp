@@ -51,14 +51,13 @@ public class MainMenuFragment extends BaseTitleFragment {
 
 	private ArrayList<Integer> getIcons(){
 		if (this.icons == null){
-			int[] icons = {R.drawable.ic_schedule,
+			int[] icons = {
+					R.drawable.ic_schedule,
 					R.drawable.ic_preventive,
 					R.drawable.ic_corrective,
-/*					R.drawable.ic_siteaudit,
-					R.drawable.ic_newlocation,*/
 					R.drawable.ic_settings,
-					R.drawable.fofo
-//					R.drawable.ic_colocation
+					R.drawable.fofo,
+					R.drawable.ic_check4
 			};
 			this.icons = getArrayList(icons);
 		}
@@ -67,14 +66,13 @@ public class MainMenuFragment extends BaseTitleFragment {
 
 	private ArrayList<Integer> getTitles(){
 		if (this.titles == null){
-			int[] titles = {R.string.schedule,
+			int[] titles = {
+					R.string.schedule,
 					R.string.preventive,
 					R.string.corrective,
-/*					R.string.site_audit,
-					R.string.newlocation,*/
 					R.string.settings,
-					R.string.fiber_optic
-//					R.string.colocation
+					R.string.fiber_optic,
+					R.string.hasil_PM
 			};
 			this.titles = getArrayList(titles);
 		}
