@@ -39,6 +39,8 @@ public class MyApplication extends Application {
 	private UncaughtExceptionHandler defaultUEH;
 	private static MyApplication instance;
 	private HashMap< String, AbstractMap.SimpleEntry<String, String> > hashMapSiteLocation;
+	private boolean IN_CHECK_HASIL_PM;
+	private boolean SCHEDULE_NEED_CHECK_IN;
 
 	public MyApplication() {
 		instance = this;
@@ -134,30 +136,12 @@ public class MyApplication extends Application {
 			Stetho.initializeWithDefaults(this);
 		}
 
-//		defaultUEH = Thread.getDefaultUncaughtExceptionHandler();
-//
-//		setup handler for uncaught exception
-//		Thread.setDefaultUncaughtExceptionHandler(_unCaughtExceptionHandler);
-
-		// This configuration tuning is custom. You can tune every option, you may tune some of them, 
-		// or you can create default configuration by
-		//  ImageLoaderConfiguration.createDefault(this);
-		// method.
-		//		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-		//			.threadPoolSize(3)
-		//			.threadPriority(Thread.NORM_PRIORITY - 2)
-		//			.memoryCacheSize(2 * 1024 * 1024) // 2 Mb
-		//			.denyCacheImageMultipleSizesInMemory()
-		//			.discCacheFileNameGenerator(new Md5FileNameGenerator())
-		//			.imageDownloader(new AssetsImageDownloader(getApplicationContext()))
-		//			.enableLogging() // Not necessary in common
-		//			.build();
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-		//		.enableLogging()
 		.memoryCacheSize(20 * 1024 * 1024)
 		.discCacheSize(104857600)
 		.threadPoolSize(10)
 		.build();
+
 		// Initialize ImageLoader with configuration.
 		ImageLoader.getInstance().init(config);
 
@@ -176,6 +160,9 @@ public class MyApplication extends Application {
 		for (String dir : storageDirectories) {
 			DebugLog.d(dir + "\n");
 		}
+
+		IN_CHECK_HASIL_PM = false;
+		SCHEDULE_NEED_CHECK_IN = false;
 	}
 
 	private Tracker mTracker;
@@ -193,5 +180,19 @@ public class MyApplication extends Application {
 		return mTracker;
 	}
 
+	public boolean IsInCheckHasilPm() {
+		return IN_CHECK_HASIL_PM;
+	}
 
+	public void setIsInCheckHasilPm(boolean isInCheckHasilPm) {
+		IN_CHECK_HASIL_PM = isInCheckHasilPm;
+	}
+
+	public boolean isScheduleNeedCheckIn() {
+		return SCHEDULE_NEED_CHECK_IN;
+	}
+
+	public void setIsScheduleNeedCheckIn(boolean isScheduleNeedCheckIn) {
+		SCHEDULE_NEED_CHECK_IN = isScheduleNeedCheckIn;
+	}
 }
