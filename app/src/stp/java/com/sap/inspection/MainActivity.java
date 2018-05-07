@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -174,6 +175,7 @@ public class MainActivity extends BaseActivity{
 			Gson gson = new Gson();
 			if (bundle.getString("json") != null) {
 				ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
+				DebugLog.d("scheduleResponseModel.status : " + scheduleResponseModel.status);
 				if (scheduleResponseModel.status == 200) {
 					DeleteAllScheduleEvent deleteAllScheduleEvent = new DeleteAllScheduleEvent();
 					deleteAllScheduleEvent.scheduleResponseModel = scheduleResponseModel;
@@ -231,10 +233,10 @@ public class MainActivity extends BaseActivity{
 	}
 
 	OnClickListener mainMenuClick = new OnClickListener() {
-
 		@Override
 		public void onClick(View v) {
 			int i = (Integer) v.getTag();
+			MyApplication.getInstance().setIsInCheckHasilPm(false);
 			switch (i) {
 			case R.string.schedule:
 				DebugLog.d("schedule");
@@ -273,13 +275,18 @@ public class MainActivity extends BaseActivity{
 				trackEvent(getResources().getString(R.string.colocation));
 				scheduleFragment.setScheduleBy(R.string.colocation);
 				break;
+			case R.string.hasil_PM:
+				DebugLog.d("hasil PM");
+				trackEvent(getResources().getString(R.string.hasil_PM));
+				scheduleFragment.setScheduleBy(R.string.hasil_PM);
+				MyApplication.getInstance().setIsInCheckHasilPm(true);
+				break;
 			case R.string.settings:
 				DebugLog.d("settings");
 				trackEvent(getResources().getString(R.string.settings));
 				Intent intent = new Intent(activity, SettingActivity.class);
 				startActivity(intent);
 				return;
-
 			default:
 				break;
 			}
