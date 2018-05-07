@@ -1,5 +1,6 @@
 package com.sap.inspection.mainmenu.fragmentadapter;
 
+import android.os.Debug;
 import android.support.v4.app.FragmentManager;
 import android.view.View.OnClickListener;
 
@@ -14,13 +15,14 @@ public class MainMenuFragmentAdapter extends BaseFragmentAdapter{
 	private ArrayList<Integer> iconRes;
 	private ArrayList<Integer> titleRes;
 	//perubahan irwan menambahkan SUM_ITEM_PER_PAGE menjadi 5 dari 4
-	private final int SUM_ITEM_PER_PAGE = 5;
+	private final int SUM_ITEM_PER_PAGE = 6;
 
 	public MainMenuFragmentAdapter(FragmentManager fm, ArrayList<Integer> iconRes, ArrayList<Integer> titleRes, OnClickListener mainMenuClickListener) {
 		super(fm);
 		this.iconRes = iconRes;
 		this.titleRes = titleRes;
 		fragmentList = new ArrayList<>();
+		DebugLog.d("getSumPage : " + getSumPage());
 		for (int i = 0; i < getSumPage(); i++) {
 			fragmentList.add(MainMenuPageFragment.newInstance(getTitleRes(i), getIconsRes(i), mainMenuClickListener));
 		}
