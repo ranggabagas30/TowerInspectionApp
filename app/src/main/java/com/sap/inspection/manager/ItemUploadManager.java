@@ -7,8 +7,10 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Debug;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
@@ -181,7 +183,7 @@ public class ItemUploadManager {
 
                     BaseResponseModel responseUploadItemModel = gson.fromJson(response, BaseResponseModel.class);
                     scheduleId = itemValues.get(0).scheduleId;
-                    if (responseUploadItemModel.status == 201) {
+                    if (responseUploadItemModel.status == 201 || responseUploadItemModel.status == 200) {
 
                         DebugLog.d("status code : " + responseUploadItemModel.status);
                         ItemValueModel item = itemValues.remove(0);
@@ -196,30 +198,32 @@ public class ItemUploadManager {
                         item.save();
                     }
                     else {
-                        if (responseUploadItemModel.status == 422 || responseUploadItemModel.status == 403 || responseUploadItemModel.status == 404) {
-                            messageFromServer = responseUploadItemModel.messages;
+                        if (responseUploadItemModel.status == 400 ||
+                            responseUploadItemModel.status == 422 ||
+                            responseUploadItemModel.status == 403 ||
+                            responseUploadItemModel.status == 404) {
+
+                            messageFromServer = responseUploadItemModel.messages + " with statuscode : " + responseUploadItemModel.status;
                             DebugLog.d("status code : " + responseUploadItemModel.status);
                         }
                         itemValuesFailed.add(itemValues.remove(0));
                     }
                 } else {
-                    latestStatus = syncFail;
-                    messageFromServer = MyApplication.getContext().getResources().getString(R.string.disconnected);
-                    messageToServer = "failed";
-                    DebugLog.d("response upload item = null");
+                    //stop uploading data when no response == null
+                    publish(syncFail);
                     break;
                 }
             }
 
-            if (response != null) {
+            for (ItemValueModel item : itemValuesFailed) {
+                item.uploadStatus = ItemValueModel.UPLOAD_FAIL;
+                DebugLog.d("scheduleIdFailed : " + item.scheduleId);
+                if (!DbRepositoryValue.getInstance().getDB().isOpen())
+                    DbRepositoryValue.getInstance().open(MyApplication.getContext());
+                item.save();
+            }
 
-                for (ItemValueModel item : itemValuesFailed) {
-                    item.uploadStatus = ItemValueModel.UPLOAD_FAIL;
-                    DebugLog.d("scheduleIdFailed : " + item.scheduleId);
-                    if (!DbRepositoryValue.getInstance().getDB().isOpen())
-                        DbRepositoryValue.getInstance().open(MyApplication.getContext());
-                    item.save();
-                }
+            if (response != null) {
 
                 if (itemValuesFailed.size() == 0) {
                     DebugLog.d("syncdone");
@@ -230,49 +234,44 @@ public class ItemUploadManager {
                     latestStatus = syncFail;
                     messageToServer = "failed";
                 }
+            } else {
+                messageToServer = "failed";
             }
 
-            if (scheduleId != null)
+            if (scheduleId != null) {
                 DebugLog.d("hit corrective");
                 APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() +
                         scheduleId + "/update");
+            }
 
-            //after uploading data, then send messageToServer to the backend server
+            if (getLatestStatus().equalsIgnoreCase(syncDone)) {
+                MyApplication.getInstance().toast(syncDone + "\njumlah item berhasil upload = " + itemValueSuccessCount, Toast.LENGTH_LONG);
+                publish(syncDone);
+            } else
+            if (getLatestStatus().equalsIgnoreCase(syncFail)){
+                MyApplication.getInstance().toast(messageFromServer, Toast.LENGTH_SHORT);
+                MyApplication.getInstance().toast("Sinkronasi gagal", Toast.LENGTH_LONG);
+                publish(syncFail);
+            }
+
             if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")){
+
+                //after uploading data, then send messageToServer to the backend server
                 response = uploadStatus(scheduleId, messageToServer);
                 if (response != null) {
                     BaseResponseModel responseUploadStatusModel = gson.fromJson(response, BaseResponseModel.class);
                     if (responseUploadStatusModel.status == 201) {
-                        if (getLatestStatus().equalsIgnoreCase(syncDone)) {
-                            MyApplication.getInstance().toast(syncDone + "\njumlah item berhasil upload = " + itemValueSuccessCount, Toast.LENGTH_LONG);
-                            publish(syncDone);
-                        } else
-                        if (getLatestStatus().equalsIgnoreCase(syncFail)) {
-                            MyApplication.getInstance().toast(messageFromServer, Toast.LENGTH_SHORT);
-                            MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
-                            publish(syncFail);
-                        }
+                        DebugLog.d("upload status berhasil");
                     } else {
-                        if (responseUploadStatusModel.status == 422 || responseUploadStatusModel.status == 403 || responseUploadStatusModel.status == 404 || responseUploadStatusModel.status == 405) {
-                            MyApplication.getInstance().toast(responseUploadStatusModel.messages, Toast.LENGTH_SHORT);
-                            MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
-                            publish(syncFail);
+                        if (responseUploadStatusModel.status == 422 ||
+                            responseUploadStatusModel.status == 403 ||
+                            responseUploadStatusModel.status == 404 ||
+                            responseUploadStatusModel.status == 405) {
+
+                            Crashlytics.log(Log.ERROR, "uploadstatus", "upload status gagal dengan statuscode : " + responseUploadStatusModel.status);
+                            DebugLog.d("upload status gagal dengan statuscode : " + responseUploadStatusModel.status);
                         }
                     }
-                } else {
-                    MyApplication.getInstance().toast("Connection Timeout. Check your internet connection!", Toast.LENGTH_SHORT);
-                    publish(syncFail);
-                    DebugLog.d("response uploadStatus = null");
-                }
-            } else {
-                if (getLatestStatus().equalsIgnoreCase(syncDone)) {
-                    MyApplication.getInstance().toast(syncDone + "\njumlah item berhasil upload = " + itemValueSuccessCount, Toast.LENGTH_LONG);
-                    publish(syncDone);
-                } else
-                if (getLatestStatus().equalsIgnoreCase(syncFail)) {
-                    MyApplication.getInstance().toast(messageFromServer, Toast.LENGTH_SHORT);
-                    MyApplication.getInstance().toast("Sinkronasi gagal\njumlah item gagal upload = " + itemValuesFailed.size() + " items", Toast.LENGTH_LONG);
-                    publish(syncFail);
                 }
             }
 
@@ -311,11 +310,12 @@ public class ItemUploadManager {
 
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
-                int timeoutConnection = 3000;
+                //int timeoutConnection = 3000;
+                int timeoutConnection = 20 * 1000;
                 HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
                 // Set the default socket timeout (SO_TIMEOUT)
                 // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 5000;
+                int timeoutSocket = 20 * 1000;
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
@@ -362,34 +362,45 @@ public class ItemUploadManager {
                 DebugLog.d("response string data : " + data);
                 statusCode = response.getStatusLine().getStatusCode();
                 DebugLog.d("response string status code : " + statusCode);
-                String s = ConvertInputStreamToString(data);
-                DebugLog.d("json /n" + s);
+                String stringResponse = ConvertInputStreamToString(data);
+                DebugLog.d("json /n" + stringResponse);
                 if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
                     DebugLog.d("not json type");
                     notJson = true;
                     if (statusCode == 404) {
-                        return s;
+                        return stringResponse;
                     } else {
                         return null;
                     }
                 }
                 DebugLog.d("====== END OF UPLOAD PHOTO ===== \n\n");
-                return s;
+                return stringResponse;
             } catch (SocketTimeoutException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                MyApplication.getInstance().toast("Time out connection", Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
+                MyApplication.getInstance().toast("upload photo : Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_SHORT);
+                return null;
             } catch (ClientProtocolException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
+                Crashlytics.log(Log.ERROR, "uploadphoto", e.getMessage());
+                MyApplication.getInstance().toast("upload photo : " + e.getMessage(), Toast.LENGTH_SHORT);
+                return null;
             } catch (IOException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
+                Crashlytics.log(Log.ERROR, "uploadphoto", e.getMessage());
+                MyApplication.getInstance().toast("upload photo : " + e.getMessage(), Toast.LENGTH_SHORT);
+                return null;
             } catch (NullPointerException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
+                Crashlytics.log(Log.ERROR, "uploadphoto", e.getMessage());
+                MyApplication.getInstance().toast("upload photo : " + e.getMessage(), Toast.LENGTH_SHORT);
+                return null;
             }
-            return null;
+
         }
 
         private LinkedList<NameValuePair> getParamUploadStatus(String schedule_id, String messageToServer) {
@@ -451,9 +462,9 @@ public class ItemUploadManager {
                     notJson = true;
                     return null;
                 }
-                String s = ConvertInputStreamToString(data);
-                DebugLog.d("json /n" + s);
-                return s;
+                String stringResponse = ConvertInputStreamToString(data);
+                DebugLog.d("json /n" + stringResponse);
+                return stringResponse;
             } catch (SocketTimeoutException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
@@ -474,7 +485,7 @@ public class ItemUploadManager {
         private String uploadStatus(String schedule_id, String messageToServer) {
             DebugLog.d("===== START UPLOADING STATUS === \n");
             DebugLog.d("** set params ** ");
-            String responseStringData = null;
+            String responseStringData;
             try {
                 //Request Part
                 HttpParams httpParameters = new BasicHttpParams();
@@ -482,11 +493,11 @@ public class ItemUploadManager {
 
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
-                int timeoutConnection = 3000;
+                int timeoutConnection = 20 * 1000;
                 HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
                 // Set the default socket timeout (SO_TIMEOUT)
                 // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 5000;
+                int timeoutSocket = 20 * 1000;
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
@@ -512,21 +523,37 @@ public class ItemUploadManager {
                 DebugLog.d("messageToServer : " + messageToServer);
                 DebugLog.d("response status code : " + statusCode);
                 DebugLog.d("response string data : " + responseStringData);
+
+                if (statusCode == 201 || statusCode == 200) {
+                    return responseStringData;
+                } else
+                if (statusCode == 400 ||
+                    statusCode == 422 ||
+                    statusCode == 403 ||
+                    statusCode == 404) {
+
+                    Crashlytics.log(Log.ERROR, "updatestatus", "statuscode : " + statusCode);
+                    return responseStringData;
+                }
+
                 DebugLog.d("====== END OF UPLOAD STATUS ===== \n\n");
             } catch (SocketTimeoutException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
+                Crashlytics.log(Log.ERROR, "updatestatus", e.getMessage());
                 DebugLog.d("uploadStatus err " + errMsg);
             } catch (ClientProtocolException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
+                Crashlytics.log(Log.ERROR, "updatestatus", e.getMessage());
                 DebugLog.d("uploadStatus err ||||| " + errMsg);
             } catch (IOException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
+                Crashlytics.log(Log.ERROR, "updatestatus", e.getMessage());
                 DebugLog.d("uploadStatus err ||||| " + errMsg);
             }
-            return responseStringData;
+            return null;
         }
 
         @Override
