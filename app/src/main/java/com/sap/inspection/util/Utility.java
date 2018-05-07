@@ -1,10 +1,19 @@
 package com.sap.inspection.util;// Created by Arif Ariyan (me@arifariyan.com) on 8/8/16.
 
 import android.content.Context;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.sap.inspection.MyApplication;
+import com.sap.inspection.R;
+import com.sap.inspection.model.value.Pair;
+import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.tools.PersistentLocation;
 
 import java.io.File;
 import java.util.Arrays;
@@ -40,11 +49,110 @@ public class Utility {
     }
 
     /**
+     * tambahan Rangga
+     *
+     * PersistentLocation : menyimpan data lokasi tetap yang
+     * didapatkan (realtime gps/network location) saat operator pertama kali melakukan pengambilan
+     * foto (Photograph), sehingga dapat digunakan untuk acuan data lokasi pengambilan foto selanjutnya
+     * pada scheduleid yang sama
+     *
+     * */
+    public static Pair<String, String> getPhotoLocation(Context context, String scheduleId, LatLng currentLocation) {
+        String siteLatitude;
+        String siteLongitude;
+
+        //uncomment statement below to delete existed persistent lat lng data in SharedPref
+        //PersistentLocation.getInstance().deletePersistentLatLng();
+        if (!MyApplication.getInstance().isHashMapInitialized()) {
+            // if hashMap had not been initialized yet
+            // ... then inizialize it and retreiveMap from sharedPref
+            DebugLog.d("hasMap site Location had not been initialized yet");
+            MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
+        }
+
+        if (PersistentLocation.getInstance().isScheduleIdPersistentLocationExist(scheduleId)) {
+            //if persistent location of scheduleId has been existed
+            // ... then assign the pair location value to siteLatitude and siteLongitude
+            //MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
+            siteLatitude = PersistentLocation.getInstance().getPersistent_latitude();
+            siteLongitude = PersistentLocation.getInstance().getPersistent_longitude();
+            DebugLog.d("Use saved persistent site location with loc : " + siteLatitude + "," + siteLongitude);
+        } else {
+            //else if not
+            // ... then assign current geo point to site location. photoItem.setImage() will insert
+            //these new site location to local sqlite database
+            //MyApplication.getInstance().toast("Persistent lat lng doesn't exist", Toast.LENGTH_SHORT);
+            siteLatitude = String.valueOf(currentLocation.latitude);
+            siteLongitude = String.valueOf(currentLocation.longitude);
+            DebugLog.d( "location from current geo points : " + siteLatitude + " , " + siteLongitude);
+
+            if (isCurrentLocationError(siteLatitude, siteLongitude)) {
+                //if acquired new location (lat , lng) >= (1.0 , 1.0)
+                //... then save schedule persistent site location in pref
+                PersistentLocation.getInstance().setPersistent_latitude(siteLatitude);
+                PersistentLocation.getInstance().setPersistent_longitude(siteLongitude);
+                PersistentLocation.getInstance().savePersistentLatLng(scheduleId);
+            } else {
+                MyApplication.getInstance().toast(context.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
+            }
+        }
+        return new Pair<>(siteLatitude, siteLongitude);
+    }
+
+    public static void setPersistentLocation(String scheduleId, String latitude, String longitude) {
+        if (!MyApplication.getInstance().isHashMapInitialized()) {
+            // if hashMap had not been initialized yet
+            // ... then inizialize it and retreiveMap from sharedPref
+            DebugLog.d("hasMap site Location had not been initialized yet");
+            MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
+        }
+
+        PersistentLocation.getInstance().setPersistent_latitude(latitude);
+        PersistentLocation.getInstance().setPersistent_longitude(longitude);
+        PersistentLocation.getInstance().savePersistentLatLng(scheduleId);
+    }
+
+    public static Pair<String, String> getPersistentLocation(String scheduleId) {
+        String persistent_latitude;
+        String persistent_longitude;
+
+        if (!MyApplication.getInstance().isHashMapInitialized()) {
+            // if hashMap had not been initialized yet
+            // ... then inizialize it and retreiveMap from sharedPref
+            DebugLog.d("hasMap site Location had not been initialized yet");
+            MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
+        }
+
+        if (PersistentLocation.getInstance().isScheduleIdPersistentLocationExist(scheduleId)) {
+            //if persistent location of scheduleId has been existed
+            // ... then assign the pair location value to persistent_latitude and persistent_longitude
+            //MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
+            persistent_latitude = PersistentLocation.getInstance().getPersistent_latitude();
+            persistent_longitude = PersistentLocation.getInstance().getPersistent_longitude();
+            DebugLog.d("Use saved persistent location with loc : ( " + persistent_latitude + "," + persistent_longitude + " ) ");
+            return new Pair<>(persistent_latitude, persistent_longitude);
+        }
+        return null;
+    }
+
+    public static boolean isCurrentLocationError(String latitude, String longitude) {
+        double dLat = Math.abs(Double.parseDouble(latitude));
+        double dLng = Math.abs(Double.parseDouble(longitude));
+
+        return (dLat < 1 || dLng < 1);
+    }
+
+    public static boolean isCurrentLocationError(double latitude, double longitude) {
+        double dLat = Math.abs(latitude);
+        double dLng = Math.abs(longitude);
+
+        return (dLat < 1 || dLng < 1);
+    }
+    /**
      *
      * STORAGE UTILITY
      *
      * */
-
     public static boolean isExternalStorageReadOnly() {
         return Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState());
     }
