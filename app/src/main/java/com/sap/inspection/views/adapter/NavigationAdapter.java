@@ -14,12 +14,14 @@ import android.widget.Toast;
 
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.CheckInActivity;
 import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
@@ -42,8 +44,12 @@ public class NavigationAdapter extends MyBaseAdapter {
 	private RowModel model;
 	private Vector<RowModel> shown;
 	private String scheduleId;
+	private ScheduleBaseModel scheduleBaseModel;
     private int positionAncestry;
 
+    public void setSchedule(ScheduleBaseModel scheduleBaseModel) {
+    	this.scheduleBaseModel = scheduleBaseModel;
+	}
 	public void setScheduleId(String scheduleId) {
 		this.scheduleId = scheduleId;
 	}
@@ -146,7 +152,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 			holder.uploadWorkFormGroup.setOnClickListener(uploadWorkFormGroupListener);
 			holder.title = (TextView) view.findViewById(R.id.title);
 			holder.title.setOnClickListener(ItemClickListener);
-
 			if (getItemViewType(position) == 0){
 				holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
 			}
@@ -252,12 +257,15 @@ public class NavigationAdapter extends MyBaseAdapter {
 //				context.startActivity(intent);
 			}
 			else if (getItem(position).hasForm){
-				Intent intent = new Intent(context, FormFillActivity.class);
+				DebugLog.d("----schedule id----- "+scheduleId);
+
+				Intent intent;
+				intent = new Intent(context, FormFillActivity.class);
 				intent.putExtra("rowId", getItem(position).id);
 				intent.putExtra("workFormGroupId", getItem(position).work_form_group_id);
 				intent.putExtra("scheduleId", scheduleId);
-                intent.putExtra("workFormGroupName", shown.get(positionAncestry).text);
-				DebugLog.d("----schedule id----- "+scheduleId);
+				intent.putExtra("workFormGroupName", shown.get(positionAncestry).text);
+				intent.putExtra("scheduleBaseModel", scheduleBaseModel);
 				context.startActivity(intent);
 //				Toast.makeText(context, "tester", Toast.LENGTH_SHORT).show();
 			}else
