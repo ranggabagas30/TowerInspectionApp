@@ -75,4 +75,17 @@ public class Constants {
 	public static final String LOADAFTERLOGIN = "load";
 	public static final String LOADSCHEDULE = "load_schedule";
 
+	/**
+	 * ============================== WATERMARK CONFIG ===============================================
+	 * */
+
+	public static final int TEXT_SIZE_POTRAIT = 22;
+	public static final int TEXT_SIZE_LANDSCAPE = 12;
+
+	/**
+	 * ============================= CHECKIN ACTIVITY =================================================
+	 * */
+
+	public static int STP_PREVENTIVE_WORKTYPE_ID = 1;
+	public static int SAP_PREVENTIVE_WORKTYPE_ID = 26;
 } 
