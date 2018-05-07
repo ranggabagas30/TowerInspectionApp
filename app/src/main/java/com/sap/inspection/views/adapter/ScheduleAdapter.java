@@ -37,7 +37,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 
 	public ScheduleAdapter(Context context) {
 		this.context = context;
-		models = new Vector<ScheduleBaseModel>();
+		models = new Vector<>();
 	}
 	
 	@Override

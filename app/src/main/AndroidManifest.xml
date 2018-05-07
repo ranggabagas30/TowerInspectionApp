@@ -2,9 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sap.inspection"
     android:versionCode="19"
-    android:versionName="0.0.20">
-    <!-- vc 6 vn 0.0.7 check if any update -->
-    <!-- vc 7 vn 0.0.8 check db closed if not opened on mainactivity-->
+    android:versionName="0.0.20"> <!-- vc 6 vn 0.0.7 check if any update -->
+    <!-- vc 7 vn 0.0.8 check db closed if not opened on mainactivity -->
     <!-- vc 8 vn 0.0.9 enable full GPS -->
     <!-- vc 9 vn 0.0.10 change timeout to 20sec -->
     <!-- vc 10 vn 0.0.11 add refresh schedule on setting, schedule sort desc, add username and app version -->
@@ -36,19 +35,21 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CLEAR_APP_CACHE"/>
+    <uses-permission android:name="android.permission.CLEAR_APP_CACHE" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
-        android:name="com.sap.inspection.MyApplication"
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/logo_app"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.sap.inspection.LoginActivity"
+            android:name=".LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -58,27 +59,25 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.sap.inspection.MainActivity"
-            android:screenOrientation="portrait"/>
+            android:name=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity
-            android:name="com.sap.inspection.FormActivity"
-            android:screenOrientation="portrait"
-            />
+            android:name=".FormActivity"
+            android:screenOrientation="portrait" />
         <activity
-            android:name="com.sap.inspection.FormFillActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"
+            android:name=".FormFillActivity"
             android:configChanges="orientation|screenSize"
-            />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.sap.inspection.CallendarActivity"
-            android:screenOrientation="portrait"/>
+            android:name=".CallendarActivity"
+            android:screenOrientation="portrait" />
         <activity
-            android:name="com.sap.inspection.UpdateActivity"
-            android:screenOrientation="portrait"/>
+            android:name=".UpdateActivity"
+            android:screenOrientation="portrait" />
         <activity
-            android:name="com.sap.inspection.SettingActivity"
-            android:screenOrientation="portrait"/>
+            android:name=".SettingActivity"
+            android:screenOrientation="portrait" />
 
         <!-- Needed for push notification -->
         <receiver
@@ -93,20 +92,23 @@
         </receiver>
 
         <service android:name="com.rindang.pushnotification.GcmIntentService" />
+
         <uses-library android:name="com.google.android.maps" />
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a53943a44ac132e64a7b3d19b42aba757b44f2bf" />
-
         <meta-data
             android:name="com.google.android.gms.analytics.globalConfigResource"
             android:resource="@xml/global_tracker" />
 
+        <activity
+            android:name=".CheckInActivity">
+
+        </activity>
     </application>
 
 </manifest>

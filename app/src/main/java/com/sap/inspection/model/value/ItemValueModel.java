@@ -180,15 +180,15 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
-    public ItemValueModel getPersistentLocationItemValue(Context context, String scheduleId) {
+    public ItemValueModel getPhotoLocationItemValue(Context context, String scheduleId) {
         ItemValueModel model = null;
         DbRepositoryValue.getInstance().open(context);
-        model = getPersistentLocationItemValue(scheduleId);
+        model = getPhotoLocationItemValue(scheduleId);
         DbRepositoryValue.getInstance().close();
         return model;
     }
 
-    public ItemValueModel getPersistentLocationItemValue(String scheduleId) {
+    public ItemValueModel getPhotoLocationItemValue(String scheduleId) {
         ItemValueModel model = null;
         String table = DbManagerValue.mFormValue;
         String[] columns = null;

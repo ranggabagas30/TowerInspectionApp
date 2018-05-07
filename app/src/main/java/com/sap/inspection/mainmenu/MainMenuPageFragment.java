@@ -29,8 +29,7 @@ public class MainMenuPageFragment extends BaseFragment {
 	}
 	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_mainmenu_page, null, false);
 		initUserName(root);
 		for (int i = 0; i < titles.size(); i++) {

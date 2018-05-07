@@ -32,6 +32,61 @@
                 <!-- Download Button -->
 
                 <TextView
+                    android:id="@+id/watermark"
+                    style="@style/list_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingBottom="@dimen/padding_medium"
+                    android:text="Watermark Text" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="1">
+
+                    <com.sap.inspection.view.FormInputText
+                        android:id="@+id/textmarksizepotrait"
+                        android:layout_weight="0.5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:inputType="numberSigned"
+                        android:padding="10dp"
+                        android:hint="potrait text size"/>
+
+                    <com.sap.inspection.view.FormInputText
+                        android:id="@+id/textmarksizelandscape"
+                        android:layout_weight="0.5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:inputType="numberSigned"
+                        android:hint="landscape text size"/>
+                </LinearLayout>
+
+
+                <Button
+                    android:id="@+id/btntextmarksize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selector_button_green_small_padding"
+                    android:text="Set Text Size"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edittext"
+                android:orientation="vertical"
+                android:padding="@dimen/padding_medium" >
+
+                <!-- Download Button -->
+
+                <TextView
                     android:id="@+id/updateStatus"
                     style="@style/list_title"
                     android:layout_width="match_parent"

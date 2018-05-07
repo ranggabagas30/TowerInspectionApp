@@ -23,18 +23,6 @@ public class PersistentLocation{
     private String persistent_latitude;
     private String persistent_longitude;
 
-    private String stringWithoutColons(String source) {
-        String result;
-        StringBuffer buffer = new StringBuffer();
-        for (int b = 0; b < source.length(); b++) {
-            char c = source.charAt(b);
-            if (c != '{' && c != '}')
-                buffer.append(c);
-        }
-        result = buffer.toString();
-        return result;
-    }
-
     private PersistentLocation() {
 
     }
@@ -110,6 +98,18 @@ public class PersistentLocation{
         //retreiveHashMap();
         boolean result =  MyApplication.getInstance().getHashMapSiteLocation().containsKey(scheduleId);
         DebugLog.d("result = " + result);
+        return result;
+    }
+    
+    private String stringWithoutColons(String source) {
+        String result;
+        StringBuffer buffer = new StringBuffer();
+        for (int b = 0; b < source.length(); b++) {
+            char c = source.charAt(b);
+            if (c != '{' && c != '}')
+                buffer.append(c);
+        }
+        result = buffer.toString();
         return result;
     }
 }

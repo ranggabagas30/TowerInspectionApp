@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
+import android.os.Debug;
 import android.os.Parcel;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -35,6 +36,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public ArrayList<Integer> general_corrective_item_ids;
 	public UserModel user;
 	public WorkTypeModel work_type;
+
 	//penambahan irwan
 	public WorkFormModel work_form;
 	public ProjectModel project;
@@ -377,9 +379,14 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 
 	public Vector<ScheduleBaseModel> getListScheduleForScheduleAdapter(Vector<ScheduleBaseModel> rawList) {
-		Vector<ScheduleBaseModel> listPerDay = new Vector<ScheduleBaseModel>();
+		Vector<ScheduleBaseModel> listPerDay = new Vector<>();
+
 		for (ScheduleBaseModel scheduleBaseModel : rawList) {
+			DebugLog.d("listPerDay.size() : " + listPerDay.size());
+			DebugLog.d("scheduleBaseModel.day_date : " + scheduleBaseModel.day_date);
 			if (listPerDay.size() == 0 || !scheduleBaseModel.day_date.equalsIgnoreCase(listPerDay.get(listPerDay.size()-1).day_date)){
+				if (listPerDay.size() >0 )
+					DebugLog.d("listPerDay.get(listPerDay.size()-1).day_date : " + listPerDay.get(listPerDay.size()-1).day_date);
 				ScheduleBaseModel scheduleBaseModel2 = newObject();
 				scheduleBaseModel2.isSeparator = true;
 				//				scheduleBaseModel2.work_date = scheduleBaseModel.work_date;

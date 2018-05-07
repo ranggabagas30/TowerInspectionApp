@@ -26,6 +26,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
@@ -121,6 +122,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
 
+	private Button mBtnSettings;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -187,14 +190,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         adapter.setUploadListener(uploadClickListener);
 		list.setAdapter(adapter);
 		progressDialog = new ProgressDialog(this);
+
 		Bundle bundle = getIntent().getExtras();
+
 		rowId = bundle.getInt("rowId");
 		workFormGroupId = bundle.getInt("workFormGroupId");
 		workFormGroupName = bundle.getString("workFormGroupName");
+		scheduleId = bundle.getString("scheduleId");
+
 		DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);
-
-		scheduleId = bundle.getString("scheduleId");
 
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+scheduleId);
 		schedule = new ScheduleGeneral();
@@ -209,6 +214,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		search.setOnItemClickListener(searchClickListener);
 		root = (LinearLayout) findViewById(R.id.root);
 		title = (TextView) findViewById(R.id.header_title);
+		mBtnSettings = (Button) findViewById(R.id.btnsettings);
+		mBtnSettings.setOnClickListener(view -> {
+			Intent intent = new Intent(this, SettingActivity.class);
+			startActivity(intent);
+		});
 
 		progressDialog.setMessage("Generating form...");
 		progressDialog.setCancelable(false);
@@ -447,9 +457,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		public void onClick(View v) {
-			if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
-				photoItem = (PhotoItemRadio) v.getTag();
-				takePicture(photoItem.getItemId());
+			if (!MyApplication.getInstance().IsInCheckHasilPm()) {
+
+				if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
+					photoItem = (PhotoItemRadio) v.getTag();
+					takePicture(photoItem.getItemId());
 				/*
 				if (currentGeoPoint.latitude==0) {
 					Toast.makeText(activity, "GPS location is loading, please wait.", Toast.LENGTH_SHORT).show();
@@ -457,23 +469,26 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					photoItem = (PhotoItemRadio) v.getTag();
 					takePicture(photoItem.getItemId());
 				}*/
+				} else {
+					new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
+							.setTopColor(color(R.color.theme_color))
+							.setButtonsColor(color(R.color.theme_color))
+							.setIcon(R.drawable.logo_app)
+							.setTitle(getString(R.string.informationGPS))
+							.setMessage(getString(R.string.enableGPS))
+							.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									Intent gpsOptionsIntent = new Intent(
+											Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+									startActivity(gpsOptionsIntent);
+								}
+							})
+							.setNegativeButton(android.R.string.no, null)
+							.show();
+				}
 			} else {
-				new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
-						.setTopColor(color(R.color.theme_color))
-						.setButtonsColor(color(R.color.theme_color))
-						.setIcon(R.drawable.logo_app)
-						.setTitle(getString(R.string.informationGPS))
-						.setMessage(getString(R.string.enableGPS))
-						.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								Intent gpsOptionsIntent = new Intent(
-										Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-								startActivity(gpsOptionsIntent);
-							}
-						})
-						.setNegativeButton(android.R.string.no, null)
-						.show();
+
 			}
 		}
 	};
@@ -568,8 +583,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent)
 	{
-		String siteLatitude;
-		String siteLongitude;
+		String siteLatitude = String.valueOf(currentGeoPoint.latitude);;
+		String siteLongitude = String.valueOf(currentGeoPoint.longitude);
 		Pair<String, String> photoLocation;
 		if(requestCode==MenuShootImage && resultCode==RESULT_OK)
 		{
@@ -577,19 +592,22 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				photoItem.initValue();
 				photoItem.deletePhoto();
 
-				/*photoLocation = setPersistentLocation();
-				siteLatitude = photoLocation.first();
-				siteLongitude =  photoLocation.second();
-				DebugLog.d( "persistent site location : " + siteLatitude + " , " + siteLongitude);*/
+				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
+					photoLocation = Utility.getPersistentLocation(scheduleId);
+					if (photoLocation != null) {
+						siteLatitude  = photoLocation.first();
+						siteLongitude = photoLocation.second();
+					}
+				}
 
-				String[] textMarks = new String[2];
+				String[] textMarks = new String[3];
 				String photoDate = photoItem.setPhotoDate();
-				String latitude = String.valueOf(currentGeoPoint.latitude);
-				String longitude = String.valueOf(currentGeoPoint.longitude);
+				String latitude = siteLatitude;
+				String longitude = siteLongitude;
 
 				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				//textMarks[1] = "Accurate up to : "+accuracy+" meters";
-				textMarks[1] = "Photo date : "+photoDate;
+				textMarks[1] = "Accurate up to : "+accuracy+" meters";
+				textMarks[2] = "Photo date : "+photoDate;
 
 				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this,mImageUri.toString(), schedule.id, textMarks);
 				if (Utility.isExternalStorageAvailable()) {
@@ -605,65 +623,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 				}
 
-				//photoItem.setImage(mImageUri.toString(),siteLatitude, siteLongitude,accuracy);
 				DebugLog.d( latitude+" || "+longitude);
-				photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+				if (!Utility.isCurrentLocationError(latitude, longitude)) {
+					photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+				} else {
+					MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+				}
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	/**
-	 * tambahan Rangga
-	 *
-	 * PersistentLocation : menyimpan data lokasi tetap yang
-	 * didapatkan (realtime gps/network location) saat operator pertama kali melakukan pengambilan
-	 * foto (Photograph), sehingga dapat digunakan untuk acuan data lokasi pengambilan foto selanjutnya
-	 * pada scheduleid yang sama
-	 *
-	 * */
-	public Pair<String, String> setPersistentLocation() {
-		String siteLatitude;
-		String siteLongitude;
-
-		//uncomment below statement to delete existed persistent lat lng data in SharedPref
-		//PersistentLocation.getInstance().deletePersistentLatLng();
-		if (!MyApplication.getInstance().isHashMapInitialized()) {
-			// if hashMap had not been initialized yet
-			// ... then inizialize it and retreiveMap from sharedPref
-			DebugLog.d("hasMap site Location had not been initialized yet");
-			MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
-		}
-		if (PersistentLocation.getInstance().isScheduleIdPersistentLocationExist(photoItem.getValue().scheduleId)) {
-			//if persistent location of scheduleId has been existed
-			// ... then assign the pair location value to siteLatitude and siteLongitude
-			//MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
-			siteLatitude = PersistentLocation.getInstance().getPersistent_latitude();
-			siteLongitude = PersistentLocation.getInstance().getPersistent_longitude();
-			DebugLog.d("Use saved persistent site location with loc : " + siteLatitude + "," + siteLongitude);
-		} else {
-			//else if not
-			// ... then assign current geo point to site location. photoItem.setImage() will insert
-			//these new site location to local sqlite database
-			//MyApplication.getInstance().toast("Persistent lat lng doesn't exist", Toast.LENGTH_SHORT);
-			siteLatitude = String.valueOf(currentGeoPoint.latitude);
-			siteLongitude = String.valueOf(currentGeoPoint.longitude);
-			DebugLog.d( "location from current geo points : " + siteLatitude + " , " + siteLongitude);
-
-			double dLat = Math.abs(Double.parseDouble(siteLatitude));
-			double dLng = Math.abs(Double.parseDouble(siteLongitude));
-
-			if (!(dLat < 1 || dLng < 1)) {
-				//if acquired new location (lat , lng) >= (1.0 , 1.0)
-				//... then save schedule persistent site location in pref
-				PersistentLocation.getInstance().setPersistent_latitude(siteLatitude);
-				PersistentLocation.getInstance().setPersistent_longitude(siteLongitude);
-				PersistentLocation.getInstance().savePersistentLatLng(photoItem.getValue().scheduleId);
-			} else {
-				MyApplication.getInstance().toast(getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
-			}
-		}
-		return new Pair<>(siteLatitude, siteLongitude);
 	}
 
 	/*
@@ -929,6 +897,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			locationRequest = LocationRequest.create();
 			locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 			locationRequest.setInterval(5000); // Update location every second
+			locationRequest.setFastestInterval(3000);
 			LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,locationListener);
 		}
 
@@ -942,6 +911,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = new GoogleApiClient.OnConnectionFailedListener() {
 		@Override
 		public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+			MyApplication.getInstance().toast("Koneksi google api client gagal", Toast.LENGTH_LONG);
 			DebugLog.d("connectionResult="+connectionResult.toString());
 		}
 	};

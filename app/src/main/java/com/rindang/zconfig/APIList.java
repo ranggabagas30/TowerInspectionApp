@@ -29,6 +29,9 @@ public class APIList {
 		return AppConfig.getInstance().getV1()+"/schedules";
 	}
 
+	//Checkin schedules
+	public static String checkinScheduleUrl(String scheduleId) { return AppConfig.getInstance().getV1()+ "/schedules/" + scheduleId + "/check_in"; }
+
 	//Forms
 	public static String formsUrl(){
 		return AppConfig.getInstance().getV1()+"/work_forms";
@@ -60,5 +63,4 @@ public class APIList {
 	public static String uploadConfirmUrl(){
 		return AppConfig.getInstance().getV1()+"/corrective/";
 	}
-
 }

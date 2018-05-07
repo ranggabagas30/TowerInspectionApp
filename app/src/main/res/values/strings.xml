@@ -2,16 +2,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- development -->
     <string name="url_endpoint">url_endpoint</string>
-    
+
     <!-- Push -->
     <string name="push_sender_id">494949404342</string>
     <string name="push_reg_id_key">push_reg_id_key</string>
     <string name="url_update">url_update</string>
     <string name="latest_version">latest_version</string>
     <string name="latest_version_form">latest_version_form</string>
-	<string name="push_sender_id_key">push_sender_id_key</string>
-	<string name="pref_push_notification_key">pref_push_notification_key</string>
-    
+    <string name="push_sender_id_key">push_sender_id_key</string>
+    <string name="pref_push_notification_key">pref_push_notification_key</string>
+
     <string name="schedule">Jadwal</string>
     <string name="preventive">Preventive</string>
     <string name="corrective">Corrective</string>
@@ -20,20 +20,21 @@
     <string name="site_audit">Site Audit</string>
     <string name="settings">Pengaturan</string>
     <string name="fiber_optic">Fiber Optic</string>
-    
+    <string name="hasil_PM">Hasil PM</string>
+
     <string name="app_reg_id">app_reg_id</string>
     <string name="action_settings">Pengaturan</string>
     <string name="hello_world">Hello world!</string>
-    
+
     <string name="forgot_password">Lupa Password ?</string>
     <string name="signin">Sign in</string>
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
-    
-    
+
+
     <!-- USER DATA -->
     <string name="offline_form">Offline Form</string>
-    
+
     <string name="user_name">nama</string>
     <string name="user_fullname">nama lengkap</string>
     <string name="password">sandi</string>
@@ -52,8 +53,8 @@
     <string name="condition">Condition</string>
     <string name="measurement">Measurement</string>
     <string name="criteria">Criteria :</string>
-    
-    
+
+
     <!-- Error Message -->
     <string name="login_unauthorized">Username and Password salah</string>
     <string name="feature_not_supported_or_removed_from_server">Fitur ini belum didukung oleh server atau dihapus dari server</string>
@@ -61,8 +62,8 @@
     <string name="network_connection_problem">Masalah pada jaringan</string>
     <string name="disconnected">Jaringan terputus</string>
     <string name="comment_can_not_blank">Pesan tidak boleh kosong</string>
-	<string name="search_product_not_found">maaf, kami tidak menemui produk apapun yang sesuai</string>
-	<string name="search_people_not_found">maaf, kami tidak menemui orang yang sesuai</string>
+    <string name="search_product_not_found">maaf, kami tidak menemui produk apapun yang sesuai</string>
+    <string name="search_people_not_found">maaf, kami tidak menemui orang yang sesuai</string>
 
     <!-- penambahan String Irwan -->
     <!-- update String Irwan -->
@@ -101,8 +102,17 @@
     <string name="newUpdateAvail">Update terbaru</string>
     <string name="noNewUpdateAvail">Tidak ada pembaharuan</string>
     <string name="pengaturan">Pengaturan</string>
-    <!-- penambahan string rangga-->
+
+    <!-- watermark -->
+    <string name="textmarksizepotrait">text_mark_size_potrait</string>
+    <string name="textmarksizelandscape">text_mark_size_landscape</string>
+
     <!-- persistent site location string value-->
     <string name="keypersistentsitelocation">Persistent Site Location</string>
     <string name="sitelocationisnotaccurate">Silahkan foto kembali. Latitude longitude photo belum akurat</string>
+    <string name="failedmessagecheckin">Too far from site Coordinate. Please wait a bit for better GPS accuration</string>
+    <string name="successmessagecheckin">Check in success.</string>
+    <string name="checkoutmesssage">You have checked out successfully</string>
+    <string name="checkoutautomaticallymessage">Check in session time has ended. Please check in again</string>
+    <string name="receivedatafromserver">Receive data from server</string>
 </resources>

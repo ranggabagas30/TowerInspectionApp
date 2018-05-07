@@ -20,4 +20,9 @@
     <style name="CheckBoxTintTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
     </style>
 
+    <style name="AppTheme.MyButtonTheme" parent="Widget.AppCompat.Button">
+        <item name="android:background">@color/item_drill_red</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/bg_main</item>
+    </style>
 </resources>

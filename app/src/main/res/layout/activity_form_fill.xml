@@ -13,15 +13,26 @@
         <com.sap.inspection.view.MyTextView
             android:id="@id/header_title"
             style="@style/list_sub"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/action_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:gravity="center"
+            android:layout_centerInParent="true"
             android:maxLines="2"
             android:text="Filling Form"
             android:textColor="@android:color/white"
             android:textSize="@dimen/text_large"
             android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnsettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:padding="10dp"
+            android:text="Settings"
+            android:textSize="12dp"
+            android:background="@color/bg_main"/>
     </RelativeLayout>
 
     <RelativeLayout
