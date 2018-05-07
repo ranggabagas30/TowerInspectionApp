@@ -22,6 +22,7 @@ import com.github.aakira.expandablelayout.Utils;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.OperatorModel;
@@ -286,14 +287,17 @@ public class FormFillAdapter extends MyBaseAdapter {
 			case ItemFormRenderModel.TYPE_COLUMN:
 				DebugLog.d("TYPE_COLUMN");
 				holder.label.setText(getItem(position).column.column_name);
+				DebugLog.d("label : " + getItem(position).column.column_name);
 				break;
 			case ItemFormRenderModel.TYPE_LABEL:
 				DebugLog.d("TYPE_LABEL");
 				holder.label.setText(getItem(position).workItemModel.label);
+				DebugLog.d("label : " + getItem(position).workItemModel.label);
 				break;
 			case ItemFormRenderModel.TYPE_OPERATOR:
 				DebugLog.d("TYPE_OPERATOR");
 				holder.label.setText(getItem(position).operator.name);
+				DebugLog.d(getItem(position).operator.name);
 				break;
 			case ItemFormRenderModel.TYPE_CHECKBOX:
 				DebugLog.d("TYPE_CHECKBOX");
@@ -305,9 +309,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 			case ItemFormRenderModel.TYPE_RADIO:
 				DebugLog.d("TYPE_RADIO");
+				DebugLog.d("label : " + getItem(position).workItemModel.label);
+				DebugLog.d("radio button itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
 				check(position);
 				holder.label.setText(getItem(position).workItemModel.label);
-				DebugLog.d("radio button itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
 				reviseRadio(holder.radio, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
 				setMandatory(holder,getItem(position));
 				break;
@@ -393,7 +398,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				else
 					holder.input.setText("");
 				holder.input.setTextChange(formTextChange);
-				holder.input.setEnabled(!getItem(position).workItemModel.disable);
+				holder.input.setEnabled(!getItem(position).workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm());
 				check(position);
 				setMandatory(holder,getItem(position));
 				break;
@@ -418,6 +423,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 			default:
 				break;
 		}
+
+		//toggleEditable(holder);
 		return convertView;
 	}
 
@@ -441,13 +448,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 	private void reviseCheckBox(LinearLayout linear,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
 		boolean isHorizontal = true;
 		isHorizontal = 3 >= item.workItemModel.options.size();
-		for (int i = 0; i< linear.getChildCount(); i++){
-			CheckBox checkBox = (CheckBox) linear.getChildAt(i);
-			checkBox.setOnCheckedChangeListener(null);
-			checkBox.setChecked(false);
-			checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
-			checkBox.setEnabled(!item.workItemModel.disable);
-		}
+		DebugLog.d("linear child count before addview : " + linear.getChildCount());
 		for (int i = 0; i< linear.getChildCount(); i++){
 			//binding checkbox
 			if (i < item.workItemModel.options.size()){
@@ -490,18 +491,36 @@ public class FormFillAdapter extends MyBaseAdapter {
 			checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
 		}
 		linear.setOrientation(isHorizontal ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+		DebugLog.d("linear child count after addview : " + linear.getChildCount());
+		for (int i = 0; i< linear.getChildCount(); i++){
+			boolean enabled = !item.workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm();
+			CheckBox checkBox = (CheckBox) linear.getChildAt(i);
+			checkBox.setOnCheckedChangeListener(null);
+			checkBox.setChecked(false);
+			checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
+			checkBox.setEnabled(enabled);
+			DebugLog.d("checkBox enabled ? " + enabled);
+		}
 	}
 
 	private void reviseRadio(RadioGroup radioGroup,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
 		boolean isHorizontal = true;
+		boolean enabled = !item.workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm();
+
+		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
+		DebugLog.d("radioGroup child count after addview : " + radioGroup.getChildCount());
 		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
 			radioButton.setOnCheckedChangeListener(null);
-			radioButton.setEnabled(!item.workItemModel.disable);
+			radioButton.setEnabled(enabled);
+			DebugLog.d("radioButton enabled ? " + enabled);
 		}
+
 		radioGroup.clearCheck();
 		isHorizontal = 3 >= item.workItemModel.options.size();
-        DebugLog.d("isHorizontal : " + isHorizontal);
+		DebugLog.d("isHorizontal : " + isHorizontal);
+		DebugLog.d("radioGroup child count before addview : " + radioGroup.getChildCount());
+
 		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			//binding checkbox
 			if (i < item.workItemModel.options.size()){
@@ -513,8 +532,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 				radioButton.setTag(item);
 				if (split != null)
 					for(int j = 0; j < split.length; j++){
-						if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j]))
+						if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j])) {
 							radioGroup.check(radioButton.getId());
+							DebugLog.d("split[" + j + "] = " + split[j]);
+						}
 					}
                 DebugLog.d("checkedChangeListener ... ");
 				radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
@@ -533,11 +554,13 @@ public class FormFillAdapter extends MyBaseAdapter {
 			radioGroup.addView(radioButton);
 			if (split != null)
 				for(int j = 0; j < split.length; j++){
-					if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j]))
+					if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j])) {
 						radioGroup.check(radioButton.getId());
+
+					}
 				}
 			radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
-
+			radioButton.setEnabled(enabled);
 		}
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 	}
@@ -732,6 +755,22 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 			}
 			updateView();
+		}
+	}
+
+	private void toggleEditable(ViewHolder holder) {
+		if (MyApplication.getInstance().IsInCheckHasilPm()) {
+			DebugLog.d("input is disabled");
+			if (holder.radio != null) holder.radio.setEnabled(false);
+			if (holder.input != null) holder.input.setEnabled(false);
+			if (holder.checkBox != null) holder.checkBox.setEnabled(false);
+			if (holder.photoRadio!= null) holder.photoRadio.setEnabled(false);
+		} else {
+			DebugLog.d("input is enabled");
+			if (holder.radio != null) holder.radio.setEnabled(true);
+			if (holder.input != null) holder.input.setEnabled(true);
+			if (holder.checkBox != null) holder.checkBox.setEnabled(true);
+			if (holder.photoRadio!= null) holder.photoRadio.setEnabled(true);
 		}
 	}
 }
