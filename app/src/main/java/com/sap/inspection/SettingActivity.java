@@ -48,6 +48,7 @@ import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.tools.PrefUtil;
 import com.sap.inspection.util.Utility;
+import com.sap.inspection.view.FormInputText;
 import com.slidinglayer.util.CommonUtils;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
@@ -64,6 +65,7 @@ import de.greenrobot.event.EventBus;
 
 public class SettingActivity extends BaseActivity implements UploadListener {
 
+    Button settextmark;
     Button update;
     Button updateForm;
     Button upload;
@@ -75,6 +77,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     TextView uploadInfo;
     SharedPreferences prefs;
     File tempFile;
+    FormInputText inputtextmarksizepotrait;
+    FormInputText inputtextmarksizelandscape;
 
     private ProgressDialog pDialog;
 
@@ -112,6 +116,25 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         title.setText(getString(R.string.pengaturan));
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         file_url = prefs.getString(this.getString(R.string.url_update), "");
+
+        // watermark configuration
+        inputtextmarksizepotrait = (FormInputText) findViewById(R.id.textmarksizepotrait);
+        inputtextmarksizelandscape = (FormInputText) findViewById(R.id.textmarksizelandscape);
+
+        int textSizePotrait = PrefUtil.getIntPref(R.string.textmarksizepotrait, 0);
+        int textSizeLandscape = PrefUtil.getIntPref(R.string.textmarksizelandscape, 0);
+
+        if (textSizePotrait != 0) {
+            inputtextmarksizepotrait.setText(String.valueOf(textSizePotrait));
+        }
+
+        if (textSizeLandscape != 0) {
+            inputtextmarksizelandscape.setText(String.valueOf(textSizeLandscape));
+        }
+
+        settextmark = (Button) findViewById(R.id.btntextmarksize);
+        settextmark.setOnClickListener(setTextMarkClickListener);
+
         // show progress bar button
         update = (Button) findViewById(R.id.update);
         updateForm = (Button) findViewById(R.id.update_form);
@@ -185,6 +208,15 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         //setting (check ulang)
         trackThisPage("Setting");
     }
+
+    OnClickListener setTextMarkClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            MyApplication.getInstance().toast("text mark size saved", Toast.LENGTH_SHORT);
+            writePreference(R.string.textmarksizepotrait, Integer.parseInt(inputtextmarksizepotrait.getText().toString()));
+            writePreference(R.string.textmarksizelandscape, Integer.parseInt(inputtextmarksizelandscape.getText().toString()));
+        }
+    };
 
     OnClickListener deleteClickListener = new OnClickListener() {
 
