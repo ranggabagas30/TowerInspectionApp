@@ -79,13 +79,12 @@ public class Constants {
 	 * ============================== WATERMARK CONFIG ===============================================
 	 * */
 
-	public static final int TEXT_SIZE_POTRAIT = 22;
-	public static final int TEXT_SIZE_LANDSCAPE = 12;
+	public static final int TEXT_SIZE_POTRAIT = 12;
+	public static final int TEXT_SIZE_LANDSCAPE = 18;
+	public static final int TEXT_LINE_SPACE_POTRAIT = 30;
+	public static final int TEXT_LINE_SPACE_LANDSCAPE = 36;
 
 	/**
 	 * ============================= CHECKIN ACTIVITY =================================================
 	 * */
-
-	public static int STP_PREVENTIVE_WORKTYPE_ID = 1;
-	public static int SAP_PREVENTIVE_WORKTYPE_ID = 26;
 } 

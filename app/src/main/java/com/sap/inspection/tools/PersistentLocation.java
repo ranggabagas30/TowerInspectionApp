@@ -62,16 +62,21 @@ public class PersistentLocation{
                 return null;
             } else  {
                 stringSavedFromPref = stringWithoutColons(stringSavedFromPref);
-                String[] pairs = stringSavedFromPref.split(",");
-                for (String pair : pairs) {
-                    DebugLog.d("pair : " + pair);
-                    String[] keyValue = pair.split("=");
+                String[] listLocationData = stringSavedFromPref.split(",");
+                for (String locationData : listLocationData) {
+
+                    DebugLog.d("locationData : " + locationData);
+
+                    String[] keyValue = locationData.split("=");
+
                     String scheduleId = keyValue[0];
                     setPersistent_latitude(keyValue[1]);
                     setPersistent_longitude(keyValue[2]);
                     DebugLog.d("scheduleId :  " + scheduleId + ", lat : " + getPersistent_latitude() + ", lng : " + getPersistent_longitude());
+
                     persistentLatLng = new AbstractMap.SimpleEntry<>(getPersistent_latitude(), getPersistent_longitude());
                     persistentSitelocation.put(keyValue[0], persistentLatLng);
+
                     DebugLog.d("save to hashmap = " + persistentSitelocation.get(keyValue[0]));
                 }
             }
@@ -82,6 +87,7 @@ public class PersistentLocation{
     public void savePersistentLatLng(String scheduleId) {
         String stringHashMap;
         persistentLatLng = new AbstractMap.SimpleEntry<>(getPersistent_latitude(), getPersistent_longitude());
+
         MyApplication.getInstance().getHashMapSiteLocation().put(scheduleId, persistentLatLng);
         stringHashMap = stringWithoutColons(MyApplication.getInstance().getHashMapSiteLocation().toString());
         DebugLog.d("savePersistentLatLng, stringHashMap : " + stringHashMap);

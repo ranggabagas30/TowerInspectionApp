@@ -41,40 +41,162 @@
                     android:text="Watermark Text" />
 
                 <LinearLayout
-                    android:orientation="horizontal"
+                    android:id="@+id/watermarklayouttextsize"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:weightSum="1">
+                    android:layout_height="wrap_content">
 
-                    <com.sap.inspection.view.FormInputText
-                        android:id="@+id/textmarksizepotrait"
-                        android:layout_weight="0.5"
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/textsizesectiontitle"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:inputType="numberSigned"
-                        android:padding="10dp"
-                        android:hint="potrait text size"/>
+                        android:paddingLeft="10dp"
+                        android:paddingStart="10dp"
+                        android:text="Text Size"
+                        android:textSize="16sp" />
 
-                    <com.sap.inspection.view.FormInputText
-                        android:id="@+id/textmarksizelandscape"
-                        android:layout_weight="0.5"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:inputType="numberSigned"
-                        android:hint="landscape text size"/>
+                        android:weightSum="1">
+
+                        <TextView
+                            android:layout_weight="0.35"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="16dp"
+                            android:paddingLeft="16dp"
+                            android:text="Portrait : "/>
+
+                        <com.sap.inspection.view.FormInputText
+                            android:id="@+id/textmarksizepotrait"
+                            android:layout_weight="0.65"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberSigned"
+                            android:hint="12"
+                            android:textAlignment="center"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="1">
+
+                        <TextView
+                            android:layout_weight="0.35"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="16dp"
+                            android:paddingLeft="16dp"
+                            android:text="Landscape : "/>
+
+                        <com.sap.inspection.view.FormInputText
+                            android:id="@+id/textmarksizelandscape"
+                            android:layout_weight="0.65"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberSigned"
+                            android:hint="18"
+                            android:textAlignment="center"/>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btntextmarksize"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selector_button_green_small_padding"
+                        android:text="Set Text Size"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-
-                <Button
-                    android:id="@+id/btntextmarksize"
+                <LinearLayout
+                    android:id="@+id/watermarklayoutlinespace"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/selector_button_green_small_padding"
-                    android:text="Set Text Size"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:id="@+id/linespacesectiontitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp"
+                        android:paddingStart="10dp"
+                        android:text="Line Space Size"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp">
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:weightSum="1">
+
+                            <TextView
+                                android:layout_weight="0.35"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="16dp"
+                                android:paddingLeft="16dp"
+                                android:text="Portrait : "/>
+
+                            <com.sap.inspection.view.FormInputText
+                                android:id="@+id/linespacepotrait"
+                                android:layout_weight="0.65"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="center"
+                                android:inputType="numberSigned"
+                                android:hint="30"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:weightSum="1">
+
+                            <TextView
+                                android:layout_weight="0.35"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="16dp"
+                                android:paddingLeft="16dp"
+                                android:text="Landscape : "/>
+
+                            <com.sap.inspection.view.FormInputText
+                                android:id="@+id/linespacelandscape"
+                                android:layout_weight="0.65"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="center"
+                                android:inputType="numberSigned"
+                                android:hint="36"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnlinespace"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/selector_button_green_small_padding"
+                        android:text="Set Line Space Size"
+                        android:textColor="@android:color/white"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout

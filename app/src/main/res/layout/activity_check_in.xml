@@ -28,6 +28,7 @@
     </RelativeLayout>
 
     <ScrollView
+        android:id="@+id/scollviewcheckin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="16dp"
@@ -126,12 +127,37 @@
                     android:hint="Longitude" />
             </LinearLayout>
 
+            <com.sap.inspection.view.MyTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="12dp"
+                android:paddingStart="12dp"
+                android:text="Jarak ke lokasi site : (dalam meter) "
+                android:textSize="16sp" />
+
             <com.sap.inspection.view.FormInputText
                 android:id="@+id/input_text_distance_to_site"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
                 android:hint="Distance to site coordinte (in meter)"/>
+
+            <com.sap.inspection.view.MyTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="12dp"
+                android:paddingStart="12dp"
+                android:text="Tingkat akurasi GPS :  "
+                android:textSize="16sp" />
+
+            <com.sap.inspection.view.FormInputText
+                android:id="@+id/input_text_gps_accuracy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                android:hint="GPS Accuration"/>
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/buttoncheckin"
@@ -140,6 +166,14 @@
                 android:layout_margin="10dp"
                 android:text="Check In"
                 style="@style/AppTheme.MyButtonTheme"/>
+
+            <TextView
+                android:id="@+id/textcheckincriteria"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:padding="10dp"
+                android:text="Anda harus berada dalam radius 200 m dengan akurasi minimum 50 m untuk dapat checkin"/>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

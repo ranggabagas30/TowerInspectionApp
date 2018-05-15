@@ -23,6 +23,13 @@
             android:textSize="@dimen/text_large"
             android:textStyle="bold" />
 
+        <!--<ImageView
+            android:id="@+id/imagebuttonsettings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_settings"/>-->
         <Button
             android:id="@+id/btnsettings"
             android:layout_width="wrap_content"
@@ -32,7 +39,8 @@
             android:padding="10dp"
             android:text="Settings"
             android:textSize="12dp"
-            android:background="@color/bg_main"/>
+            android:background="@color/bg_main"
+            android:visibility="visible"/>
     </RelativeLayout>
 
     <RelativeLayout

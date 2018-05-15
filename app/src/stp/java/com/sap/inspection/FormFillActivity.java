@@ -16,6 +16,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -103,7 +104,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private AutoCompleteTextView search;
 	private ListView list;
 	private View searchView;
-
+	private File photo;
 	private FormFillAdapter adapter;
 
 //	private LocationManager locationManager;
@@ -524,7 +525,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		//		startActivityForResult(intent,CAMERA);
 
 		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-		File photo;
 		try
 		{
 			// place where to store camera taken picture
@@ -561,21 +561,49 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private File createTemporaryFile(String part, String ext) throws Exception
 	{
 		File tempDir;
+		boolean createDirStatus;
+		if (Utility.isExternalStorageReadOnly()) {
+			DebugLog.d("external storage is read only");
+		}
 		if (Utility.isExternalStorageAvailable()) {
 			DebugLog.d("external storage available");
 			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+			if (!tempDir.exists()) {
+				DebugLog.d("using legacy path");
+				tempDir = new File( "/storage/emulated/legacy/" + Environment.DIRECTORY_DCIM + "/Camera/");
+			}
+
 		} else {
 			DebugLog.d("external storage not available");
 			tempDir = new File(getFilesDir()+"/Camera/");
 		}
 		tempDir = new File(tempDir.getAbsolutePath() + "/TowerInspection"); // create temp folder
 		if (!tempDir.exists()) {
-			tempDir.mkdir();
+			createDirStatus = tempDir.mkdir();
+			if (!createDirStatus) {
+				createDirStatus = tempDir.mkdirs();
+				if (!createDirStatus) {
+					DebugLog.e("fail to create dir");
+					Crashlytics.log("fail to create dir");
+				} else {
+					DebugLog.d("create dir success");
+				}
+			}
 		}
+
 		tempDir = new File(tempDir.getAbsolutePath() + "/" + schedule.id + "/"); // create schedule folder
 		if (!tempDir.exists()) {
-			tempDir.mkdir();
+			createDirStatus = tempDir.mkdir();
+			if (!createDirStatus) {
+				createDirStatus = tempDir.mkdirs();
+				if (!createDirStatus) {
+					DebugLog.e("fail to create dir");
+				} else {
+					DebugLog.d("create dir success");
+				}
+			}
 		}
+		DebugLog.d("tempDir path : " + tempDir.getAbsolutePath());
 		return File.createTempFile(part, ext, tempDir);
 	}
 
@@ -597,6 +625,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					if (photoLocation != null) {
 						siteLatitude  = photoLocation.first();
 						siteLongitude = photoLocation.second();
+					} else {
+						Crashlytics.log(Log.ERROR, "photolocation", "Persistent photo location error (null)");
 					}
 				}
 
@@ -606,28 +636,36 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String longitude = siteLongitude;
 
 				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				textMarks[1] = "Accurate up to : "+accuracy+" meters";
+				//textMarks[1] = "Accurate up to : "+accuracy+" meters";
+				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
-				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this,mImageUri.toString(), schedule.id, textMarks);
-				if (Utility.isExternalStorageAvailable()) {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-						Intent mediaScanIntent = new Intent(
-								Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-						Uri contentUri = Uri.fromFile(file);
-						mediaScanIntent.setData(contentUri);
-						this.sendBroadcast(mediaScanIntent);
-					} else {
-						sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-								Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
-					}
-				}
+				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), schedule.id, textMarks);
+                //File file = ImageUtil.resizeAndSaveImageCheckExif(this, mImageUri.toString(), schedule.id);
+				if (null != file) {
 
-				DebugLog.d( latitude+" || "+longitude);
-				if (!Utility.isCurrentLocationError(latitude, longitude)) {
-					photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+					if (Utility.isExternalStorageAvailable()) {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+							Intent mediaScanIntent = new Intent(
+									Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+							Uri contentUri = Uri.fromFile(file);
+							mediaScanIntent.setData(contentUri);
+							this.sendBroadcast(mediaScanIntent);
+						} else {
+							sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+									Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
+						}
+					}
+
+					DebugLog.d( latitude+" || "+longitude);
+					if (!Utility.isCurrentLocationError(latitude, longitude)) {
+						photoItem.setPhotoDate();
+						photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+					} else {
+						MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+					}
 				} else {
-					MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+					MyApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
 				}
 			}
 		}
@@ -949,7 +987,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					DebugLog.d("itemValue="+item.itemValue.value);
 				}
 
-				if (list.contains(item.type)) {
+				if (list.contains(item.type) && !MyApplication.getInstance().IsInCheckHasilPm()) {
 					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
 						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
 							Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();

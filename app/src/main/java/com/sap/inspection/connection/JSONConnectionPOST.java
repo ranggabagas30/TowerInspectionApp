@@ -82,11 +82,12 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 
 			// Set the timeout in milliseconds until a connection is established.
 			// The default value is zero, that means the timeout is not used.
-			int timeoutConnection = 20 * 1000;
+			int timeoutConnection = 3 * 60 * 1000; // three minutes
 			HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+
 			// Set the default socket timeout (SO_TIMEOUT) 
 			// in milliseconds which is the timeout for waiting for data.
-			int timeoutSocket = 20 * 1000;
+			int timeoutSocket = 3 * 60 * 1000; // three minutes
 			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
 			boolean isUrlOk = true;

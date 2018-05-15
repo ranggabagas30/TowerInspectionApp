@@ -51,6 +51,7 @@
                     android:layout_alignParentLeft="true"
                     android:paddingRight="@dimen/padding_medium"
                     android:text="Lat. : "
+                    android:textSize="12sp"
                     android:textColor="@android:color/white" />
 
                 <TextView
@@ -59,6 +60,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/latitude"
                     android:text="Long. :"
+                    android:textSize="12sp"
                     android:textColor="@android:color/white" />
 
                 <TextView
@@ -67,6 +69,16 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/longitude"
                     android:text="Accuracy up to : 100 m"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/photodate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/accuracy"
+                    android:text="photo date : "
+                    android:textSize="12sp"
                     android:textColor="@android:color/white" />
 
                 <TextView

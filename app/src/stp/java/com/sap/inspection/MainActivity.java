@@ -235,8 +235,8 @@ public class MainActivity extends BaseActivity{
 	OnClickListener mainMenuClick = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			int i = (Integer) v.getTag();
 			MyApplication.getInstance().setIsInCheckHasilPm(false);
+			int i = (Integer) v.getTag();
 			switch (i) {
 			case R.string.schedule:
 				DebugLog.d("schedule");
@@ -279,7 +279,6 @@ public class MainActivity extends BaseActivity{
 				DebugLog.d("hasil PM");
 				trackEvent(getResources().getString(R.string.hasil_PM));
 				scheduleFragment.setScheduleBy(R.string.hasil_PM);
-				MyApplication.getInstance().setIsInCheckHasilPm(true);
 				break;
 			case R.string.settings:
 				DebugLog.d("settings");

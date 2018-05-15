@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
@@ -117,6 +118,8 @@ public class ImageUtil {
         int x = 640;
 
         try {
+
+            // determine image source path
             if (Utility.isExternalStorageAvailable()) {
                 DebugLog.d("external storage available");
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
@@ -127,7 +130,8 @@ public class ImageUtil {
             String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds=true;
+            options.inJustDecodeBounds=true; // avoid memory allocation
+
             BitmapFactory.decodeFile(path,options);
             int imageHeight = options.outHeight;
             int imageWidth = options.outWidth;
@@ -135,6 +139,7 @@ public class ImageUtil {
             float factorH = x / (float)imageHeight;
             float factorW = x / (float)imageWidth;
             float factorToUse = (factorH > factorW) ? factorW : factorH;
+
             DebugLog.d("factorToUse="+factorToUse);
             Bitmap bitmap_Source = BitmapFactory.decodeFile(path);
             Bitmap bitmap = Bitmap.createScaledBitmap(bitmap_Source,
@@ -147,6 +152,8 @@ public class ImageUtil {
 
             bitmap = ExifUtil.rotateBitmap(path,bitmap);
             DebugLog.d("width="+bitmap.getWidth()+" height="+bitmap.getHeight());
+
+
             File file;
             file = new File(path);
             DebugLog.d(file.getPath());
@@ -185,16 +192,16 @@ public class ImageUtil {
                 DebugLog.d("external storage not available");
                 tempDir = new File(ctx.getFilesDir()+"/Camera/");
             }
-            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
 
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds=true;
-            Bitmap bitmap = writeTextOnDrawable(ctx, path, x, options, textMarks);
+            //String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
+            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+ imageUri;
+            DebugLog.d("image uri : " + imageUri);
+            DebugLog.d("path of image : " + path);
 
-            DebugLog.d("width="+bitmap.getWidth()+" height="+bitmap.getHeight());
-            File file;
-            file = new File(path);
-            DebugLog.d(file.getPath());
+            Bitmap bitmap = writeTextOnDrawable(ctx, path, x, textMarks);
+
+            File file = new File(path);
+            DebugLog.d("file path : " + file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
                 //kualitas
@@ -205,8 +212,6 @@ public class ImageUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            bitmap = null;
             System.gc();
 
         } catch (NullPointerException e) {
@@ -369,9 +374,12 @@ public class ImageUtil {
         return bm;
     }
 
-    public static Bitmap writeTextOnDrawable(Context mContext, String imagePath, int x, BitmapFactory.Options options,  String[] texts) {
+    public static Bitmap writeTextOnDrawable(Context mContext, String imagePath, int x,  String[] texts) {
 
-        BitmapFactory.decodeFile(imagePath,options);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds=true;
+
+	    BitmapFactory.decodeFile(imagePath,options);
         int imageHeight = options.outHeight;
         int imageWidth = options.outWidth;
 
@@ -380,32 +388,53 @@ public class ImageUtil {
         float factorToUse = (factorH > factorW) ? factorW : factorH;
         DebugLog.d("factorToUse="+factorToUse);
 
-        Bitmap bitmap_Source = BitmapFactory.decodeFile(imagePath)
-                .copy(Bitmap.Config.ARGB_8888, true);
+        int reqWidth = (int) (imageWidth * factorToUse);
+        int reqHeight = (int) (imageHeight * factorToUse);
 
-        Bitmap bitmap_Result = Bitmap.createScaledBitmap(bitmap_Source,
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        options.inJustDecodeBounds = false;
+        options.inMutable = true;
+        Bitmap bitmap_Result = BitmapFactory.decodeFile(imagePath, options);
+
+        /*bitmap_Result = Bitmap.createScaledBitmap(bitmap_Result,
                 (int) (imageWidth * factorToUse),
                 (int) (imageHeight * factorToUse),
-                false);
+                false);*/
+        /*
+        * legacy
+        * */
+        //Bitmap bitmap_Source = BitmapFactory.decodeFile(imagePath);
+
+        /*Bitmap bitmap_Result = Bitmap.createScaledBitmap(bitmap_Source,
+                (int) (imageWidth * factorToUse),
+                (int) (imageHeight * factorToUse),
+                false);*/
 
         float bitmapRotation = imageOrientation(imagePath);
+
         bitmap_Result = ExifUtil.rotateBitmap(imagePath,bitmap_Result);
         Canvas canvas = new Canvas(bitmap_Result);
 
+        int outputWidth  = bitmap_Result.getWidth();
+        int outputHeight = bitmap_Result.getHeight();
+
         Paint greyPaint = new Paint();
         greyPaint.setColor(mContext.getResources().getColor(R.color.transparent_gray));
-        if (imageWidth <= imageHeight) { // landscape
+
+        if (isPortrait(outputWidth, outputHeight)) { // portrait
             DebugLog.d("bitmapRotation : " + bitmapRotation);
             canvas.drawRect(0, canvas.getHeight() * 83/100, canvas.getWidth(), canvas.getHeight(), greyPaint);
-        } else
-        if (imageWidth > imageHeight) { // potrait
+        } else {
+                                                      // landscape
             DebugLog.d("bitmapRotation : " + bitmapRotation);
             canvas.drawRect(0, canvas.getHeight() * 60/100, canvas.getWidth(), canvas.getHeight(), greyPaint);
         }
 
         TextMarkModel textMark = TextMarkModel.getInstance();
 
-        float dy = 30.0f;
+        int dy_potrait  = PrefUtil.getIntPref(R.string.linespacepotrait, Constants.TEXT_LINE_SPACE_POTRAIT);
+        int dy_landscape = PrefUtil.getIntPref(R.string.linespacelandscape, Constants.TEXT_LINE_SPACE_LANDSCAPE);
         float xPos = 0.0f;
         float yPos = 0.0f;
 
@@ -420,22 +449,31 @@ public class ImageUtil {
             int textHeight = textMark.getTextRect().height();
             int textSize;
 
-            if (imageWidth <= imageHeight) { // potrait
+            if (isPortrait(outputWidth, outputHeight)) { // potrait
                 textSize = PrefUtil.getIntPref(R.string.textmarksizepotrait, Constants.TEXT_SIZE_POTRAIT);
                 px = convertToPixels(mContext, textSize);
 
                 textPaint.setTextSize(px);
 
                 xPos = convertToPixels(mContext, 10);
-                yPos = (canvas.getHeight() * 83/100) + convertToPixels(mContext, textHeight) + dy * i;
-            } else
-            if (imageWidth > imageHeight) { // landscape
+                //yPos = (canvas.getHeight() * 83/100) + convertToPixels(mContext, textHeight) + dy_potrait * i;
+                yPos = (canvas.getHeight() * 90/100) + dy_potrait * i;
+
+                DebugLog.d("text size portrait : " + textSize);
+                DebugLog.d("line space portrait : " + dy_potrait);
+
+            } else {
+                                                        // landscape
                 textSize = PrefUtil.getIntPref(R.string.textmarksizelandscape, Constants.TEXT_SIZE_LANDSCAPE);
                 px = convertToPixels(mContext, textSize);
 
                 textPaint.setTextSize(px);
                 xPos = convertToPixels(mContext, 10);
-                yPos = (canvas.getHeight() * 70/100) + convertToPixels(mContext, textHeight) + dy * i;
+                //yPos = (canvas.getHeight() * 70/100) + convertToPixels(mContext, textHeight) + dy_potrait * i;
+                yPos = (canvas.getHeight() * 70/100) + dy_landscape * i;
+
+                DebugLog.d("text size landscape : " + textSize);
+                DebugLog.d("line space landscape : " + dy_landscape);
             }
 
             DebugLog.d("text mark width : " + textWidth);
@@ -443,7 +481,13 @@ public class ImageUtil {
             DebugLog.d("Canvas width x height : " + canvas.getWidth() + " x " + canvas.getHeight());
 
             canvas.drawText(textMark.getTextMark(), xPos, yPos, textPaint);
+
+
         }
+
+        DebugLog.d("required : width="+reqWidth+" height="+reqHeight);
+        DebugLog.d("Bitmap Source : width="+imageWidth+" height="+imageHeight);
+        DebugLog.d("Bitmap Result : width="+bitmap_Result.getWidth()+" height="+bitmap_Result.getHeight());
         return bitmap_Result;
     }
 
@@ -475,6 +519,16 @@ public class ImageUtil {
         DebugLog.d("orientation="+orientation);
 
         return degree;
+    }
+
+    public static boolean isPortrait(int width, int height) {
+	    if (width <= height) {
+	        //MyApplication.getInstance().toast("portrait", Toast.LENGTH_SHORT);
+            return true;
+        } else {
+            //MyApplication.getInstance().toast("landscape", Toast.LENGTH_SHORT);
+            return false;
+        }
     }
 
     public static int convertToPixels(Context context, int nDP)
@@ -519,5 +573,28 @@ public class ImageUtil {
     public static float getPXFromLineWidth(int lineWidth, float cpl) {
 	    final float RATIO = 1.618f;
 	    return lineWidth * RATIO / cpl;
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 }

@@ -57,7 +57,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.drawable.ic_corrective,
 					R.drawable.ic_settings,
 					R.drawable.fofo,
-					R.drawable.ic_check4
+					R.drawable.ic_hasilpm
 			};
 			this.icons = getArrayList(icons);
 		}
