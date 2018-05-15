@@ -9,7 +9,7 @@ public class CheckinRepsonseModel extends BaseResponseModel {
     public class Data{
         public int id;
         public int schedule_id;
-        public int site_id_customer;
+        public String site_id_customer;
         public float distance;
         public String site_name;
         public String period;
@@ -19,6 +19,7 @@ public class CheckinRepsonseModel extends BaseResponseModel {
         public String current_long;
         public String time_checkin;
         public String status;
+        public String accuracy;
     }
     public String respond_in;
 
@@ -37,6 +38,7 @@ public class CheckinRepsonseModel extends BaseResponseModel {
         DebugLog.d("\t current_long : " + data.current_long);
         DebugLog.d("\t time_checkin : " + data.time_checkin);
         DebugLog.d("\t status : " + data.status);
+        DebugLog.d("\t accuracy : " + data.accuracy);
         DebugLog.d("},");
         DebugLog.d("respond_in : " + respond_in);
     }
