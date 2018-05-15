@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.event.DeleteAllScheduleEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
@@ -66,6 +67,7 @@ import de.greenrobot.event.EventBus;
 public class SettingActivity extends BaseActivity implements UploadListener {
 
     Button settextmark;
+    Button setlinespace;
     Button update;
     Button updateForm;
     Button upload;
@@ -79,6 +81,8 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     File tempFile;
     FormInputText inputtextmarksizepotrait;
     FormInputText inputtextmarksizelandscape;
+    FormInputText inputlinespacepotrait;
+    FormInputText inputlinespacelandscape;
 
     private ProgressDialog pDialog;
 
@@ -120,20 +124,24 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         // watermark configuration
         inputtextmarksizepotrait = (FormInputText) findViewById(R.id.textmarksizepotrait);
         inputtextmarksizelandscape = (FormInputText) findViewById(R.id.textmarksizelandscape);
+        inputlinespacepotrait = (FormInputText) findViewById(R.id.linespacepotrait);
+        inputlinespacelandscape = (FormInputText) findViewById(R.id.linespacelandscape);
 
-        int textSizePotrait = PrefUtil.getIntPref(R.string.textmarksizepotrait, 0);
-        int textSizeLandscape = PrefUtil.getIntPref(R.string.textmarksizelandscape, 0);
+        int textSizePotrait = PrefUtil.getIntPref(R.string.textmarksizepotrait, Constants.TEXT_SIZE_POTRAIT);
+        int textSizeLandscape = PrefUtil.getIntPref(R.string.textmarksizelandscape, Constants.TEXT_SIZE_LANDSCAPE);
+        int linespacePotrait = PrefUtil.getIntPref(R.string.linespacepotrait, Constants.TEXT_LINE_SPACE_POTRAIT);
+        int linespaceLandscape =  PrefUtil.getIntPref(R.string.linespacelandscape, Constants.TEXT_LINE_SPACE_LANDSCAPE);
 
-        if (textSizePotrait != 0) {
-            inputtextmarksizepotrait.setText(String.valueOf(textSizePotrait));
-        }
-
-        if (textSizeLandscape != 0) {
-            inputtextmarksizelandscape.setText(String.valueOf(textSizeLandscape));
-        }
+        inputtextmarksizepotrait.setText(String.valueOf(textSizePotrait));
+        inputtextmarksizelandscape.setText(String.valueOf(textSizeLandscape));
+        inputlinespacepotrait.setText(String.valueOf(linespacePotrait));
+        inputlinespacelandscape.setText(String.valueOf(linespaceLandscape));
 
         settextmark = (Button) findViewById(R.id.btntextmarksize);
         settextmark.setOnClickListener(setTextMarkClickListener);
+
+        setlinespace = (Button) findViewById(R.id.btnlinespace);
+        setlinespace.setOnClickListener(setLinespaceClickListener);
 
         // show progress bar button
         update = (Button) findViewById(R.id.update);
@@ -215,6 +223,15 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             MyApplication.getInstance().toast("text mark size saved", Toast.LENGTH_SHORT);
             writePreference(R.string.textmarksizepotrait, Integer.parseInt(inputtextmarksizepotrait.getText().toString()));
             writePreference(R.string.textmarksizelandscape, Integer.parseInt(inputtextmarksizelandscape.getText().toString()));
+        }
+    };
+
+    OnClickListener setLinespaceClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            MyApplication.getInstance().toast("line space size saved", Toast.LENGTH_SHORT);
+            writePreference(R.string.linespacepotrait, Integer.parseInt(inputlinespacepotrait.getText().toString()));
+            writePreference(R.string.linespacelandscape, Integer.parseInt(inputlinespacelandscape.getText().toString()));
         }
     };
 
