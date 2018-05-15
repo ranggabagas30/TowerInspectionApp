@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +29,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
@@ -105,7 +107,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private AutoCompleteTextView search;
 	private ListView list;
 	private View searchView;
-	
+	private File photo;
 	private FormFillAdapter adapter;
 
 	private LatLng currentGeoPoint;
@@ -122,6 +124,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
 
+	private Button mBtnSettings;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -175,10 +178,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		search.setOnItemClickListener(searchClickListener);
 		root = (LinearLayout) findViewById(R.id.root);
 		title = (TextView) findViewById(R.id.header_title);
+		mBtnSettings = (Button) findViewById(R.id.btnsettings);
+		mBtnSettings.setOnClickListener(view -> {
+			Intent intent = new Intent(this, SettingActivity.class);
+			startActivity(intent);
+		});
 
 		progressDialog.setMessage("Generating form...");
-		progressDialog.show();
 		progressDialog.setCancelable(false);
+		try {
+			progressDialog.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		FormLoader loader = new FormLoader();
 		loader.execute();
 	}
@@ -454,7 +466,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				//item is disable
 				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
 			}
-			else if (itemFormRenderModel.itemValue!=null && itemFormRenderModel.itemValue.value!=null) {
+			//else if (itemFormRenderModel.itemValue!=null && itemFormRenderModel.itemValue.value!=null) {
+			else if (itemFormRenderModel.itemValue!=null) {
 				DebugLog.d("itemId=" + itemFormRenderModel.itemValue.itemId+" pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
 						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
 						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
@@ -471,7 +484,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		//		startActivityForResult(intent,CAMERA);
 
 		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-		File photo;
 		try
 		{
 			// place where to store camera taken picture
@@ -557,47 +569,62 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent)
 	{
+		String siteLatitude = String.valueOf(currentGeoPoint.latitude);;
+		String siteLongitude = String.valueOf(currentGeoPoint.longitude);
+		Pair<String, String> photoLocation;
 		if(requestCode==MenuShootImage && resultCode==RESULT_OK)
 		{
 			if (photoItem != null && mImageUri != null){
 				photoItem.initValue();
 				photoItem.deletePhoto();
 
-				String[] textMarks = new String[3];
-				String photoDate = photoItem.setPhotoDate();
-				String latitude = String.valueOf(currentGeoPoint.latitude);
-				String longitude = String.valueOf(currentGeoPoint.longitude);
-
-				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				textMarks[1] = "Accurate up to : "+accuracy+" meters";
-				textMarks[2] = "Photo date : "+photoDate;
-
-				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this,mImageUri.toString(), schedule.id, textMarks);
-				if (Utility.isExternalStorageAvailable()) {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-						Intent mediaScanIntent = new Intent(
-								Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-						Uri contentUri = Uri.fromFile(file);
-						mediaScanIntent.setData(contentUri);
-						this.sendBroadcast(mediaScanIntent);
+				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
+					photoLocation = Utility.getPersistentLocation(scheduleId);
+					if (photoLocation != null) {
+						siteLatitude  = photoLocation.first();
+						siteLongitude = photoLocation.second();
 					} else {
-						sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-								Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
+						Crashlytics.log(Log.ERROR, "photolocation", "Persistent photo location error (null)");
 					}
 				}
 
-				double dLat = Math.abs(Double.parseDouble(latitude));
-				double dLng = Math.abs(Double.parseDouble(longitude));
+				String[] textMarks = new String[3];
+				String photoDate = photoItem.setPhotoDate();
+				String latitude = siteLatitude;
+				String longitude = siteLongitude;
 
-				if (!(dLat < 1 || dLng < 1)) {
-					//if acquired new location (lat , lng) >= (1.0 , 1.0)
-					//... then set image lat long
+				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
+				//textMarks[1] = "Accurate up to : "+accuracy+" meters";
+				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
+				textMarks[2] = "Photo date : "+photoDate;
+
+				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), schedule.id, textMarks);
+
+				if (null != file) {
+
+					if (Utility.isExternalStorageAvailable()) {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+							Intent mediaScanIntent = new Intent(
+									Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+							Uri contentUri = Uri.fromFile(file);
+							mediaScanIntent.setData(contentUri);
+							this.sendBroadcast(mediaScanIntent);
+						} else {
+							sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+									Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
+						}
+					}
+
 					DebugLog.d( latitude+" || "+longitude);
-					photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+					if (!Utility.isCurrentLocationError(latitude, longitude)) {
+						photoItem.setPhotoDate();
+						photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+					} else {
+						MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+					}
 				} else {
-					MyApplication.getInstance().toast(getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
+					MyApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
 				}
-
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -938,13 +965,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					" disable="+item.workItemModel.disable);
 				}
 
-				if (item.itemValue!=null) {
-					DebugLog.d("item label : " + item.workItemModel.label);
-					DebugLog.d("itemValue.value="+item.itemValue.value); // belum ada foto
-					DebugLog.d("scheduleId=" + item.itemValue.scheduleId);
-					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+				if (!MyApplication.getInstance().IsInCheckHasilPm()) {
 
-                        DebugLog.d("workFormGroupName : " + workFormGroupName);
+					if (item.itemValue!=null) {
+						DebugLog.d("is in hasil pm : " + MyApplication.getInstance().IsInCheckHasilPm());
+						DebugLog.d("item label : " + item.workItemModel.label);
+						DebugLog.d("itemValue.value="+item.itemValue.value); // belum ada foto
+						DebugLog.d("scheduleId=" + item.itemValue.scheduleId);
+						DebugLog.d("workFormGroupName : " + workFormGroupName);
+
+
 						if (workFormGroupName.equalsIgnoreCase("Photograph") && item.type == 2) {
 							DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
 							DebugLog.d("remark : " + item.itemValue.remark);
@@ -965,18 +995,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							}
 						}
 					}
-				}
 
-				if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
-					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
-						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
-							Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
-							mandatoryFound = true;
-							break;
+					if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
+						if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
+							if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
+								Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+								mandatoryFound = true;
+								break;
+							}
 						}
 					}
 				}
 			}
+
 			DebugLog.d("mandatoryFound="+mandatoryFound);
 			if (!mandatoryFound)
 				super.onBackPressed();
