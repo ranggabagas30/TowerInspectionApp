@@ -13,6 +13,7 @@ public class SiteModel extends BaseModel {
     public int id;
     public String name;
     public String locationStr;
+    public String site_id_customer;
     public LocationModel location;
 
 	@Override
@@ -45,7 +46,7 @@ public class SiteModel extends BaseModel {
 
 		String table = DbManager.mSite;
 		String[] columns = null;
-		String where =DbManager.colID+"=?";
+		String where = DbManager.colID+"=?";
 		String[] args = new String[]{String.valueOf(id)};
 		Cursor cursor;
 
@@ -63,20 +64,45 @@ public class SiteModel extends BaseModel {
 	}
 	
 	public void save(){
-		DebugLog.d("id="+id+" name="+name+" locationStr="+locationStr);
-		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s) VALUES(?,?,?)",
+		switch (DbManager.schema_version) {
+			case 9 : {
+
+				DebugLog.d("id="+id+" name="+name+" locationStr="+locationStr+ " site_id_customer=" +site_id_customer);
+				String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s) VALUES(?,?,?,?)",
+						DbManager.mSite , DbManager.colID,
+						DbManager.colName,DbManager.colSiteLocation, DbManager.colSiteIdCustomer);
+
+				DbRepository.getInstance().open(MyApplication.getContext());
+				SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+
+				stmt.bindLong(1, id);
+				bindAndCheckNullString(stmt, 2, name);
+				bindAndCheckNullString(stmt, 3, locationStr);
+				bindAndCheckNullString(stmt, 4,site_id_customer);
+				stmt.executeInsert();
+				stmt.close();
+				break;
+			}
+			default: {
+
+				DebugLog.d("id="+id+" name="+name+" locationStr="+locationStr);
+				String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s) VALUES(?,?,?)",
 						DbManager.mSite , DbManager.colID,
 						DbManager.colName,DbManager.colSiteLocation);
 
-		DbRepository.getInstance().open(MyApplication.getContext());
-		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+				DbRepository.getInstance().open(MyApplication.getContext());
+				SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
-		stmt.bindLong(1, id);
-		bindAndCheckNullString(stmt, 2, name);
-		bindAndCheckNullString(stmt, 3, locationStr);
+				stmt.bindLong(1, id);
+				bindAndCheckNullString(stmt, 2, name);
+				bindAndCheckNullString(stmt, 3, locationStr);
 
-		stmt.executeInsert();
-		stmt.close();
+				stmt.executeInsert();
+				stmt.close();
+				break;
+			}
+		}
+
 	}
 
 	public static void delete(Context ctx){
@@ -99,15 +125,33 @@ public class SiteModel extends BaseModel {
 		siteModel.name = (c.getString(c.getColumnIndex(DbManager.colName)));
 		siteModel.locationStr = (c.getString(c.getColumnIndex(DbManager.colSiteLocation)));
 
+		if (DbManager.schema_version == 9) {
+			siteModel.site_id_customer = (c.getString(c.getColumnIndex(DbManager.colSiteIdCustomer)));
+		}
+
 		return siteModel;
 	}
 	
 	public static String createDB(){
-		return "create table if not exists " + DbManager.mSite
-				+ " (" + DbManager.colID + " integer, "
-				+ DbManager.colName + " varchar, "
-				+ DbManager.colSiteLocation + " varchar, "
-				+ "PRIMARY KEY (" + DbManager.colID + "))";
+		switch (DbManager.schema_version) {
+			case 9: {
+
+				return "create table if not exists " + DbManager.mSite
+						+ " (" + DbManager.colID + " integer, "
+						+ DbManager.colName + " varchar, "
+						+ DbManager.colSiteLocation + " varchar, "
+						+ DbManager.colSiteIdCustomer + " varchar, " // added in patch 9
+						+ "PRIMARY KEY (" + DbManager.colID + "))";
+			}
+			default: {
+
+				return "create table if not exists " + DbManager.mSite
+						+ " (" + DbManager.colID + " integer, "
+						+ DbManager.colName + " varchar, "
+						+ DbManager.colSiteLocation + " varchar, "
+						+ "PRIMARY KEY (" + DbManager.colID + "))";
+			}
+		}
 	}
 
 }
