@@ -20,6 +20,9 @@ import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.JSONConnection;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
+import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
@@ -32,6 +35,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -238,7 +242,8 @@ public class ItemUploadManager {
                 messageToServer = "failed";
             }
 
-            if (scheduleId != null) {
+
+            if (scheduleId != null && isPreventive(scheduleId)) {
                 DebugLog.d("hit corrective");
                 APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() +
                         scheduleId + "/update");
@@ -311,11 +316,11 @@ public class ItemUploadManager {
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
                 //int timeoutConnection = 3000;
-                int timeoutConnection = 20 * 1000;
+                int timeoutConnection = 10 * 60 * 1000; // three minutes
                 HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
                 // Set the default socket timeout (SO_TIMEOUT)
                 // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 20 * 1000;
+                int timeoutSocket = 10 * 60 * 1000; // three minutes
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
@@ -378,26 +383,26 @@ public class ItemUploadManager {
             } catch (SocketTimeoutException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
-                MyApplication.getInstance().toast("upload photo : Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "SE" + "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
+                MyApplication.getInstance().toast("upload photo : SE Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_SHORT);
                 return null;
-            } catch (ClientProtocolException e) {
+            } catch(ClientProtocolException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", e.getMessage());
-                MyApplication.getInstance().toast("upload photo : " + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "CPE" + e.getMessage());
+                MyApplication.getInstance().toast("upload photo : CPE" + e.getMessage(), Toast.LENGTH_SHORT);
                 return null;
             } catch (IOException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", e.getMessage());
-                MyApplication.getInstance().toast("upload photo : " + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "IOE" + e.getMessage());
+                MyApplication.getInstance().toast("upload photo : IOE" + e.getMessage(), Toast.LENGTH_SHORT);
                 return null;
             } catch (NullPointerException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", e.getMessage());
-                MyApplication.getInstance().toast("upload photo : " + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "NPE" + e.getMessage());
+                MyApplication.getInstance().toast("upload photo : NPE" + e.getMessage(), Toast.LENGTH_SHORT);
                 return null;
             }
 
@@ -493,11 +498,11 @@ public class ItemUploadManager {
 
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
-                int timeoutConnection = 20 * 1000;
+                int timeoutConnection = 10 * 60 * 1000;
                 HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
                 // Set the default socket timeout (SO_TIMEOUT)
                 // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 20 * 1000;
+                int timeoutSocket = 10 * 60 * 1000;
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
@@ -600,5 +605,19 @@ public class ItemUploadManager {
         return mpref.getString(context.getString(R.string.user_authToken), "");
     }
 
+    public boolean isPreventive(String scheduleId) {
+        if (!DbRepository.getInstance().getDB().isOpen())
+            DbRepository.getInstance().open(MyApplication.getContext());
 
+        ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
+        scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
+
+        if (DbRepository.getInstance().getDB().isOpen()) {
+            DbRepository.getInstance().close();
+        }
+
+        String regex = "(.*)PREVENTIVE(.*)";
+        String workTypeName = scheduleBaseModel.work_type.name;
+        return workTypeName.matches(regex);
+    }
 }
