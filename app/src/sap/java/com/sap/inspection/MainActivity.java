@@ -179,39 +179,45 @@ public class MainActivity extends BaseActivity{
 
 		@Override
 		public void onClick(View v) {
+			MyApplication.getInstance().setIsInCheckHasilPm(false);
 			int i = (Integer) v.getTag();
 			switch (i) {
-			case R.string.schedule:
+			case R.string.schedule: // R.id.s1
 				DebugLog.d("schedule");
 				trackThisPage(getResources().getString(R.string.schedule));
 				scheduleFragment.setScheduleBy(R.string.schedule);
 				break;
-			case R.string.site_audit:
+			case R.string.site_audit: // R.id.s2
 				DebugLog.d("site audit");
 				trackThisPage(getResources().getString(R.string.site_audit));
 				scheduleFragment.setScheduleBy(R.string.site_audit);
 				break;
-			case R.string.preventive:
+			case R.string.preventive: // R.id.s3
 				DebugLog.d("preventive");
 				trackThisPage(getResources().getString(R.string.preventive));
 				scheduleFragment.setScheduleBy(R.string.preventive);
 				break;
-			case R.string.corrective:
+			case R.string.corrective: // R.id.s4
 				DebugLog.d("corrective");
 				trackThisPage(getResources().getString(R.string.corrective));
 				scheduleFragment.setScheduleBy(R.string.corrective);
 				break;
-			case R.string.newlocation:
+			case R.string.newlocation: // R.id.s5
 				DebugLog.d("new location");
 				trackThisPage(getResources().getString(R.string.newlocation));
 				scheduleFragment.setScheduleBy(R.string.newlocation);
 				break;
-			case R.string.colocation:
+			/*case R.string.colocation: // R.id.s6
 				DebugLog.d("colocation");
 				trackThisPage(getResources().getString(R.string.colocation));
 				scheduleFragment.setScheduleBy(R.string.colocation);
+				break;*/
+			case R.string.hasil_PM: // R.id.s7
+				DebugLog.d("hasil PM");
+				trackEvent(getResources().getString(R.string.hasil_PM));
+				scheduleFragment.setScheduleBy(R.string.hasil_PM);
 				break;
-			case R.string.settings:
+			case R.string.settings: // R.id.s6
 				DebugLog.d("settings");
 				trackThisPage(getResources().getString(R.string.settings));
 				Intent intent = new Intent(activity, SettingActivity.class);
