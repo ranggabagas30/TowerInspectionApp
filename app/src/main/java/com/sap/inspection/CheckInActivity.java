@@ -17,9 +17,12 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -32,6 +35,7 @@ import com.rindang.zconfig.APIList;
 import com.sap.inspection.connection.JSONConnection;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -68,9 +72,14 @@ import java.util.ArrayList;
 
 public class CheckInActivity extends BaseActivity implements LocationRequestProvider.LocationCallback{
 
+    private final int DISTANCE_MINIMUM_IN_METERS = 100;
+    private final int ACCURACY_MINIMUM = 50;
+    private final int CHECKIN_DURATION = 3 ; // HOURS then back
+    private final int CHECK_GPS_DURATION = 5; // seconds
+
     /* variabel for location data checking to meet criteria */
     private LocationRequestProvider mLocationRequestProvider;
-    private Location mSiteCoordinate, mCurrentCoordinate;
+    private Location mSiteCoordinate, mCurrentCoordinate, mPastCoordinate;
     private float mDistanceMeasurment, mAccuracy;
     private boolean mIsLocationRetrieved;
 
@@ -87,8 +96,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private Intent mToFormFillActivityIntent;
 
     /* variabel for doing post to server */
-    int timeoutConnection = 10 * 1000; // 10 seconds
-    int timeoutSocket = 10 * 1000; // 10 seconds
+    int timeoutConnection = 3 * 60 * 1000; // 10 seconds
+    int timeoutSocket = 3 * 60 * 1000; // 10 seconds
     HttpParams httpParameters;
     HttpClient client;
     HttpPost request;
@@ -96,156 +105,22 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     HttpResponse response;
     CheckinBackgroundTask checkinBackgroundTask;
     ScheduleBaseModel mScheduleData;
+    CheckinDataModel mParamObject;
 
-    /* contants for parameter field */
-    private static final String FIELD_SCHEDULE_ID   = "schedule_id";
-    private static final String FIELD_SITE_ID       = "site_id";
-    private static final String FIELD_SITE_NAME     = "site_name";
-    private static final String FIELD_PERIOD        = "period";
-    private static final String FIELD_SITE_LAT      = "site_lat";
-    private static final String FIELD_SITE_LONG     = "site_long";
-    private static final String FIELD_CURRENT_LAT   = "current_lat";
-    private static final String FIELD_CURRENT_LONG  = "current_long";
-    private static final String FIELD_DISTANCE      = "distance";
-    private static final String FIELD_TIME          = "time";
-    private static final String FIELD_STATUS        = "status";
+    /* variabel handlers*/
+    Handler mCheckoutHandler;
+    Handler mCheckGPSHandler;
+    Runnable mRunnableCheckoutHandler;
+    Runnable mRunnableCheckGPSHandler;
 
-    /* param object class */
-    private class ParamCheckin {
-
-        private int scheduleId;
-        private int siteId;
-        private String siteName;
-        private String period;
-        private String siteLat;
-        private String siteLong;
-        private String currentLat;
-        private String currentLong;
-        private float distance;
-        private String time;
-        private String status;
-
-        private ArrayList<NameValuePair> paramNameValuePair;
-
-        public ParamCheckin() {
-        }
-
-        public int getScheduleId() {
-            return scheduleId;
-        }
-
-        public void setScheduleId(int scheduleId) {
-            this.scheduleId = scheduleId;
-        }
-
-        public int getSiteId() {
-            return siteId;
-        }
-
-        public void setSiteId(int siteId) {
-            this.siteId = siteId;
-        }
-
-        public String getSiteName() {
-            return siteName;
-        }
-
-        public void setSiteName(String siteName) {
-            this.siteName = siteName;
-        }
-
-        public String getPeriod() {
-            return period;
-        }
-
-        public void setPeriod(String period) {
-            this.period = period;
-        }
-
-        public String getSiteLat() {
-            return siteLat;
-        }
-
-        public void setSiteLat(String siteLat) {
-            this.siteLat = siteLat;
-        }
-
-        public String getSiteLong() {
-            return siteLong;
-        }
-
-        public void setSiteLong(String siteLong) {
-            this.siteLong = siteLong;
-        }
-
-        public String getCurrentLat() {
-            return currentLat;
-        }
-
-        public void setCurrentLat(String currentLat) {
-            this.currentLat = currentLat;
-        }
-
-        public String getCurrentLong() {
-            return currentLong;
-        }
-
-        public void setCurrentLong(String currentLong) {
-            this.currentLong = currentLong;
-        }
-
-        public float getDistance() {
-            return distance;
-        }
-
-        public void setDistance(float distance) {
-            this.distance = distance;
-        }
-
-        public String getTime() {
-            return time;
-        }
-
-        public void setTime(String time) {
-            this.time = time;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setStatus(String status) {
-            this.status = status;
-        }
-
-        public void compileParamNameValuePair() {
-            DebugLog.d("compiling param to NameValuePair");
-
-            paramNameValuePair = new ArrayList<>();
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_SCHEDULE_ID, String.valueOf(this.scheduleId)));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_SITE_ID, String.valueOf(this.siteId)));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_SITE_NAME, this.siteName));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_PERIOD, String.valueOf(this.period)));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_SITE_LAT, this.siteLat));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_SITE_LONG, this.siteLong));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_CURRENT_LAT, this.currentLat));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_CURRENT_LONG, this.currentLong));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_DISTANCE, String.valueOf(this.distance)));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_TIME, this.time));
-            paramNameValuePair.add(new BasicNameValuePair(FIELD_STATUS, this.status));
-        }
-
-        public ArrayList<NameValuePair> getParamNameValuePair() {
-            return paramNameValuePair;
-        }
-
-    }
-    ParamCheckin mParamObject;
+    DisplayMetrics mMetrics;
 
     /* UI Component objects declaration */
+    private ScrollView mScrollViewCheckin;
     private Button mBtnCheckin;
-    private FormInputText mSiteID, mSiteName, mPMPeriod, mSiteLat, mSiteLong;
-    private FormInputText mCurrentLat, mCurrentLong, mDistanceToSite;
+    private FormInputText mSiteIDCustomer, mSiteName, mPMPeriod, mSiteLat, mSiteLong;
+    private FormInputText mCurrentLat, mCurrentLong, mDistanceToSite, mGPSAccuracy;
+    private TextView mCheckinCriteria;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -256,6 +131,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             DbRepository.getInstance().open(activity);
         }
 
+        mPastCoordinate = new Location(LocationManager.GPS_PROVIDER);
+        mCheckoutHandler = new Handler();
+        mCheckGPSHandler = new Handler();
+
+        getWindowConfigution();
         getBundleDataFromScheduleFragment();
         preparingScheduleAndSiteData();
 
@@ -263,19 +143,22 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mBtnCheckin     = (Button) findViewById(R.id.buttoncheckin);
-        mSiteID         = (FormInputText) findViewById(R.id.input_text_siteid_stp);
-        mSiteName       = (FormInputText) findViewById(R.id.input_text_site_name);
-        mPMPeriod       = (FormInputText) findViewById(R.id.input_text_pmperiod);
-        mSiteLat        = (FormInputText) findViewById(R.id.input_text_site_latitude);
-        mSiteLong       = (FormInputText) findViewById(R.id.input_text_site_longitude);
-        mCurrentLat     = (FormInputText) findViewById(R.id.input_text_current_latitude);
-        mCurrentLong    = (FormInputText) findViewById(R.id.input_text_current_longitude);
-        mDistanceToSite = (FormInputText) findViewById(R.id.input_text_distance_to_site);
+        mScrollViewCheckin      = (ScrollView) findViewById(R.id.scollviewcheckin);
+        mBtnCheckin             = (Button) findViewById(R.id.buttoncheckin);
+        mSiteIDCustomer         = (FormInputText) findViewById(R.id.input_text_siteid_stp);
+        mSiteName               = (FormInputText) findViewById(R.id.input_text_site_name);
+        mPMPeriod               = (FormInputText) findViewById(R.id.input_text_pmperiod);
+        mSiteLat                = (FormInputText) findViewById(R.id.input_text_site_latitude);
+        mSiteLong               = (FormInputText) findViewById(R.id.input_text_site_longitude);
+        mCurrentLat             = (FormInputText) findViewById(R.id.input_text_current_latitude);
+        mCurrentLong            = (FormInputText) findViewById(R.id.input_text_current_longitude);
+        mDistanceToSite         = (FormInputText) findViewById(R.id.input_text_distance_to_site);
+        mGPSAccuracy            = (FormInputText) findViewById(R.id.input_text_gps_accuracy);
+        mCheckinCriteria        = (TextView)      findViewById(R.id.textcheckincriteria);
 
         /* disable components while retrieving location data */
-        mBtnCheckin.setEnabled(false);
-        mSiteID.setEnabled(false);
+        mBtnCheckin.setEnabled(true);
+        mSiteIDCustomer.setEnabled(false);
         mSiteName.setEnabled(false);
         mPMPeriod.setEnabled(false);
         mSiteLat.setEnabled(false);
@@ -283,35 +166,45 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mCurrentLat.setEnabled(false);
         mCurrentLong.setEnabled(false);
         mDistanceToSite.setEnabled(false);
-
+        mGPSAccuracy.setEnabled(false);
 
         mLocationRequestProvider = new LocationRequestProvider(this, this);
 
+        setCheckinCriteriaText();
+
         mBtnCheckin.setOnClickListener(view -> {
 
-            postCheckinDataToSERVER();
+            if (mIsLocationRetrieved) {
 
-            if (!isLocationError()) {
+                postCheckinDataToSERVER();
 
-                if (localValidation()) {
+                if (!isLocationError()) {
 
-                    showSuccessCheckinMessage();
-                    //startCheckoutCountdown();
-                    keepCurrentLocationDataTobeUsed();
-                    navigateToFormActivity();
+                    if (localValidation()) {
 
+                        showSuccessCheckinMessage();
+                        startCheckoutCountdown();
+                        keepCurrentLocationDataTobeUsed();
+                        navigateToFormActivity();
+
+                    } else {
+
+                        showFailCheckinMessage();
+
+                    }
                 } else {
 
-                    showFailCheckinMessage();
+                    showLocationGPSError();
 
                 }
             } else {
 
-                showLocationGPSError();
+                showPleaseWaitMessage();
 
             }
 
         });
+
 
     }
 
@@ -331,10 +224,13 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     @Override
     protected void onResume() {
         super.onResume();
+
+        mIsLocationRetrieved = false;
+
         if (!Utility.checkNetworkStatus(this) || !Utility.checkNetworkStatus(this)) {
             mLocationRequestProvider.showGPSDialog();
         }
-        if (!DbRepository.getInstance().getDB().isOpen()) {
+        if (DbRepository.getInstance().getDB() != null && !DbRepository.getInstance().getDB().isOpen()) {
             DbRepository.getInstance().open(activity);
         }
     }
@@ -344,13 +240,15 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         super.onStop();
         DebugLog.d("onStop");
         stopLocationServices();
+        mCheckGPSHandler.removeCallbacks(mRunnableCheckGPSHandler);
+        mCheckoutHandler.removeCallbacks(mRunnableCheckoutHandler);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         DebugLog.d("onDestroy");
-        if (DbRepository.getInstance().getDB().isOpen()){
+        if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen()){
             DbRepository.getInstance().close();
         }
     }
@@ -363,8 +261,13 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     @Override
     public void handleNewLocation(Location location) {
+
+        /* check GPS every 3 seconds everytime get new location */
+        startCheckGPSHandler();
+
         /* location is retrieved every 3 - 5 seconds !*/
         mCurrentCoordinate = location;
+        mPastCoordinate = mCurrentCoordinate;
         mIsLocationRetrieved = true;
 
         processLocationData();
@@ -372,14 +275,6 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         showCheckinDataRequirementsToForm();
 
         mBtnCheckin.setEnabled(true);
-        mSiteID.setEnabled(true);
-        mSiteName.setEnabled(true);
-        mPMPeriod.setEnabled(true);
-        mSiteLat.setEnabled(true);
-        mSiteLong.setEnabled(true);
-        mCurrentLat.setEnabled(true);
-        mCurrentLong.setEnabled(true);
-        mDistanceToSite.setEnabled(true);
     }
 
     /**
@@ -412,7 +307,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     private boolean localValidation() {
         return true;
-        //return mDistanceMeasurment <= 200 && mAccuracy <= 20;
+        //return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
     }
 
     private void showFailCheckinMessage() {
@@ -439,12 +334,25 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
     }
 
+    private void showPleaseWaitMessage() {
+        MyApplication.getInstance().toast("Mohon tunggu. Sedang proses mendapatkan lokasi", Toast.LENGTH_SHORT);
+    }
+
+    private void setCheckinCriteriaText() {
+        String textCriteria  = "Anda harus berada dalam radius " + DISTANCE_MINIMUM_IN_METERS +
+                " m dengan akurasi minimum " + ACCURACY_MINIMUM + " m untuk dapat checkin";
+
+        mCheckinCriteria.setText(textCriteria);
+    }
+
     private void keepCurrentLocationDataTobeUsed() {
         PersistentLocation.getInstance().deletePersistentLatLng();
         Utility.setPersistentLocation(mExtraScheduleId, mCurrentLat.getText().toString(), mCurrentLong.getText().toString());
     }
 
     private void navigateToFormActivity() {
+
+        MyApplication.getInstance().checkinDataModel = mParamObject;
 
         mToFormFillActivityIntent = new Intent(this, FormActivity.class);
         mToFormFillActivityIntent.putExtra("scheduleId", mExtraScheduleId);
@@ -485,7 +393,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     private void preparingScheduleAndSiteData() {
         mSiteCoordinate    = new Location(LocationManager.GPS_PROVIDER);
-        mParamObject = new ParamCheckin();   
+        mParamObject = new CheckinDataModel();
+
         mScheduleData = new ScheduleGeneral();
         mScheduleData = mScheduleData.getScheduleById(mExtraScheduleId);
 
@@ -495,7 +404,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
         /* assigning persistent data from database */
         mParamObject.setScheduleId(Integer.parseInt(mScheduleData.id));
-        mParamObject.setSiteId(mScheduleData.site.id);
+        mParamObject.setSiteIdCustomer(mScheduleData.site.site_id_customer);
         mParamObject.setSiteName(mScheduleData.site.name);
         mParamObject.setPeriod(convertDayDateToPeriod(mScheduleData.day_date));
         mParamObject.setSiteLat(String.valueOf(mSiteCoordinate.getLatitude()));
@@ -516,18 +425,21 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mParamObject.setDistance(mDistanceMeasurment);
         mParamObject.setTime(DateTools.now());
         mParamObject.setStatus(localValidation() ? "success" : "failed");
+        mParamObject.setAccuracy(mAccuracy);
     }
 
     private void showCheckinDataRequirementsToForm() {
 
-        mSiteID.setText(String.valueOf(mParamObject.getSiteId()));
+        mSiteIDCustomer.setText(String.valueOf(mParamObject.getSiteIdCustomer()));
         mSiteName.setText(mParamObject.getSiteName());
         mPMPeriod.setText(String.valueOf(mParamObject.getPeriod()));
         mSiteLat.setText(mParamObject.getSiteLat());
         mSiteLong.setText(mParamObject.getSiteLong());
         mCurrentLat.setText(mParamObject.getCurrentLat());
         mCurrentLong.setText(mParamObject.getCurrentLong());
-        mDistanceToSite.setText(String.valueOf(mParamObject.getDistance()));
+        mDistanceToSite.setText(String.valueOf(mParamObject.getDistance()) + " meters");
+        mGPSAccuracy.setText(String.valueOf(mAccuracy));
+        mGPSAccuracy.requestFocus();
     }
 
     private void postCheckinDataToSERVER() {
@@ -762,8 +674,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     private void startCheckoutCountdown() {
         DebugLog.d("start countdown .... ");
-        int CHECKIN_DURATION = 10; // seconds then back
-        Runnable mRunnable  = new Runnable() {
+        mRunnableCheckoutHandler  = new Runnable() {
             @Override
             public void run() {
                 MyApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
@@ -772,8 +683,28 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
                 startActivity(recheckinIntent);
             }
         };
+        mCheckoutHandler.postDelayed(mRunnableCheckoutHandler, CHECKIN_DURATION * 3600 * 1000);
+    }
 
-        Handler mCheckoutHandler = new Handler();
-        mCheckoutHandler.postDelayed(mRunnable, CHECKIN_DURATION * 1000);
+    private void startCheckGPSHandler() {
+        DebugLog.d("start check GPS...");
+
+        mRunnableCheckGPSHandler = new Runnable() {
+            @Override
+            public void run() {
+                if (!Utility.checkNetworkStatus(CheckInActivity.this) || !Utility.checkNetworkStatus(CheckInActivity.this)) {
+                    mLocationRequestProvider.showGPSDialog();
+                }
+            }
+        };
+        mCheckGPSHandler.removeCallbacks(mRunnableCheckGPSHandler);
+        mCheckGPSHandler.postDelayed(mRunnableCheckGPSHandler, CHECK_GPS_DURATION * 1000);
+    }
+
+    private void getWindowConfigution() {
+        mMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
+        DebugLog.d("metrics out width  : " + mMetrics.widthPixels);
+        DebugLog.d("metrics out height : " + mMetrics.heightPixels);
     }
 }
