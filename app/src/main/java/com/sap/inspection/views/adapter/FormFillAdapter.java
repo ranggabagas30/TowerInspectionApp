@@ -447,7 +447,20 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	private void reviseCheckBox(LinearLayout linear,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
 		boolean isHorizontal = true;
+		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm();
+
 		isHorizontal = 3 >= item.workItemModel.options.size();
+		DebugLog.d("isHorizontal : " + isHorizontal);
+
+		DebugLog.d("linear child count after addview : " + linear.getChildCount());
+		for (int i = 0; i< linear.getChildCount(); i++){
+			CheckBox checkBox = (CheckBox) linear.getChildAt(i);
+			checkBox.setOnCheckedChangeListener(null);
+			checkBox.setChecked(false);
+			checkBox.setEnabled(isEnabled);
+			checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
+		}
+
 		DebugLog.d("linear child count before addview : " + linear.getChildCount());
 		for (int i = 0; i< linear.getChildCount(); i++){
 			//binding checkbox
@@ -488,32 +501,24 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 			else
 				checkBox.setChecked(false);
+			checkBox.setEnabled(isEnabled);
 			checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
 		}
+
 		linear.setOrientation(isHorizontal ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
-		DebugLog.d("linear child count after addview : " + linear.getChildCount());
-		for (int i = 0; i< linear.getChildCount(); i++){
-			boolean enabled = !item.workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm();
-			CheckBox checkBox = (CheckBox) linear.getChildAt(i);
-			checkBox.setOnCheckedChangeListener(null);
-			checkBox.setChecked(false);
-			checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
-			checkBox.setEnabled(enabled);
-			DebugLog.d("checkBox enabled ? " + enabled);
-		}
 	}
 
 	private void reviseRadio(RadioGroup radioGroup,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
 		boolean isHorizontal = true;
-		boolean enabled = !item.workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm();
+		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm();
 
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 		DebugLog.d("radioGroup child count after addview : " + radioGroup.getChildCount());
 		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
 			radioButton.setOnCheckedChangeListener(null);
-			radioButton.setEnabled(enabled);
-			DebugLog.d("radioButton enabled ? " + enabled);
+			radioButton.setEnabled(isEnabled);
+			DebugLog.d("radioButton enabled ? " + isEnabled);
 		}
 
 		radioGroup.clearCheck();
@@ -560,7 +565,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 					}
 				}
 			radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
-			radioButton.setEnabled(enabled);
+			radioButton.setEnabled(isEnabled);
 		}
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 	}
