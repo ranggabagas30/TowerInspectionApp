@@ -32,7 +32,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
     private ProgressDialog dialog;
 
 	public static ScheduleFragment newInstance() {
-		MyApplication.getInstance().setIsScheduleNeedCheckIn(false);
 		ScheduleFragment fragment = new ScheduleFragment();
 		return fragment;
 	}
@@ -64,6 +63,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
     @Override
     public void onResume() {
         super.onResume();
+		MyApplication.getInstance().setIsScheduleNeedCheckIn(false);
         EventBus.getDefault().register(this);
     }
 
@@ -119,6 +119,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.fiber_optic)));
 		} else if (resId == R.string.hasil_PM){
+			MyApplication.getInstance().setIsInCheckHasilPm(true);
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
 		}
@@ -143,12 +144,13 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 		Intent intent;
+		String regex = "(.*)PREVENTIVE(.*)";
 		String workTypeName = models.get(position).work_type.name;
 		int workTypeId = models.get(position).work_type.id;
 		log("-=-="+ workTypeName +"-=-=-=");
 		log("-=-="+ workTypeId +"-=-=-=");
 
-		if (workTypeId == Constants.SAP_PREVENTIVE_WORKTYPE_ID && !MyApplication.getInstance().IsInCheckHasilPm()) {
+		if (workTypeName.matches(regex) && !MyApplication.getInstance().IsInCheckHasilPm()) {
 			MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
 			intent = new Intent(activity, CheckInActivity.class);
 		} else {
