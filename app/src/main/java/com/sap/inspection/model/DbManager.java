@@ -18,11 +18,12 @@ import com.sap.inspection.model.migrate.GeneralPatch5;
 import com.sap.inspection.model.migrate.GeneralPatch6;
 import com.sap.inspection.model.migrate.GeneralPatch7;
 import com.sap.inspection.model.migrate.GeneralPatch8;
+import com.sap.inspection.model.migrate.GeneralPatch9;
 
 public class DbManager extends SQLiteOpenHelper {
 
 	public static final String dbName = "sap.db";
-	static final int schema_version = 8;
+	public static final int schema_version = 9;
 
 	public static final String colCreatedAt = "created_at";
 	public static final String colUpdatedAt = "updated_at";
@@ -52,8 +53,8 @@ public class DbManager extends SQLiteOpenHelper {
 	public static final String colStatusLogin 	= "statusLogin";
 
 	// site table
-	public static final String mSite 			= "Sites";
-
+	public static final String mSite 			 = "Sites";
+	public static final String colSiteIdCustomer = "siteIdCustomer";
 	// operator table
 	public static final String mOperator 		= "Operators";
 
@@ -273,15 +274,16 @@ public class DbManager extends SQLiteOpenHelper {
 		}
 	}
 
-	private  final DBPatch[] PATCHES = new DBPatch[] {
-			new BlankPatch(),
-			new BlankPatch(),
-			new BlankPatch(),
-			new GeneralDropCreatePatch(),
-			new GeneralPatch5(),
-			new GeneralPatch6(),
-			new GeneralPatch7(),
-			new GeneralPatch8()
+	private  final DBPatch[] PATCHES = new DBPatch[] { // index berdasarkan Schema Version
+			new BlankPatch(), 					// 0
+			new BlankPatch(), 					// 1
+			new BlankPatch(), 					// 2
+			new GeneralDropCreatePatch(),		// 3
+			new GeneralPatch5(),				// 4
+			new GeneralPatch6(),				// 5
+			new GeneralPatch7(),				// 6
+			new GeneralPatch8(),				// 8
+			new GeneralPatch9()					// 9
 	};
 
 	public static void dropTable(SQLiteDatabase db){
