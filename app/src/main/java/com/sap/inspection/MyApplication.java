@@ -19,6 +19,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.TextMarkDisplayOptionsModel;
 import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.tools.DebugLog;
@@ -41,6 +42,7 @@ public class MyApplication extends Application {
 	private HashMap< String, AbstractMap.SimpleEntry<String, String> > hashMapSiteLocation;
 	private boolean IN_CHECK_HASIL_PM;
 	private boolean SCHEDULE_NEED_CHECK_IN;
+	public CheckinDataModel checkinDataModel;
 
 	public MyApplication() {
 		instance = this;
@@ -163,6 +165,7 @@ public class MyApplication extends Application {
 
 		IN_CHECK_HASIL_PM = false;
 		SCHEDULE_NEED_CHECK_IN = false;
+		checkinDataModel = new CheckinDataModel();
 	}
 
 	private Tracker mTracker;
