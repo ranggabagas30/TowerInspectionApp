@@ -55,6 +55,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	protected TextView latitude;
 	protected TextView longitude;
 	protected TextView accuracy;
+	protected TextView photodate;
 	protected TextView uploadstatus;
 	protected TextView mandatory;
 	protected EditText remark;
@@ -135,6 +136,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		mandatory = (TextView) root.findViewById(R.id.mandatory);
 		mandatory.setTag(this);
 		accuracy = (TextView) root.findViewById(R.id.accuracy);
+		photodate = (TextView) root.findViewById(R.id.photodate);
 		uploadstatus = (TextView) root.findViewById(R.id.uploadstatus);
 		label = (TextView) root.findViewById(R.id.label);
 		progress = (ProgressBar) root.findViewById(R.id.progress);
@@ -472,7 +474,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		this.latitude.setText("Lat. : "+ latitude);
 		this.longitude.setText("Long. : "+ longitude);
 		this.accuracy.setText("Accurate up to : "+accuracy+" meters");
-
+        this.photodate.setText("photo date : " + value.photoDate + "");
 		//		ImageSize i = ImageSizeUtils.defineTargetSizeForView(imageView, 480, 360);
 		//		imageView.setMaxWidth(i.getWidth());
 		//		imageView.setMaxHeight(i.getHeight());
@@ -584,6 +586,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			if (ok!=null) ok.setEnabled(false);
 			if (nok!=null) nok.setEnabled(false);
 			if (na!=null) na.setEnabled(false);
+			if (button!=null) button.setEnabled(false);
 		} else {
 			if (remark!=null) remark.setEnabled(true);
 			if (material_request!=null) material_request.setEnabled(true);
@@ -591,6 +594,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			if (ok!=null) ok.setEnabled(true);
 			if (nok!=null) nok.setEnabled(true);
 			if (na!=null) na.setEnabled(true);
+			if (button!=null) button.setEnabled(true);
 		}
 	}
 }
