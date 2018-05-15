@@ -49,17 +49,13 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		super.onCreate(savedInstanceState);
 		usingCheckin = MyApplication.getInstance().isScheduleNeedCheckIn();
 
-		if (usingCheckin) {
-			//startCheckoutCountdown();
-		}
-
 		DebugLog.d("");
 
 		dialog = new ProgressDialog(activity);
 		//String generatingInspectionForm
+		dialog.setCancelable(false);
 		dialog.setMessage(getString(R.string.generatingInspectionForm));
 		dialog.show();
-		
 		//get data bundle from ScheduleFragment
 		Bundle bundle = getIntent().getExtras();
 
@@ -152,6 +148,9 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			mSlidingLayer.closeLayer(true);
 		else
 		{
+			if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
+				MyApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
+			}
 			finish();
 		}
 	}
