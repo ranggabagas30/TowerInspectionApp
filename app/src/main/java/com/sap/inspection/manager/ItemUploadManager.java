@@ -316,11 +316,11 @@ public class ItemUploadManager {
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
                 //int timeoutConnection = 3000;
-                int timeoutConnection = 10 * 60 * 1000; // three minutes
+                int timeoutConnection = 1 * 3600 * 1000; // 1 HOUR
                 HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
                 // Set the default socket timeout (SO_TIMEOUT)
                 // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 10 * 60 * 1000; // three minutes
+                int timeoutSocket = 1 * 3600 * 1000; // 1 HOUR
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
@@ -498,11 +498,11 @@ public class ItemUploadManager {
 
                 // Set the timeout in milliseconds until a connection is established.
                 // The default value is zero, that means the timeout is not used.
-                int timeoutConnection = 10 * 60 * 1000;
+                int timeoutConnection = 1 * 3600 * 1000;
                 HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
                 // Set the default socket timeout (SO_TIMEOUT)
                 // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 10 * 60 * 1000;
+                int timeoutSocket = 1 * 36 * 1000;
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);

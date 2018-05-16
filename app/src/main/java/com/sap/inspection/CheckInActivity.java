@@ -96,8 +96,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private Intent mToFormFillActivityIntent;
 
     /* variabel for doing post to server */
-    int timeoutConnection = 3 * 60 * 1000; // 10 seconds
-    int timeoutSocket = 3 * 60 * 1000; // 10 seconds
+    int timeoutConnection =  1 * 3600 * 1000; // 1 HOUR
+    int timeoutSocket = 1 * 3600 * 1000; // 1 HOUR
     HttpParams httpParameters;
     HttpClient client;
     HttpPost request;
@@ -306,8 +306,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private boolean localValidation() {
-        return true;
-        //return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
+        //return true;
+        return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
     }
 
     private void showFailCheckinMessage() {
