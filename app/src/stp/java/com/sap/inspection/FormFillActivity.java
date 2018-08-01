@@ -458,7 +458,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		public void onClick(View v) {
-			if (!MyApplication.getInstance().IsInCheckHasilPm()) {
+			if (!MyApplication.getInstance().isInCheckHasilPm()) {
 
 				if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
 					photoItem = (PhotoItemRadio) v.getTag();
@@ -987,7 +987,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					DebugLog.d("itemValue="+item.itemValue.value);
 				}
 
-				if (list.contains(item.type) && !MyApplication.getInstance().IsInCheckHasilPm()) {
+				if (list.contains(item.type) && !MyApplication.getInstance().isInCheckHasilPm()) {
 					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
 						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
 							Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();

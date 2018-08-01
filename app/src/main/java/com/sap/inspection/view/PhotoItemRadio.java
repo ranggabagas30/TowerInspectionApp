@@ -578,7 +578,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	private void toggleEditable() {
-		if (MyApplication.getInstance().IsInCheckHasilPm()) {
+		if (MyApplication.getInstance().isInCheckHasilPm()) {
 			DebugLog.d("input is disabled");
 			if (remark!=null) remark.setEnabled(false);
 			if (material_request!=null) material_request.setEnabled(false);

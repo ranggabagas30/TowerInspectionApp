@@ -127,7 +127,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
 
-        if (!DbRepository.getInstance().getDB().isOpen()) {
+        if (DbRepository.getInstance().getDB() != null && !DbRepository.getInstance().getDB().isOpen()) {
             DbRepository.getInstance().open(activity);
         }
 
@@ -298,7 +298,12 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private boolean isLocationError() {
-        return Utility.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
+        if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
+            //return Utility.isCurrentLocationError(0.0, 0.0);
+            return false;
+        } else {
+            return Utility.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
+        }
     }
 
     private boolean serverValidation() {
@@ -306,8 +311,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private boolean localValidation() {
-        //return true;
-        return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
+        if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
+            return true;
+        } else {
+            return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
+        }
     }
 
     private void showFailCheckinMessage() {
@@ -331,7 +339,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private void showLocationGPSError() {
-        MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+        MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
     }
 
     private void showPleaseWaitMessage() {
@@ -674,14 +682,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     private void startCheckoutCountdown() {
         DebugLog.d("start countdown .... ");
-        mRunnableCheckoutHandler  = new Runnable() {
-            @Override
-            public void run() {
-                MyApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
-                Intent recheckinIntent = new Intent(CheckInActivity.this, CheckInActivity.class);
-                recheckinIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(recheckinIntent);
-            }
+        mRunnableCheckoutHandler  = () -> {
+            MyApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
+            Intent recheckinIntent = new Intent(CheckInActivity.this, CheckInActivity.class);
+            recheckinIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(recheckinIntent);
         };
         mCheckoutHandler.postDelayed(mRunnableCheckoutHandler, CHECKIN_DURATION * 3600 * 1000);
     }
@@ -689,12 +694,9 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private void startCheckGPSHandler() {
         DebugLog.d("start check GPS...");
 
-        mRunnableCheckGPSHandler = new Runnable() {
-            @Override
-            public void run() {
-                if (!Utility.checkNetworkStatus(CheckInActivity.this) || !Utility.checkNetworkStatus(CheckInActivity.this)) {
-                    mLocationRequestProvider.showGPSDialog();
-                }
+        mRunnableCheckGPSHandler = () -> {
+            if (!Utility.checkNetworkStatus(CheckInActivity.this) || !Utility.checkNetworkStatus(CheckInActivity.this)) {
+                mLocationRequestProvider.showGPSDialog();
             }
         };
         mCheckGPSHandler.removeCallbacks(mRunnableCheckGPSHandler);

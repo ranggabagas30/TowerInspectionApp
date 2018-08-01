@@ -24,6 +24,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
@@ -54,8 +55,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 	private int workFormGroupId;
 	private OnClickListener photoListener;
     private OnClickListener uploadListener;
-
-//	private List<ItemFormRenderModel> shownX = new ArrayList<>();
+    private boolean isChecklistOrSiteInformation;
+	//	private List<ItemFormRenderModel> shownX = new ArrayList<>();
 	private SparseArray<List<ItemFormRenderModel>> sparseArray = new SparseArray<>();
 
 	//	private OnCheckedChangeListener onCheckedChangeListener;
@@ -73,6 +74,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	public void setWorkFormGroupName(String workFormGroupName) {
 		this.workFormGroupName = workFormGroupName;
+		isChecklistOrSiteInformation = workFormGroupName.toUpperCase().matches(Constants.regexChecklist) ||
+									  workFormGroupName.toUpperCase().matches(Constants.regexSiteInformation);
 	}
 
 	public void setSavingRule(SavingRule savingRule) {
@@ -116,7 +119,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 		for (ItemFormRenderModel model : models) {
 			shown.addAll(model.getModels());
 		}
-
 		for (int i = 0; i < shown.size(); i++) {
 			ItemFormRenderModel model = shown.get(i);
 			if (model.column!=null && model.column.column_name!=null
@@ -182,6 +184,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent) {
+
 		final ViewHolder holder;
 		if (convertView == null) {
 			DebugLog.d("convertView == null");
@@ -398,7 +401,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 				else
 					holder.input.setText("");
 				holder.input.setTextChange(formTextChange);
-				holder.input.setEnabled(!getItem(position).workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm());
+				//holder.input.setEnabled(!getItem(position).workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation));
+				holder.input.setEnabled(!getItem(position).workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm());
 				check(position);
 				setMandatory(holder,getItem(position));
 				break;
@@ -447,7 +451,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	private void reviseCheckBox(LinearLayout linear,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
 		boolean isHorizontal = true;
-		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm();
+		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
+		//boolean isEnabled = !item.workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation);
 
 		isHorizontal = 3 >= item.workItemModel.options.size();
 		DebugLog.d("isHorizontal : " + isHorizontal);
@@ -510,7 +515,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	private void reviseRadio(RadioGroup radioGroup,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
 		boolean isHorizontal = true;
-		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().IsInCheckHasilPm();
+		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
+		//boolean isEnabled = !item.workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation);
 
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 		DebugLog.d("radioGroup child count after addview : " + radioGroup.getChildCount());
@@ -764,7 +770,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 	}
 
 	private void toggleEditable(ViewHolder holder) {
-		if (MyApplication.getInstance().IsInCheckHasilPm()) {
+		if (MyApplication.getInstance().isInCheckHasilPm()) {
 			DebugLog.d("input is disabled");
 			if (holder.radio != null) holder.radio.setEnabled(false);
 			if (holder.input != null) holder.input.setEnabled(false);

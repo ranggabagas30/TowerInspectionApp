@@ -23,6 +23,7 @@ public class DbRepository {
     }
 	
 	private DbRepository() {
+
 	}
 
 	public void open(Context context) {

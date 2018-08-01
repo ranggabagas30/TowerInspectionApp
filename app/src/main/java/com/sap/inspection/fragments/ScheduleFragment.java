@@ -144,13 +144,13 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 		Intent intent;
-		String regex = "(.*)PREVENTIVE(.*)";
+
 		String workTypeName = models.get(position).work_type.name;
 		int workTypeId = models.get(position).work_type.id;
 		log("-=-="+ workTypeName +"-=-=-=");
 		log("-=-="+ workTypeId +"-=-=-=");
 
-		if (workTypeName.matches(regex) && !MyApplication.getInstance().IsInCheckHasilPm()) {
+		if (workTypeName.matches(Constants.regexPREVENTIVE) && !MyApplication.getInstance().isInCheckHasilPm()) {
 			MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
 			intent = new Intent(activity, CheckInActivity.class);
 		} else {

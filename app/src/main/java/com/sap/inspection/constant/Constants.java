@@ -87,4 +87,9 @@ public class Constants {
 	/**
 	 * ============================= CHECKIN ACTIVITY =================================================
 	 * */
+
+	// regex
+	public static final String regexChecklist = "(.*)CHECKLIST(.*)";
+	public static final String regexSiteInformation = "(.*)SITE INFORMATION(.*)";
+	public static final String regexPREVENTIVE = "(.*)PREVENTIVE(.*)";
 } 

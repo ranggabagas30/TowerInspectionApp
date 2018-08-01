@@ -183,7 +183,7 @@ public class MyApplication extends Application {
 		return mTracker;
 	}
 
-	public boolean IsInCheckHasilPm() {
+	public boolean isInCheckHasilPm() {
 		return IN_CHECK_HASIL_PM;
 	}
 

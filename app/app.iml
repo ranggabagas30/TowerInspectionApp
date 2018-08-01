@@ -8,69 +8,69 @@
     </facet>
     <facet type="android" name="Android">
       <configuration>
-        <option name="SELECTED_BUILD_VARIANT" value="stpRelease" />
-        <option name="ASSEMBLE_TASK_NAME" value="assembleStpRelease" />
-        <option name="COMPILE_JAVA_TASK_NAME" value="compileStpReleaseSources" />
+        <option name="SELECTED_BUILD_VARIANT" value="stpDummyRelease" />
+        <option name="ASSEMBLE_TASK_NAME" value="assembleStpDummyRelease" />
+        <option name="COMPILE_JAVA_TASK_NAME" value="compileStpDummyReleaseSources" />
         <afterSyncTasks>
-          <task>generateStpReleaseSources</task>
+          <task>generateStpDummyReleaseSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
         <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res;file://$MODULE_DIR$/src/stp/res" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res;file://$MODULE_DIR$/src/stpDummy/res" />
         <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output url="file://$MODULE_DIR$/build/intermediates/classes/stp/release" />
-    <output-test url="file://$MODULE_DIR$/build/intermediates/classes/test/stp/release" />
+    <output url="file://$MODULE_DIR$/build/intermediates/classes/stpDummy/release" />
+    <output-test url="file://$MODULE_DIR$/build/intermediates/classes/test/stpDummy/release" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/stp/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/stp/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/stp/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/stp/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/stp/release" isTestSource="false" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/fabric/res/stp/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/stp/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/stp/release" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stpRelease/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stpRelease/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stpRelease/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stpRelease/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stpRelease/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stpRelease/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stpRelease/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/test/stp/release" isTestSource="true" generated="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStpRelease/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStpRelease/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStpRelease/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStpRelease/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStpRelease/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStpRelease/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStpRelease/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stp/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stp/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stp/assets" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stp/aidl" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stp/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stp/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/stp/shaders" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStp/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStp/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStp/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStp/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStp/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStp/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStp/shaders" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStp/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStp/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStp/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStp/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStp/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStp/rs" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/testStp/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/stpDummy/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/stpDummy/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/stpDummy/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/stpDummy/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/stpDummy/release" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/fabric/res/stpDummy/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/stpDummy/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/stpDummy/release" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummyRelease/res" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummyRelease/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummyRelease/assets" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummyRelease/aidl" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummyRelease/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummyRelease/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummyRelease/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/test/stpDummy/release" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummyRelease/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummyRelease/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummyRelease/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummyRelease/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummyRelease/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummyRelease/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummyRelease/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummy/res" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummy/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummy/assets" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummy/aidl" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummy/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummy/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/stpDummy/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStpDummy/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStpDummy/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStpDummy/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStpDummy/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStpDummy/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStpDummy/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestStpDummy/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummy/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummy/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummy/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummy/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummy/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummy/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testStpDummy/shaders" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/release/assets" type="java-resource" />
@@ -157,6 +157,8 @@
     <orderEntry type="library" name="Gradle: com.android.support:support-compat-25.3.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-location-7.0.0" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/domikado/Desktop/TOWER PROJECT/sap_tower_android/app/libs/httpmime-4.1.jar:unspecified@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.amitshekhar.android:debug-db-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.stetho:stetho-1.4.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-gcm-7.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:2.0.1@jar" level="project" />
@@ -164,7 +166,6 @@
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-analytics-7.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-v4-25.3.1" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support.constraint:constraint-layout-1.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.3@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-core-ui-25.3.1" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:beta-1.2.2" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/domikado/Desktop/TOWER PROJECT/sap_tower_android/app/libs/nineoldandroids-2.4.0.jar:unspecified@jar" level="project" />
@@ -175,9 +176,8 @@
     <orderEntry type="library" name="Gradle: com.android.support:support-core-utils-25.3.1" level="project" />
     <orderEntry type="module" module-name="baseassets" />
     <orderEntry type="library" name="Gradle: org.apache.http.legacy-android-25" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.amitshekhar.android:debug-db-1.0.0" level="project" />
     <orderEntry type="module" module-name="baseassets" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.3@jar" level="project" />
     <orderEntry type="module" module-name="baseassets" />
     <orderEntry type="module" module-name="baseassets" />
     <orderEntry type="module" module-name="baseassets" />

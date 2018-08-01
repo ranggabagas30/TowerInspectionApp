@@ -18,6 +18,7 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.JSONConnection;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.DbRepository;
@@ -383,26 +384,26 @@ public class ItemUploadManager {
             } catch (SocketTimeoutException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "SE" + "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
-                MyApplication.getInstance().toast("upload photo : SE Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "STATUSCODE : " + statusCode + "SE " + "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
+                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "SE Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_SHORT);
                 return null;
             } catch(ClientProtocolException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "CPE" + e.getMessage());
-                MyApplication.getInstance().toast("upload photo : CPE" + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "STATUSCODE : " + statusCode + "CPE " + e.getMessage());
+                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "CPE " + e.getMessage(), Toast.LENGTH_SHORT);
                 return null;
             } catch (IOException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "IOE" + e.getMessage());
-                MyApplication.getInstance().toast("upload photo : IOE" + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "STATUSCODE : " + statusCode + "IOE " + e.getMessage());
+                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "IOE " + e.getMessage(), Toast.LENGTH_SHORT);
                 return null;
             } catch (NullPointerException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "NPE" + e.getMessage());
-                MyApplication.getInstance().toast("upload photo : NPE" + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadphoto", "STATUSCODE : " + statusCode + "NPE " + e.getMessage());
+                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "NPE " + e.getMessage(), Toast.LENGTH_SHORT);
                 return null;
             }
 
@@ -616,8 +617,7 @@ public class ItemUploadManager {
             DbRepository.getInstance().close();
         }
 
-        String regex = "(.*)PREVENTIVE(.*)";
         String workTypeName = scheduleBaseModel.work_type.name;
-        return workTypeName.matches(regex);
+        return workTypeName.matches(Constants.regexPREVENTIVE);
     }
 }

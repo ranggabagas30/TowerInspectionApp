@@ -54,6 +54,10 @@ public class CallendarActivity extends BaseActivity implements OnGridItemClickLi
 			DebugLog.d("colocation");
 			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.colocation)));
 			break;
+		case R.string.hasil_PM :
+			DebugLog.d("Hasil PM");
+			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.hasil_PM)));
+			break;
 		default:
 			break;
 		}

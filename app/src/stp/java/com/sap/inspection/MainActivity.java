@@ -456,6 +456,7 @@ public class MainActivity extends BaseActivity{
 			CommonUtils.fixVersion(getApplicationContext());
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
+				DebugLog.d("latest_version from server : " + model.version);
 				writePreference(R.string.latest_version, model.version);
 				writePreference(R.string.url_update, model.download);
 				String version = null;

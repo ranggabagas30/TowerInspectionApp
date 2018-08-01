@@ -111,7 +111,7 @@
 
     <!-- persistent site location string value-->
     <string name="keypersistentsitelocation">Persistent Site Location</string>
-    <string name="sitelocationisnotaccurate">Silahkan foto kembali. Latitude longitude photo belum akurat</string>
+    <string name="sitelocationisnotaccurate">Lokasi GPS belum akurat atau belum tersinkronisasi dengan baik. Pastikan settingan lokasi HIGH_ACCURACY</string>
     <string name="failedmessagecheckin">Too far from site Coordinate. Please wait a bit for better GPS accuration</string>
     <string name="successmessagecheckin">Check in success.</string>
     <string name="checkoutmesssage">You have checked out successfully</string>

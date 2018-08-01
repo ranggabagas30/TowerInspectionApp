@@ -18,6 +18,7 @@ import com.sap.inspection.CheckInActivity;
 import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.DbRepository;
@@ -259,12 +260,13 @@ public class NavigationAdapter extends MyBaseAdapter {
 			else if (getItem(position).hasForm){
 				DebugLog.d("----schedule id----- "+scheduleId);
 
+				String workFormGroupName = shown.get(positionAncestry).text;
 				Intent intent;
 				intent = new Intent(context, FormFillActivity.class);
 				intent.putExtra("rowId", getItem(position).id);
 				intent.putExtra("workFormGroupId", getItem(position).work_form_group_id);
 				intent.putExtra("scheduleId", scheduleId);
-				intent.putExtra("workFormGroupName", shown.get(positionAncestry).text);
+				intent.putExtra("workFormGroupName", workFormGroupName);
 				intent.putExtra("scheduleBaseModel", scheduleBaseModel);
 				context.startActivity(intent);
 //				Toast.makeText(context, "tester", Toast.LENGTH_SHORT).show();

@@ -139,15 +139,16 @@ public class Utility {
         double dLat = Math.abs(Double.parseDouble(latitude));
         double dLng = Math.abs(Double.parseDouble(longitude));
 
-        return (dLat < 1 || dLng < 1);
+        return (dLat == 0.0 && dLng == 0.0);
     }
 
     public static boolean isCurrentLocationError(double latitude, double longitude) {
         double dLat = Math.abs(latitude);
         double dLng = Math.abs(longitude);
 
-        return (dLat < 1 || dLng < 1);
+        return (dLat == 0.0 && dLng == 0.0);
     }
+
     /**
      *
      * STORAGE UTILITY

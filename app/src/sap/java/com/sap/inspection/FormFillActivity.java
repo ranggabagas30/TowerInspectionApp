@@ -965,10 +965,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					" disable="+item.workItemModel.disable);
 				}
 
-				if (!MyApplication.getInstance().IsInCheckHasilPm()) {
+				if (!MyApplication.getInstance().isInCheckHasilPm()) {
 
 					if (item.itemValue!=null) {
-						DebugLog.d("is in hasil pm : " + MyApplication.getInstance().IsInCheckHasilPm());
+						DebugLog.d("is in hasil pm : " + MyApplication.getInstance().isInCheckHasilPm());
 						DebugLog.d("item label : " + item.workItemModel.label);
 						DebugLog.d("itemValue.value="+item.itemValue.value); // belum ada foto
 						DebugLog.d("scheduleId=" + item.itemValue.scheduleId);
