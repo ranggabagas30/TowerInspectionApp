@@ -420,13 +420,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
 				takePicture(photoItem.getItemId());
-				/*
-				if (currentGeoPoint.latitude==0) {
-					Toast.makeText(activity, "GPS location is loading, please wait.", Toast.LENGTH_SHORT).show();
-				} else {
-					photoItem = (PhotoItemRadio) v.getTag();
-					takePicture(photoItem.getItemId());
-				}*/
 			} else {
 				new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
 						.setTopColor(color(R.color.theme_color))
@@ -958,11 +951,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			boolean mandatoryFound = false;
 			DebugLog.d("adapter size "+adapter.getCount());
 			for (int i = 0; i < adapter.getCount(); i++) {
+
 				ItemFormRenderModel item = adapter.getItem(i);
 				DebugLog.d("count "+i);
 				if (item.workItemModel!=null) {
 					DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+
-					" disable="+item.workItemModel.disable);
+							" disable="+item.workItemModel.disable);
 				}
 
 				if (!MyApplication.getInstance().isInCheckHasilPm()) {
@@ -994,6 +988,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 								}
 							}
 						}
+
+						if (workFormGroupName.equalsIgnoreCase("Equipment Checklist")) {
+
+							DebugLog.d("isian data : " + item.itemValue.value);
+
+							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
+								if (item.itemValue.value == null || item.itemValue.value.isEmpty()) {
+                                    Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+									mandatoryFound = true;
+									break;
+								}
+							}
+						}
 					}
 
 					if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
@@ -1006,7 +1013,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						}
 					}
 				}
+
 			}
+
+
 
 			DebugLog.d("mandatoryFound="+mandatoryFound);
 			if (!mandatoryFound)

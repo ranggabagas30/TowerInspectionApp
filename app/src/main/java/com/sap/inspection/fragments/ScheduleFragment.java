@@ -3,12 +3,14 @@ package com.sap.inspection.fragments;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.google.gson.Gson;
 import com.sap.inspection.CallendarActivity;
 import com.sap.inspection.CheckInActivity;
 import com.sap.inspection.FormActivity;
@@ -19,8 +21,13 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
+import com.sap.inspection.task.ScheduleSaver;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.views.adapter.ScheduleAdapter;
 
+import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
@@ -28,6 +35,9 @@ import de.greenrobot.event.EventBus;
 public class ScheduleFragment extends BaseListTitleFragment implements OnItemClickListener{
 	private ScheduleAdapter adapter;
 	private Vector<ScheduleBaseModel> models;
+	private ArrayList<ScheduleBaseModel> itemScheduleModel;
+	private Handler itemScheduleHandler;
+
 	private int filterBy = 0;
     private ProgressDialog dialog;
 
@@ -128,7 +138,28 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 //		models = siteModel.getListScheduleForScheduleAdapter(siteModel.getAllSchedule(activity));
 		adapter.setItems(models);
 	}
-	
+
+	public void setItemScheduleModelBy(String scheduleId, String userId) {
+
+		itemScheduleHandler = new Handler(){
+
+			public void handleMessage(android.os.Message msg) {
+				Bundle bundle = msg.getData();
+				Gson gson = new Gson();
+				if (bundle.getString("json") != null) {
+					String jsonItemSchedule = bundle.getString("json");
+
+					ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
+					if (itemScheduleResponse.status == 200) {
+						DebugLog.d("response OK");
+						ScheduleSaver scheduleSaver = new ScheduleSaver();
+						scheduleSaver.setActivity(getActivity());
+						scheduleSaver
+					}
+				}
+			}
+		};
+	}
 	public void scrollTo(String date){
 		int i = 0;
 		for(; i < models.size(); i++){
@@ -145,10 +176,17 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 		Intent intent;
 
-		String workTypeName = models.get(position).work_type.name;
 		int workTypeId = models.get(position).work_type.id;
+		int siteId = models.get(position).site.id;
+		String workTypeName = models.get(position).work_type.name;
+		String dayDate = models.get(position).day_date;
+		String scheduleId = models.get(position).id;
+		String userId = models.get(position).user.id;
+
 		log("-=-="+ workTypeName +"-=-=-=");
 		log("-=-="+ workTypeId +"-=-=-=");
+		log("-=-="+ scheduleId +"-=-=-=");
+		log("-=-="+ userId +"-=-=-=");
 
 		if (workTypeName.matches(Constants.regexPREVENTIVE) && !MyApplication.getInstance().isInCheckHasilPm()) {
 			MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
@@ -156,10 +194,11 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		} else {
 			intent = new Intent(activity, FormActivity.class);
 		}
-		intent.putExtra("scheduleId", models.get(position).id);
-		intent.putExtra("siteId", models.get(position).site.id);
-		intent.putExtra("dayDate", models.get(position).day_date);
-		intent.putExtra("workTypeId", models.get(position).work_type.id);
+		intent.putExtra("userId", userId);
+		intent.putExtra("scheduleId", scheduleId);
+		intent.putExtra("siteId", siteId);
+		intent.putExtra("dayDate", dayDate);
+		intent.putExtra("workTypeId", workTypeId);
 		startActivity(intent);
 
 	}

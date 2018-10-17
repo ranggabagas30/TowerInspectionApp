@@ -102,12 +102,12 @@ public class WorkFormItemModel extends BaseModel {
 		saveImage();
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-						DbManager.mWorkFormItem , DbManager.colID,
-						DbManager.colPosition,DbManager.colSearchable,
-						DbManager.colMandatory,DbManager.colVisible,
-						DbManager.colListable,DbManager.colWorkFormGroupId,
-						DbManager.colFieldType,DbManager.colLable,
-						DbManager.colLableKey,DbManager.colDescription,
+						DbManager.mWorkFormItem , DbManager.colID, 				// 1 and 2
+						DbManager.colPosition,DbManager.colSearchable,			// 3 and 4
+						DbManager.colMandatory,DbManager.colVisible,			// 5 and 6
+						DbManager.colListable,DbManager.colWorkFormGroupId,		// 7 and 8
+						DbManager.colFieldType, DbManager.colLable,				// 9 and 10
+						DbManager.colLableKey,DbManager.colDescription,			//
 						DbManager.colWorkFormRowColumnId, DbManager.colDefaultValue,
 						DbManager.colScopeType, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt, DbManager.colPicture,
@@ -283,9 +283,9 @@ public class WorkFormItemModel extends BaseModel {
 		item.listable = (int) (c.getLong(c.getColumnIndex(DbManager.colListable))) == 1;
 		item.work_form_group_id = (c.getInt(c.getColumnIndex(DbManager.colWorkFormGroupId)));
 		item.field_type = (c.getString(c.getColumnIndex(DbManager.colFieldType)));
-		item.label = (c.getString(c.getColumnIndex(DbManager.colLable)));
 		item.default_value = (c.getString(c.getColumnIndex(DbManager.colDefaultValue)));
 		item.scope_type = (c.getString(c.getColumnIndex(DbManager.colScopeType)));
+		item.label = (c.getString(c.getColumnIndex(DbManager.colLable)));
 		item.label_key = (c.getString(c.getColumnIndex(DbManager.colLableKey)));
 		item.work_form_row_column_id = (c.getInt(c.getColumnIndex(DbManager.colWorkFormRowColumnId)));
 		item.created_at = (c.getString(c.getColumnIndex(DbManager.colCreatedAt)));

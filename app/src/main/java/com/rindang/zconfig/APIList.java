@@ -32,6 +32,11 @@ public class APIList {
 	//Checkin schedules
 	public static String checkinScheduleUrl(String scheduleId) { return AppConfig.getInstance().getV1()+ "/schedules/" + scheduleId + "/check_in"; }
 
+	//Item Schedules -- to obtain default value schedules
+	public static String itemSchedulesUrl(String scheduleId, String userId) {
+		return AppConfig.getInstance().getV1() + "/users/" + userId + "/item_schedules?schedule_id=" + scheduleId;
+	}
+
 	//Forms
 	public static String formsUrl(){
 		return AppConfig.getInstance().getV1()+"/work_forms";

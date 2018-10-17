@@ -2,6 +2,7 @@ package com.sap.inspection.model.form;
 
 import android.os.Debug;
 import android.os.Parcel;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
@@ -178,6 +179,7 @@ public class ItemFormRenderModel extends BaseModel {
 
         if (firstItem == null)
             return;
+
         //generate first cell
         if (firstItem.items.size() != 0) {
             this.type = TYPE_HEADER;
@@ -340,6 +342,8 @@ public class ItemFormRenderModel extends BaseModel {
         } else if (workItemModel.field_type.equalsIgnoreCase("text_field")) {
             hasInput = true;
             child.type = TYPE_TEXT_INPUT;
+            Log.d("default_value", "default value : " + child.workItemModel.default_value);
+
             this.addFillableTask();
             child.parent = this;
             add(child);

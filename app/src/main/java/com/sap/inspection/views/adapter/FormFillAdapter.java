@@ -396,10 +396,27 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 				holder.input.setTextChange(null);
 				holder.input.setTag(getItem(position));
+
 				if (getItem(position).itemValue != null)
 					holder.input.setText(getItem(position).itemValue.value);
 				else
-					holder.input.setText("");
+				{
+					if (getItem(position).workItemModel.default_value != null && !getItem(position).workItemModel.default_value.isEmpty()) {
+
+						/*DebugLog.d("ada default value : " + getItem(position).workItemModel.default_value);
+
+						getItem(position).itemValue = new ItemValueModel();
+						getItem(position).itemValue.value = getItem(position).workItemModel.default_value;
+						holder.input.setText(getItem(position).itemValue.value);*/
+
+						holder.input.setHint(getItem(position).workItemModel.default_value);
+
+					} else {
+						DebugLog.d("tidak ada default value");
+						holder.input = null;
+					}
+				}
+
 				holder.input.setTextChange(formTextChange);
 				//holder.input.setEnabled(!getItem(position).workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation));
 				holder.input.setEnabled(!getItem(position).workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm());

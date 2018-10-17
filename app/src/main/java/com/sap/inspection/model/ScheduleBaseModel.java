@@ -41,6 +41,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public WorkFormModel work_form;
 	public ProjectModel project;
 	public Vector<ItemValueModel> schedule_values;
+	public ArrayList<DefaultValueScheduleModel> default_value_schedules;
 	public String statusColor;
 	public String taskColor;
 	public int sumTask = 0;
@@ -522,6 +523,23 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
+			}
+		}
+	}
+
+	private void printDefaultValueSchedules() {
+
+		if (default_value_schedules != null && !default_value_schedules.isEmpty()) {
+
+			int i = 1;
+			for (DefaultValueScheduleModel itemDefaultValue : default_value_schedules) {
+
+				DebugLog.d("index ke-" + i);
+				DebugLog.d("-- item_id  : " + itemDefaultValue.getItem_id());
+				DebugLog.d("-- group_id : " + itemDefaultValue.getGroup_id());
+				DebugLog.d("-- form_id  : " + itemDefaultValue.getForm_id());
+				DebugLog.d("-- default_value : " + itemDefaultValue.getDefault_value());
+				i++;
 			}
 		}
 	}

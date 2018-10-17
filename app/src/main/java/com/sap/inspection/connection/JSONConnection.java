@@ -107,8 +107,8 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			
 			data = response.getEntity().getContent();
 			statusCode = response.getStatusLine().getStatusCode();
-			DebugLog.d("content type name  : "+response.getEntity().getContentType().getName());
-			DebugLog.d("content type value : "+response.getEntity().getContentType().getValue());
+			DebugLog.d("content type name  : "+ response.getEntity().getContentType().getName());
+			DebugLog.d("content type value : "+ response.getEntity().getContentType().getValue());
 			if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
 				DebugLog.d("not json type");
 				DebugLog.e(ConvertInputStreamToString(data));

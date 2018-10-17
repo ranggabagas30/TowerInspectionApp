@@ -135,7 +135,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mCheckoutHandler = new Handler();
         mCheckGPSHandler = new Handler();
 
-        getWindowConfigution();
+        getWindowConfiguration();
         getBundleDataFromScheduleFragment();
         preparingScheduleAndSiteData();
 
@@ -688,7 +688,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             recheckinIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(recheckinIntent);
         };
-        mCheckoutHandler.postDelayed(mRunnableCheckoutHandler, CHECKIN_DURATION * 3600 * 1000);
+        mCheckoutHandler.postDelayed(mRunnableCheckoutHandler, CHECKIN_DURATION * 3600 * 1000); // 3 hours
     }
 
     private void startCheckGPSHandler() {
@@ -700,10 +700,10 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             }
         };
         mCheckGPSHandler.removeCallbacks(mRunnableCheckGPSHandler);
-        mCheckGPSHandler.postDelayed(mRunnableCheckGPSHandler, CHECK_GPS_DURATION * 1000);
+        mCheckGPSHandler.postDelayed(mRunnableCheckGPSHandler, CHECK_GPS_DURATION * 1000); // every 5 seconds
     }
 
-    private void getWindowConfigution() {
+    private void getWindowConfiguration() {
         mMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
         DebugLog.d("metrics out width  : " + mMetrics.widthPixels);
