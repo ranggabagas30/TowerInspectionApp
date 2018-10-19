@@ -1,5 +1,6 @@
 package com.sap.inspection.model.form;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
@@ -13,6 +14,7 @@ import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.PictureModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
 
 import java.util.Vector;
@@ -153,6 +155,64 @@ public class WorkFormItemModel extends BaseModel {
 		pictureEndPoint = ImageUtil.resizeAndSaveImage(bmp, pictureEndPoint);
 	}
 
+	public static void setDefaultValueFromItemSchedule(String item_id, String group_id, String new_default_value) {
+
+		  /**
+		  * step :
+		  * 1. get default_value data from local db (WorkFormItems table, default_value column)
+		  * 2. if the 'new_default_value' not equal 'default_value', then overwrite the data
+		  * 3. else don't update the data
+		  * */
+
+		 WorkFormItemModel formitem;
+
+		 int workFormItemId  = Integer.valueOf(item_id);
+		 int workFormGroupId = Integer.valueOf(group_id);
+
+		 if (!DbRepository.getInstance().getDB().isOpen()) {
+		 	DbRepository.getInstance().open(MyApplication.getInstance());
+		 }
+
+		 formitem = getItemById(workFormItemId, workFormGroupId);
+
+
+		 if (formitem.default_value == null || formitem.default_value.isEmpty()) {
+
+		 	DebugLog.d("column 'default_value' for workFormItemId " + item_id + " is null or empty");
+		 	updateDefaultValue(item_id, new_default_value);
+
+		 } else {
+
+		 	if (!formitem.default_value.equalsIgnoreCase(new_default_value)) {
+
+				DebugLog.d("old default_value = " + formitem.default_value);
+				DebugLog.d("new default_value = " + new_default_value);
+				updateDefaultValue(item_id, new_default_value);
+			}
+		 }
+	}
+
+	private static void updateDefaultValue(String workFormItemId, String new_default_value) {
+
+		DebugLog.d("update new default value");
+
+		if (!DbRepository.getInstance().getDB().isOpen()) {
+			DbRepository.getInstance().open(MyApplication.getInstance());
+		}
+
+		ContentValues cv = new ContentValues();
+		cv.put(DbManager.colDefaultValue, new_default_value);
+
+		String column = "id"; // workFormItem id
+		String where = column + "=?";
+		String[] args = new String[] { workFormItemId };
+
+		DebugLog.d("UPDATE workFormItem SET default_value = '" + new_default_value + "' WHERE " + DbManager.colWorkFormItemId + " = '" + workFormItemId);
+		DbRepository.getInstance().getDB().update(DbManager.mWorkFormItem, cv, where, args);
+		DbRepository.getInstance().close();
+
+	}
+
 	public Vector<WorkFormItemModel> getAllItemByWorkFormRowColumnId(Context context, int workFormRowColumnId) {
 
 		DbRepository.getInstance().open(context);
@@ -161,7 +221,7 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 
-	public Vector<WorkFormItemModel> getAllItemByWorkFormRowColumnId(int workFormRowColumnId) {
+	public static Vector<WorkFormItemModel> getAllItemByWorkFormRowColumnId(int workFormRowColumnId) {
 
 		Vector<WorkFormItemModel> result = new Vector<WorkFormItemModel>();
 
@@ -190,7 +250,7 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 	
-	public WorkFormItemModel getItemById(int id) {
+	public static WorkFormItemModel getItemById(int id) {
 
 		WorkFormItemModel result = new WorkFormItemModel();
 
@@ -214,7 +274,7 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 
-	public WorkFormItemModel getItemById(int id, int workFormGroupId) {
+	public static WorkFormItemModel getItemById(int id, int workFormGroupId) {
 
 		WorkFormItemModel result = new WorkFormItemModel();
 
@@ -238,7 +298,7 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 	
-	private Vector<WorkFormOptionsModel> getWorkFormOptionsModels(int workFormItemId){
+	private static Vector<WorkFormOptionsModel> getWorkFormOptionsModels(int workFormItemId){
 		WorkFormOptionsModel model = new WorkFormOptionsModel();
 		return model.getAllItemByWorkFormItemId(workFormItemId);
 	}
@@ -269,7 +329,7 @@ public class WorkFormItemModel extends BaseModel {
 	//		return result;
 	//	}
 
-	private WorkFormItemModel getItemFromCursor(Cursor c) {
+	private static WorkFormItemModel getItemFromCursor(Cursor c) {
 		WorkFormItemModel item= new WorkFormItemModel();
 
 		if (null == c)

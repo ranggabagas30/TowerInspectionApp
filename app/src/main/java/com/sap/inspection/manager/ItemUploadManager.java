@@ -199,7 +199,7 @@ public class ItemUploadManager {
                         //scheduleId = item.scheduleId;
 
                         if (!DbRepositoryValue.getInstance().getDB().isOpen())
-                            DbRepositoryValue.getInstance().open(MyApplication.getContext());
+                             DbRepositoryValue.getInstance().open(MyApplication.getContext());
                         item.save();
                     }
                     else {

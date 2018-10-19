@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.Toast;
 
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.MD5;
 
 public class UserModel extends BaseModel {
@@ -111,6 +112,16 @@ public class UserModel extends BaseModel {
 	@Override
 	public int describeContents() {
 		return 0;
+	}
+
+	public void printUserValue() {
+
+		DebugLog.d("id : " + id);
+		DebugLog.d("username : " + username);
+		DebugLog.d("email : " + email);
+		DebugLog.d("full_name : " + full_name);
+		DebugLog.d("persistence_token : " + persistence_token);
+		DebugLog.d("role_name : " + role);
 	}
 
 	public void save(Context context) {

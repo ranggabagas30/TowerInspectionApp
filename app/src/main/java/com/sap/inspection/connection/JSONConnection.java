@@ -182,8 +182,13 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 		bundle.putInt("statusCode", statusCode);
 		Message msg = new Message();
 		msg.setData(bundle);
-		if (handler!=null)
+		if (handler!=null) {
+
+			DebugLog.d("handler is not null");
 			handler.sendMessage(msg);
+		} else {
+			DebugLog.d("handler is null");
+		}
 		//		activity.setProgressBarIndeterminateVisibility(false);
 	}
 	

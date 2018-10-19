@@ -76,7 +76,7 @@ public class APIHelper {
 	//Item schedules
 
 	public static void getItemSchedules(Context context, Handler handler, String scheduleId, String userId) {
-		getJsonFromUrl(context, handler, APIList.itemSchedulesUrl(scheduleId, userId) + "&template=with_item&per_page=-1&access_token=" + getAccessToken(context));
+		getJsonFromUrl(context, handler, APIList.itemSchedulesUrl(scheduleId, userId) + "&template=with_item&access_token=" + getAccessToken(context));
 	}
 
 	//Forms

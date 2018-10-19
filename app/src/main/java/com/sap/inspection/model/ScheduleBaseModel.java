@@ -41,7 +41,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public WorkFormModel work_form;
 	public ProjectModel project;
 	public Vector<ItemValueModel> schedule_values;
-	public ArrayList<DefaultValueScheduleModel> default_value_schedules;
+	public Vector<DefaultValueScheduleModel> default_value_schedule = new Vector<>();
 	public String statusColor;
 	public String taskColor;
 	public int sumTask = 0;
@@ -57,6 +57,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	@Override
 	public void writeToParcel(Parcel arg0, int arg1) {
+
 	}
 
 	public String getPercent(){
@@ -529,10 +530,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	private void printDefaultValueSchedules() {
 
-		if (default_value_schedules != null && !default_value_schedules.isEmpty()) {
+		if (default_value_schedule != null && !default_value_schedule.isEmpty()) {
 
 			int i = 1;
-			for (DefaultValueScheduleModel itemDefaultValue : default_value_schedules) {
+			for (DefaultValueScheduleModel itemDefaultValue : default_value_schedule) {
 
 				DebugLog.d("index ke-" + i);
 				DebugLog.d("-- item_id  : " + itemDefaultValue.getItem_id());

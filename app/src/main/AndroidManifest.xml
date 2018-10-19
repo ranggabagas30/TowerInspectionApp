@@ -106,7 +106,8 @@
             android:resource="@xml/global_tracker" />
 
         <activity
-            android:name=".CheckInActivity">
+            android:name=".CheckInActivity"
+            android:windowSoftInputMode="stateHidden">
 
         </activity>
     </application>

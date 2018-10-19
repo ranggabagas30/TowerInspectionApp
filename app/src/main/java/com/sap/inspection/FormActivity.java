@@ -69,7 +69,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 
 		if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin)
-			DbRepository.getInstance().open(activity);
+			DbRepository.getInstance().open(MyApplication.getInstance());
 
 		RowModel rModel = new RowModel();
 		DebugLog.d("===================================1 row model max level : "+rModel.getMaxLevel("1"));

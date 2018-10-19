@@ -1,6 +1,7 @@
 package com.sap.inspection.fragments;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,21 +10,27 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.rindang.zconfig.APIList;
 import com.sap.inspection.CallendarActivity;
 import com.sap.inspection.CheckInActivity;
 import com.sap.inspection.FormActivity;
 import com.sap.inspection.MainActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
+import com.sap.inspection.model.DefaultValueScheduleModel;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.tools.PrefUtil;
 import com.sap.inspection.views.adapter.ScheduleAdapter;
 
 import java.security.PublicKey;
@@ -36,7 +43,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	private ScheduleAdapter adapter;
 	private Vector<ScheduleBaseModel> models;
 	private ArrayList<ScheduleBaseModel> itemScheduleModel;
-	private Handler itemScheduleHandler;
 
 	private int filterBy = 0;
     private ProgressDialog dialog;
@@ -141,25 +147,73 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 	public void setItemScheduleModelBy(String scheduleId, String userId) {
 
-		itemScheduleHandler = new Handler(){
+		DebugLog.d("set item schedule ");
+		DebugLog.d("schedule id : " + scheduleId);
+		DebugLog.d("user id : " + userId);
 
-			public void handleMessage(android.os.Message msg) {
-				Bundle bundle = msg.getData();
-				Gson gson = new Gson();
-				if (bundle.getString("json") != null) {
-					String jsonItemSchedule = bundle.getString("json");
+		dialog.setCancelable(true);
+		dialog.setMessage("Loading data please wait");
+		dialog.show();
 
-					ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
-					if (itemScheduleResponse.status == 200) {
-						DebugLog.d("response OK");
-						ScheduleSaver scheduleSaver = new ScheduleSaver();
-						scheduleSaver.setActivity(getActivity());
-						scheduleSaver
-					}
-				}
-			}
-		};
+	    APIHelper.getItemSchedules(getContext(), itemScheduleHandler, scheduleId, userId);
+
 	}
+
+	private Handler itemScheduleHandler = new Handler(){
+
+		public void handleMessage(android.os.Message msg) {
+			Bundle bundle = msg.getData();
+			Gson gson = new Gson();
+			if (bundle.getString("json") != null) {
+				String jsonItemSchedule = bundle.getString("json");
+
+				/* obtain the response */
+				ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
+				if (itemScheduleResponse.status == 200) {
+
+					//dialog.setOnDismissListener(dialog -> Toast.makeText(getContext(), "Berhasil mendapatkan item schedules", Toast.LENGTH_LONG).show());
+
+					DebugLog.d("response OK");
+					ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
+
+					DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
+
+					for (DefaultValueScheduleModel item_default_value : itemScheduleGeneral.default_value_schedule) {
+
+						String workFormItemId    = String.valueOf(item_default_value.getItem_id());
+						String workFormGroupId   = String.valueOf(item_default_value.getGroup_id());
+						String new_default_value = String.valueOf(item_default_value.getDefault_value());
+
+						DebugLog.d("{");
+						DebugLog.d("--item_id  : " + workFormItemId);
+						DebugLog.d("--group_id : " + workFormGroupId);
+						DebugLog.d("--default_value : " + new_default_value);
+						DebugLog.d("}");
+
+						if (!(new_default_value == null && new_default_value.isEmpty())) {
+
+							DebugLog.d("json default value not null, do update");
+							WorkFormItemModel.setDefaultValueFromItemSchedule(workFormItemId, workFormGroupId, new_default_value);
+						}
+					}
+				} else {
+
+					dialog.setOnDismissListener(dialog -> Toast.makeText(getContext(), "Gagal mendapatkan item schedules", Toast.LENGTH_LONG).show());
+
+					DebugLog.d("response status code : " + itemScheduleResponse.status);
+					DebugLog.d("response message : " + itemScheduleResponse.messages);
+				}
+
+			} else {
+
+				Toast.makeText(getContext(), "repsonse json for ITEM SCHEDULES is null", Toast.LENGTH_LONG).show();
+				DebugLog.e("repsonse json for ITEM SCHEDULES is null");
+			}
+
+			dialog.dismiss();
+		}
+	};
+
 	public void scrollTo(String date){
 		int i = 0;
 		for(; i < models.size(); i++){
@@ -181,12 +235,19 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		String workTypeName = models.get(position).work_type.name;
 		String dayDate = models.get(position).day_date;
 		String scheduleId = models.get(position).id;
-		String userId = models.get(position).user.id;
+		String userId = PrefUtil.getStringPref(R.string.user_id, "");
 
 		log("-=-="+ workTypeName +"-=-=-=");
 		log("-=-="+ workTypeId +"-=-=-=");
 		log("-=-="+ scheduleId +"-=-=-=");
 		log("-=-="+ userId +"-=-=-=");
+
+		models.get(position).user.printUserValue();
+
+		if (userId != null && !userId.equalsIgnoreCase("")) {
+
+			setItemScheduleModelBy(scheduleId, userId);
+		}
 
 		if (workTypeName.matches(Constants.regexPREVENTIVE) && !MyApplication.getInstance().isInCheckHasilPm()) {
 			MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
