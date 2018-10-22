@@ -125,6 +125,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 					&& model.column.column_name.equalsIgnoreCase("corrective"))
 				shown.remove(i);
 		}
+
 		DebugLog.d("models size = "+shown.size());
 		List<String> strings = new ArrayList<>();
 		for (int i = 0; i < this.shown.size(); i++) {
@@ -396,12 +397,19 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 				if (getItem(position).workItemModel.default_value != null) {
 
+					DebugLog.d("default value not null");
 					if (getItem(position).workItemModel.default_value.isEmpty()) {
 						holder.input.setHint("kosong");
 					} else {
 						holder.input.setHint(getItem(position).workItemModel.default_value);
 					}
-				}
+
+				} else {
+
+					DebugLog.d("default value is null");
+				    holder.input.setHint("kosong");
+                }
+
 				holder.input.setTextChange(null);
 				holder.input.setTag(getItem(position));
 				if (getItem(position).itemValue != null)

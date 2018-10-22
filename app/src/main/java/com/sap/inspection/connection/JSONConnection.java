@@ -78,8 +78,8 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			// Set the default socket timeout (SO_TIMEOUT) 
 			// in milliseconds which is the timeout for waiting for data.
 			int timeoutSocket = 6000;
-			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-*/
+			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);*/
+
 			client = new DefaultHttpClient(httpParameters);
 			try {
 
@@ -229,7 +229,8 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 	public String getJson() {
 		return json;
 	}
-	
+
+	// check if the content type is json
 	public static boolean checkIfContentTypeJson(String contentType){
 		int idxSemiColon = contentType.indexOf(Constants.JSON_CONTENT_TYPE);
 		DebugLog.d(contentType + " | " + idxSemiColon);

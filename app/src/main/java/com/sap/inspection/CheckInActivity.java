@@ -127,9 +127,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
 
-        if (DbRepository.getInstance().getDB() != null && !DbRepository.getInstance().getDB().isOpen()) {
+        /*if (DbRepository.getInstance().getDB() != null && !DbRepository.getInstance().getDB().isOpen()) {
             DbRepository.getInstance().open(activity);
-        }
+        }*/
+
+        DbRepository.getInstance().open(activity);
 
         mPastCoordinate = new Location(LocationManager.GPS_PROVIDER);
         mCheckoutHandler = new Handler();
@@ -206,6 +208,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         });
 
 
+
     }
 
     /**
@@ -230,9 +233,6 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         if (!Utility.checkNetworkStatus(this) || !Utility.checkNetworkStatus(this)) {
             mLocationRequestProvider.showGPSDialog();
         }
-        if (DbRepository.getInstance().getDB() != null && !DbRepository.getInstance().getDB().isOpen()) {
-            DbRepository.getInstance().open(activity);
-        }
     }
 
     @Override
@@ -242,15 +242,17 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         stopLocationServices();
         mCheckGPSHandler.removeCallbacks(mRunnableCheckGPSHandler);
         mCheckoutHandler.removeCallbacks(mRunnableCheckoutHandler);
+        /*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen()){
+            DbRepository.getInstance().close();
+        }*/
+
+        DbRepository.getInstance().close();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         DebugLog.d("onDestroy");
-        if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen()){
-            DbRepository.getInstance().close();
-        }
     }
 
     @Override

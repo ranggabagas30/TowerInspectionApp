@@ -151,10 +151,8 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		DebugLog.d("schedule id : " + scheduleId);
 		DebugLog.d("user id : " + userId);
 
-		dialog.setCancelable(true);
 		dialog.setMessage("Loading data please wait");
 		dialog.show();
-
 	    APIHelper.getItemSchedules(getContext(), itemScheduleHandler, scheduleId, userId);
 
 	}

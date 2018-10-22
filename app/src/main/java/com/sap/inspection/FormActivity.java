@@ -66,11 +66,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		DebugLog.d("workTypeId="+bundle.getInt("workTypeId"));
 		DebugLog.d("dayDate="+dayDate);
 
-
-
-		if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin)
-			DbRepository.getInstance().open(MyApplication.getInstance());
-
 		RowModel rModel = new RowModel();
 		DebugLog.d("===================================1 row model max level : "+rModel.getMaxLevel("1"));
 		DebugLog.d("===================================2 row model max level : "+rModel.getMaxLevel("2"));
@@ -110,9 +105,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			rowModel.children.add(groupRow);
 		}
 
-		if (DbRepository.getInstance().getDB().isOpen() && !usingCheckin)
-			DbRepository.getInstance().close();
-
 		dialog.dismiss();
 
 		navigationFragment.setFormActivityListener(this);
@@ -120,6 +112,16 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		navigationFragment.setNavigationModel(rowModel);
 		navigateToFragment(navigationFragment, R.id.fragment_behind);
 		trackThisPage("Form");
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin) {
+
+			DbRepository.getInstance().open(MyApplication.getInstance());
+		}
+
 	}
 
 	@Override
@@ -132,6 +134,13 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	protected void onPause() {
 		super.onPause();
 		EventBus.getDefault().unregister(this);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (DbRepository.getInstance().getDB().isOpen() && !usingCheckin)
+			DbRepository.getInstance().close();
 	}
 
 	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {

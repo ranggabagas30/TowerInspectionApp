@@ -31,8 +31,8 @@ public class ItemFormRenderModel extends BaseModel {
     public static final int TYPE_LABEL = 9;
     public static final int TYPE_HEADER_DIVIDER = 10;
     public static final int TYPE_PICTURE = 11;
-    public static final int MAX_TYPE = 13;
     public static final int TYPE_EXPAND = 12;
+    public static final int MAX_TYPE = 13;
 
     public RowColumnModel firstItem;
     public WorkFormItemModel workItemModel;

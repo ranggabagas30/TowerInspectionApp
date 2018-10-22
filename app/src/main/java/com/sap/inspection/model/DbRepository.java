@@ -11,9 +11,9 @@ import com.sap.inspection.R;
 public class DbRepository {
 	private static DbRepository mInstance = null;
 	private SQLiteOpenHelper _databaseHelper;
-//	private final Context _context;
 	protected SQLiteDatabase _database;
-	
+//	private final Context _context;
+
 	public static DbRepository getInstance() {
         if (mInstance == null) {
 //            mInstance = new Repository(ctx.getApplicationContext());

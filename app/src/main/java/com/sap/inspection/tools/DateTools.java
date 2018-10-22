@@ -28,8 +28,7 @@ public class DateTools {
 	/** Transform Calendar to ISO 8601 string. */
 	public static String fromCalendar(final Calendar calendar) {
 		Date date = calendar.getTime();
-		String formatted = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-		.format(date);
+		String formatted = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
 		return formatted.substring(0, 22) + ":" + formatted.substring(22);
 	}
 
@@ -66,7 +65,7 @@ public class DateTools {
 		//		timeElapse = timeToCheck.getTime().toLocaleString();
 		//		return timeElapse;
 		Calendar c = Calendar.getInstance();
-		long elapsed = 60*1000;
+		long elapsed = 60*1000; // 60 seconds or 1 minute
 		long param;
 		long timeElapsed = c.getTimeInMillis() - timeToCheck.getTimeInMillis();
 		// less than a minute

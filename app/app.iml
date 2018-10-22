@@ -199,5 +199,6 @@
     <orderEntry type="library" name="Gradle: com.android.support:support-core-utils-25.3.1" level="project" />
     <orderEntry type="module" module-name="baseassets" />
     <orderEntry type="library" name="Gradle: org.apache.http.legacy-android-25" level="project" />
+    <orderEntry type="module" module-name="baseassets" />
   </component>
 </module>
