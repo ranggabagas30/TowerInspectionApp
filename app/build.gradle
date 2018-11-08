@@ -92,9 +92,13 @@ repositories {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api "com.google.android.gms:play-services-location:${rootProject.ext.playServicesVersion}"
-    api "com.google.android.gms:play-services-gcm:${rootProject.ext.playServicesVersion}"
-    api "com.google.android.gms:play-services-analytics:${rootProject.ext.playServicesVersion}"
+    api "com.google.android.gms:play-services-location:${rootProject.ext.playServicesVersionLocation}"
+    api "com.google.android.gms:play-services-maps:16.0.0"
+    //api "com.google.android.gms:play-services-gcm:${rootProject.ext.playServicesVersion}"
+    api "com.google.android.gms:play-services-analytics:${rootProject.ext.playServicesVersionAnalytics}"
+
+    api "com.google.firebase:firebase-core:16.0.5"
+    api "com.google.firebase:firebase-messaging:17.3.4"
     api project(':baseassets')
     api('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
         transitive = true;
@@ -104,5 +108,7 @@ dependencies {
     }
     api 'com.facebook.stetho:stetho:1.4.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-    debugImplementation 'com.amitshekhar.android:debug-db:1.0.0'
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.4'
 }
+
+apply plugin: 'com.google.gms.google-services'

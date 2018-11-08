@@ -26,7 +26,7 @@ public class RegisterGCM extends AsyncTask<Void, Void, String>{
 	protected String doInBackground(Void... params) {
 		DebugLog.d("Trying get registration ID for GCM");
 		try {
-			if(gcm == null){
+			if(gcm == null) {
 				gcm = GoogleCloudMessaging.getInstance(MyApplication.getInstance());
 			}
 			String registrationID = gcm.register(AppConfig.getInstance().config.getGCMSenderId());

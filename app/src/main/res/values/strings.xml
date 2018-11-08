@@ -23,6 +23,7 @@
     <string name="hasil_PM">Hasil PM</string>
 
     <string name="app_reg_id">app_reg_id</string>
+    <string name="app_fcm_reg_id">app_fcm_reg_id</string>
     <string name="action_settings">Pengaturan</string>
     <string name="hello_world">Hello world!</string>
 

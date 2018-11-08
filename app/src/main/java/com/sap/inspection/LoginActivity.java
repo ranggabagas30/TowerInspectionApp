@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.rindang.pushnotification.RegisterGCM;
 import com.rindang.zconfig.AppConfig;
 import com.rindang.zconfig.ProdConfig;
 import com.sap.inspection.connection.APIHelper;
@@ -489,8 +488,8 @@ public class LoginActivity extends BaseActivity {
 
 	private void checkLoginState(boolean canLogin){
 		if (canLogin){
-			RegisterGCM register = new RegisterGCM(new Handler());
-			register.execute();
+			/*RegisterGCM register = new RegisterGCM(new Handler());
+			register.execute();*/
 			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 			intent.putExtra(Constants.LOADAFTERLOGIN,true);
 			startActivityForResult(intent, Constants.DEFAULT_REQUEST_CODE);

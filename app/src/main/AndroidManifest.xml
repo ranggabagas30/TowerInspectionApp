@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sap.inspection"
-    android:versionCode="19"
-    android:versionName="0.0.20"> <!-- vc 6 vn 0.0.7 check if any update -->
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.sap.inspection">
+
+    <!-- vc 6 vn 0.0.7 check if any update -->
     <!-- vc 7 vn 0.0.8 check db closed if not opened on mainactivity -->
     <!-- vc 8 vn 0.0.9 enable full GPS -->
     <!-- vc 9 vn 0.0.10 change timeout to 20sec -->
@@ -15,19 +16,17 @@
     <!-- vc 17 vn 0.0.18 corrective form done, but upload for it is still hidden, upload delete all corrective datas, skip corrective upload -->
     <!-- vc 18 vn 0.0.19 reupload all data with confirmation, update always download apk -->
     <!-- vc 19 vn 0.0.20 hot fix, jsonObject.wrap tidak di support di icecream -->
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="17" />
 
+    <!--<uses-permission android:name="android.permission.WAKE_LOCK" />
     <permission
         android:name="com.sap.inspection.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
-
     <uses-permission android:name="com.sap.inspection.permission.C2D_MESSAGE" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />-->
+
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -35,7 +34,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CLEAR_APP_CACHE" />
+    <uses-permission android:name="android.permission.CLEAR_APP_CACHE"
+        tools:ignore="ProtectedPermissions" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -48,6 +48,14 @@
         android:icon="@drawable/logo_app"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+
+        <service
+            android:name="com.rindang.pushnotification.FCMListenerService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
@@ -80,7 +88,7 @@
             android:screenOrientation="portrait" />
 
         <!-- Needed for push notification -->
-        <receiver
+        <!--<receiver
             android:name="com.rindang.pushnotification.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
@@ -89,9 +97,9 @@
 
                 <category android:name="com.sap.inspection" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
 
-        <service android:name="com.rindang.pushnotification.GcmIntentService" />
+        <!--<service android:name="com.rindang.pushnotification.GcmIntentService" />-->
 
         <uses-library android:name="com.google.android.maps" />
 
