@@ -3,9 +3,11 @@ package com.sap.inspection.model.form;
 import android.os.Debug;
 import android.os.Parcel;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -149,6 +151,7 @@ public class ItemFormRenderModel extends BaseModel {
     public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels, String parentLabel) {
         if (schedule.operators == null || schedule.operators.size() == 0) {
             DebugLog.d("operator none");
+            Toast.makeText(MyApplication.getInstance(), "Tidak ada operator", Toast.LENGTH_LONG).show();
             return;
         }
 //		do {

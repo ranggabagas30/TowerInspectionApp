@@ -19,8 +19,8 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 16112210
-        versionName "2.0"
+        versionCode 19020001
+        versionName "2.0.1"
         setProperty("archivesBaseName", "sap" + "-v" + "(" + versionName + ")")
     }
 
@@ -41,6 +41,7 @@ android {
 
     buildTypes {
         debug {
+
             applicationIdSuffix ".debug"
             applicationVariants.all { variant ->
                 renameAPK(variant)
@@ -66,7 +67,8 @@ android {
         }
         stp {
             applicationId 'com.stp.inspection'
-            versionName "2.0.0"
+            versionCode 19020001
+            versionName "2.0.1"
             dimension "default"
 
         }

@@ -22,7 +22,7 @@ ext {
     compileSdkVersion = 25
     buildToolsVersion = "27.0.3"
     supportLibVersion = "25.3.1"
-    minSdkVersion  = 14
+    minSdkVersion  = 19
     targetSdkVersion = 22
     playServicesVersion = "7.0.0"
 }
