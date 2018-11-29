@@ -242,7 +242,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 		models.get(position).user.printUserValue();
 
-		if (userId != null && !userId.equalsIgnoreCase("")) {
+		if (userId != null && !userId.equalsIgnoreCase("") && !MyApplication.getInstance().isInCheckHasilPm()) {
 
 			setItemScheduleModelBy(scheduleId, userId);
 		}

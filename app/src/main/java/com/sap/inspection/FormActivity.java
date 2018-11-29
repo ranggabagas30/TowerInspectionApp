@@ -49,6 +49,11 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		super.onCreate(savedInstanceState);
 		usingCheckin = MyApplication.getInstance().isScheduleNeedCheckIn();
 
+		if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin) {
+
+			DbRepository.getInstance().open(MyApplication.getInstance());
+		}
+
 		DebugLog.d("");
 
 		dialog = new ProgressDialog(activity);
@@ -117,11 +122,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	@Override
 	protected void onStart() {
 		super.onStart();
-		if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin) {
-
-			DbRepository.getInstance().open(MyApplication.getInstance());
-		}
-
 	}
 
 	@Override
