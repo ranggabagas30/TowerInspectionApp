@@ -167,7 +167,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 				/* obtain the response */
 				ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
-				if (itemScheduleResponse.status == 200) {
+				if (itemScheduleResponse.status == 200 && !itemScheduleResponse.data.isEmpty()) {
 
 					//dialog.setOnDismissListener(dialog -> Toast.makeText(getContext(), "Berhasil mendapatkan item schedules", Toast.LENGTH_LONG).show());
 

@@ -39,6 +39,50 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:934425217631:android:5c10ac9416caee75",
+        "android_client_info": {
+          "package_name": "com.sap.inspection.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "934425217631-b2r4t5fupgip3l1711apjkh7q6ev0290.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sap.inspection.debug",
+            "certificate_hash": "595a8dec63e0e5c5322214d0d844abb43e72b59a"
+          }
+        },
+        {
+          "client_id": "934425217631-bajrqrmq7nmjaijfnm99bl066ub64n2u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWeZ5jIQUaDRBR4GMJHlZzrc0AetohqiI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "934425217631-97cetr093m3do6h66dmu1d4f8n3h03tq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:934425217631:android:2741a170249c1e20",
         "android_client_info": {
           "package_name": "com.stp.inspection"
