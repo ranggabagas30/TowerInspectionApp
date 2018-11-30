@@ -82,13 +82,17 @@ public class WorkFormItemModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		save();
 		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		String sql = "DELETE FROM " + DbManager.mWorkFormItem;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -97,6 +101,7 @@ public class WorkFormItemModel extends BaseModel {
 	}
 
 	public void save(){
+
 		if (picture != null && picture.medium != null){
 			pictureEndPoint = picture.medium;
 		}
@@ -115,8 +120,9 @@ public class WorkFormItemModel extends BaseModel {
 						DbManager.colUpdatedAt, DbManager.colPicture,
 						DbManager.colDisable,DbManager.colSearch,
 						DbManager.colExpand);
-		SQLiteStatement stmt = DbRepository.getInstance().getDB()
-				.compileStatement(sql);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
 		stmt.bindLong(2, position);
@@ -141,6 +147,7 @@ public class WorkFormItemModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
+		DbRepository.getInstance().close();
 
 		if (options != null)
 			for (WorkFormOptionsModel optionsModel : options) {
@@ -190,15 +197,16 @@ public class WorkFormItemModel extends BaseModel {
 				updateDefaultValue(item_id, new_default_value);
 			}
 		 }
+
+		 DbRepository.getInstance().close();
 	}
 
 	private static void updateDefaultValue(String workFormItemId, String new_default_value) {
 
 		DebugLog.d("update new default value");
 
-		if (!DbRepository.getInstance().getDB().isOpen()) {
+		if (!DbRepository.getInstance().getDB().isOpen())
 			DbRepository.getInstance().open(MyApplication.getInstance());
-		}
 
 		ContentValues cv = new ContentValues();
 		cv.put(DbManager.colDefaultValue, new_default_value);
@@ -215,9 +223,8 @@ public class WorkFormItemModel extends BaseModel {
 
 	public Vector<WorkFormItemModel> getAllItemByWorkFormRowColumnId(Context context, int workFormRowColumnId) {
 
-		DbRepository.getInstance().open(context);
+
 		Vector<WorkFormItemModel> result = getAllItemByWorkFormRowColumnId(workFormRowColumnId);
-		DbRepository.getInstance().close();
 		return result;
 	}
 
@@ -234,6 +241,7 @@ public class WorkFormItemModel extends BaseModel {
 
 		if (!DbRepository.getInstance().getDB().isOpen())
 			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -247,6 +255,8 @@ public class WorkFormItemModel extends BaseModel {
 		} while(cursor.moveToNext());
 
 		cursor.close();
+
+		DbRepository.getInstance().close();
 		return result;
 	}
 	

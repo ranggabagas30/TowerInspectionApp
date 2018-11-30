@@ -5,7 +5,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
+import com.sap.inspection.model.DbRepository;
 
 
 public class RowValueModel extends BaseModel {
@@ -29,13 +31,12 @@ public class RowValueModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		DbRepositoryValue.getInstance().open(context);
 		save();
-		DbRepositoryValue.getInstance().close();
 	}
 
 	public static void deleteAll(Context ctx){
-		DbRepositoryValue.getInstance().open(ctx);
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mRowValue;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -44,8 +45,9 @@ public class RowValueModel extends BaseModel {
 	}
 
 	public RowValueModel getSiteById(Context context,String scheduleId, String itemId) {
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		RowValueModel model = null;
-		DbRepositoryValue.getInstance().open(context);
 		model = getSiteById(scheduleId, itemId);
 		DbRepositoryValue.getInstance().close();
 		return model;
@@ -74,6 +76,7 @@ public class RowValueModel extends BaseModel {
 	}
 
 	public void save(){
+
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?)",
 				DbManagerValue.mRowValue , DbManagerValue.colSiteId,
 				DbManagerValue.colWorkTypeId,DbManagerValue.colDayDate,
@@ -81,6 +84,8 @@ public class RowValueModel extends BaseModel {
 				DbManagerValue.colSumTask, DbManagerValue.colSumFilled,
 				DbManagerValue.colUploaded);
 
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, siteId);
@@ -91,6 +96,7 @@ public class RowValueModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
+		DbRepositoryValue.getInstance().close();
 	}
 
 	private RowValueModel getSiteFromCursor(Cursor c) {

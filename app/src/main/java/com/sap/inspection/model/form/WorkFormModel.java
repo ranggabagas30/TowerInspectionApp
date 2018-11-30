@@ -1,3 +1,4 @@
+
 package com.sap.inspection.model.form;
 
 import android.content.Context;
@@ -54,6 +55,7 @@ public class WorkFormModel extends BaseModel {
 	}
 	
 	public static int getTaskCount(int workTypeId){
+
 		int result = -1;
 		
 		String table = DbManager.mWorkForm;
@@ -64,26 +66,27 @@ public class WorkFormModel extends BaseModel {
 
 		if (!DbRepository.getInstance().getDB().isOpen())
 			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		result = cursor.getInt(cursor.getColumnIndex(DbManager.colSumInput));
 
 		cursor.close();
-
+		DbRepository.getInstance().close();
 		return result;
 	}
 
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
 		save();
-		DbRepository.getInstance().close();
 	}
 
 	public void save(){
+
 		int count = 0;
 		if (groups != null)
 			for (WorkFormGroupModel group : groups) {
@@ -96,6 +99,8 @@ public class WorkFormModel extends BaseModel {
 						DbManager.colName, DbManager.colNotes,
 						DbManager.colWorkTypeId,DbManager.colCreatedAt, 
 						DbManager.colUpdatedAt,DbManager.colSumInput);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -109,11 +114,14 @@ public class WorkFormModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
-
+		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		String sql = "DELETE FROM " + DbManager.mWorkForm;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -142,7 +150,9 @@ public class WorkFormModel extends BaseModel {
 	}
 	
 	public WorkFormModel getFormByWorkTypeId(Context context, int workTypeId) {
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		WorkFormModel result = getItemByWorkTypeId(workTypeId);
 		DbRepository.getInstance().close();
 		return result;

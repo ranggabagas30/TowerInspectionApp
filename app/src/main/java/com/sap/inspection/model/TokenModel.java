@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 
 public class TokenModel extends BaseModel {
@@ -90,7 +91,8 @@ public class TokenModel extends BaseModel {
 		DebugLog.d(accToken);
 		accToken = accToken.replace("access_token", "oauth_token");
 		DebugLog.d(accToken);
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s) VALUES(?)",
 						DbManager.mTokenTable, DbManager.colAccToken);
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
@@ -102,7 +104,8 @@ public class TokenModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mTokenTable;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -111,7 +114,7 @@ public class TokenModel extends BaseModel {
 	}
 	
 	public static String getAccTokenFromDB(Context context) {
-		DbRepository.getInstance().open(context);
+		//DbRepository.getInstance().open(context);
 		try {
 
 			Cursor c = DbRepository
@@ -121,16 +124,16 @@ public class TokenModel extends BaseModel {
 							null, null, null);
 
 			if (!c.moveToFirst()) {
-				DbRepository.getInstance().close();
+				//DbRepository.getInstance().close();
 				return null;
 			}
 
 			String accToken = getFromCursor(c);
 			c.close();
-			DbRepository.getInstance().close();
+			//DbRepository.getInstance().close();
 			return accToken;
 		} catch (Exception e) {
-			DbRepository.getInstance().close();
+			//DbRepository.getInstance().close();
 			return null;
 		}
 	}

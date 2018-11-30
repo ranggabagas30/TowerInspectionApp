@@ -44,13 +44,12 @@ public class WorkFormOptionsModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
 		save();
-		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormOption;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -59,12 +58,15 @@ public class WorkFormOptionsModel extends BaseModel {
 	}
 
 	public void save(){
+
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?)",
 						DbManager.mWorkFormOption , DbManager.colID,
 						DbManager.colValue,DbManager.colLable,
 						DbManager.colWorkFormItemId,DbManager.colCreatedAt,
 						DbManager.colUpdatedAt);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -77,13 +79,14 @@ public class WorkFormOptionsModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
+		DbRepository.getInstance().close();
 	}
 
 	public Vector<WorkFormOptionsModel> getAllItemByWorkFormItemId(Context context, int workFormRowColumnId) {
 
-		DbRepository.getInstance().open(context);
+		//DbRepository.getInstance().open(context);
 		Vector<WorkFormOptionsModel> result = getAllItemByWorkFormItemId(workFormRowColumnId);
-		DbRepository.getInstance().close();
+		//DbRepository.getInstance().close();
 		return result;
 	}
 
@@ -100,10 +103,12 @@ public class WorkFormOptionsModel extends BaseModel {
 
 		if (!DbRepository.getInstance().getDB().isOpen())
 			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -111,6 +116,7 @@ public class WorkFormOptionsModel extends BaseModel {
 		} while(cursor.moveToNext());
 
 		cursor.close();
+		DbRepository.getInstance().close();
 		return result;
 	}
 

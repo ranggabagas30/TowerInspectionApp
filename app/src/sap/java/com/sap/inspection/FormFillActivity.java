@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -164,8 +165,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         workFormGroupName = bundle.getString("workFormGroupName");
         scheduleId = bundle.getString("scheduleId");
 
-		DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);
+		/*DbRepository.getInstance().open(activity);
+		DbRepositoryValue.getInstance().open(activity);*/
+
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+scheduleId);
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(scheduleId);
@@ -391,8 +393,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);
+		/*DbRepository.getInstance().open(activity);
+		DbRepositoryValue.getInstance().open(activity);*/
 		EventBus.getDefault().register(this);
 	}
 
@@ -400,8 +402,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		googleApiClient.disconnect();
-		DbRepository.getInstance().close();
-		DbRepositoryValue.getInstance().close();
+		/*DbRepository.getInstance().close();
+		DbRepositoryValue.getInstance().close();*/
 		super.onStop();
 	}
 
@@ -750,7 +752,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			rowModel = new RowModel();
+			rowModel = new RowModel(FormFillActivity.this);
 			rowModel = rowModel.getItemById(workFormGroupId, rowId);
 			ColumnModel colModel = new ColumnModel();
 			column = colModel.getAllItemByWorkFormGroupId(workFormGroupId);

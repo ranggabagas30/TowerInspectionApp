@@ -203,8 +203,8 @@ public class NavigationAdapter extends MyBaseAdapter {
 					RowModel rowModel = getItem(position);
 					DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
 
-					DbRepositoryValue.getInstance().open(context);
-					DbRepository.getInstance().open(context);
+					/*DbRepositoryValue.getInstance().open(context);
+					DbRepository.getInstance().open(context);*/
 					ItemValueModel itemValueModel = new ItemValueModel();
 					ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
 					ArrayList<ItemValueModel> listItemValue = itemValueModel.getItemValuesForUpload(scheduleId);
@@ -230,8 +230,8 @@ public class NavigationAdapter extends MyBaseAdapter {
 						MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
 					}
 
-					DbRepositoryValue.getInstance().close();
-					DbRepository.getInstance().close();
+					//DbRepositoryValue.getInstance().close();
+					//DbRepository.getInstance().close();
 				} else {
 					MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
 				}

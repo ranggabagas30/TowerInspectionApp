@@ -6,6 +6,9 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.sap.inspection.MyApplication;
+import com.sap.inspection.model.value.DbRepositoryValue;
+
 public class RoleModel extends BaseModel {
 
 	/**
@@ -92,7 +95,8 @@ public class RoleModel extends BaseModel {
 	}
 	
 	public void save(Context ctx) {
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s) VALUES(?,?)",
 						DbManager.mRoles , DbManager.colID,
@@ -109,7 +113,8 @@ public class RoleModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mRoles;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -118,7 +123,7 @@ public class RoleModel extends BaseModel {
 	}
 
 	public RoleModel getRoleModel(Context context, String roleID) {
-		DbRepository.getInstance().open(context);
+
 		RoleModel result = null;
 
 		String table = DbManager.mRoles;
@@ -127,10 +132,13 @@ public class RoleModel extends BaseModel {
 		String[] args = {roleID};
 		Cursor cursor;
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 

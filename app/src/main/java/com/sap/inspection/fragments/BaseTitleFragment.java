@@ -1,4 +1,4 @@
-package com.arifariyan.baseassets.fragment;
+package com.sap.inspection.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.arifariyan.baseassets.R;
 
 public abstract class BaseTitleFragment extends BaseFragment {

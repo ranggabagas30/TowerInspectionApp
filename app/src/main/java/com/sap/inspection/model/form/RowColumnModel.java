@@ -43,13 +43,12 @@ public class RowColumnModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
 		save();
-		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormRowCol;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -58,12 +57,16 @@ public class RowColumnModel extends BaseModel {
 	}
 
 	public void save(){
+
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?)",
 						DbManager.mWorkFormRowCol , DbManager.colID,
 						DbManager.colRowId,DbManager.colColId,
 						DbManager.colWorkFormGroupId, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt);
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -76,7 +79,8 @@ public class RowColumnModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
-		
+		DbRepository.getInstance().close();
+
 		if (items != null)
 			for (WorkFormItemModel item : items) {
 				item.save();
@@ -84,13 +88,18 @@ public class RowColumnModel extends BaseModel {
 	}
 	
 	public Vector<RowColumnModel> getAllItemByWorkFormRowId(Context context, int workFormRowId) {
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		Vector<RowColumnModel> result = getAllItemByWorkFormRowId(workFormRowId);
 		DbRepository.getInstance().close();
 		return result;
 	}
 	
 	public Vector<RowColumnModel> getAllItemByWorkFormRowId(int workFormRowId) {
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 
 		Vector<RowColumnModel> result = new Vector<RowColumnModel>();
 
@@ -99,8 +108,6 @@ public class RowColumnModel extends BaseModel {
 		String query = "SELECT t1."+DbManager.colID+",t1."+DbManager.colRowId+",t1."+DbManager.colColId+",t1."+DbManager.colWorkFormGroupId+",t1."+DbManager.colCreatedAt+",t1."+DbManager.colUpdatedAt+" FROM " + DbManager.mWorkFormRowCol + " t1 INNER JOIN " + DbManager.mWorkFormColumn + " t2 ON t1." + DbManager.colColId + "=t2." + DbManager.colID + " WHERE t1." + DbManager.colRowId + "=? ORDER BY t2." + DbManager.colPosition + " ASC";
 		String[] args = new String[] {String.valueOf(workFormRowId)};
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, args);
 
 		if (!cursor.moveToFirst()) {
@@ -114,6 +121,7 @@ public class RowColumnModel extends BaseModel {
 		} while(cursor.moveToNext());
 
 		cursor.close();
+		DbRepository.getInstance().close();
 		return result;
 	}
 	

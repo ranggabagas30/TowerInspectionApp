@@ -132,8 +132,8 @@ public class FormCorrectiveActivity extends BaseActivity {
 //		rowId = bundle.getInt("rowId");
 //		workFormGroupId = bundle.getInt("workFormGroupId");
 
-		DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);
+		/*DbRepository.getInstance().open(activity);
+		DbRepositoryValue.getInstance().open(activity);*/
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(bundle.getString("scheduleId"));
 

@@ -3,21 +3,18 @@ package com.sap.inspection;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
-import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
+import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.fragments.NavigationFragment;
 import com.sap.inspection.listener.FormActivityListener;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
-import com.sap.inspection.model.WorkTypeModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
@@ -49,10 +46,10 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		super.onCreate(savedInstanceState);
 		usingCheckin = MyApplication.getInstance().isScheduleNeedCheckIn();
 
-		if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin) {
+		/*if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin) {
 
 			DbRepository.getInstance().open(MyApplication.getInstance());
-		}
+		}*/
 
 		DebugLog.d("");
 
@@ -139,8 +136,8 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if (DbRepository.getInstance().getDB().isOpen() && !usingCheckin)
-			DbRepository.getInstance().close();
+		/*if (DbRepository.getInstance().getDB().isOpen() && !usingCheckin)
+			DbRepository.getInstance().close();*/
 	}
 
 	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {

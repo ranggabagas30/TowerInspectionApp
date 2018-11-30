@@ -5,6 +5,7 @@ import java.util.Vector;
 import android.content.Context;
 import android.os.Parcel;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbRepository;
 
@@ -26,7 +27,8 @@ public class TableModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		save();
 		DbRepository.getInstance().close();
 	}

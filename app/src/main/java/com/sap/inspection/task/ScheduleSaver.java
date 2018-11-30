@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.os.AsyncTask;
 
 import com.sap.inspection.MainActivity;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.SettingActivity;
 import com.sap.inspection.event.ScheduleProgressEvent;
+import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
@@ -30,9 +32,11 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 	protected void onPreExecute() {
 		super.onPreExecute();
 		if (activity!=null)
-			DbRepositoryValue.getInstance().open(activity);
+			if (!DbRepository.getInstance().getDB().isOpen())
+				DbRepository.getInstance().open(MyApplication.getInstance());
 		else if (mainActivity!=null)
-			DbRepositoryValue.getInstance().open(mainActivity);
+				if (!DbRepositoryValue.getInstance().getDB().isOpen())
+					DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		DebugLog.d( "open db...");
 	}
 
@@ -59,7 +63,7 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
 		DebugLog.d( "on post db...");
-		DbRepositoryValue.getInstance().close();
+		//DbRepositoryValue.getInstance().close();
 		EventBus.getDefault().post(new ScheduleProgressEvent(100,true));
 		if (mainActivity != null)
 			mainActivity.setFlagScheduleSaved(true);

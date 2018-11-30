@@ -15,11 +15,11 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
-import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.manager.AlertDialogManager;
@@ -82,7 +82,7 @@ public class MainActivity extends BaseActivity{
 		}
 		else if (getIntent().getBooleanExtra(Constants.LOADAFTERLOGIN,false)) {
 			if (GlobalVar.getInstance().anyNetwork(activity)) {
-				DbRepository.getInstance().open(activity);
+				//DbRepository.getInstance().open(activity);
 				try {
 					progressDialog.show();
 				} catch (Exception e) {
@@ -156,7 +156,7 @@ public class MainActivity extends BaseActivity{
 		};
 	};
 
-	private void navigateToFragment(BaseFragment fragment,int viewContainerResId) {
+	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
 		if (fragment.equals(currentFragment))
 			return;
 		FragmentManager fm = getSupportFragmentManager();
@@ -257,8 +257,8 @@ public class MainActivity extends BaseActivity{
 		//		if (this.flagFormSaved){
 		if (progressDialog != null && progressDialog.isShowing())
 			progressDialog.dismiss();
-		if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().close();
+		/*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().close();*/
 		//		}
 	}
 
@@ -348,7 +348,7 @@ public class MainActivity extends BaseActivity{
 
 	private void initFormOffline(){
 		WorkFormModel form = new WorkFormModel();
-		DbRepository.getInstance().open(this);
+		//DbRepository.getInstance().open(this);
 		if (form.countItem() != 0){
 			//			DbRepository.getInstance().close();
 			//			setFlagFormSaved(true);

@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -71,12 +72,11 @@ public class WorkFormGroupModel extends BaseModel {
 
 	
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
 		save();
-		DbRepository.getInstance().close();
 	}
 
 	public void save(){
+
 		if (table != null)
 			table.save();
 		input = countInput(id);
@@ -87,6 +87,8 @@ public class WorkFormGroupModel extends BaseModel {
 						DbManager.colWorkFormId, DbManager.colDescription,
 						DbManager.colAncestry, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt,DbManager.colSumInput);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -102,10 +104,12 @@ public class WorkFormGroupModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
+		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormGroup;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -120,7 +124,8 @@ public class WorkFormGroupModel extends BaseModel {
 	}
 
 	public Vector<WorkFormGroupModel> getAllItemByWorkFormGroupId(Context context, int workFormId) {
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		Vector<WorkFormGroupModel> result = getAllItemByWorkFormId(workFormId);
 		DbRepository.getInstance().close();
 		return result;

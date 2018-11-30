@@ -1,8 +1,6 @@
 package com.sap.inspection.fragments;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,15 +9,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.sap.inspection.R;
-import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormActivityListener;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.views.adapter.NavigationAdapter;
-import com.arifariyan.baseassets.fragment.BaseFragment;
 
-public class NavigationFragment extends BaseFragment{
+public class NavigationFragment extends BaseFragment {
 	private NavigationAdapter adapter;
 	private ListView list;
 	private View back, mainmenu;

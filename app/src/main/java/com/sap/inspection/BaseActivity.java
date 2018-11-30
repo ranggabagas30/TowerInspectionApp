@@ -16,6 +16,8 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ScreenManager;
+import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 
 //import com.sap.inspection.gcm.GCMService;
@@ -49,6 +51,12 @@ public abstract class BaseActivity extends FragmentActivity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		// globally set open for SQLite database access
+		DebugLog.d("opening SQLite database access");
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		activity = this;
 //        int x = 0;
 //        int y = 1/x;
@@ -62,7 +70,12 @@ public abstract class BaseActivity extends FragmentActivity{
 		ScreenManager.getInstance().setHeight(metrics.heightPixels);
 		ScreenManager.getInstance().setWidth(metrics.widthPixels);
 	}
-	
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -70,16 +83,29 @@ public abstract class BaseActivity extends FragmentActivity{
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		instanceStateSaved = true;
+	protected void onPause() {
+		super.onPause();
 	}
 
+	@Override
+	protected void onStop() {
+		super.onStop();
+		DebugLog.d("database access is closed");
+		DbRepository.getInstance().close();
+		DbRepositoryValue.getInstance().close();
+	}
 	@Override
 	protected void onDestroy() {
 		if (!instanceStateSaved) {
 //			imageLoader.stop();
 		}
 		super.onDestroy();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		instanceStateSaved = true;
 	}
 
 	public void writePreference(int key, String value) {
@@ -113,16 +139,6 @@ public abstract class BaseActivity extends FragmentActivity{
 	public boolean getPreference(int key, boolean defaultValue) {
 		return mPref.getBoolean(getString(key), defaultValue);
 	}
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
 
 	protected int color(int colorRes) {
 		return ContextCompat.getColor(this, colorRes);

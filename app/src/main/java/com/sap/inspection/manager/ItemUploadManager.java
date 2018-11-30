@@ -198,8 +198,8 @@ public class ItemUploadManager {
                         DebugLog.d("upload status : " + item.uploadStatus);
                         //scheduleId = item.scheduleId;
 
-                        if (!DbRepositoryValue.getInstance().getDB().isOpen())
-                             DbRepositoryValue.getInstance().open(MyApplication.getContext());
+                        /*if (!DbRepositoryValue.getInstance().getDB().isOpen())
+                             DbRepositoryValue.getInstance().open(MyApplication.getContext());*/
                         item.save();
                     }
                     else {
@@ -223,8 +223,8 @@ public class ItemUploadManager {
             for (ItemValueModel item : itemValuesFailed) {
                 item.uploadStatus = ItemValueModel.UPLOAD_FAIL;
                 DebugLog.d("scheduleIdFailed : " + item.scheduleId);
-                if (!DbRepositoryValue.getInstance().getDB().isOpen())
-                    DbRepositoryValue.getInstance().open(MyApplication.getContext());
+                /*if (!DbRepositoryValue.getInstance().getDB().isOpen())
+                    DbRepositoryValue.getInstance().open(MyApplication.getContext());*/
                 item.save();
             }
 
@@ -607,15 +607,15 @@ public class ItemUploadManager {
     }
 
     public boolean isPreventive(String scheduleId) {
-        if (!DbRepository.getInstance().getDB().isOpen())
-            DbRepository.getInstance().open(MyApplication.getContext());
+        /*if (!DbRepository.getInstance().getDB().isOpen())
+            DbRepository.getInstance().open(MyApplication.getContext());*/
 
         ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
         scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
 
-        if (DbRepository.getInstance().getDB().isOpen()) {
+        /*if (DbRepository.getInstance().getDB().isOpen()) {
             DbRepository.getInstance().close();
-        }
+        }*/
 
         String workTypeName = scheduleBaseModel.work_type.name;
         return workTypeName.matches(Constants.regexPREVENTIVE);

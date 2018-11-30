@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Debug;
 import android.os.Environment;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -270,10 +271,10 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	public void save(){
-		if (!DbRepository.getInstance().getDB().isOpen())
+		/*if (!DbRepository.getInstance().getDB().isOpen())
 			DbRepository.getInstance().open(context);
 		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(context);
+			DbRepositoryValue.getInstance().open(context);*/
 		setItemFormRenderedValue();
 		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value+ " | " +value.createdAt);
 		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
@@ -315,7 +316,7 @@ public class PhotoItemRadio extends RelativeLayout {
 				if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
 
 					if (s.toString().equalsIgnoreCase("")) {
-						if (nok.isChecked() || value.photoStatus.equalsIgnoreCase("nok"))
+						if ((nok.isChecked() || value.photoStatus.equalsIgnoreCase("nok")) && !TextUtils.isEmpty(value.photoStatus))
 							mandatory.setVisibility(View.VISIBLE);
 					} else {
 						mandatory.setVisibility(View.GONE);

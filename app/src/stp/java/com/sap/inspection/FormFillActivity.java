@@ -199,8 +199,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		workFormGroupName = bundle.getString("workFormGroupName");
 		scheduleId = bundle.getString("scheduleId");
 
-		DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);
+		/*DbRepository.getInstance().open(activity);
+		DbRepositoryValue.getInstance().open(activity);*/
 
 		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+scheduleId);
 		schedule = new ScheduleGeneral();
@@ -432,8 +432,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);
+		/*DbRepository.getInstance().open(activity);
+		DbRepositoryValue.getInstance().open(activity);*/
 		EventBus.getDefault().register(this);
 	}
 
@@ -441,8 +441,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	protected void onStop() {
 		DebugLog.d("onStop");
 		googleApiClient.disconnect();
-		DbRepository.getInstance().close();
-		DbRepositoryValue.getInstance().close();
+		/*DbRepository.getInstance().close();
+		DbRepositoryValue.getInstance().close();*/
 		super.onStop();
 	}
 

@@ -358,9 +358,9 @@ public class LoginActivity extends BaseActivity {
 
 	private void initForm(){
 		WorkFormModel form = new WorkFormModel();
-		DbRepository.getInstance().open(this);
+		//DbRepository.getInstance().open(this);
 		if (form.countItem() != 0){
-			DbRepository.getInstance().close();
+			//DbRepository.getInstance().close();
 			return;
 		}
 		byte[] buffer = null;
@@ -568,7 +568,7 @@ public class LoginActivity extends BaseActivity {
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			DbRepository.getInstance().close();
+			//DbRepository.getInstance().close();
 			progressDialog.dismiss();
 		}
 	}

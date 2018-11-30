@@ -29,7 +29,8 @@ public class CorrectiveValueModel extends ItemValueModel {
 	}
 
 	public static void delete(Context ctx, String scheduleId, int itemId, int operatorId){
-		DbRepositoryValue.getInstance().open(ctx);
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		delete(scheduleId, itemId, operatorId);
 		DbRepositoryValue.getInstance().close();
 	}
@@ -42,7 +43,8 @@ public class CorrectiveValueModel extends ItemValueModel {
 	}
 	
 	public static void deleteAll(Context ctx){
-		DbRepositoryValue.getInstance().open(ctx);
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mCorrectiveValue;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -53,7 +55,8 @@ public class CorrectiveValueModel extends ItemValueModel {
 	@Override
 	public CorrectiveValueModel getItemValue(Context context,String scheduleId, int itemId, int operatorId) {
 		CorrectiveValueModel model = null;
-		DbRepositoryValue.getInstance().open(context);
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		model = getItemValue(scheduleId, itemId, operatorId);
 		DbRepositoryValue.getInstance().close();
 		return model;
@@ -147,7 +150,8 @@ public class CorrectiveValueModel extends ItemValueModel {
 	}
 
 	public void save(Context context){
-		DbRepositoryValue.getInstance().open(context);
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		save();
 		DbRepositoryValue.getInstance().close();
 	}
@@ -310,7 +314,8 @@ public class CorrectiveValueModel extends ItemValueModel {
 	}
 	
 	public static void resetAllUploadStatus(){
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		ContentValues cv = new ContentValues();
 		cv.put(DbManagerValue.colUploadStatus, UPLOAD_NONE);
 

@@ -131,7 +131,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             DbRepository.getInstance().open(activity);
         }*/
 
-        DbRepository.getInstance().open(activity);
+        //DbRepository.getInstance().open(activity);
 
         mPastCoordinate = new Location(LocationManager.GPS_PROVIDER);
         mCheckoutHandler = new Handler();
@@ -246,7 +246,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             DbRepository.getInstance().close();
         }*/
 
-        DbRepository.getInstance().close();
+        //DbRepository.getInstance().close();
     }
 
     @Override

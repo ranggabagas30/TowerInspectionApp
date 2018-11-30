@@ -85,9 +85,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public abstract String getTaskColor();
 
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
+		//DbRepository.getInstance().open(context);
 		save();
-		DbRepository.getInstance().close();
+		//DbRepository.getInstance().close();
 	}
 
 	public int saveCorrective(){
@@ -142,6 +142,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public void save(){
+
 		int task = -1;
 		for (OperatorModel operator : operators) {
 			operator.save();
@@ -185,6 +186,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 						DbManager.colSumDone, DbManager.colOperatorNumber);
 		//						DbManager.colWorkDateStr,DbManager.colSumTask,
 		//						DbManager.colSumTask,DbManager.mSchedule,DbManager.colID);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -233,16 +237,16 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
-
+		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		//DbRepository.getInstance().open(ctx);
 		String sql = "DELETE FROM " + DbManager.mSchedule;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
-		DbRepository.getInstance().close();
+		//DbRepository.getInstance().close();
 	}
 
 	public static int getTaskDone(String scheduleId){
@@ -277,7 +281,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	public Vector<ScheduleBaseModel> getAllSchedule(Context context) {
 
-		DbRepository.getInstance().open(context);
 		Vector<ScheduleBaseModel> result = new Vector<ScheduleBaseModel>();
 
 		String table = DbManager.mSchedule;
@@ -286,10 +289,13 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		String[] args = null;
 		Cursor cursor;
 
+        if (!DbRepository.getInstance().getDB().isOpen())
+            DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" DESC", null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+            DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -304,7 +310,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	public Vector<ScheduleBaseModel> getScheduleByWorktype(Context context,String workType) {
 
-		DbRepository.getInstance().open(context);
+
 		Vector<ScheduleBaseModel> result = new Vector<ScheduleBaseModel>();
 
 		String table = DbManager.mSchedule;
@@ -318,11 +324,14 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		DebugLog.d(query);
 
+        if (!DbRepository.getInstance().getDB().isOpen())
+            DbRepository.getInstance().open(MyApplication.getInstance());
 		//		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" ASC", null);
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+            DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -337,7 +346,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	public ScheduleBaseModel getScheduleById(Context context,String id) {
 
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		ScheduleBaseModel model = getScheduleById(id);
 		DbRepository.getInstance().close();
 
@@ -363,7 +373,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		model = getScheduleFromCursor(cursor,false);
 		cursor.close();
-
 		return model;
 	}
 
@@ -500,7 +509,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public static void resetAllSchedule(){
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		ContentValues cv = new ContentValues();
 		cv.put(DbManager.colProgress, -1);
 		cv.put(DbManager.colSumDone, 0);

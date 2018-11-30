@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.R;
+import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
@@ -40,13 +40,13 @@ public class MainMenuPageFragment extends BaseFragment {
 		return root;
 	}
 
-	private void initUserName(View root){
+	private void initUserName(View root) {
 		TextView user = (TextView) root.findViewById(R.id.user);
 		String userName = ((BaseActivity)getActivity()).getPreference(R.string.user_fullname, "");
 		user.setText("Hi "+userName);
 	}
 	
-	private void initView(View viewParent, int id, int position){
+	private void initView(View viewParent, int id, int position) {
 		View view = viewParent.findViewById(id);
 		view.setOnClickListener(mainMenuClickListener);
 		view.setTag(titles.get(position));

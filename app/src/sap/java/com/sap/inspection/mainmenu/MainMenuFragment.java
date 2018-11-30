@@ -6,8 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import com.arifariyan.baseassets.fragment.BaseTitleFragment;
 import com.sap.inspection.R;
+import com.sap.inspection.fragments.BaseTitleFragment;
 import com.sap.inspection.mainmenu.fragmentadapter.MainMenuFragmentAdapter;
 
 import java.util.ArrayList;

@@ -12,6 +12,7 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
+import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.tools.DebugLog;
 
 import java.text.SimpleDateFormat;
@@ -65,16 +66,17 @@ public class ItemValueModel extends BaseModel {
 	public void writeToParcel(Parcel arg0, int arg1) {
 	}
 
-
-
 	public static void delete(Context ctx, String scheduleId, int itemId, int operatorId){
-		DbRepositoryValue.getInstance().open(ctx);
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		delete(scheduleId, itemId, operatorId);
 		DbRepositoryValue.getInstance().close();
 	}
 
 	public static void deleteAll(Context ctx){
-		DbRepositoryValue.getInstance().open(ctx);
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		String sql = "DELETE FROM " + DbManagerValue.mFormValue;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -83,21 +85,28 @@ public class ItemValueModel extends BaseModel {
 	}
 
 	public static void delete(String scheduleId, int itemId, int operatorId){
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mFormValue + " WHERE "+DbManagerValue.colScheduleId+"="+scheduleId+" AND "+DbManagerValue.colItemId+"="+itemId+" AND "+DbManagerValue.colOperatorId+"="+operatorId;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
+		DbRepositoryValue.getInstance().close();
 	}
 
 	public ArrayList<ItemValueModel> getAllItemValueByScheduleId (Context context, String scheduleId) {
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		ArrayList<ItemValueModel> listModel = null;
-		DbRepositoryValue.getInstance().open(context);
 		listModel = getAllItemValueByScheduleId(scheduleId);
 		DbRepositoryValue.getInstance().close();
 		return listModel;
 	}
 
 	public ArrayList<ItemValueModel> getAllItemValueByScheduleId (String scheduleId) {
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		ArrayList<ItemValueModel> listModel = null;
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
@@ -116,26 +125,35 @@ public class ItemValueModel extends BaseModel {
 		}
 
 		cursor.close();
+		DbRepositoryValue.getInstance().close();
 		return listModel;
 	}
 
 	public ItemValueModel getItemValue(Context context,String scheduleId, int itemId, int operatorId) {
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		ItemValueModel model = null;
-		DbRepositoryValue.getInstance().open(context);
 		model = getItemValue(scheduleId, itemId, operatorId);
 		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
 	public static int countTaskDone(String scheduleId, int rowId){
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		Cursor mCount= DbRepositoryValue.getInstance().getDB().rawQuery("select count(*) from "+DbManagerValue.mFormValue+" where "+DbManagerValue.colScheduleId+"='" + scheduleId + "' and "+DbManagerValue.colRowId+"='" + rowId +"'", null);
 		mCount.moveToFirst();
 		int count= mCount.getInt(0);
 		mCount.close();
+		DbRepositoryValue.getInstance().close();
 		return count;
 	}
 
 	public ItemValueModel getItemValue(String scheduleId,int itemId, int operatorId) {
+
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		ItemValueModel model = null;
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
@@ -151,10 +169,15 @@ public class ItemValueModel extends BaseModel {
 		model = getSiteFromCursor(cursor);
 
 		cursor.close();
+		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
 	public ItemValueModel getItemValue(int itemId, int operatorId, String userName) {
+
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		ItemValueModel model = null;
 		DbRepositoryValue.getInstance().getDB().execSQL("attach database "+userName+"_"+DbManager.dbName+" as general");
 
@@ -168,6 +191,7 @@ public class ItemValueModel extends BaseModel {
 			// this gets called even if there is an exception somewhere above
 			if(cursor != null)
 				cursor.close();
+			DbRepositoryValue.getInstance().close();
 			return model;
 		}
 
@@ -177,18 +201,23 @@ public class ItemValueModel extends BaseModel {
 		model = getSiteFromCursor(cursor);
 
 		cursor.close();
+		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
     public ItemValueModel getPhotoLocationItemValue(Context context, String scheduleId) {
-        ItemValueModel model = null;
-        DbRepositoryValue.getInstance().open(context);
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		ItemValueModel model = null;
         model = getPhotoLocationItemValue(scheduleId);
         DbRepositoryValue.getInstance().close();
         return model;
     }
 
     public ItemValueModel getPhotoLocationItemValue(String scheduleId) {
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
         ItemValueModel model = null;
         String table = DbManagerValue.mFormValue;
         String[] columns = null;
@@ -204,10 +233,15 @@ public class ItemValueModel extends BaseModel {
         model = getSiteFromCursor(cursor);
 
         cursor.close();
+        DbRepositoryValue.getInstance().close();
         return model;
     }
 
 	public ArrayList<ItemValueModel> getItemValuesForUpload() {
+
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		ArrayList<ItemValueModel> model = new ArrayList<ItemValueModel>();
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
@@ -233,10 +267,15 @@ public class ItemValueModel extends BaseModel {
 		}
 		while(cursor.moveToNext());
 		cursor.close();
+		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
 	public ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
+
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		ArrayList<ItemValueModel> model = new ArrayList<ItemValueModel>();
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
@@ -268,13 +307,13 @@ public class ItemValueModel extends BaseModel {
 		while(cursor.moveToNext());
 		log("model size "+model.size());
 		cursor.close();
+		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
 	public void save(Context context){
-		DbRepositoryValue.getInstance().open(context);
+
 		save();
-		DbRepositoryValue.getInstance().close();
 	}
 
 	public void save(){
@@ -342,6 +381,9 @@ public class ItemValueModel extends BaseModel {
 				break;
 		}
 
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, scheduleId);
@@ -362,6 +404,7 @@ public class ItemValueModel extends BaseModel {
 			bindAndCheckNullString(stmt, 14, photoDate);
 		stmt.executeInsert();
 		stmt.close();
+		DbRepositoryValue.getInstance().close();
 	}
 
 	private boolean isColumnExist(String colName) {
@@ -560,7 +603,9 @@ public class ItemValueModel extends BaseModel {
 	}
 
 	public static void resetAllUploadStatus(){
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		if (!DbRepositoryValue.getInstance().getDB().isOpen())
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		ContentValues cv = new ContentValues();
 		cv.put(DbManagerValue.colUploadStatus, UPLOAD_NONE);
 

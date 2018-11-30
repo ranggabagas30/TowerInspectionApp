@@ -25,8 +25,11 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.model.CheckinDataModel;
+import com.sap.inspection.model.DbManager;
+import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.TextMarkDisplayOptionsModel;
 import com.sap.inspection.model.TextMarkModel;
+import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PrefUtil;
 import com.sap.inspection.util.ImageUtil;
@@ -178,8 +181,8 @@ public class MyApplication extends Application {
 					storeRegIdInpref(instanceIdResult.getToken());
 					sendRegIdtoServer(instanceIdResult.getToken());
 
-        })
-				.addOnFailureListener(Throwable::printStackTrace);
+        }).addOnFailureListener(Throwable::printStackTrace);
+
 		IN_CHECK_HASIL_PM = false;
 		SCHEDULE_NEED_CHECK_IN = false;
 		checkinDataModel = new CheckinDataModel();

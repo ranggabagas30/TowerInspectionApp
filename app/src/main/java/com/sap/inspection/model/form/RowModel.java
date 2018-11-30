@@ -6,9 +6,11 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Debug;
 import android.os.Parcel;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.Vector;
@@ -31,6 +33,16 @@ public class RowModel extends BaseModel {
 	public int level;
 	public String text;
 	public Vector<RowModel> children;
+
+	private Context context;
+
+	public RowModel() {
+
+	}
+
+	public RowModel(Context context) {
+		this.context = context;
+	}
 
 	public int getCount(){
 		int count = 0;
@@ -78,13 +90,15 @@ public class RowModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		save();
 		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormRow;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -93,6 +107,7 @@ public class RowModel extends BaseModel {
 	}
 
 	public void save(){
+
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?)",
 						DbManager.mWorkFormRow, DbManager.colID,
@@ -100,6 +115,9 @@ public class RowModel extends BaseModel {
 						DbManager.colAncestry, DbManager.colWorkFormGroupId,
 						DbManager.colSumTask, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt, DbManager.colLevel);
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -123,6 +141,7 @@ public class RowModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
+		DbRepository.getInstance().close();
 
 		if (row_columns != null)
 			for (RowColumnModel item : row_columns) {
@@ -131,7 +150,8 @@ public class RowModel extends BaseModel {
 	}
 
 	public Vector<RowModel> getAllItemByWorkFormGroupId(Context context, int workFormGroupId) {
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		Vector<RowModel> result = getAllItemByWorkFormGroupId(workFormGroupId);
 		DbRepository.getInstance().close();
 		return result;
@@ -194,6 +214,7 @@ public class RowModel extends BaseModel {
 	}
 
 	public Vector<RowModel> getAllItemByWorkFormGroupIdAndAncestry(int workFormGroupId,String ancestry) {
+
 		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
 		Vector<RowModel> result = new Vector<RowModel>();
 		String table = DbManager.mWorkFormRow;
@@ -212,10 +233,14 @@ public class RowModel extends BaseModel {
 //		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
 		String order = DbManager.colPosition+" ASC";
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -238,11 +263,15 @@ public class RowModel extends BaseModel {
 		} while(cursor.moveToNext());
 
 		cursor.close();
-
+		DbRepository.getInstance().close();
 		return result;
 	}
 	
 	public Vector<RowModel> getAllItemByWorkFormGroupIdAndLikeAncestry(int workFormGroupId,String ancestry) {
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
 		Vector<RowModel> result = new Vector<RowModel>();
 		String table = DbManager.mWorkFormRow;
@@ -285,7 +314,7 @@ public class RowModel extends BaseModel {
 		} while(cursor.moveToNext());
 
 		cursor.close();
-
+		DbRepository.getInstance().close();
 		return result;
 	}
 	public RowModel getItemById(int workFormGroupId,int rowId) {
@@ -293,7 +322,9 @@ public class RowModel extends BaseModel {
 	}
 	
 	public RowModel getItemById(int workFormGroupId,int rowId, boolean allChild) {
+
 		RowModel result = null;
+
 
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
@@ -305,10 +336,16 @@ public class RowModel extends BaseModel {
 //		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
 		String order = DbManager.colPosition+" ASC";
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst())
+		if (!cursor.moveToFirst()){
+			DbRepository.getInstance().close();
 			return result;
+
+		}
 		do {
 			result = getRowFromCursor(cursor); 
 			result.row_columns = getRowColumnModels(result.id);
@@ -327,7 +364,8 @@ public class RowModel extends BaseModel {
 //			log("===== level : "+result.level+"  text : "+result.text+"  id : "+result.id+"   position : "+result.position+"   ancestry : "+result.ancestry+" row_col size : "+result.row_columns.size());
 		} while(cursor.moveToNext());
 		cursor.close();
-		
+		DbRepository.getInstance().close();
+
 		if (result.ancestry != null)
 			result.children = getAllItemByWorkFormGroupIdAndLikeAncestry(workFormGroupId, result.ancestry+"/"+result.id);
 		else

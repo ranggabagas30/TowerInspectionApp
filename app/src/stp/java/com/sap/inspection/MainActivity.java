@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -88,7 +87,7 @@ public class MainActivity extends BaseActivity{
 		}
 		else if (getIntent().getBooleanExtra(Constants.LOADAFTERLOGIN,false)) {
 			if (GlobalVar.getInstance().anyNetwork(activity)) {
-				DbRepository.getInstance().open(activity);
+				//DbRepository.getInstance().open(activity);
 				try {
 					progressDialog.show();
 				} catch (Exception e) {
@@ -190,8 +189,8 @@ public class MainActivity extends BaseActivity{
 
 	public void onEvent(ScheduleTempProgressEvent event) {
 		if (event.done) {
-			if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
-				DbRepository.getInstance().close();
+			/*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
+				DbRepository.getInstance().close();*/
 			progressDialog.dismiss();
 			Toast.makeText(activity, "Schedule diperbaharui", Toast.LENGTH_SHORT).show();
 		} else
@@ -203,7 +202,7 @@ public class MainActivity extends BaseActivity{
 			if (DbRepository.getInstance().getDB().isOpen())
 				DbRepository.getInstance().clearData(DbManager.mSchedule);
 			else {
-				DbRepository.getInstance().open(activity);
+				//DbRepository.getInstance().open(activity);
 				DbRepository.getInstance().clearData(DbManager.mSchedule);
 			}
 		}
@@ -213,7 +212,7 @@ public class MainActivity extends BaseActivity{
 		scheduleSaver.execute(event.scheduleResponseModel.data.toArray());
 	}
 
-	private void navigateToFragment(BaseFragment fragment,int viewContainerResId) {
+	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
 		if (fragment.equals(currentFragment))
 			return;
 		FragmentManager fm = getSupportFragmentManager();
@@ -317,8 +316,8 @@ public class MainActivity extends BaseActivity{
 		this.flagScheduleSaved = flagScheduleSaved;
 		//		progressDialog.setMessage("Generating forms");
 		//		if (this.flagFormSaved){
-		if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().close();
+		/*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().close();*/
 		if (progressDialog != null && progressDialog.isShowing())
 			progressDialog.dismiss();
 		//		}
@@ -410,7 +409,7 @@ public class MainActivity extends BaseActivity{
 
 	private void initFormOffline(){
 		WorkFormModel form = new WorkFormModel();
-		DbRepository.getInstance().open(this);
+		//DbRepository.getInstance().open(this);
 		if (form.countItem() != 0){
 			//			DbRepository.getInstance().close();
 			//			setFlagFormSaved(true);

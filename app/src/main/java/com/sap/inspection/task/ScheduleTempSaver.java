@@ -29,7 +29,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		DbRepositoryValue.getInstance().open(activity);
+		//DbRepositoryValue.getInstance().open(activity);
 		DebugLog.d("open db...");
 	}
 
@@ -56,7 +56,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
 		DebugLog.d("on post db...");
-		DbRepositoryValue.getInstance().close();
+		//DbRepositoryValue.getInstance().close();
 		EventBus.getDefault().post(new ScheduleTempProgressEvent(100,true));
 		if (mainActivity != null)
 			mainActivity.setFlagScheduleSaved(true);

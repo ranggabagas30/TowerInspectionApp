@@ -215,7 +215,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	public void scrollTo(String date){
 		int i = 0;
 		for(; i < models.size(); i++){
-			if ( 0 == models.get(i).day_date.indexOf(date)){
+			if ( 0 == models.get(i).day_date.indexOf(date)) {
 				models.get(i).isAnimated = true;
 				break;
 			}

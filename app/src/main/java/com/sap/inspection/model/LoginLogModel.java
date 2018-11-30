@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.sap.inspection.MyApplication;
+
 public class LoginLogModel extends BaseModel {
 
 	/**
@@ -94,8 +96,9 @@ public class LoginLogModel extends BaseModel {
 	}
 
 	public void save(Context context) {
-		
-		DbRepository.getInstance().open(context);
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s) VALUES(?,?,?,?,?)",
 						DbManager.mLoginLogs , DbManager.colID,
@@ -116,7 +119,8 @@ public class LoginLogModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mLoginLogs;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();

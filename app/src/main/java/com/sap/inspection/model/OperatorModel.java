@@ -29,14 +29,16 @@ public class OperatorModel extends BaseModel {
 	}
 	
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		save();
 		DbRepository.getInstance().close();
 	}
 	
 	public OperatorModel getOperatorById(Context context,int id) {
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		OperatorModel model = null;
-		DbRepository.getInstance().open(context);
 		model = getOperatorById(id);
 		DbRepository.getInstance().close();
 		return model;
@@ -65,13 +67,15 @@ public class OperatorModel extends BaseModel {
 	}
 	
 	public void save(){
+
 		DebugLog.d("id="+id+" name="+name);
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s) VALUES(?,?)",
 						DbManager.mOperator , DbManager.colID,
 						DbManager.colName);
 
-		if (DbRepository.getInstance().getDB()!= null && !DbRepository.getInstance().getDB().isOpen())
+		if (!DbRepository.getInstance().getDB().isOpen())
 			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
@@ -79,10 +83,12 @@ public class OperatorModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
+		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mOperator;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();

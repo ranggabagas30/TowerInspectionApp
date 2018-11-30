@@ -193,10 +193,10 @@ public class PhotoItem extends RelativeLayout {
 	}
 
 	public void save(){
-		if (!DbRepository.getInstance().getDB().isOpen())
+		/*if (!DbRepository.getInstance().getDB().isOpen())
 			DbRepository.getInstance().open(context);
 		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(context);
+			DbRepositoryValue.getInstance().open(context);*/
 		DebugLog.d(value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
 		DebugLog.d("scope type : "+itemFormRenderModel.workItemModel.scope_type);
 		setItemFormRenderedValue();

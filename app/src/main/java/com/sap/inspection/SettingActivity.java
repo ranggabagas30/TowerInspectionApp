@@ -366,7 +366,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             super.onPreExecute();
             //prepare for saving
             pDialog.setMessage("Persiapan Menyimpan");
-            DbRepository.getInstance().open(getApplicationContext());
+            //DbRepository.getInstance().open(getApplicationContext());
             DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
             DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
             DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
@@ -448,7 +448,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             CorrectiveValueModel correctiveValueModel = new CorrectiveValueModel();
 //			correctiveValueModel.deleteAll(activity);
 
-            DbRepositoryValue.getInstance().open(activity);
+            //DbRepositoryValue.getInstance().open(activity);
             ProgressDialog progressDialog = new ProgressDialog(activity);
             //string preparing item for upload
             progressDialog.setMessage(getString(R.string.preparingItemForUpload));
@@ -476,7 +476,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             progressDialog.dismiss();
             //String progress upload
             Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_LONG).show();
-            DbRepositoryValue.getInstance().close();
+            //DbRepositoryValue.getInstance().close();
         }
     };
 
@@ -700,7 +700,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     }
 
     private void getScheduleTemp() {
-        DbRepository.getInstance().open(activity);
+        //DbRepository.getInstance().open(activity);
         pDialog = new ProgressDialog(activity);
         pDialog.setMessage(getString(R.string.getScheduleFromServer));
         pDialog.setCancelable(false);
@@ -709,7 +709,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     }
 
     private void getSchedule() {
-        DbRepository.getInstance().open(activity);
+        //DbRepository.getInstance().open(activity);
         pDialog = new ProgressDialog(activity);
         //get schedule from server
         pDialog.setMessage(getString(R.string.getScheduleFromServer));
@@ -761,16 +761,16 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
     public void onEvent(ScheduleProgressEvent event) {
         if (event.done) {
-            if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
-                DbRepository.getInstance().close();
+            /*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
+                DbRepository.getInstance().close();*/
         } else
             showDialog("Menyimpan jadwal " + event.progress + " %...", true);
     }
 
     public void onEvent(ScheduleTempProgressEvent event) {
         if (event.done) {
-            if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
-                DbRepository.getInstance().close();
+            /*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
+                DbRepository.getInstance().close();*/
         } else
             showDialog("Menyimpan jadwal " + event.progress + " %...", true);
     }

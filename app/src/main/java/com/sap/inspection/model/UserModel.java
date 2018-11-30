@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.Toast;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.MD5;
 
@@ -125,13 +126,16 @@ public class UserModel extends BaseModel {
 	}
 
 	public void save(Context context) {
+
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		String md5 = MD5.md5(password);
 		if (md5 == null){
 			Toast.makeText(context, "Error on encripting password", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		
-		DbRepository.getInstance().open(context);
+
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s) VALUES(?,?,?,?)",
 						DbManager.mUsers , DbManager.colID,
@@ -151,7 +155,8 @@ public class UserModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mUsers;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -161,13 +166,13 @@ public class UserModel extends BaseModel {
 
 
 	public UserModel getUserModel(Context context, String userName, String password) {
+
 		String md5 = MD5.md5(password);
 		if (md5 == null){
 			Toast.makeText(context, "Error on encripting password", Toast.LENGTH_SHORT).show();
 			return null;
 		}
-		
-		DbRepository.getInstance().open(context);
+
 		UserModel result = null;
 
 		String table = DbManager.mUsers;
@@ -176,10 +181,14 @@ public class UserModel extends BaseModel {
 		String[] args = {userName , md5};
 		Cursor cursor;
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 
@@ -192,8 +201,7 @@ public class UserModel extends BaseModel {
 	}
 	
 	public UserModel getFirstUser(Context context) {
-		
-		DbRepository.getInstance().open(context);
+
 		UserModel result = null;
 
 		String table = DbManager.mUsers;
@@ -202,10 +210,13 @@ public class UserModel extends BaseModel {
 		String[] args = null;
 		Cursor cursor;
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 
@@ -220,20 +231,22 @@ public class UserModel extends BaseModel {
 	
 	
 	public int countUser(Context context) {
-		DbRepository.getInstance().open(context);
 
 		String table = DbManager.mUsers;
 		String[] columns = null;
 		String where = null;
 		String[] args = null;
 		Cursor cursor;
-		
+
 		int result;
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return 0;
 		}
 

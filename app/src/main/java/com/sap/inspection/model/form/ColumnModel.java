@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -45,13 +46,12 @@ public class ColumnModel extends BaseModel {
 	}
 	
 	public void save(Context context){
-		DbRepository.getInstance().open(context);
 		save();
-		DbRepository.getInstance().close();
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(ctx);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormColumn;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -60,12 +60,15 @@ public class ColumnModel extends BaseModel {
 	}
 
 	public void save(){
+
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?)",
 						DbManager.mWorkFormColumn, DbManager.colID,
 						DbManager.colName, DbManager.colPosition, 
 						DbManager.colWorkFormGroupId, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -79,29 +82,34 @@ public class ColumnModel extends BaseModel {
 
 		stmt.executeInsert();
 		stmt.close();
-
+		DbRepository.getInstance().close();
 	}
 
 	public ArrayList<ColumnModel> getAllItemByWorkFormGroupId(Context context, int workFormGroupId) {
-		DbRepository.getInstance().open(context);
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
 		ArrayList<ColumnModel> result = getAllItemByWorkFormGroupId(workFormGroupId);
 		DbRepository.getInstance().close();
 		return result;
 	}
 
 	public ArrayList<ColumnModel>  getAllItemByWorkFormGroupId(int workFormGroupId) {
-		ArrayList<ColumnModel> result = new ArrayList<ColumnModel>();
 
+		ArrayList<ColumnModel> result = new ArrayList<ColumnModel>();
 		String table = DbManager.mWorkFormColumn;
 		String[] columns = null;
 		String where =DbManager.colWorkFormGroupId + "=?";
 		String[] args = new String[] {String.valueOf(workFormGroupId)};
 		String order = DbManager.colPosition+" ASC";
 
+		if (!DbRepository.getInstance().getDB().isOpen()) {
+			DbRepository.getInstance().open(MyApplication.getInstance());
+		}
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -109,7 +117,7 @@ public class ColumnModel extends BaseModel {
 		} while(cursor.moveToNext());
 
 		cursor.close();
-
+		DbRepository.getInstance().close();
 		return result;
 	}
 
