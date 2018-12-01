@@ -269,9 +269,6 @@ public class RowModel extends BaseModel {
 	
 	public Vector<RowModel> getAllItemByWorkFormGroupIdAndLikeAncestry(int workFormGroupId,String ancestry) {
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-
 		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
 		Vector<RowModel> result = new Vector<RowModel>();
 		String table = DbManager.mWorkFormRow;
@@ -290,10 +287,18 @@ public class RowModel extends BaseModel {
 //		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
 		String order = DbManager.colPosition+" ASC";
 
+		if (!DbRepository.getInstance().getDB().isOpen())
+			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst())
+		{
+			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
+		}
+
 		do {
 			RowModel model = getRowFromCursor(cursor); 
 			model.row_columns = getRowColumnModels(model.id);

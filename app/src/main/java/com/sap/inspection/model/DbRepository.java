@@ -14,7 +14,7 @@ public class DbRepository {
 	protected SQLiteDatabase _database;
 //	private final Context _context;
 
-	public static DbRepository getInstance() {
+	public static synchronized DbRepository getInstance() {
         if (mInstance == null) {
 //            mInstance = new Repository(ctx.getApplicationContext());
         	mInstance = new DbRepository();

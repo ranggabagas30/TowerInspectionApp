@@ -975,7 +975,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
 							DebugLog.d("remark : " + item.itemValue.remark);
 							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
-								if (item.itemValue.photoStatus.equalsIgnoreCase("nok")) {
+								if (!TextUtils.isEmpty(item.itemValue.photoStatus) && item.itemValue.photoStatus.equalsIgnoreCase("nok")) {
 									if (item.itemValue.remark == null) {
 										Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
 										mandatoryFound = true;
