@@ -47,8 +47,8 @@ public class RowColumnModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormRowCol;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -65,8 +65,7 @@ public class RowColumnModel extends BaseModel {
 						DbManager.colWorkFormGroupId, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt);
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -88,18 +87,14 @@ public class RowColumnModel extends BaseModel {
 	}
 	
 	public Vector<RowColumnModel> getAllItemByWorkFormRowId(Context context, int workFormRowId) {
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
 		Vector<RowColumnModel> result = getAllItemByWorkFormRowId(workFormRowId);
-		DbRepository.getInstance().close();
+
 		return result;
 	}
 	
 	public Vector<RowColumnModel> getAllItemByWorkFormRowId(int workFormRowId) {
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
 		Vector<RowColumnModel> result = new Vector<RowColumnModel>();
 
@@ -108,10 +103,12 @@ public class RowColumnModel extends BaseModel {
 		String query = "SELECT t1."+DbManager.colID+",t1."+DbManager.colRowId+",t1."+DbManager.colColId+",t1."+DbManager.colWorkFormGroupId+",t1."+DbManager.colCreatedAt+",t1."+DbManager.colUpdatedAt+" FROM " + DbManager.mWorkFormRowCol + " t1 INNER JOIN " + DbManager.mWorkFormColumn + " t2 ON t1." + DbManager.colColId + "=t2." + DbManager.colID + " WHERE t1." + DbManager.colRowId + "=? ORDER BY t2." + DbManager.colPosition + " ASC";
 		String[] args = new String[] {String.valueOf(workFormRowId)};
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, args);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		do {

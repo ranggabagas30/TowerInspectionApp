@@ -50,8 +50,8 @@ public class ColumnModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormColumn;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -67,11 +67,9 @@ public class ColumnModel extends BaseModel {
 						DbManager.colName, DbManager.colPosition, 
 						DbManager.colWorkFormGroupId, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt);
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-		SQLiteStatement stmt = DbRepository.getInstance().getDB()
-				.compileStatement(sql);
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		
 		stmt.bindLong(1, id);
 		bindAndCheckNullString(stmt, 2, column_name);
@@ -86,10 +84,9 @@ public class ColumnModel extends BaseModel {
 	}
 
 	public ArrayList<ColumnModel> getAllItemByWorkFormGroupId(Context context, int workFormGroupId) {
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		ArrayList<ColumnModel> result = getAllItemByWorkFormGroupId(workFormGroupId);
-		DbRepository.getInstance().close();
+
 		return result;
 	}
 
@@ -102,9 +99,7 @@ public class ColumnModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(workFormGroupId)};
 		String order = DbManager.colPosition+" ASC";
 
-		if (!DbRepository.getInstance().getDB().isOpen()) {
-			DbRepository.getInstance().open(MyApplication.getInstance());
-		}
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {

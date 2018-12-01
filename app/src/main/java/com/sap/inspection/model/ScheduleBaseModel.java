@@ -186,11 +186,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 						DbManager.colSumDone, DbManager.colOperatorNumber);
 		//						DbManager.colWorkDateStr,DbManager.colSumTask,
 		//						DbManager.colSumTask,DbManager.mSchedule,DbManager.colID);
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
-		SQLiteStatement stmt = DbRepository.getInstance().getDB()
-				.compileStatement(sql);
+		DbRepository.getInstance().open(MyApplication.getInstance());
+
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, id);
 		if (user == null)
@@ -241,12 +240,13 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		//DbRepository.getInstance().open(ctx);
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mSchedule;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
-		//DbRepository.getInstance().close();
+		DbRepository.getInstance().close();
 	}
 
 	public static int getTaskDone(String scheduleId){
@@ -258,6 +258,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(scheduleId)};
 		String order = null;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -267,7 +268,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		result = cursor.getInt(cursor.getColumnIndex(DbManager.colSumDone));
 
 		cursor.close();
-
+		DbRepository.getInstance().close();
 		return result;
 	}
 
@@ -289,8 +290,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		String[] args = null;
 		Cursor cursor;
 
-        if (!DbRepository.getInstance().getDB().isOpen())
-            DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" DESC", null);
 
 		if (!cursor.moveToFirst()) {
@@ -310,7 +310,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	public Vector<ScheduleBaseModel> getScheduleByWorktype(Context context,String workType) {
 
-
 		Vector<ScheduleBaseModel> result = new Vector<ScheduleBaseModel>();
 
 		String table = DbManager.mSchedule;
@@ -324,14 +323,13 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		DebugLog.d(query);
 
-        if (!DbRepository.getInstance().getDB().isOpen())
-            DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		//		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" ASC", null);
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
-            DbRepository.getInstance().close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -340,16 +338,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		cursor.close();
 		DbRepository.getInstance().close();
-
 		return result;
 	}
 
 	public ScheduleBaseModel getScheduleById(Context context,String id) {
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 		ScheduleBaseModel model = getScheduleById(id);
-		DbRepository.getInstance().close();
 
 		return model;
 	}
@@ -364,15 +358,18 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		String[] args = new String[]{id};
 		Cursor cursor;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" DESC", null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return model;
 		}
 
 		model = getScheduleFromCursor(cursor,false);
 		cursor.close();
+		DbRepository.getInstance().close();
 		return model;
 	}
 
@@ -509,8 +506,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public static void resetAllSchedule(){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		ContentValues cv = new ContentValues();
 		cv.put(DbManager.colProgress, -1);
 		cv.put(DbManager.colSumDone, 0);

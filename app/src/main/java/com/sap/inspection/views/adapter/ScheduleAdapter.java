@@ -171,7 +171,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				MyApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
 			} else {
 				String id = (String) v.getTag();
-				//DbRepositoryValue.getInstance().open(context);
+
 				ItemValueModel itemValueModel = new ItemValueModel();
 				ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(id);
 				if (itemValueModels.size() != 0) {
@@ -179,7 +179,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				} else {
 					MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
 				}
-				//DbRepositoryValue.getInstance().close();
+
 			}
         }
     };

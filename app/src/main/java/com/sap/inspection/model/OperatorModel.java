@@ -29,18 +29,17 @@ public class OperatorModel extends BaseModel {
 	}
 	
 	public void save(Context context){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+
 		save();
-		DbRepository.getInstance().close();
+
 	}
 	
 	public OperatorModel getOperatorById(Context context,int id) {
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		OperatorModel model = null;
 		model = getOperatorById(id);
-		DbRepository.getInstance().close();
+
 		return model;
 	}
 	
@@ -53,16 +52,19 @@ public class OperatorModel extends BaseModel {
 		String[] args = new String[]{String.valueOf(id)};
 		Cursor cursor;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return model;
 		}
 
 		model = getOperatorFromCursor(cursor);
 
 		cursor.close();
+		DbRepository.getInstance().close();
 		return model;
 	}
 	
@@ -73,8 +75,8 @@ public class OperatorModel extends BaseModel {
 						DbManager.mOperator , DbManager.colID,
 						DbManager.colName);
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
@@ -87,8 +89,8 @@ public class OperatorModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mOperator;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();

@@ -127,8 +127,7 @@ public class UserModel extends BaseModel {
 
 	public void save(Context context) {
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 
 		String md5 = MD5.md5(password);
 		if (md5 == null){
@@ -155,8 +154,7 @@ public class UserModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mUsers;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -181,8 +179,7 @@ public class UserModel extends BaseModel {
 		String[] args = {userName , md5};
 		Cursor cursor;
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
@@ -210,8 +207,7 @@ public class UserModel extends BaseModel {
 		String[] args = null;
 		Cursor cursor;
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -240,8 +236,7 @@ public class UserModel extends BaseModel {
 
 		int result;
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {

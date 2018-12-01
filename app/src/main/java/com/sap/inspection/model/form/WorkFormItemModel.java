@@ -82,17 +82,14 @@ public class WorkFormItemModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		save();
-		DbRepository.getInstance().close();
+
 	}
 
 	public static void delete(Context ctx){
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormItem;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -120,8 +117,8 @@ public class WorkFormItemModel extends BaseModel {
 						DbManager.colUpdatedAt, DbManager.colPicture,
 						DbManager.colDisable,DbManager.colSearch,
 						DbManager.colExpand);
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
@@ -176,10 +173,6 @@ public class WorkFormItemModel extends BaseModel {
 		 int workFormItemId  = Integer.valueOf(item_id);
 		 int workFormGroupId = Integer.valueOf(group_id);
 
-		 if (!DbRepository.getInstance().getDB().isOpen()) {
-		 	DbRepository.getInstance().open(MyApplication.getInstance());
-		 }
-
 		 formitem = getItemById(workFormItemId, workFormGroupId);
 
 
@@ -198,15 +191,11 @@ public class WorkFormItemModel extends BaseModel {
 			}
 		 }
 
-		 DbRepository.getInstance().close();
 	}
 
 	private static void updateDefaultValue(String workFormItemId, String new_default_value) {
 
 		DebugLog.d("update new default value");
-
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
 		ContentValues cv = new ContentValues();
 		cv.put(DbManager.colDefaultValue, new_default_value);
@@ -216,6 +205,7 @@ public class WorkFormItemModel extends BaseModel {
 		String[] args = new String[] { workFormItemId };
 
 		DebugLog.d("UPDATE workFormItem SET default_value = '" + new_default_value + "' WHERE " + DbManager.colWorkFormItemId + " = '" + workFormItemId);
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		DbRepository.getInstance().getDB().update(DbManager.mWorkFormItem, cv, where, args);
 		DbRepository.getInstance().close();
 
@@ -239,13 +229,12 @@ public class WorkFormItemModel extends BaseModel {
 		String order = DbManager.colPosition+" ASC";
 		Cursor cursor;
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -255,7 +244,6 @@ public class WorkFormItemModel extends BaseModel {
 		} while(cursor.moveToNext());
 
 		cursor.close();
-
 		DbRepository.getInstance().close();
 		return result;
 	}
@@ -271,16 +259,19 @@ public class WorkFormItemModel extends BaseModel {
 		String order = DbManager.colPosition+" ASC";
 		Cursor cursor;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		result = getItemFromCursor(cursor);
 		result.options = getWorkFormOptionsModels(result.id);
 
 		cursor.close();
+		DbRepository.getInstance().close();
 		return result;
 	}
 
@@ -295,16 +286,19 @@ public class WorkFormItemModel extends BaseModel {
 		String order = DbManager.colID+" DESC";
 		Cursor cursor;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		result = getItemFromCursor(cursor);
 		result.options = getWorkFormOptionsModels(result.id);
 
 		cursor.close();
+		DbRepository.getInstance().close();
 		return result;
 	}
 	

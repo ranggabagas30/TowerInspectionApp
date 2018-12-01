@@ -48,8 +48,8 @@ public class WorkFormOptionsModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormOption;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -65,8 +65,8 @@ public class WorkFormOptionsModel extends BaseModel {
 						DbManager.colValue,DbManager.colLable,
 						DbManager.colWorkFormItemId,DbManager.colCreatedAt,
 						DbManager.colUpdatedAt);
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -101,9 +101,7 @@ public class WorkFormOptionsModel extends BaseModel {
 		String order = null;
 		Cursor cursor;
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {

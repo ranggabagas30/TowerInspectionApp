@@ -16,13 +16,13 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
-import com.arifariyan.baseassets.fragment.BaseFragment;
 import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.DeleteAllScheduleEvent;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
+import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.manager.AlertDialogManager;
@@ -198,14 +198,10 @@ public class MainActivity extends BaseActivity{
 	}
 
 	public void onEvent(DeleteAllScheduleEvent event) {
-		if (DbRepository.getInstance().getDB()!=null) {
-			if (DbRepository.getInstance().getDB().isOpen())
-				DbRepository.getInstance().clearData(DbManager.mSchedule);
-			else {
-				//DbRepository.getInstance().open(activity);
-				DbRepository.getInstance().clearData(DbManager.mSchedule);
-			}
-		}
+		DbRepository.getInstance().open(activity);
+		DbRepository.getInstance().clearData(DbManager.mSchedule);
+		DbRepository.getInstance().close();
+
 
 		ScheduleTempSaver scheduleSaver = new ScheduleTempSaver();
 		scheduleSaver.setActivity(activity);
@@ -336,11 +332,13 @@ public class MainActivity extends BaseActivity{
 		protected void onPreExecute() {
 			super.onPreExecute();
 			progressDialog.setMessage("Persiapan menyimpan");
+			DbRepository.getInstance().open(MyApplication.getInstance());
 			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
+			DbRepository.getInstance().close();
 		}
 
 		@Override

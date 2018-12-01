@@ -35,8 +35,8 @@ public class RowValueModel extends BaseModel {
 	}
 
 	public static void deleteAll(Context ctx){
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mRowValue;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -45,8 +45,8 @@ public class RowValueModel extends BaseModel {
 	}
 
 	public RowValueModel getSiteById(Context context,String scheduleId, String itemId) {
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		RowValueModel model = null;
 		model = getSiteById(scheduleId, itemId);
 		DbRepositoryValue.getInstance().close();
@@ -62,16 +62,19 @@ public class RowValueModel extends BaseModel {
 		String[] args = new String[]{scheduleId,itemId};
 		Cursor cursor;
 
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepositoryValue.getInstance().close();
 			return model;
 		}
 
 		model = getSiteFromCursor(cursor);
 
 		cursor.close();
+		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
@@ -84,8 +87,8 @@ public class RowValueModel extends BaseModel {
 				DbManagerValue.colSumTask, DbManagerValue.colSumFilled,
 				DbManagerValue.colUploaded);
 
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, siteId);

@@ -28,18 +28,16 @@ public class SiteModel extends BaseModel {
 	}
 	
 	public void save(Context context){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		save();
-		DbRepository.getInstance().close();
+
 	}
 	
 	public SiteModel getSiteById(Context context,int id) {
-		SiteModel model = null;
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		SiteModel model;
 		model = getSiteById(id);
-		DbRepository.getInstance().close();
+
 		return model;
 	}
 	
@@ -52,6 +50,7 @@ public class SiteModel extends BaseModel {
 		String[] args = new String[]{String.valueOf(id)};
 		Cursor cursor;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -62,6 +61,7 @@ public class SiteModel extends BaseModel {
 		model = getSiteFromCursor(cursor);
 
 		cursor.close();
+		DbRepository.getInstance().close();
 		return model;
 	}
 	
@@ -74,8 +74,8 @@ public class SiteModel extends BaseModel {
 				String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s) VALUES(?,?,?,?)",
 						DbManager.mSite , DbManager.colID,
 						DbManager.colName,DbManager.colSiteLocation, DbManager.colSiteIdCustomer);
-				if (!DbRepository.getInstance().getDB().isOpen())
-					DbRepository.getInstance().open(MyApplication.getInstance());
+
+				DbRepository.getInstance().open(MyApplication.getInstance());
 				SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 				stmt.bindLong(1, id);
@@ -93,8 +93,8 @@ public class SiteModel extends BaseModel {
 				String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s) VALUES(?,?,?)",
 						DbManager.mSite , DbManager.colID,
 						DbManager.colName,DbManager.colSiteLocation);
-				if (!DbRepository.getInstance().getDB().isOpen())
-					DbRepository.getInstance().open(MyApplication.getInstance());
+
+				DbRepository.getInstance().open(MyApplication.getInstance());
 				SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 				stmt.bindLong(1, id);
@@ -109,8 +109,8 @@ public class SiteModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mSite;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();

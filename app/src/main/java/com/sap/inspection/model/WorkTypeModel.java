@@ -25,18 +25,14 @@ public class WorkTypeModel extends BaseModel {
 	}
 	
 	public void save(Context context){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		save();
-		DbRepository.getInstance().close();
+
 	}
 	
 	public WorkTypeModel getworkTypeById(Context context,int id) {
 		WorkTypeModel model = null;
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 		model = getworkTypeById(id);
-		DbRepository.getInstance().close();
 		return model;
 	}
 	
@@ -49,16 +45,19 @@ public class WorkTypeModel extends BaseModel {
 		String[] args = new String[]{String.valueOf(id)};
 		Cursor cursor;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return model;
 		}
 
 		model = getworkTypeFromCursor(cursor);
 
 		cursor.close();
+		DbRepository.getInstance().close();
 		return model;
 	}
 	
@@ -70,8 +69,8 @@ public class WorkTypeModel extends BaseModel {
 						DbManager.mWorkType , DbManager.colID,
 						DbManager.colName);
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
@@ -83,8 +82,8 @@ public class WorkTypeModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkType;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();

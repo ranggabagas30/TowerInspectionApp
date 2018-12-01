@@ -366,12 +366,13 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             super.onPreExecute();
             //prepare for saving
             pDialog.setMessage("Persiapan Menyimpan");
-            //DbRepository.getInstance().open(getApplicationContext());
+            DbRepository.getInstance().open(getApplicationContext());
             DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
             DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
             DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
             DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
             DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
+            DbRepository.getInstance().close();
         }
 
         @Override
@@ -810,8 +811,9 @@ public class SettingActivity extends BaseActivity implements UploadListener {
 
     public void onEvent(DeleteAllScheduleEvent event) {
         Toast.makeText(activity, "Jadwal diperbaharui", Toast.LENGTH_SHORT).show();
+        DbRepository.getInstance().open(MyApplication.getInstance());
         DbRepository.getInstance().clearData(DbManager.mSchedule);
-
+        DbRepository.getInstance().close();
         ScheduleTempSaver scheduleSaver = new ScheduleTempSaver();
         scheduleSaver.setActivity(activity);
         scheduleSaver.execute(event.scheduleResponseModel.data.toArray());

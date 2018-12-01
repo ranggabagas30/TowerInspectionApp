@@ -170,7 +170,7 @@ public class ItemUploadManager {
         @Override
         protected Void doInBackground(Void... arg0) {
             String response = null;
-            String messageToServer = null;
+            String messageToServer;
             String messageFromServer = null;
             int itemValueSuccessCount = 0;
 

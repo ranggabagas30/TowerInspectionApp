@@ -275,11 +275,13 @@ public class MainActivity extends BaseActivity{
 		protected void onPreExecute() {
 			super.onPreExecute();
 			progressDialog.setMessage("Menyiapkan untuk penyimpanan");
+			DbRepository.getInstance().open(MyApplication.getInstance());
 			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
+			DbRepository.getInstance().close();
 		}
 
 		@Override

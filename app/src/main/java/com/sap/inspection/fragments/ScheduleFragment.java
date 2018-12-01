@@ -167,48 +167,59 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 				/* obtain the response */
 				ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
-				if (itemScheduleResponse.status == 200 && !itemScheduleResponse.data.isEmpty()) {
 
-					//dialog.setOnDismissListener(dialog -> Toast.makeText(getContext(), "Berhasil mendapatkan item schedules", Toast.LENGTH_LONG).show());
+				if (!itemScheduleResponse.data.isEmpty()) {
 
-					DebugLog.d("response OK");
-					ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
+					if (itemScheduleResponse.status == 200) {
 
-					DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
+						DebugLog.d("response OK");
+						ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
 
-					for (DefaultValueScheduleModel item_default_value : itemScheduleGeneral.default_value_schedule) {
+						DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
 
-						String workFormItemId    = String.valueOf(item_default_value.getItem_id());
-						String workFormGroupId   = String.valueOf(item_default_value.getGroup_id());
-						String new_default_value = String.valueOf(item_default_value.getDefault_value());
+						for (DefaultValueScheduleModel item_default_value : itemScheduleGeneral.default_value_schedule) {
 
-						DebugLog.d("{");
-						DebugLog.d("--item_id  : " + workFormItemId);
-						DebugLog.d("--group_id : " + workFormGroupId);
-						DebugLog.d("--default_value : " + new_default_value);
-						DebugLog.d("}");
+							String workFormItemId    = String.valueOf(item_default_value.getItem_id());
+							String workFormGroupId   = String.valueOf(item_default_value.getGroup_id());
+							String new_default_value = String.valueOf(item_default_value.getDefault_value());
 
-						if (!(new_default_value == null && new_default_value.isEmpty())) {
+							DebugLog.d("{");
+							DebugLog.d("--item_id  : " + workFormItemId);
+							DebugLog.d("--group_id : " + workFormGroupId);
+							DebugLog.d("--default_value : " + new_default_value);
+							DebugLog.d("}");
 
-							DebugLog.d("json default value not null, do update");
-							WorkFormItemModel.setDefaultValueFromItemSchedule(workFormItemId, workFormGroupId, new_default_value);
+							if (!(new_default_value == null && new_default_value.isEmpty())) {
+
+								DebugLog.d("json default value not null, do update");
+								WorkFormItemModel.setDefaultValueFromItemSchedule(workFormItemId, workFormGroupId, new_default_value);
+							}
 						}
+
+						dialog.dismiss();
+
+					} else {
+
+						dialog.dismiss();
+						Toast.makeText(getContext(), "Gagal mendapatkan item schedules\n" + itemScheduleResponse.status + " : " + itemScheduleResponse.messages, Toast.LENGTH_LONG).show();
+
+						DebugLog.d("response status code : " + itemScheduleResponse.status);
+						DebugLog.d("response message : " + itemScheduleResponse.messages);
 					}
 				} else {
 
-					dialog.setOnDismissListener(dialog -> Toast.makeText(getContext(), "Gagal mendapatkan item schedules", Toast.LENGTH_LONG).show());
-
-					DebugLog.d("response status code : " + itemScheduleResponse.status);
-					DebugLog.d("response message : " + itemScheduleResponse.messages);
+					dialog.dismiss();
+					Toast.makeText(getContext(), "Item schedules data kosong atau tidak ada", Toast.LENGTH_LONG).show();
+					DebugLog.d("item schedules kosong");
 				}
 
 			} else {
 
-				Toast.makeText(getContext(), "repsonse json for ITEM SCHEDULES is null", Toast.LENGTH_LONG).show();
+				dialog.dismiss();
+				Toast.makeText(getContext(), "Schedule ini tidak memiliki data item schedules", Toast.LENGTH_LONG).show();
 				DebugLog.e("repsonse json for ITEM SCHEDULES is null");
 			}
 
-			dialog.dismiss();
 		}
 	};
 

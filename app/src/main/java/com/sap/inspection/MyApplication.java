@@ -65,6 +65,10 @@ public class MyApplication extends Application {
 		return instance;
 	}
 
+	/**
+	 * for persistent site location pref
+	 *
+	 * */
 	public boolean isHashMapInitialized() {
 		if (hashMapSiteLocation == null) {
 			hashMapSiteLocation = new HashMap<>();
@@ -81,6 +85,10 @@ public class MyApplication extends Application {
 	public void setHashMapSiteLocation(HashMap<String, AbstractMap.SimpleEntry<String, String>> hashMapSiteLocation) {
 		this.hashMapSiteLocation = hashMapSiteLocation;
 	}
+	/**
+	 * end of persistent site location hash map initialization
+	 *
+	 * */
 
 	public void toast(String message,int duration){
 		Message msg = new Message();
@@ -142,11 +150,16 @@ public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		//1. initialization crashlytics
 		Fabric.with(this, new Crashlytics());
+
+		//2. initialization stetho facebook debug
 		if (BuildConfig.DEBUG) {
 			Stetho.initializeWithDefaults(this);
 		}
 
+		//3. initialization image loader configuration
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
 		.memoryCacheSize(20 * 1024 * 1024)
 		.discCacheSize(104857600)
@@ -156,6 +169,7 @@ public class MyApplication extends Application {
 		// Initialize ImageLoader with configuration.
 		ImageLoader.getInstance().init(config);
 
+		//4. initialization text mark settings for photo item
 		TextMarkDisplayOptionsModel textOption = new TextMarkDisplayOptionsModel.Builder(getApplicationContext())
 				.setTextColor(Color.WHITE)
 				.setTextColorStyle(Paint.Style.FILL)
@@ -166,12 +180,7 @@ public class MyApplication extends Application {
 
 		TextMarkModel.getInstance().init(textOption);
 
-		DebugLog.d("Storage dirs list : \n");
-		String[] storageDirectories = Utility.getStorageDirectories(getApplicationContext());
-		for (String dir : storageDirectories) {
-			DebugLog.d(dir + "\n");
-		}
-
+		//5. initialization firebase FCM
 		FirebaseInstanceId.getInstance().getInstanceId()
 				.addOnSuccessListener(instanceIdResult -> {
 
@@ -181,7 +190,19 @@ public class MyApplication extends Application {
 					storeRegIdInpref(instanceIdResult.getToken());
 					sendRegIdtoServer(instanceIdResult.getToken());
 
-        }).addOnFailureListener(Throwable::printStackTrace);
+				}).addOnFailureListener(Throwable::printStackTrace);
+
+
+		//6.initialization SQLite DB manager
+		DbRepository.initializedInstance();
+		DbRepositoryValue.initializedInstance();
+
+		DebugLog.d("Storage dirs list : \n");
+		String[] storageDirectories = Utility.getStorageDirectories(getApplicationContext());
+		for (String dir : storageDirectories) {
+			DebugLog.d(dir + "\n");
+		}
+
 
 		IN_CHECK_HASIL_PM = false;
 		SCHEDULE_NEED_CHECK_IN = false;

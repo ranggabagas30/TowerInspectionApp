@@ -29,22 +29,24 @@ public class CorrectiveValueModel extends ItemValueModel {
 	}
 
 	public static void delete(Context ctx, String scheduleId, int itemId, int operatorId){
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		delete(scheduleId, itemId, operatorId);
-		DbRepositoryValue.getInstance().close();
+
 	}
 
 	public static void delete(String scheduleId, int itemId, int operatorId){
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mCorrectiveValue + " WHERE "+DbManagerValue.colScheduleId+"="+scheduleId+" AND "+DbManagerValue.colItemId+"="+itemId+" AND "+DbManagerValue.colOperatorId+"="+operatorId;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
+		DbRepositoryValue.getInstance().close();
 	}
 	
 	public static void deleteAll(Context ctx){
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mCorrectiveValue;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -55,18 +57,19 @@ public class CorrectiveValueModel extends ItemValueModel {
 	@Override
 	public CorrectiveValueModel getItemValue(Context context,String scheduleId, int itemId, int operatorId) {
 		CorrectiveValueModel model = null;
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		model = getItemValue(scheduleId, itemId, operatorId);
-		DbRepositoryValue.getInstance().close();
+
 		return model;
 	}
 
 	public static int countTaskDone(String scheduleId){
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		Cursor mCount= DbRepositoryValue.getInstance().getDB().rawQuery("select count(*) from "+DbManagerValue.mCorrectiveValue+" where "+DbManagerValue.colScheduleId+"='" + scheduleId + "' and "+DbManagerValue.colValue+" IS NOT NULL", null);
 		mCount.moveToFirst();
 		int count= mCount.getInt(0);
 		mCount.close();
+		DbRepositoryValue.getInstance().close();
 		return count;
 	}
 
@@ -79,6 +82,8 @@ public class CorrectiveValueModel extends ItemValueModel {
 		String[] args = new String[]{scheduleId,String.valueOf(itemId),String.valueOf(operatorId)};
 
 		Cursor cursor;
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -88,7 +93,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 
 		model = getSiteFromCursor(cursor);
 		cursor.close();
-
+		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
@@ -104,6 +109,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 		String order =  DbManagerValue.colItemId + " ASC,"+ DbManagerValue.colOperatorId + " ASC,"+DbManagerValue.colPhotoStatus + " DESC";
 		Cursor cursor;
 
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,order, null);
 
 		if (!cursor.moveToFirst()){
@@ -117,6 +123,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 		}while(cursor.moveToNext());
 
 		cursor.close();
+		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
@@ -135,10 +142,12 @@ public class CorrectiveValueModel extends ItemValueModel {
 		}
 		Cursor cursor;
 
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepositoryValue.getInstance().close();
 			return model;
 		}
 		do{
@@ -146,14 +155,14 @@ public class CorrectiveValueModel extends ItemValueModel {
 		}	
 		while(cursor.moveToNext());
 		cursor.close();
+		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
 	public void save(Context context){
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
 		save();
-		DbRepositoryValue.getInstance().close();
+
 	}
 
 	public void save(){
@@ -180,6 +189,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 				DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
 				DbManagerValue.colUploadStatus);
 
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, scheduleId);
@@ -197,6 +207,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 
 		stmt.executeInsert();
 		stmt.close();
+		DbRepositoryValue.getInstance().close();
 	}
 
 	public void insert(){
@@ -210,6 +221,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 					DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
 					DbManagerValue.colUploadStatus);
 
+			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 			SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 			bindAndCheckNullString(stmt, 1, scheduleId);
@@ -227,6 +239,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 
 			stmt.executeInsert();
 			stmt.close();
+			DbRepositoryValue.getInstance().close();
 		}catch(Exception e) {
 
 		}
@@ -253,6 +266,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 				DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
 				DbManagerValue.colUploadStatus);
 
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, scheduleId);
@@ -270,6 +284,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 
 		stmt.executeInsert();
 		stmt.close();
+		DbRepositoryValue.getInstance().close();
 	}
 
 	private CorrectiveValueModel getSiteFromCursor(Cursor c) {
@@ -314,8 +329,8 @@ public class CorrectiveValueModel extends ItemValueModel {
 	}
 	
 	public static void resetAllUploadStatus(){
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		ContentValues cv = new ContentValues();
 		cv.put(DbManagerValue.colUploadStatus, UPLOAD_NONE);
 

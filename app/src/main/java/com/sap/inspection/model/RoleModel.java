@@ -95,8 +95,8 @@ public class RoleModel extends BaseModel {
 	}
 	
 	public void save(Context ctx) {
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s) VALUES(?,?)",
 						DbManager.mRoles , DbManager.colID,
@@ -113,8 +113,8 @@ public class RoleModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mRoles;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -132,8 +132,7 @@ public class RoleModel extends BaseModel {
 		String[] args = {roleID};
 		Cursor cursor;
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {

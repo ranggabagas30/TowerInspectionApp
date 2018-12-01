@@ -64,9 +64,8 @@ public class WorkFormModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(workTypeId)};
 		String order = null;
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -99,10 +98,9 @@ public class WorkFormModel extends BaseModel {
 						DbManager.colName, DbManager.colNotes,
 						DbManager.colWorkTypeId,DbManager.colCreatedAt, 
 						DbManager.colUpdatedAt,DbManager.colSumInput);
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-		SQLiteStatement stmt = DbRepository.getInstance().getDB()
-				.compileStatement(sql);
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
 		bindAndCheckNullString(stmt, 2, name);
@@ -119,9 +117,8 @@ public class WorkFormModel extends BaseModel {
 
 	public static void delete(Context ctx){
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkForm;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -137,24 +134,25 @@ public class WorkFormModel extends BaseModel {
 		String[] args = null;
 		String order = null;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return 0;
 		}
 
 		int temp = cursor.getCount();
 		cursor.close();
+		DbRepository.getInstance().close();
 		return temp;
 	}
 	
 	public WorkFormModel getFormByWorkTypeId(Context context, int workTypeId) {
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
 		WorkFormModel result = getItemByWorkTypeId(workTypeId);
-		DbRepository.getInstance().close();
+
 		return result;
 	}
 	public WorkFormModel getItemByWorkTypeId(int workTypeId) {
@@ -167,17 +165,19 @@ public class WorkFormModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(workTypeId)};
 		String order = null;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		DebugLog.d("=============cursor can move to first==================");
 		result = getItemFromCursor(cursor);
 
 		cursor.close();
-
+		DbRepository.getInstance().close();
 		return result;
 	}
 

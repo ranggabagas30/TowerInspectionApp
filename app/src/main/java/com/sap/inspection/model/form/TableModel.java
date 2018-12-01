@@ -27,10 +27,7 @@ public class TableModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 		save();
-		DbRepository.getInstance().close();
 	}
 
 	public void save(){

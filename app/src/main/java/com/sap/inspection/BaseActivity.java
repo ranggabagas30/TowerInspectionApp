@@ -54,8 +54,8 @@ public abstract class BaseActivity extends FragmentActivity{
 
 		// globally set open for SQLite database access
 		DebugLog.d("opening SQLite database access");
-		DbRepository.getInstance().open(MyApplication.getInstance());
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		/*DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());*/
 
 		activity = this;
 //        int x = 0;
@@ -91,8 +91,8 @@ public abstract class BaseActivity extends FragmentActivity{
 	protected void onStop() {
 		super.onStop();
 		DebugLog.d("database access is closed");
-		DbRepository.getInstance().close();
-		DbRepositoryValue.getInstance().close();
+		/*DbRepository.getInstance().close();
+		DbRepositoryValue.getInstance().close();*/
 	}
 	@Override
 	protected void onDestroy() {

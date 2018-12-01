@@ -27,8 +27,8 @@ public abstract class BaseFragment extends Fragment{
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		DbRepository.getInstance().open(MyApplication.getInstance());
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		/*DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());*/
 	}
 
 	@Override
@@ -39,8 +39,8 @@ public abstract class BaseFragment extends Fragment{
 	@Override
 	public void onStop() {
 		super.onStop();
-		DbRepository.getInstance().close();
-		DbRepositoryValue.getInstance().close();
+		/*DbRepository.getInstance().close();
+		DbRepositoryValue.getInstance().close();*/
 	}
 
 	protected void log(String logString){

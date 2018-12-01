@@ -58,15 +58,18 @@ public class WorkFormGroupModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(id)};
 		String order = null;
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return 0;
 		}
 
 		int temp = cursor.getCount();
 		cursor.close();
+		DbRepository.getInstance().close();
 		return temp;
 	}
 
@@ -87,10 +90,9 @@ public class WorkFormGroupModel extends BaseModel {
 						DbManager.colWorkFormId, DbManager.colDescription,
 						DbManager.colAncestry, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt,DbManager.colSumInput);
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-		SQLiteStatement stmt = DbRepository.getInstance().getDB()
-				.compileStatement(sql);
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
 		bindAndCheckNullString(stmt, 2, name);
@@ -108,8 +110,8 @@ public class WorkFormGroupModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormGroup;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -124,8 +126,7 @@ public class WorkFormGroupModel extends BaseModel {
 	}
 
 	public Vector<WorkFormGroupModel> getAllItemByWorkFormGroupId(Context context, int workFormId) {
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Vector<WorkFormGroupModel> result = getAllItemByWorkFormId(workFormId);
 		DbRepository.getInstance().close();
 		return result;
@@ -140,10 +141,12 @@ public class WorkFormGroupModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(workFormId)};
 		String order = DbManager.colID+" ASC";
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -151,7 +154,7 @@ public class WorkFormGroupModel extends BaseModel {
 		} while(cursor.moveToNext());
 
 		cursor.close();
-
+		DbRepository.getInstance().close();
 		return result;
 	}
 

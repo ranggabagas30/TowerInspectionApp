@@ -90,15 +90,14 @@ public class RowModel extends BaseModel {
 	}
 
 	public void save(Context context){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		save();
-		DbRepository.getInstance().close();
+
 	}
 
 	public static void delete(Context ctx){
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormRow;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -116,10 +115,9 @@ public class RowModel extends BaseModel {
 						DbManager.colSumTask, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt, DbManager.colLevel);
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-		SQLiteStatement stmt = DbRepository.getInstance().getDB()
-				.compileStatement(sql);
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
 		stmt.bindLong(2, position);
@@ -150,10 +148,9 @@ public class RowModel extends BaseModel {
 	}
 
 	public Vector<RowModel> getAllItemByWorkFormGroupId(Context context, int workFormGroupId) {
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+
 		Vector<RowModel> result = getAllItemByWorkFormGroupId(workFormGroupId);
-		DbRepository.getInstance().close();
+
 		return result;
 	}
 
@@ -162,6 +159,8 @@ public class RowModel extends BaseModel {
 	 * @return max tree level from the form
 	 */
 	public int getMaxLevel(String workFormGroupId){
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().rawQuery("SELECT MAX("+DbManager.colLevel+") FROM "+DbManager.mWorkFormRow+" WHERE "+DbManager.colWorkFormGroupId+"="+workFormGroupId, null);
 		if (!cursor.moveToFirst()){
 			cursor.close();
@@ -170,6 +169,7 @@ public class RowModel extends BaseModel {
 		int temp  = cursor.getInt(0);
 
 		cursor.close();
+		DbRepository.getInstance().close();
 		return temp;
 	}
 
@@ -233,9 +233,7 @@ public class RowModel extends BaseModel {
 //		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
 		String order = DbManager.colPosition+" ASC";
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
-
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -287,9 +285,8 @@ public class RowModel extends BaseModel {
 //		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
 		String order = DbManager.colPosition+" ASC";
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst())
@@ -341,9 +338,8 @@ public class RowModel extends BaseModel {
 //		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
 		String order = DbManager.colPosition+" ASC";
 
-		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
 
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()){
