@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.27.0'
     }
 }
 apply plugin: 'com.android.application'
@@ -19,8 +19,8 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19020101
-        versionName "2.1.1"
+        versionCode 19020102
+        versionName "2.1.2"
         setProperty("archivesBaseName", "sap" + "-v" + "(" + versionName + ")")
     }
 
@@ -63,14 +63,12 @@ android {
         sap {
             applicationId 'com.sap.inspection'
             dimension "default"
-
         }
         stp {
             applicationId 'com.stp.inspection'
-            versionCode 19020101
-            versionName "2.1.1"
+            versionCode 19020102
+            versionName "2.1.2"
             dimension "default"
-
         }
     }
     compileOptions {
@@ -94,15 +92,14 @@ dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api "com.google.android.gms:play-services-location:${rootProject.ext.playServicesVersionLocation}"
     api "com.google.android.gms:play-services-maps:16.0.0"
-    //api "com.google.android.gms:play-services-gcm:${rootProject.ext.playServicesVersion}"
-    api "com.google.android.gms:play-services-analytics:${rootProject.ext.playServicesVersionAnalytics}"
 
     api "com.google.firebase:firebase-core:16.0.5"
     api "com.google.firebase:firebase-messaging:17.3.4"
     api project(':baseassets')
-    api('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
+    /*api('com.crashlytics.sdk.android:crashlytics:2.6.3@aar') {
         transitive = true;
-    }
+    }*/
+    api 'com.crashlytics.sdk.android:crashlytics:2.9.7'
     api("com.google.code.gson:gson:2.3") {
         exclude module: 'gson:2.2.4'
     }

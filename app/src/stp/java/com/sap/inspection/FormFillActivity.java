@@ -270,7 +270,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		        if (!listView.isFocused())
 		        {
 		            // listView.setItemsCanFocus(false);
-
 		            // Use beforeDescendants so that the EditText doesn't re-take focus
 		            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
 		            listView.requestFocus();

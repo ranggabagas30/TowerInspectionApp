@@ -107,8 +107,8 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			
 			data = response.getEntity().getContent();
 			statusCode = response.getStatusLine().getStatusCode();
-			DebugLog.d("content type name  : "+ response.getEntity().getContentType().getName());
-			DebugLog.d("content type value : "+ response.getEntity().getContentType().getValue());
+			DebugLog.d("content type name  : "+ response.getEntity().getContentType().getName() == null ? "null" : response.getEntity().getContentType().getName());
+			DebugLog.d("content type value : "+ response.getEntity().getContentType().getValue() == null ? "null" : response.getEntity().getContentType().getValue());
 			if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
 				DebugLog.d("not json type");
 				DebugLog.e(ConvertInputStreamToString(data));
@@ -119,7 +119,14 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			DebugLog.d("json = "+s);
 
 			return s;
-		}catch (SocketTimeoutException e) {
+		} catch (NullPointerException npe) {
+
+			errMsg = npe.getMessage();
+			npe.printStackTrace();
+			Crashlytics.log(Log.ERROR, "jsonconnection", npe.getMessage());
+			DebugLog.d("err ||||| "+errMsg);
+
+		} catch (SocketTimeoutException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
 			Crashlytics.log(Log.ERROR, "jsonconnection", e.getMessage());

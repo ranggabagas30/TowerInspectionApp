@@ -198,7 +198,7 @@ public class MainActivity extends BaseActivity{
 	}
 
 	public void onEvent(DeleteAllScheduleEvent event) {
-		DbRepository.getInstance().open(activity);
+		DbRepository.getInstance().open(MyApplication.getInstance());
 		DbRepository.getInstance().clearData(DbManager.mSchedule);
 		DbRepository.getInstance().close();
 

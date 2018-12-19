@@ -15,9 +15,10 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
-import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;
+/*import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;*/
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -209,12 +210,12 @@ public class MyApplication extends Application {
 		checkinDataModel = new CheckinDataModel();
 	}
 
-	private Tracker mTracker;
+	/*private Tracker mTracker;
 
-	/**
+	*//**
 	 * Gets the default {@link Tracker} for this {@link Application}.
 	 * @return tracker
-	 */
+	 *//*
 	synchronized public Tracker getDefaultTracker() {
 		if (mTracker == null) {
 			GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
@@ -222,7 +223,22 @@ public class MyApplication extends Application {
 			mTracker = analytics.newTracker(R.xml.global_tracker);
 		}
 		return mTracker;
-	}
+	}*/
+
+	/**
+     * new analytics tracker from Firebase
+     * @return firebaseAnalytics instance
+     * */
+	private FirebaseAnalytics mFirebaseAnalytics;
+
+	synchronized public FirebaseAnalytics getDefaultAnalytics() {
+
+	    if (mFirebaseAnalytics == null) {
+	        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        }
+
+        return mFirebaseAnalytics;
+    }
 
 	private void storeRegIdInpref(String token) {
 		PrefUtil.putStringPref(R.string.app_fcm_reg_id, token);

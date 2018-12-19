@@ -10,8 +10,9 @@ import android.util.DisplayMetrics;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
+/*import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;*/
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.constant.GlobalVar;
@@ -52,11 +53,6 @@ public abstract class BaseActivity extends FragmentActivity{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// globally set open for SQLite database access
-		DebugLog.d("opening SQLite database access");
-		/*DbRepository.getInstance().open(MyApplication.getInstance());
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());*/
-
 		activity = this;
 //        int x = 0;
 //        int y = 1/x;
@@ -90,9 +86,6 @@ public abstract class BaseActivity extends FragmentActivity{
 	@Override
 	protected void onStop() {
 		super.onStop();
-		DebugLog.d("database access is closed");
-		/*DbRepository.getInstance().close();
-		DbRepositoryValue.getInstance().close();*/
 	}
 	@Override
 	protected void onDestroy() {
@@ -146,21 +139,33 @@ public abstract class BaseActivity extends FragmentActivity{
 
 	protected void trackThisPage(String name) {
 // Obtain the shared Tracker instance.
-		MyApplication application = (MyApplication) getApplication();
+		/*MyApplication application = (MyApplication) getApplication();
 		Tracker mTracker = application.getDefaultTracker();
 		DebugLog.d("Track screen name: " + name);
 		mTracker.setScreenName(name);
-		mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+		mTracker.send(new HitBuilders.ScreenViewBuilder().build());*/
+
+		Bundle bundle = new Bundle();
+		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
+		MyApplication myApplication = (MyApplication) getApplication();
+		FirebaseAnalytics mFirebaseAnalytics = myApplication.getDefaultAnalytics();
+		mFirebaseAnalytics.logEvent("track_page", bundle);
 	}
 
 	protected void trackEvent(String name) {
 // Obtain the shared Tracker instance.
-		MyApplication application = (MyApplication) getApplication();
+		/*MyApplication application = (MyApplication) getApplication();
 		Tracker mTracker = application.getDefaultTracker();
 		DebugLog.d("Track event name: " + name);
 		mTracker.send(new HitBuilders.EventBuilder()
 				.setCategory("Event")
 				.setAction(name)
-				.build());
+				.build());*/
+
+		Bundle bundle = new Bundle();
+		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
+		MyApplication myApplication = (MyApplication) getApplication();
+		FirebaseAnalytics mFirebaseAnalytics = myApplication.getDefaultAnalytics();
+		mFirebaseAnalytics.logEvent("track_event", bundle);
 	}
 }

@@ -366,7 +366,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             super.onPreExecute();
             //prepare for saving
             pDialog.setMessage("Persiapan Menyimpan");
-            DbRepository.getInstance().open(getApplicationContext());
+            DbRepository.getInstance().open(MyApplication.getInstance());
             DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
             DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
             DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);

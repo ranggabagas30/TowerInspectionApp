@@ -45,7 +45,7 @@ public class MainMenuFragmentAdapter extends BaseFragmentAdapter{
 	
 	private ArrayList<Integer> getRes(ArrayList<Integer> resAll, int pagePosition){
 		int endIndex = getEndIndex(pagePosition) < resAll.size() ? getEndIndex(pagePosition) : resAll.size();
-		DebugLog.d( "start : "+getStartIndex(pagePosition)+" end : "+endIndex);
+		DebugLog.d( "start : "+ getStartIndex(pagePosition) +" end : "+endIndex);
 		List<Integer> list = resAll.subList(getStartIndex(pagePosition), endIndex);
 		return new ArrayList<>(list);
 	}
