@@ -306,6 +306,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         } else {
             return Utility.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
         }
+
+        //return Utility.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
     }
 
     private boolean serverValidation() {
@@ -318,6 +320,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         } else {
             return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
         }
+
+        //return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
     }
 
     private void showFailCheckinMessage() {
@@ -420,6 +424,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mParamObject.setSiteLat(String.valueOf(mSiteCoordinate.getLatitude()));
         mParamObject.setSiteLong(String.valueOf(mSiteCoordinate.getLongitude()));
     }
+
     private void processLocationData() {
 
         mDistanceMeasurment = mSiteCoordinate.distanceTo(mCurrentCoordinate);

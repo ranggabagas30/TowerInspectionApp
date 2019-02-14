@@ -19,8 +19,8 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19020102
-        versionName "2.1.2"
+        versionCode 19020200
+        versionName "2.2.0"
         setProperty("archivesBaseName", "sap" + "-v" + "(" + versionName + ")")
     }
 
@@ -66,8 +66,8 @@ android {
         }
         stp {
             applicationId 'com.stp.inspection'
-            versionCode 19020102
-            versionName "2.1.2"
+            versionCode 19020200
+            versionName "2.2.0"
             dimension "default"
         }
     }

@@ -247,7 +247,7 @@ public class MyApplication extends Application {
 	private void sendRegIdtoServer(String token) {
 		try {
 			if (!PrefUtil.getStringPref(R.string.user_authToken, "").equalsIgnoreCase("")){
-				APIHelper.registerGCMToken(MyApplication.getInstance(), new Handler(),  token);
+				APIHelper.registerFCMToken(MyApplication.getInstance(), new Handler(),  token);
 			}
 		} catch (Exception e){
 			e.printStackTrace();

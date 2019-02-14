@@ -1,11 +1,17 @@
 package com.sap.inspection.util;// Created by Arif Ariyan (me@arifariyan.com) on 8/8/16.
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -154,6 +160,31 @@ public class Utility {
      * STORAGE UTILITY
      *
      * */
+
+    public static boolean isReadWriteStoragePermissionGranted(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            // rangga
+            // see : https://stackoverflow.com/questions/47787577/unable-to-save-image-file-in-android-oreo-update-how-to-do-it?rq=1
+
+            if (ContextCompat.checkSelfPermission(MyApplication.getContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(MyApplication.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+
+                DebugLog.v("on SDK > 26, READ and WRITE Permission is granted");
+                return true;
+
+            } else {
+
+                DebugLog.v("Permission is revoked");
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            DebugLog.v(" on SDK < 23, READ and WRITE Permission is automatically granted");
+            return true;
+        }
+    }
+
     public static boolean isExternalStorageReadOnly() {
         return Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState());
     }

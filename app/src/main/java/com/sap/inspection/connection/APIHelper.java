@@ -46,15 +46,6 @@ public class APIHelper {
 
 	}
 
-	public static void registerGCMToken(Context context, Handler handler, String token){
-		LinkedList<NameValuePair> params = new LinkedList<NameValuePair>();
-		NameValuePair nvp = new BasicNameValuePair("token", token);
-		params.add(nvp);
-		nvp = new BasicNameValuePair("device_id", AndroidUID.getUID(context));
-		params.add(nvp);
-		postParams(context, APIList.gcmTokenRegeisterUrl()+"?access_token="+getAccessToken(context), handler, params);
-	}
-
 	public static void registerFCMToken(Context context, Handler handler, String fcmtoken) {
 		LinkedList<NameValuePair> params = new LinkedList<NameValuePair>();
 		NameValuePair nvp = new BasicNameValuePair("token", fcmtoken);

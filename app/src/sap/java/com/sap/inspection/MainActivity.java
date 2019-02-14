@@ -149,7 +149,7 @@ public class MainActivity extends BaseActivity{
 					scheduleSaver.setMainActivity(MainActivity.this);
 					scheduleSaver.execute(scheduleResponseModel.data.toArray());
 				}
-			}else{
+			} else {
 				setFlagScheduleSaved(true);
 				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet),Toast.LENGTH_LONG).show();
 			}
