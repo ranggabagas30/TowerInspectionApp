@@ -53,6 +53,18 @@ public class CommonUtils {
         return mRandom.nextBoolean();
     }
 
+    public static boolean isAlphanumeric(String val) {
+
+        final String regex = "[a-zA-Z0-9]+";
+        return val.matches(regex);
+    }
+
+    public static boolean isNumeric(String val) {
+
+        final String regex = "[0-9]+";
+        return val.matches(regex);
+    }
+
     public static void clearApplicationData() {
         File cache = MyApplication.getContext().getCacheDir();
         File appDir = new File(cache.getParent());
@@ -66,6 +78,7 @@ public class CommonUtils {
             }
         }
     }
+
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();

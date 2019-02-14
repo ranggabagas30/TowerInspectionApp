@@ -3,6 +3,7 @@ package com.sap.inspection.views.adapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.os.Debug;
+import android.text.InputType;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -35,10 +36,12 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.rules.SavingRule;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormInputText;
 import com.sap.inspection.view.MyTextView;
 import com.sap.inspection.view.PhotoItem;
 import com.sap.inspection.view.PhotoItemRadio;
+import com.slidinglayer.util.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,6 +118,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	@Override
 	public void notifyDataSetChanged() {
+
 		shown.clear();
 		for (ItemFormRenderModel model : models) {
 			shown.addAll(model.getModels());
@@ -254,6 +258,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.description = (TextView) convertView.findViewById(R.id.item_form_description);
 				holder.input = (FormInputText) convertView.findViewById(R.id.item_form_input);
 				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
+
 				break;
 			case ItemFormRenderModel.TYPE_EXPAND:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_expand,null);
@@ -397,18 +402,37 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 				if (getItem(position).workItemModel.default_value != null) {
 
+					holder.input.setInputType(InputType.TYPE_CLASS_NUMBER);
+
 					DebugLog.d("default value not null");
 					if (getItem(position).workItemModel.default_value.isEmpty()) {
-						holder.input.setHint("kosong");
+
+					   /* if (CommonUtils.isNumeric(getItem(position).workItemModel.default_value)) {
+
+							holder.input.setHint("0");
+
+                        } else {
+
+							holder.input.setHint("kosong");
+
+                        }*/
+
+						holder.input.setHint("0");
+
 					} else {
 						holder.input.setHint(getItem(position).workItemModel.default_value);
 					}
 
-				} else {
+				}
 
-					DebugLog.d("default value is null");
-				    holder.input.setHint("kosong");
-                }
+                /*if (CommonUtils.isNumeric(getItem(position).workItemModel.default_value)) {
+
+					holder.input.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+                } else {
+
+					holder.input.setInputType(InputType.TYPE_CLASS_TEXT);
+                }*/
 
 				holder.input.setTextChange(null);
 				holder.input.setTag(getItem(position));
@@ -624,7 +648,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		}
 	};
 
-	FormTextChange formTextChange = new  FormTextChange() {
+	FormTextChange formTextChange = new FormTextChange() {
 
 		@Override
 		public void onTextChange(String string, View view) {

@@ -1,8 +1,10 @@
 package com.sap.inspection;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.media.ExifInterface;
@@ -16,6 +18,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -47,6 +50,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormTextChange;
@@ -82,6 +86,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import de.greenrobot.event.EventBus;
+
+import static android.app.Activity.RESULT_OK;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -421,7 +427,26 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 			if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
-				takePicture(photoItem.getItemId());
+
+				if (Utility.isReadWriteStoragePermissionGranted(FormFillActivity.this)) {
+
+					takePicture(photoItem.getItemId());
+
+				} else {
+
+					if (ActivityCompat.shouldShowRequestPermissionRationale(FormFillActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+							&& ActivityCompat.shouldShowRequestPermissionRationale(FormFillActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+						// Show an explanation to the user *asynchronously* -- don't block
+						// this thread waiting for the user's response! After the user
+						// sees the explanation, try again to request the permission.
+
+					} else {
+
+						ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.RC_STORAGE_PERMISSION);
+					}
+				}
+
 			} else {
 				new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
 						.setTopColor(color(R.color.theme_color))
@@ -474,6 +499,44 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
     };
 
 
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+		if (requestCode == Constants.RC_STORAGE_PERMISSION) {
+
+			boolean isStoragePermissionAllowed = true;
+
+			for (int i = 0; i < permissions.length; i++) {
+
+				String permission = permissions[i];
+				int grantResult = grantResults[i];
+
+				if (
+						(permission.equalsIgnoreCase(Manifest.permission.READ_EXTERNAL_STORAGE)
+						&& grantResult == PackageManager.PERMISSION_DENIED) ||
+
+						(permission.equalsIgnoreCase(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						&& grantResult == PackageManager.PERMISSION_DENIED)
+					) {
+
+					isStoragePermissionAllowed = false;
+					break;
+				}
+			}
+
+			if (isStoragePermissionAllowed)
+
+				Toast.makeText(this, "Silahkan ambil gambar (foto)", Toast.LENGTH_LONG).show();
+
+			else {
+
+				DebugLog.e("Permission storage failed");
+				Crashlytics.log("Permissiong storage failed");
+			}
+		}
+	}
+
 	public boolean takePicture(int itemId){
 		//		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
 		//		startActivityForResult(intent,CAMERA);
@@ -514,50 +577,73 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private File createTemporaryFile(String part, String ext) throws Exception
 	{
 		File tempDir;
+		String createDirectory;
+
 		boolean createDirStatus;
+
 		if (Utility.isExternalStorageReadOnly()) {
+
 			DebugLog.d("external storage is read only");
-		}
-		if (Utility.isExternalStorageAvailable()) {
-			DebugLog.d("external storage available");
-			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-			if (!tempDir.exists()) {
-				DebugLog.d("using legacy path");
-				tempDir = new File( "/storage/emulated/legacy/" + Environment.DIRECTORY_DCIM + "/Camera/");
-			}
+			Crashlytics.log("storage is read only");
 
+			MyApplication.getInstance().toast("Storage is read-only. Make sure it is writeble", Toast.LENGTH_LONG);
+
+			return null;
 		} else {
-			DebugLog.d("external storage not available");
-			tempDir = new File(getFilesDir()+"/Camera/");
-		}
-		tempDir = new File(tempDir.getAbsolutePath() + "/TowerInspection"); // create temp folder
-		if (!tempDir.exists()) {
-			createDirStatus = tempDir.mkdir();
-			if (!createDirStatus) {
-				createDirStatus = tempDir.mkdirs();
-				if (!createDirStatus) {
-					DebugLog.e("fail to create dir");
-					Crashlytics.log("fail to create dir");
-				} else {
-					DebugLog.d("create dir success");
+
+			if (Utility.isExternalStorageAvailable()) {
+
+				DebugLog.d("external storage available");
+				tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+				if (!tempDir.exists()) {
+					DebugLog.d("using legacy path");
+					tempDir = new File( "/storage/emulated/legacy/" + Environment.DIRECTORY_DCIM + "/Camera/");
 				}
+
+				createDirectory = tempDir.getAbsolutePath() + "/TowerInspection";
+				tempDir = new File(createDirectory); // create temp folder
+
+				if (!tempDir.exists()) {
+					createDirStatus = tempDir.mkdir();
+					if (!createDirStatus) {
+						createDirStatus = tempDir.mkdirs();
+						if (!createDirStatus) {
+							DebugLog.e("failed to create dir : " + createDirectory);
+							Crashlytics.log("fail to create dir : " + createDirectory);
+						} else {
+							DebugLog.d("create dir success");
+						}
+					}
+				}
+
+				createDirectory = tempDir.getAbsolutePath() + "/" + schedule.id + "/";
+				tempDir = new File(createDirectory); // create schedule folder
+
+				if (!tempDir.exists()) {
+					createDirStatus = tempDir.mkdir();
+					if (!createDirStatus) {
+						createDirStatus = tempDir.mkdirs();
+						if (!createDirStatus) {
+							DebugLog.e("failed to create dir : " + createDirectory);
+							Crashlytics.log("failed to create dir : " + createDirectory);
+						} else {
+							DebugLog.d("create dir success");
+						}
+					}
+				}
+
+				DebugLog.d("tempDir path : " + tempDir.getAbsolutePath());
+				return File.createTempFile(part, ext, tempDir);
+
+			} else {
+
+				Crashlytics.log("storage is not available");
+				MyApplication.getInstance().toast("Storage is not available", Toast.LENGTH_LONG);
+				return null;
 			}
+
 		}
 
-		tempDir = new File(tempDir.getAbsolutePath() + "/" + schedule.id + "/"); // create schedule folder
-		if (!tempDir.exists()) {
-			createDirStatus = tempDir.mkdir();
-			if (!createDirStatus) {
-				createDirStatus = tempDir.mkdirs();
-				if (!createDirStatus) {
-					DebugLog.e("fail to create dir");
-				} else {
-					DebugLog.d("create dir success");
-				}
-			}
-		}
-		DebugLog.d("tempDir path : " + tempDir.getAbsolutePath());
-		return File.createTempFile(part, ext, tempDir);
 	}
 
 	//called after camera intent finished
@@ -792,6 +878,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			String ancestry = null;
 			DebugLog.d("looping row childrens : ");
 			DebugLog.d("\n\n========================= children size : " + rowModel.children.size());
+
 			for (RowModel model : rowModel.children) {
 				x++;
 				DebugLog.d("\nchildren ke-" + x);

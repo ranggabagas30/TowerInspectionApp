@@ -92,4 +92,10 @@ public class Constants {
 	public static final String regexChecklist = "(.*)CHECKLIST(.*)";
 	public static final String regexSiteInformation = "(.*)SITE INFORMATION(.*)";
 	public static final String regexPREVENTIVE = "(.*)PREVENTIVE(.*)";
+
+	/**
+	 * ============================= REQUEST CODE =================================================
+	 * */
+
+	public static final int RC_STORAGE_PERMISSION = 1;
 } 
