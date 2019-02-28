@@ -1,12 +1,15 @@
 package com.sap.inspection;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -16,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -39,15 +43,20 @@ import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.PermissionUtil;
 import com.slidinglayer.SlidingLayer;
 import com.slidinglayer.util.CommonUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class MainActivity extends BaseActivity{
+public class MainActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
 
 	private SlidingLayer mSlidingLayer;
 	public static final int REQUEST_CODE = 100;
@@ -76,7 +85,13 @@ public class MainActivity extends BaseActivity{
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setCancelable(false);
 
-		if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false)) {
+		boolean isLoadSchedule   = getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false);
+		boolean isLoadAfterLogin = getIntent().getBooleanExtra(Constants.LOADAFTERLOGIN,false);
+
+		DebugLog.d("Constants.LOADSCHEDULE : " + isLoadSchedule);
+		DebugLog.d("Constants.LOADAFTERLOGIN : " + isLoadAfterLogin);
+
+		if (isLoadSchedule) {
 			progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 			APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
 			try {
@@ -84,8 +99,9 @@ public class MainActivity extends BaseActivity{
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			//checkAPKVersion();
 		}
-		else if (getIntent().getBooleanExtra(Constants.LOADAFTERLOGIN,false)) {
+		else if (isLoadAfterLogin) {
 			if (GlobalVar.getInstance().anyNetwork(activity)) {
 				//DbRepository.getInstance().open(activity);
 				try {
@@ -93,11 +109,24 @@ public class MainActivity extends BaseActivity{
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				checkAPKVersion();
+				//checkAPKVersion();
 			} else
 				setFlagScheduleSaved(true);
 		}
 
+        /**
+         * added by : Rangga
+         * date : 26/02/2019
+         * reason : every time application is started, should check app's latest version
+         *          in order to make sure that using only the latest version
+         * */
+        checkAPKVersion();
+		/*if (!MyApplication.getInstance().getCHECK_APP_VERSION_STATE()) {
+
+			checkAPKVersion();
+			MyApplication.getInstance().setCHECK_APP_VERSION_STATE(false);
+
+		}*/
 		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
 		LayoutParams rlp = (LayoutParams) mSlidingLayer.getLayoutParams();
@@ -295,10 +324,6 @@ public class MainActivity extends BaseActivity{
 		//			progressDialog.setMessage(message);
 	}
 
-	protected void onActivityResult(int requestCode, int resultCode, Intent data){
-		super.onActivityResult(requestCode, resultCode, data);
-	}
-
 	//	public void setFlagFormSaved(boolean flagFormSaved) {
 	//		this.flagFormSaved = flagFormSaved;
 	//		progressDialog.setMessage("Get schedules from server");
@@ -402,6 +427,12 @@ public class MainActivity extends BaseActivity{
 			//			setFlagFormSaved(true);
 			progressDialog.setMessage(getString(R.string.getScheduleFromServer));
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+
+			if (!MyApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+
+				requestReadPhoneStatePermission();
+
+			}
 		}
 	}
 
@@ -468,17 +499,26 @@ public class MainActivity extends BaseActivity{
 				if (CommonUtils.isUpdateAvailable(getApplicationContext())) {
 					//String update STP version
 					Toast.makeText(activity, getString(R.string.newUpdateSTPapplication), Toast.LENGTH_LONG).show();
+					startActivity(new Intent(MainActivity.this, SettingActivity.class));
+				} else {
+
+					// lakukan cek dan unduh form ketka belum update apk
+					progressDialog.dismiss();
+					checkFormVersion();
 				}
 			}else{
 				Toast.makeText(activity, getString(R.string.memriksaUpdateGagal), Toast.LENGTH_LONG).show();
 			}
-			checkFormVersion();
+			// jangan lakukan cek dan unduh form ketika belum update apk
+			//checkFormVersion();
 			//checkFormVersionOffline();
 		};
 	};
 
 	private void checkFormVersion(){
-		progressDialog.setMessage(getString(R.string.checkversionapplication));
+		progressDialog.show();
+		progressDialog.setMessage(getString(R.string.checkfromversion));
+		DebugLog.d("check form version");
 		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
 	}
 	
@@ -533,4 +573,92 @@ public class MainActivity extends BaseActivity{
 		progressDialog.dismiss();
 	}
 
+	@AfterPermissionGranted(Constants.RC_READ_PHONE_STATE)
+	private void requestReadPhoneStatePermission() {
+
+		DebugLog.d("request read phone state permisson");
+		if (PermissionUtil.hasPermission(this, PermissionUtil.READ_PHONE_STATE_PERMISSION)) {
+
+			// Already has permission, do the thing
+			DebugLog.d("Already have permission, do the thing");
+			setFCMTokenRegistration();
+
+		} else {
+
+			// Do not have permissions, request them now
+			DebugLog.d("Do not have permissions, request them now");
+			PermissionUtil.requestPermission(this, getString(R.string.rationale_readphonestate), Constants.RC_READ_PHONE_STATE, PermissionUtil.READ_PHONE_STATE_PERMISSION);
+		}
+	}
+
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		DebugLog.d("request permission result");
+
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+		if (requestCode == Constants.RC_READ_PHONE_STATE) {
+
+			if (PermissionUtil.hasPermission(this, PermissionUtil.READ_PHONE_STATE_PERMISSION)) {
+
+				DebugLog.d("read phone state allowed, start sending FCM token");
+				setFCMTokenRegistration();
+			}
+		}
+	}
+
+	@Override
+	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+		DebugLog.d("permission granted");
+
+		for (String permission : perms) {
+
+			if (permission.equalsIgnoreCase(Manifest.permission.READ_PHONE_STATE)) {
+				// read phone state allowed, i.e. read IMEI
+
+				DebugLog.d("read phone state allowed, start sending FCM token");
+				setFCMTokenRegistration();
+			}
+		}
+	}
+
+	@Override
+	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+		DebugLog.d("onPermissionsDenied:" + requestCode + ":" + perms.size());
+
+		// (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
+		// This will display a dialog directing them to enable the permission in app settings.
+		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+			new AppSettingsDialog.Builder(this).build().show();
+		}
+	}
+
+	private void setFCMTokenRegistration() {
+
+		String FCMRegToken = com.sap.inspection.util.PrefUtil.getStringPref(R.string.app_fcm_reg_id, "");
+		String AccessToken = APIHelper.getAccessToken(this);
+
+		if (!AccessToken.isEmpty()) {
+
+			if (!FCMRegToken.equalsIgnoreCase("")) {
+
+				MyApplication.sendRegIdtoServer(FCMRegToken);
+				MyApplication.getInstance().setDEVICE_REGISTER_STATE(false);
+
+			} else {
+
+				DebugLog.e("FCM TOKEN is empty");
+				Crashlytics.log("FCM TOKEN is empty");
+			}
+
+		} else {
+
+			DebugLog.e("ACCESS TOKEN is empty, unable to send FCM TOKEN to server");
+			Crashlytics.log("ACCESS TOKEN is empty, unable to send FCM TOKEN to server");
+
+		}
+
+	}
 }

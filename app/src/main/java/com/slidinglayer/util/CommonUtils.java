@@ -102,7 +102,7 @@ public class CommonUtils {
         ContextWrapper contextWrapper = (ContextWrapper)context;
         try {
             String versionApp = context.getPackageManager().getPackageInfo(contextWrapper.getPackageName(), 0).versionName;
-            DebugLog.d("versionPref="+versionPref+" versionApp="+versionApp);
+            DebugLog.d("(latest version) versionPref="+versionPref+" versionApp="+versionApp);
             if (!versionPref.isEmpty()) {
                 versionPref = versionPref.replace(".","");
                 int versionPrefInt = Integer.parseInt(versionPref);

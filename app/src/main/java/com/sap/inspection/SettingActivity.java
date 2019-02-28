@@ -10,17 +10,23 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.stetho.common.Util;
 import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.task.DownloadFileFromURL;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.event.DeleteAllScheduleEvent;
@@ -40,7 +46,6 @@ import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.VersionModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
@@ -48,6 +53,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormInputText;
 import com.slidinglayer.util.CommonUtils;
@@ -61,10 +67,13 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class SettingActivity extends BaseActivity implements UploadListener {
+public class SettingActivity extends BaseActivity implements UploadListener, EasyPermissions.PermissionCallbacks {
 
     Button settextmark;
     Button setlinespace;
@@ -94,6 +103,11 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     // File url to download
 
     private static String file_url;
+
+    private boolean isAccessStorageAllowed = false;
+    private boolean isReadStorageAllowed = false;
+    private boolean isWriteStorageAllowed = false;
+    private boolean isUpdateAvailable = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -157,11 +171,14 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             //tidak ada new Update
             update.setText(getString(R.string.noNewUpdateAvail));
             update.setBackgroundResource(R.drawable.selector_button_gray_small_padding);
+
             //updateStatus.setText("No New Update");
         } else {
-            update.setVisibility(View.VISIBLE);
             //new update available
+            update.setVisibility(View.VISIBLE);
             updateStatus.setText(getString(R.string.newUpdateAvail));
+
+            isUpdateAvailable = true;
         }
 
         upload = (Button) findViewById(R.id.uploadData);
@@ -215,6 +232,35 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         findViewById(R.id.setting_logout).setOnClickListener(logoutClickListener);
         //setting (check ulang)
         trackThisPage("Setting");
+    }
+
+    /*@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == Constants.RC_INSTALL_APK) {
+
+            if (resultCode == RESULT_OK) {
+
+                DebugLog.d("installation is successful");
+            } else {
+                DebugLog.d("installation is failed");
+                new DownloadFileFromURL().execute(file_url);
+            }
+        }
+    }*/
+
+    @Override
+    public void onBackPressed() {
+
+        if (!isUpdateAvailable)
+            super.onBackPressed();
+        else {
+
+            if (Utility.getNewAPKpath(this) == null)
+                Toast.makeText(this, "Mohon untuk klik \"Update\" untuk menggunakan aplikasi terbaru", Toast.LENGTH_LONG).show();
+            else
+                Toast.makeText(this, "Silahkan klik tombol \"Memasang\" untuk menginstall aplikasi terbaru", Toast.LENGTH_LONG).show();
+        }
     }
 
     OnClickListener setTextMarkClickListener = new OnClickListener() {
@@ -281,7 +327,20 @@ public class SettingActivity extends BaseActivity implements UploadListener {
             trackEvent("user_update_apk");
             //Chek if the file already downloaded before
             //			if(!tempFile.exists()){
-            new DownloadFileFromURL().execute(file_url);
+
+            //new DownloadFileFromURL().execute(file_url);
+
+            requestStoragePermission(); // check storage permission first
+            /*
+            if (Utility.getNewAPKpath(SettingActivity.this) == null)
+                requestStoragePermission(); // check storage permission first
+            else {
+                Utility.installAPK(activity, SettingActivity.this);
+            }*/
+
+            /*DownloadFileFromURL downloadFileFromURL = new DownloadFileFromURL(SettingActivity.this.activity, SettingActivity.this);
+            downloadFileFromURL.execute(file_url);*/
+
             //			}
             //			else{
             //				Intent intent = new Intent(Intent.ACTION_VIEW)
@@ -560,7 +619,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
     /**
      * Background Async Task to download file
      */
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
+    class DownloadFileFromURL extends AsyncTask<String, String, Boolean> {
 
         /**
          * Before starting background thread
@@ -576,7 +635,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
          * Downloading file in background thread
          */
         @Override
-        protected String doInBackground(String... f_url) {
+        protected Boolean doInBackground(String... f_url) {
             int count;
             try {
                 URL url = new URL(f_url[0]);
@@ -597,6 +656,7 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                     DebugLog.d("external storage not available");
                     tempDir = getFilesDir();
                 }
+
                 DebugLog.d("asign temp dir");
                 tempDir = new File(tempDir.getAbsolutePath() + "/Download");
                 DebugLog.d("get tempratur dir");
@@ -627,15 +687,16 @@ public class SettingActivity extends BaseActivity implements UploadListener {
                 // closing streams
                 output.close();
                 input.close();
+                return true;
 
             } catch (Exception e) {
                 DebugLog.e(e.getMessage());
             }
 
-            return null;
+            return false;
         }
 
-        /**
+       /**
          * Updating progress bar
          */
         protected void onProgressUpdate(String... progress) {
@@ -649,29 +710,16 @@ public class SettingActivity extends BaseActivity implements UploadListener {
          **/
 
         @Override
-        protected void onPostExecute(String file_url) {
+        protected void onPostExecute(Boolean isSuccessful) {
             dismissDialog(progress_bar_type);
 
-            File tempFile;
-            if (Utility.isExternalStorageAvailable()) {
-                DebugLog.d("external storage available");
-                tempFile = Environment.getExternalStorageDirectory();
+            if (!isSuccessful) {
+                Toast.makeText(SettingActivity.this, "Gagal mengunduh APK terbaru. Periksa jaringan Anda", Toast.LENGTH_LONG).show();
             } else {
-                DebugLog.d("external storage not available");
-                tempFile = getFilesDir();
-            }
-            tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
-            if (tempFile.exists()) {
-                Intent intent = new Intent(Intent.ACTION_VIEW)
-                        .setDataAndType(Uri.fromFile(tempFile), "application/vnd.android.package-archive");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            } else {
-                MyApplication.getInstance().toast(getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
-                finish();
-            }
 
-
+                // just install the new APK
+                Utility.installAPK(activity, SettingActivity.this);
+            }
         }
     }
 
@@ -845,5 +893,110 @@ public class SettingActivity extends BaseActivity implements UploadListener {
         Intent i = new Intent(SettingActivity.this, LoginActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(i);
+    }
+
+    /**
+     * Permission
+     *
+     **/
+    @AfterPermissionGranted(Constants.RC_STORAGE_PERMISSION)
+    private void requestStoragePermission() {
+
+        String[] perms = new String[]{PermissionUtil.READ_EXTERNAL_STORAGE, PermissionUtil.WRITE_EXTERNAL_STORAGE};
+        if (PermissionUtil.hasPermission(this, perms)) {
+
+            // Already has permission
+            DebugLog.d("Already have permission, do the thing");
+            updateAPK();
+            /*// just install the new APK
+            Utility.installAPK(activity, this);*/
+
+        } else {
+
+            // Do not have permissions, request them now
+            DebugLog.d("Do not have permissions, request them now");
+            PermissionUtil.requestPermission(this, getString(R.string.rationale_externalstorage), Constants.RC_STORAGE_PERMISSION, perms);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        DebugLog.d("request permission result");
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        for (String permission : permissions) {
+
+            if (permission.equalsIgnoreCase(PermissionUtil.READ_EXTERNAL_STORAGE)) {
+
+                // read external storage allowed
+                if (PermissionUtil.hasPermission(this, PermissionUtil.READ_EXTERNAL_STORAGE)) {
+
+                    DebugLog.d("read external storage allowed");
+                    isReadStorageAllowed = true;
+                }
+
+            }
+
+            if (permission.equalsIgnoreCase(PermissionUtil.WRITE_EXTERNAL_STORAGE)) {
+
+                // write external storage allowed
+                if (PermissionUtil.hasPermission(this, PermissionUtil.WRITE_EXTERNAL_STORAGE)) {
+
+                    DebugLog.d("write external storage allowed");
+                    isWriteStorageAllowed = true;
+                }
+            }
+        }
+
+        isAccessStorageAllowed = isReadStorageAllowed & isWriteStorageAllowed;
+
+        if (isAccessStorageAllowed) {
+
+            updateAPK();
+
+            /*// just install the new APK
+            Utility.installAPK(activity, this);*/
+
+        } else {
+
+            Toast.makeText(this, "Gagal mengunduh APK karena tidak ada izin akses storage", Toast.LENGTH_LONG).show();
+
+        }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+
+        DebugLog.d("permission granted");
+        DebugLog.d("request code : " + requestCode);
+
+        for (String permission : perms) {
+
+            DebugLog.d(permission);
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+
+        DebugLog.d("permission denied");
+        DebugLog.d("request code : " + requestCode);
+
+        if (requestCode == Constants.RC_STORAGE_PERMISSION) {
+
+            Toast.makeText(this, "Gagal mengunduh SAP Mobile App versi terbaru", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    private void updateAPK() {
+
+        if (GlobalVar.getInstance().isNetworkOnline(this)) {
+            new DownloadFileFromURL().execute(file_url);
+        } else {
+            Toast.makeText(this, getString(R.string.disconnected), Toast.LENGTH_LONG).show();
+        }
     }
 }

@@ -3,13 +3,18 @@ package com.sap.inspection.util;// Created by Arif Ariyan (me@arifariyan.com) on
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -17,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
@@ -294,5 +300,46 @@ public class Utility {
                 "/storage/microsd",                  //ASUS ZenFone 2
                 "/storage/MicroSD"                  // ASUS ZenFone 5
         };
+    }
+
+    public static String getIMEI(Context context) {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+
+        String imei = telephonyManager.getDeviceId();
+        DebugLog.d("imei : " + imei);
+        return imei;
+    }
+
+    public static void installAPK(Activity activity, Context context) {
+
+        File tempFile = getNewAPKpath(context);
+        if (tempFile.exists()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(Uri.fromFile(tempFile), "application/vnd.android.package-archive");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivityForResult(intent, Constants.RC_INSTALL_APK);
+        } else {
+            MyApplication.getInstance().toast(context.getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
+            activity.finish();
+        }
+    }
+
+    public static File getNewAPKpath(Context context) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        File tempFile;
+        if (Utility.isExternalStorageAvailable()) {
+            DebugLog.d("external storage available");
+            tempFile = Environment.getExternalStorageDirectory();
+        } else {
+            DebugLog.d("external storage not available");
+            tempFile = context.getFilesDir();
+        }
+        tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(context.getString(R.string.latest_version), "") + ".apk");
+        if (tempFile.exists()) {
+            return tempFile;
+        }
+
+        return null;
     }
 }

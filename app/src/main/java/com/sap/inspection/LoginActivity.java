@@ -1,5 +1,6 @@
 package com.sap.inspection;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +18,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -27,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.AppConfig;
 import com.rindang.zconfig.ProdConfig;
@@ -46,6 +49,7 @@ import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.Utility;
 import com.slidinglayer.util.CommonUtils;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
@@ -63,6 +67,12 @@ import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 public class LoginActivity extends BaseActivity {
 
@@ -281,22 +291,15 @@ public class LoginActivity extends BaseActivity {
 		endpoint.setText(AppConfig.getInstance().config.getHost());
 		change = (Button) findViewById(R.id.change);
 		change.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
-		change.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
-				AppConfig.getInstance().config.setHost(endpoint.getText().toString());
-			}
+		change.setOnClickListener(v -> {
+			Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
+			AppConfig.getInstance().config.setHost(endpoint.getText().toString());
 		});
 		copy = (Button) findViewById(R.id.copy);
 		copy.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
-		copy.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				copyDB(getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
-				copyDB(getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
-			}
+		copy.setOnClickListener(v -> {
+			copyDB(getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
+			copyDB(getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
 		});
 
 		if (isJump){
@@ -488,8 +491,6 @@ public class LoginActivity extends BaseActivity {
 
 	private void checkLoginState(boolean canLogin){
 		if (canLogin){
-			/*RegisterGCM register = new RegisterGCM(new Handler());
-			register.execute();*/
 			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 			intent.putExtra(Constants.LOADAFTERLOGIN,true);
 			startActivityForResult(intent, Constants.DEFAULT_REQUEST_CODE);
@@ -695,5 +696,4 @@ public class LoginActivity extends BaseActivity {
 		}
 		return version;
 	}
-
 }

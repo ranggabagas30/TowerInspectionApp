@@ -52,6 +52,9 @@ public class MyApplication extends Application {
 	private HashMap< String, AbstractMap.SimpleEntry<String, String> > hashMapSiteLocation;
 	private boolean IN_CHECK_HASIL_PM;
 	private boolean SCHEDULE_NEED_CHECK_IN;
+	private boolean CHECK_APP_VERSION_STATE;
+	private boolean DEVICE_REGISTER_STATE;
+
 	public CheckinDataModel checkinDataModel;
 
 	public MyApplication() {
@@ -188,9 +191,6 @@ public class MyApplication extends Application {
 					DebugLog.d("FIREBASE INSTANCE ID ; " + instanceIdResult.getId());
 					DebugLog.d("FIREBASE TOKEN : " + instanceIdResult.getToken());
 
-					storeRegIdInpref(instanceIdResult.getToken());
-					sendRegIdtoServer(instanceIdResult.getToken());
-
 				}).addOnFailureListener(Throwable::printStackTrace);
 
 
@@ -207,6 +207,8 @@ public class MyApplication extends Application {
 
 		IN_CHECK_HASIL_PM = false;
 		SCHEDULE_NEED_CHECK_IN = false;
+		CHECK_APP_VERSION_STATE = false;
+		DEVICE_REGISTER_STATE = false;
 		checkinDataModel = new CheckinDataModel();
 	}
 
@@ -240,17 +242,17 @@ public class MyApplication extends Application {
         return mFirebaseAnalytics;
     }
 
-	private void storeRegIdInpref(String token) {
-		PrefUtil.putStringPref(R.string.app_fcm_reg_id, token);
-	}
-
-	private void sendRegIdtoServer(String token) {
+	public static void sendRegIdtoServer(String token) {
 		try {
 			if (!PrefUtil.getStringPref(R.string.user_authToken, "").equalsIgnoreCase("")){
+
+				DebugLog.d("send FCM TOKEN to server : " + token);
 				APIHelper.registerFCMToken(MyApplication.getInstance(), new Handler(),  token);
 			}
 		} catch (Exception e){
 			e.printStackTrace();
+			Crashlytics.log("FAILED to send FCM TOKEN to server");
+			DebugLog.e("FAILED to send FCM TOKEN to server");
 			DebugLog.e("ERROR : " + e.getMessage());
 		}
 	}
@@ -270,4 +272,21 @@ public class MyApplication extends Application {
 	public void setIsScheduleNeedCheckIn(boolean isScheduleNeedCheckIn) {
 		SCHEDULE_NEED_CHECK_IN = isScheduleNeedCheckIn;
 	}
+
+	public boolean getCHECK_APP_VERSION_STATE() {
+		return CHECK_APP_VERSION_STATE;
+	}
+
+	public void setCHECK_APP_VERSION_STATE(boolean CHECK_APP_VERSION_STATE) {
+		this.CHECK_APP_VERSION_STATE = CHECK_APP_VERSION_STATE;
+	}
+
+	public boolean getDEVICE_REGISTER_STATE() {
+		return DEVICE_REGISTER_STATE;
+	}
+
+	public void setDEVICE_REGISTER_STATE(boolean DEVICE_REGISTER_STATE) {
+		this.DEVICE_REGISTER_STATE = DEVICE_REGISTER_STATE;
+	}
+
 }

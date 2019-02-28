@@ -230,7 +230,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
         mIsLocationRetrieved = false;
 
-        if (!Utility.checkNetworkStatus(this) || !Utility.checkNetworkStatus(this)) {
+        if (!Utility.checkNetworkStatus(this) || !Utility.checkGpsStatus(this)) {
             mLocationRequestProvider.showGPSDialog();
         }
     }

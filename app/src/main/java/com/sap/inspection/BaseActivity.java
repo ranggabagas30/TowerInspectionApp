@@ -168,4 +168,6 @@ public abstract class BaseActivity extends FragmentActivity{
 		FirebaseAnalytics mFirebaseAnalytics = myApplication.getDefaultAnalytics();
 		mFirebaseAnalytics.logEvent("track_event", bundle);
 	}
+
+
 }

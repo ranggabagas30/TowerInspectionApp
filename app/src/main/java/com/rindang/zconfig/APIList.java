@@ -7,7 +7,7 @@ public class APIList {
 		return AppConfig.getInstance().getV1()+"/login";
 	}
 	
-	public static String gcmTokenRegeisterUrl(){
+	public static String fcmTokenRegeisterUrl(){
 		return AppConfig.getInstance().getV1()+"/device/register";
 	}
 	

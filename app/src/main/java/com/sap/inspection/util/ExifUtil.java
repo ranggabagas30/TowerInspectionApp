@@ -1,8 +1,10 @@
-package com.sap.inspection.tools;
+package com.sap.inspection.util;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+
+import com.sap.inspection.tools.DebugLog;
 
 import java.io.IOException;
 
