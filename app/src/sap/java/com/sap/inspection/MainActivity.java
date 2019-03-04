@@ -520,10 +520,10 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		public void handleMessage(android.os.Message msg) {
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				initForm(msg.getData().getString("json"));
-			}else{
+			} else {
 				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
 			}
-		};
+		}
 	};
 
 	public void hideDialog() {
