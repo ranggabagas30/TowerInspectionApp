@@ -181,7 +181,7 @@ public class ItemUploadManager {
                 notJson = false;
 
                 /** upload Photo **/
-                response = uploadPhoto(itemValues.get(0));
+                response = uploadItem2(itemValues.get(0));
                 DebugLog.d("response=" + response);
 
                 if (response != null) {
@@ -307,7 +307,7 @@ public class ItemUploadManager {
             return params;
         }
 
-        private String uploadPhoto(ItemValueModel itemValue) {
+        private String uploadItem2(ItemValueModel itemValue) {
             try {
                 DebugLog.d("===== START UPLOADING PHOTO === \n");
                 DebugLog.d("** set params ** ");
@@ -366,16 +366,29 @@ public class ItemUploadManager {
                 data = response.getEntity().getContent();
                 DebugLog.d("** response ** ");
                 DebugLog.d("response string data : " + data);
+
                 statusCode = response.getStatusLine().getStatusCode();
                 DebugLog.d("response string status code : " + statusCode);
+
                 String stringResponse = ConvertInputStreamToString(data);
                 DebugLog.d("json /n" + stringResponse);
+
                 if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
+                //if (true) { // debug purpose only
                     DebugLog.d("not json type");
                     notJson = true;
-                    if (statusCode == 404) {
+
+                    if (statusCode == 422 ||
+                        statusCode == 403 ||
+                        statusCode == 404 ||
+                        statusCode == 405) {
+
+                        Crashlytics.log(Log.ERROR, "uploadItem2", "Not json type with code : " + statusCode + " and string response : " + stringResponse);
+                        MyApplication.getInstance().toast("Not json type with code : " + statusCode  + " and string response : " + stringResponse, Toast.LENGTH_LONG);
                         return stringResponse;
                     } else {
+                        Crashlytics.log(Log.ERROR, "uploadItem2", "Not json type with string response : " + stringResponse);
+                        MyApplication.getInstance().toast("Not json type with string response : " + stringResponse, Toast.LENGTH_LONG);
                         return null;
                     }
                 }
@@ -384,26 +397,26 @@ public class ItemUploadManager {
             } catch (SocketTimeoutException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "STATUSCODE : " + statusCode + "SE " + "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "SE Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "SE " + "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
+                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "SE Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_LONG);
                 return null;
             } catch(ClientProtocolException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "STATUSCODE : " + statusCode + "CPE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "CPE " + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "CPE " + e.getMessage());
+                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "CPE " + e.getMessage(), Toast.LENGTH_LONG);
                 return null;
             } catch (IOException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "STATUSCODE : " + statusCode + "IOE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "IOE " + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "IOE " + e.getMessage());
+                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "IOE " + e.getMessage(), Toast.LENGTH_LONG);
                 return null;
             } catch (NullPointerException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadphoto", "STATUSCODE : " + statusCode + "NPE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "NPE " + e.getMessage(), Toast.LENGTH_SHORT);
+                Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "NPE " + e.getMessage());
+                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "NPE " + e.getMessage(), Toast.LENGTH_LONG);
                 return null;
             }
 

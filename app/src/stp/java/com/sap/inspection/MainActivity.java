@@ -496,6 +496,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					e.printStackTrace();
 				}
 //				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) /*&& !getPreference(R.string.url_update, "").equalsIgnoreCase("")*/){
+
 				if (CommonUtils.isUpdateAvailable(getApplicationContext())) {
 					//String update STP version
 					Toast.makeText(activity, getString(R.string.newUpdateSTPapplication), Toast.LENGTH_LONG).show();
@@ -506,6 +507,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					progressDialog.dismiss();
 					checkFormVersion();
 				}
+
 			}else{
 				Toast.makeText(activity, getString(R.string.memriksaUpdateGagal), Toast.LENGTH_LONG).show();
 			}

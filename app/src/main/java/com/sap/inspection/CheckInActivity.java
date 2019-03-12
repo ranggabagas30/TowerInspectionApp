@@ -14,6 +14,7 @@ import android.os.Debug;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.LocationRequestProvider;
+import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormInputText;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
@@ -68,7 +70,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
+import java.security.Permission;
 import java.util.ArrayList;
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class CheckInActivity extends BaseActivity implements LocationRequestProvider.LocationCallback{
 
@@ -221,7 +227,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     @Override
     protected void onStart() {
         super.onStart();
-        initLocationServices();
+        requestLocationPermission();
+        //initLocationServices();
     }
 
     @Override
@@ -715,5 +722,40 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
         DebugLog.d("metrics out width  : " + mMetrics.widthPixels);
         DebugLog.d("metrics out height : " + mMetrics.heightPixels);
+    }
+
+    @AfterPermissionGranted(Constants.RC_LOCATION_PERMISSION)
+    private void requestLocationPermission() {
+
+        DebugLog.d("request access location permission");
+        if (PermissionUtil.hasPermission(this, PermissionUtil.ACCESS_FINE_LOCATION)) {
+
+            // Already has permission, do the thing
+            DebugLog.d("Already have permission, do the thing");
+            initLocationServices();
+
+        } else {
+
+            // Do not have permissions, request them now
+            DebugLog.d("Do not have permissions, request them now");
+            PermissionUtil.requestPermission(this, getString(R.string.rationale_requestlocation), Constants.RC_LOCATION_PERMISSION, PermissionUtil.ACCESS_FINE_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        DebugLog.d("request permission result");
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == Constants.RC_LOCATION_PERMISSION) {
+
+            if (PermissionUtil.hasPermission(this, PermissionUtil.ACCESS_FINE_LOCATION)) {
+
+                DebugLog.d("access fine location allowed, start request location");
+                initLocationServices();
+            }
+        }
     }
 }

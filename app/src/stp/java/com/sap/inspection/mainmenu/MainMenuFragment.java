@@ -6,15 +6,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.fragments.BaseTitleFragment;
 import com.sap.inspection.mainmenu.fragmentadapter.MainMenuFragmentAdapter;
 
 import java.util.ArrayList;
 
+/**
+ * STP MainMenuFragment
+ * */
 public class MainMenuFragment extends BaseTitleFragment {
 
 	private ArrayList<Integer> titles;
+
 	private ArrayList<Integer> icons;
 
 	private OnClickListener mainMenuClickListener;
@@ -51,6 +56,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 
 	private ArrayList<Integer> getIcons(){
 		if (this.icons == null){
+
 			int[] icons = {
 					R.drawable.ic_schedule,
 					R.drawable.ic_preventive,
@@ -58,6 +64,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.drawable.ic_settings,
 					R.drawable.fofo,
 					R.drawable.ic_hasilpm
+					//R.drawable.ic_check2 // dummy menu Foto Imbas Petir
 			};
 			this.icons = getArrayList(icons);
 		}
@@ -73,6 +80,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.string.settings,
 					R.string.fiber_optic,
 					R.string.hasil_PM
+					//R.string.foto_imbas_petir, // title menu Foto Imbas Petir
 			};
 			this.titles = getArrayList(titles);
 		}

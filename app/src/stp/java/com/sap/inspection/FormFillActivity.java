@@ -144,46 +144,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				.addConnectionCallbacks(connectionCallbacks)
 				.addOnConnectionFailedListener(onConnectionFailedListener)
 				.build();
-/*
-		locationListener = new LocationListener() {
 
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onProviderEnabled(String provider) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onProviderDisabled(String provider) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onLocationChanged(Location location) {
-				// TODO Update the Latitude and Longitude of the location
-				accuracy = initiateLocation();
-				setCurrentGeoPoint(new LatLng(location.getLatitude(), location.getLongitude()));
-			}
-		};
-//
-		locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-//		locationManager.removeUpdates(locationListener);
-		//dummygeopoint
-//		currentGeoPoint = new GeoPoint(0, 0);
-		// initiate the location using GPS
-		setCurrentGeoPoint(new LatLng(0, 0));
-		accuracy = initiateLocation();
-		DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
-*/
 		setCurrentGeoPoint(new LatLng(0, 0));
 		setContentView(R.layout.activity_form_fill);
 
 		searchView = findViewById(R.id.layout_search);
-		list = (ListView) findViewById(R.id.list);
+		list = findViewById(R.id.list);
 		list.setOnItemSelectedListener(itemSelected);
 		list.setOnScrollListener(onScrollListener);
 		adapter = new FormFillAdapter(this);

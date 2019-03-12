@@ -125,5 +125,4 @@ public class LocationRequestProvider implements
         DebugLog.d("onLocationChanged : (" + location.getLatitude() + " , " + location.getLongitude() + ")");
         mLocationCallback.handleNewLocation(location);
     }
-
 }

@@ -17,10 +17,11 @@
     <string name="corrective">Corrective</string>
     <string name="newlocation">Lokasi Baru</string>
     <string name="colocation">CoLocation</string>
-    <string name="site_audit">Site Audit</string>
+    <string name="site_audit">Site Audit</string> <!-- SAP ONLY-->
     <string name="settings">Pengaturan</string>
     <string name="fiber_optic">Fiber Optic</string>
     <string name="hasil_PM">Hasil PM</string>
+    <string name="foto_imbas_petir">Foto Imbas Petir</string> <!-- STP ONLY-->
 
     <string name="app_reg_id">app_reg_id</string>
     <string name="app_fcm_reg_id">app_fcm_reg_id</string>
@@ -105,6 +106,7 @@
     <string name="pengaturan">Pengaturan</string>
     <string name="rationale_readphonestate">Mohon berikan izin agar bisa meregister device ke server</string>
     <string name="rationale_externalstorage">Mohon berikan izin agar bisa mengakses direktori</string>
+    <string name="rationale_requestlocation">Mohon berikn izin agar bisa mengakses lokasi</string>
 
     <!-- watermark -->
     <string name="textmarksizepotrait">text_mark_size_potrait</string>

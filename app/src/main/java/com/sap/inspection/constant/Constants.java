@@ -99,6 +99,7 @@ public class Constants {
 
 	public static final int RC_STORAGE_PERMISSION = 1;
 	public static final int RC_READ_PHONE_STATE = 2;
+	public static final int RC_LOCATION_PERMISSION = 3;
 
 	public static final int RC_INSTALL_APK = 101;
 } 

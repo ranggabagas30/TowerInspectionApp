@@ -14,6 +14,7 @@ import java.util.List;
 public class MainMenuFragmentAdapter extends BaseFragmentAdapter{
 	private ArrayList<Integer> iconRes;
 	private ArrayList<Integer> titleRes;
+
 	//perubahan irwan menambahkan SUM_ITEM_PER_PAGE menjadi 5 dari 4
 	private final int SUM_ITEM_PER_PAGE = 6;
 

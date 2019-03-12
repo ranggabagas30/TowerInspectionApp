@@ -134,8 +134,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		List<String> strings = new ArrayList<>();
 		for (int i = 0; i < this.shown.size(); i++) {
 			ItemFormRenderModel item = this.shown.get(i);
-			DebugLog.d("i="+i+" "+item.getLabel()+
-					" type="+item.type);
+			DebugLog.d("i="+i+" "+item.getLabel()+ " type="+item.type);
 			if (item.type==ItemFormRenderModel.TYPE_EXPAND)
 				strings.add(item.workItemModel.label);
 		}

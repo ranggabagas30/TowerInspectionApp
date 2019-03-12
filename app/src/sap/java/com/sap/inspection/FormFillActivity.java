@@ -1037,11 +1037,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		list.add(ItemFormRenderModel.TYPE_EXPAND);
 		adapter.notifyDataSetChanged();
 		if (adapter!=null && !adapter.isEmpty()) {
+			String mandatoryLabel = "";
 			boolean mandatoryFound = false;
 			DebugLog.d("adapter size "+adapter.getCount());
+
 			for (int i = 0; i < adapter.getCount(); i++) {
 
 				ItemFormRenderModel item = adapter.getItem(i);
+
 				DebugLog.d("count "+i);
 				if (item.workItemModel!=null) {
 					DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+
@@ -1064,12 +1067,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
 								if (!TextUtils.isEmpty(item.itemValue.photoStatus) && item.itemValue.photoStatus.equalsIgnoreCase("nok")) {
 									if (item.itemValue.remark == null) {
-										Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+										mandatoryLabel = item.workItemModel.label;
 										mandatoryFound = true;
 										break;
 									} else {
 										if (item.itemValue.remark.isEmpty()) {
-											Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+											mandatoryLabel = item.workItemModel.label;
 											mandatoryFound = true;
 											break;
 										}
@@ -1084,7 +1087,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
 								if (item.itemValue.value == null || item.itemValue.value.isEmpty()) {
-                                    Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+									mandatoryLabel = item.workItemModel.label;
 									mandatoryFound = true;
 									break;
 								}
@@ -1095,7 +1098,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
 						if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
 							if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
-								Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+								mandatoryLabel = item.workItemModel.label;
 								mandatoryFound = true;
 								break;
 							}
@@ -1105,11 +1108,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 			}
 
-
-
 			DebugLog.d("mandatoryFound="+mandatoryFound);
-			if (!mandatoryFound)
+
+			if (!BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
+
+				if (!mandatoryFound)
+					super.onBackPressed();
+				else {
+					Toast.makeText(activity, mandatoryLabel + " wajib diisi", Toast.LENGTH_SHORT).show();
+				}
+
+			} else {
 				super.onBackPressed();
+			}
 		} else
 			super.onBackPressed();
 	}

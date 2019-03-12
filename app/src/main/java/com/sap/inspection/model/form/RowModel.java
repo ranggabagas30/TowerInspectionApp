@@ -174,7 +174,7 @@ public class RowModel extends BaseModel {
 	}
 
 	public Vector<RowModel> getAllItemByWorkFormGroupId(int workFormGroupId) {
-		Vector<RowModel> result = new Vector<RowModel>();
+		Vector<RowModel> result;
 		//		maxLevel = getMaxLevel(workFormGroupId);
 		//		if (maxLevel == -1)
 		//			return result;
@@ -225,7 +225,6 @@ public class RowModel extends BaseModel {
 			where =DbManager.colWorkFormGroupId + "=? AND "+DbManager.colAncestry+"=?";
 			args = new String[] {String.valueOf(workFormGroupId),ancestry};
 		}
-		
 		else{
 			where =DbManager.colWorkFormGroupId + "=? AND "+DbManager.colAncestry+" IS NULL";
 			args = new String[] {String.valueOf(workFormGroupId)};
