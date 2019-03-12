@@ -100,6 +100,17 @@ public class FCMListenerService extends FirebaseMessagingService {
         PrefUtil.putStringPref(R.string.app_fcm_reg_id, token);
     }
 
+    private void sendRegIdtoServer(String token) {
+        try {
+            if (!PrefUtil.getStringPref(R.string.user_authToken, "").equalsIgnoreCase("")){
+                APIHelper.registerGCMToken(MyApplication.getInstance(), new Handler(),  token);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            DebugLog.e("ERROR : " + e.getMessage());
+        }
+    }
+
     private void handleNotification(Bundle bundleMessage) {
 
         Toast.makeText(getApplicationContext(), "message notification : " + bundleMessage.getString("message"), Toast.LENGTH_SHORT).show();
