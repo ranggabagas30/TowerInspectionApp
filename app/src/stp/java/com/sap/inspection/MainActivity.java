@@ -42,10 +42,10 @@ import com.sap.inspection.model.responsemodel.VersionModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.slidinglayer.SlidingLayer;
-import com.slidinglayer.util.CommonUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -481,7 +481,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	@SuppressLint("HandlerLeak")
 	private Handler apkHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
-			CommonUtils.fixVersion(getApplicationContext());
+			CommonUtil.fixVersion(getApplicationContext());
 			if (msg.getData() != null && msg.getData().getString("json") != null){
 				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
 				DebugLog.d("latest_version from server : " + model.version);
@@ -497,7 +497,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 				}
 //				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) /*&& !getPreference(R.string.url_update, "").equalsIgnoreCase("")*/){
 
-				if (CommonUtils.isUpdateAvailable(getApplicationContext())) {
+				if (CommonUtil.isUpdateAvailable(getApplicationContext())) {
 					//String update STP version
 					Toast.makeText(activity, getString(R.string.newUpdateSTPapplication), Toast.LENGTH_LONG).show();
 					startActivity(new Intent(MainActivity.this, SettingActivity.class));

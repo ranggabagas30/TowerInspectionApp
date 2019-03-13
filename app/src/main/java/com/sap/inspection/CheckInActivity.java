@@ -10,58 +10,42 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Debug;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.facebook.stetho.common.Util;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.connection.JSONConnection;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.model.CheckinDataModel;
-import com.sap.inspection.model.DbManager;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
-import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckinRepsonseModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
+import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.LocationRequestProvider;
 import com.sap.inspection.util.PermissionUtil;
-import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormInputText;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.Header;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -70,8 +54,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
-import java.security.Permission;
-import java.util.ArrayList;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -104,6 +86,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     /* variabel for doing post to server */
     int timeoutConnection =  1 * 3600 * 1000; // 1 HOUR
     int timeoutSocket = 1 * 3600 * 1000; // 1 HOUR
+
     HttpParams httpParameters;
     HttpClient client;
     HttpPost request;
@@ -237,7 +220,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
         mIsLocationRetrieved = false;
 
-        if (!Utility.checkNetworkStatus(this) || !Utility.checkGpsStatus(this)) {
+        if (!CommonUtil.checkNetworkStatus(this) || !CommonUtil.checkGpsStatus(this)) {
             mLocationRequestProvider.showGPSDialog();
         }
     }
@@ -308,13 +291,13 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     private boolean isLocationError() {
         if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
-            //return Utility.isCurrentLocationError(0.0, 0.0);
+            //return CommonUtil.isCurrentLocationError(0.0, 0.0);
             return false;
         } else {
-            return Utility.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
+            return CommonUtil.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
         }
 
-        //return Utility.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
+        //return CommonUtil.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
     }
 
     private boolean serverValidation() {
@@ -368,7 +351,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     private void keepCurrentLocationDataTobeUsed() {
         PersistentLocation.getInstance().deletePersistentLatLng();
-        Utility.setPersistentLocation(mExtraScheduleId, mCurrentLat.getText().toString(), mCurrentLong.getText().toString());
+        CommonUtil.setPersistentLocation(mExtraScheduleId, mCurrentLat.getText().toString(), mCurrentLong.getText().toString());
     }
 
     private void navigateToFormActivity() {
@@ -477,7 +460,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private String sendDataToSERVER() {
-        //MyApplication.getInstance().toast("SENDING DATA TO SERVER", Toast.LENGTH_LONG);
+
         try {
 
             /* request part */
@@ -516,8 +499,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
             if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
                 DebugLog.d("not json type");
-                boolean notJson;
-                notJson = true;
+
                 if (statusCode == 404) {
                     return s;
                 } else {
@@ -709,7 +691,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         DebugLog.d("start check GPS...");
 
         mRunnableCheckGPSHandler = () -> {
-            if (!Utility.checkNetworkStatus(CheckInActivity.this) || !Utility.checkNetworkStatus(CheckInActivity.this)) {
+            if (!CommonUtil.checkNetworkStatus(CheckInActivity.this) || !CommonUtil.checkNetworkStatus(CheckInActivity.this)) {
                 mLocationRequestProvider.showGPSDialog();
             }
         };

@@ -8,7 +8,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
@@ -41,11 +40,10 @@ import com.sap.inspection.model.responsemodel.VersionModel;
 import com.sap.inspection.task.DownloadFileFromURL;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.PermissionUtil;
-import com.sap.inspection.util.Utility;
+import com.sap.inspection.util.CommonUtil;
 import com.slidinglayer.SlidingLayer;
-import com.slidinglayer.util.CommonUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -436,7 +434,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 	private Handler apkHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
-			CommonUtils.fixVersion(getApplicationContext());
+			CommonUtil.fixVersion(getApplicationContext());
 			if (msg.getData() != null && msg.getData().getString("json") != null) {
 				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
 				writePreference(R.string.latest_version, model.version);
@@ -449,17 +447,19 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-//				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) /*&& !getPreference(R.string.url_update, "").equalsIgnoreCase("")*/){
-				if (CommonUtils.isUpdateAvailable(getApplicationContext())) {
+
+				//if (CommonUtil.isUpdateAvailable(getApplicationContext())) {
+				if (true) { // debug purpose only
 					//perubahan string
 					//Toast.makeText(activity, "Mengupdate SAP Mobile App ke versi " + model.version, Toast.LENGTH_LONG).show();
 					//requestStoragePermission(); // cek permission storage dulu agar bisa mengunduh file apk
 					Toast.makeText(activity, getString(R.string.thereisnewapllicationupdatefromsetting), Toast.LENGTH_LONG).show();
+					progressDialog.dismiss();
 					startActivity(new Intent(MainActivity.this, SettingActivity.class));
 				} else {
 
 					// lakukan cek dan unduh form ketka belum update apk
-					progressDialog.dismiss();
+					//progressDialog.dismiss();
 					checkFormVersion();
 				}
 			}else{
@@ -474,7 +474,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	};
 
 	private void checkFormVersion(){
-		progressDialog.show();
+		//progressDialog.show();
 		progressDialog.setMessage(getString(R.string.checkfromversion));
 		DebugLog.d("check form version");
 		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
@@ -536,26 +536,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	 * Permission
 	 *
 	 **/
-	@AfterPermissionGranted(Constants.RC_STORAGE_PERMISSION)
-	private void requestStoragePermission() {
-
-		DebugLog.d("request storage permission");
-
-		String[] perms = new String[]{PermissionUtil.READ_EXTERNAL_STORAGE, PermissionUtil.WRITE_EXTERNAL_STORAGE};
-		if (PermissionUtil.hasPermission(this, perms)) {
-
-			// Already has permission
-			DebugLog.d("Already have permission, do the thing");
-			updateAPK();
-			//new DownloadFileFromURL(activity, this, ).execute(file_url);
-		} else {
-
-			// Do not have permissions, request them now
-			DebugLog.d("Do not have permissions, request them now");
-			PermissionUtil.requestPermission(this, getString(R.string.rationale_externalstorage), Constants.RC_STORAGE_PERMISSION, perms);
-		}
-	}
-
 	@AfterPermissionGranted(Constants.RC_READ_PHONE_STATE)
 	private void requestReadPhoneStatePermission() {
 
@@ -588,77 +568,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 				DebugLog.d("read phone state allowed, start sending FCM token");
 				setFCMTokenRegistration();
 			}
-		} else if (requestCode == Constants.RC_STORAGE_PERMISSION) {
-
-			// read external storage allowed
-			if (PermissionUtil.hasPermission(this, PermissionUtil.READ_EXTERNAL_STORAGE)) {
-
-				DebugLog.d("read external storage allowed");
-				isReadStorageAllowed = true;
-			} else
-			// write external storage allowed
-			if (PermissionUtil.hasPermission(this, PermissionUtil.WRITE_EXTERNAL_STORAGE)) {
-
-				DebugLog.d("write external storage allowed");
-				isWriteStorageAllowed = true;
-			}
-
-			isAccessStorageAllowed = isReadStorageAllowed & isWriteStorageAllowed;
-
-			if (isAccessStorageAllowed) {
-
-				updateAPK();
-
-			} else {
-
-				Toast.makeText(this, "Gagal mengunduh APK karena tidak ada izin akses storage", Toast.LENGTH_LONG).show();
-
-			}
 		}
-
-
-		/*for (String permission : permissions) {
-
-			if (PermissionUtil.hasPermission(this, PermissionUtil.READ_PHONE_STATE_PERMISSION)) {
-
-				DebugLog.d("read phone state allowed, start sending FCM token");
-				setFCMTokenRegistration();
-			}
-
-			if (permission.equalsIgnoreCase(PermissionUtil.READ_EXTERNAL_STORAGE)) {
-
-				// read external storage allowed
-				if (PermissionUtil.hasPermission(this, PermissionUtil.READ_EXTERNAL_STORAGE)) {
-
-					DebugLog.d("read external storage allowed");
-					isReadStorageAllowed = true;
-				}
-
-			}
-
-			if (permission.equalsIgnoreCase(PermissionUtil.WRITE_EXTERNAL_STORAGE)) {
-
-				// write external storage allowed
-				if (PermissionUtil.hasPermission(this, PermissionUtil.WRITE_EXTERNAL_STORAGE)) {
-
-					DebugLog.d("write external storage allowed");
-					isWriteStorageAllowed = true;
-				}
-			}
-		}
-
-		isAccessStorageAllowed = isReadStorageAllowed & isWriteStorageAllowed;
-
-		if (isAccessStorageAllowed) {
-
-			updateAPK();
-			//new DownloadFileFromURL(activity, this).execute(file_url);
-
-		} else {
-
-			Toast.makeText(this, "Gagal mengunduh APK karena tidak ada izin akses storage", Toast.LENGTH_LONG).show();
-
-		}*/
 	}
 
 	@Override
@@ -712,37 +622,5 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 		}
 
-	}
-
-	private void updateAPK() {
-
-		File newAPKfile = Utility.getNewAPKpath(this);
-
-		if (newAPKfile == null) { // apk is not found on directory
-
-			Handler responseHandler = new Handler(msg -> {
-				Bundle bundle = msg.getData();
-
-				boolean isDownloadNewAPKSuccessful = bundle.getBoolean("issuccessful");
-
-				if (!isDownloadNewAPKSuccessful) {
-
-					// open Settings to manually install the apk
-					Toast.makeText(this, "Gagal mengunduh SAP Mobile App versi terbaru", Toast.LENGTH_LONG).show();
-				}
-
-				startActivity(new Intent(this, SettingActivity.class));
-				return true;
-			});
-
-			// start download the new apk
-			new DownloadFileFromURL(activity, this, responseHandler).execute(file_url);
-
-		} else {
-
-			// if new APK file is already exist, then open Settings activity direclty to
-			// manually install (update) to the new version
-			startActivity(new Intent(this, SettingActivity.class));
-		}
 	}
 }

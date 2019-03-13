@@ -3,22 +3,21 @@ package com.sap.inspection.util;// Created by Arif Ariyan (me@arifariyan.com) on
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
@@ -31,10 +30,12 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class Utility {
+public class CommonUtil {
+
     public static boolean checkGpsStatus(Context context){
         boolean gps_enabled = false;
 
@@ -43,7 +44,8 @@ public class Utility {
         try {
             gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch (Exception ex) {
-
+            ex.printStackTrace();
+            Crashlytics.logException(ex);
         }
 
         return (gps_enabled);
@@ -51,11 +53,13 @@ public class Utility {
 
     public static boolean checkNetworkStatus(Context context) {
         boolean network_enabled = false;
+
         LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         try {
             network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception ex) {
-
+            ex.printStackTrace();
+            Crashlytics.logException(ex);
         }
         return network_enabled;
     }
@@ -166,7 +170,6 @@ public class Utility {
      * STORAGE UTILITY
      *
      * */
-
     public static boolean isReadWriteStoragePermissionGranted(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
@@ -302,12 +305,36 @@ public class Utility {
         };
     }
 
+
+    /**
+     * get DeviceID (IMEI)
+     * and installing APK programmatically
+     * */
     public static String getIMEI(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
         String imei = telephonyManager.getDeviceId();
         DebugLog.d("imei : " + imei);
         return imei;
+    }
+
+    public static File getNewAPKpath(Context context) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        File tempFile;
+        if (CommonUtil.isExternalStorageAvailable()) {
+            DebugLog.d("external storage available");
+            tempFile = Environment.getExternalStorageDirectory();
+        } else {
+            DebugLog.d("external storage not available");
+            tempFile = context.getFilesDir();
+        }
+        tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(context.getString(R.string.latest_version), "") + ".apk");
+        if (tempFile.exists()) {
+            return tempFile;
+        }
+
+        return null;
     }
 
     public static void installAPK(Activity activity, Context context) {
@@ -324,22 +351,111 @@ public class Utility {
         }
     }
 
-    public static File getNewAPKpath(Context context) {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        File tempFile;
-        if (Utility.isExternalStorageAvailable()) {
-            DebugLog.d("external storage available");
-            tempFile = Environment.getExternalStorageDirectory();
+    /**
+     * Get a random boolean
+     */
+
+    private static Random mRandom;
+    public static boolean getNextRandomBoolean() {
+
+        if (mRandom == null) {
+            mRandom = new Random();
+        }
+
+        return mRandom.nextBoolean();
+    }
+
+    public static boolean isAlphanumeric(String val) {
+
+        final String regex = "[a-zA-Z0-9]+";
+        return val.matches(regex);
+    }
+
+    public static boolean isNumeric(String val) {
+
+        final String regex = "[0-9]+";
+        return val.matches(regex);
+    }
+
+    public static void clearApplicationData() {
+        File cache = MyApplication.getContext().getCacheDir();
+        File appDir = new File(cache.getParent());
+        if (appDir.exists()) {
+            String[] children = appDir.list();
+            for (String s : children) {
+                if (!s.equals("lib")) {
+                    deleteDir(new File(appDir, s));
+                }
+            }
+        }
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+            return dir.delete();
+        } else if(dir!= null && dir.isFile()) {
+            return dir.delete();
         } else {
-            DebugLog.d("external storage not available");
-            tempFile = context.getFilesDir();
+            return false;
         }
-        tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(context.getString(R.string.latest_version), "") + ".apk");
-        if (tempFile.exists()) {
-            return tempFile;
-        }
+    }
 
-        return null;
+    public static void fixVersion(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String versionPref = prefs.getString(context.getString(R.string.latest_version), "");
+        ContextWrapper contextWrapper = (ContextWrapper)context;
+        try {
+            String versionApp = context.getPackageManager().getPackageInfo(contextWrapper.getPackageName(), 0).versionName;
+            DebugLog.d("(latest version) versionPref="+versionPref+" versionApp="+versionApp);
+            if (!versionPref.isEmpty()) {
+                versionPref = versionPref.replace(".","");
+                int versionPrefInt = Integer.parseInt(versionPref);
+                String ver = versionApp.replace(".","");
+                int versionAppInt = Integer.parseInt(ver);
+                DebugLog.d("versionPrefInt="+versionPrefInt+" verApp="+versionAppInt);
+                if (versionAppInt>versionPrefInt) {
+                    DebugLog.d("app>pref, fix pref version!!");
+                    prefs.edit().putString(context.getString(R.string.latest_version), versionApp).commit();
+                }
+            } else {
+                prefs.edit().putString(context.getString(R.string.latest_version), versionApp).commit();
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean isUpdateAvailable(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String versionPref = prefs.getString(context.getString(R.string.latest_version), "");
+        ContextWrapper contextWrapper = (ContextWrapper)context;
+        try {
+            String versionApp = context.getPackageManager().getPackageInfo(contextWrapper.getPackageName(), 0).versionName;
+            DebugLog.d("versionPref="+versionPref+" versionApp="+versionApp);
+            if (!versionPref.isEmpty()) {
+                versionPref = versionPref.replace(".","");
+                int versionPrefInt = Integer.parseInt(versionPref);
+                String ver = versionApp.replace(".","");
+                int versionAppInt = Integer.parseInt(ver);
+                DebugLog.d("versionPrefInt="+versionPrefInt+" verApp="+versionAppInt);
+                if (versionAppInt<versionPrefInt) {
+                    DebugLog.d("update available!!");
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
     }
 }

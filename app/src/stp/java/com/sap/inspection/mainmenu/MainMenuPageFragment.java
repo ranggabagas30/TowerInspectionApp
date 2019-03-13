@@ -18,11 +18,12 @@ import java.util.ArrayList;
 public class MainMenuPageFragment extends BaseFragment {
 	private ArrayList<Integer> titles;
 	private ArrayList<Integer> icons;
-	private int[] ids = {R.id.s1,R.id.s2,R.id.s3,R.id.s4,R.id.s5,R.id.s6};
+	private int[] ids = {R.id.s1,R.id.s2,R.id.s3,R.id.s4,R.id.s5,R.id.s6, R.id.s7, R.id.s8};
 	private OnClickListener mainMenuClickListener;
 	
 	public static MainMenuPageFragment newInstance(ArrayList<Integer> titles, ArrayList<Integer> icons, OnClickListener mainMenuClickListener) {
 		MainMenuPageFragment fragment = new MainMenuPageFragment();
+		DebugLog.d("titles size : " + titles.size());
 		fragment.titles = titles;
 		fragment.icons = icons;
 		fragment.mainMenuClickListener = mainMenuClickListener;

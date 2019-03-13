@@ -3,8 +3,6 @@ package com.sap.inspection.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Debug;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -21,28 +19,20 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PersistentLocation;
-import com.sap.inspection.util.ImageUtil;
-import com.sap.inspection.util.Utility;
-import com.sap.inspection.views.adapter.FormFillAdapter;
+import com.sap.inspection.util.CommonUtil;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Calendar;
 
 
 public class PhotoItemRadio extends RelativeLayout {
@@ -560,7 +550,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	{
 		File tempDir;
 		ContextWrapper contextWrapper = new ContextWrapper(context);
-		if (Utility.isExternalStorageAvailable()) {
+		if (CommonUtil.isExternalStorageAvailable()) {
 			DebugLog.d("external storage available");
 			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
 		} else {

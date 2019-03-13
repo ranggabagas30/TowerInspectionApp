@@ -2,15 +2,13 @@ package com.sap.inspection.connection;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
-import com.sap.inspection.tools.AndroidUID;
-import com.sap.inspection.util.Utility;
+import com.sap.inspection.util.CommonUtil;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -53,7 +51,7 @@ public class APIHelper {
 		NameValuePair nvp = new BasicNameValuePair("token", fcmtoken);
 		params.add(nvp);
 		//nvp = new BasicNameValuePair("device_id", AndroidUID.getUID(context));
-		nvp = new BasicNameValuePair("device_id", Utility.getIMEI(context));
+		nvp = new BasicNameValuePair("device_id", CommonUtil.getIMEI(context));
 		params.add(nvp);
 		nvp = new BasicNameValuePair("version_app", BuildConfig.VERSION_NAME);
 		params.add(nvp);

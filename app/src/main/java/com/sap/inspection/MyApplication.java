@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
@@ -17,24 +16,19 @@ import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 /*import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;*/
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.model.CheckinDataModel;
-import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.TextMarkDisplayOptionsModel;
 import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PrefUtil;
-import com.sap.inspection.util.ImageUtil;
-import com.sap.inspection.util.Utility;
+import com.sap.inspection.util.PrefUtil;
+import com.sap.inspection.util.CommonUtil;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.AbstractMap;
@@ -199,7 +193,7 @@ public class MyApplication extends Application {
 		DbRepositoryValue.initializedInstance();
 
 		DebugLog.d("Storage dirs list : \n");
-		String[] storageDirectories = Utility.getStorageDirectories(getApplicationContext());
+		String[] storageDirectories = CommonUtil.getStorageDirectories(getApplicationContext());
 		for (String dir : storageDirectories) {
 			DebugLog.d(dir + "\n");
 		}

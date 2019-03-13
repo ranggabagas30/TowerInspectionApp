@@ -38,7 +38,7 @@ public class ImageUtil {
 
             options.inSampleSize = 4;
             File tempDir;
-            if (Utility.isExternalStorageAvailable())
+            if (CommonUtil.isExternalStorageAvailable())
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             else
                 tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
@@ -71,7 +71,7 @@ public class ImageUtil {
         File fileReturn = null;
         try {
             File tempDir;
-            if (Utility.isExternalStorageAvailable())
+            if (CommonUtil.isExternalStorageAvailable())
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             else
                 tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
@@ -114,7 +114,7 @@ public class ImageUtil {
         try {
 
             // determine image source path
-            if (Utility.isExternalStorageAvailable()) {
+            if (CommonUtil.isExternalStorageAvailable()) {
                 DebugLog.d("external storage available");
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             } else {
@@ -179,7 +179,7 @@ public class ImageUtil {
         int x = 640;
 
         try {
-            if (Utility.isExternalStorageAvailable()) {
+            if (CommonUtil.isExternalStorageAvailable()) {
                 DebugLog.d("external storage available");
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             } else {
@@ -236,7 +236,7 @@ public class ImageUtil {
         	Log.d("saving bitmap", "url : "+url);
         	Log.d("saving bitmap", "bitmap : "+bitmap);
             File tempDir;
-            if (Utility.isExternalStorageAvailable())
+            if (CommonUtil.isExternalStorageAvailable())
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             else
                 tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
@@ -312,7 +312,7 @@ public class ImageUtil {
         File tempDir;
         boolean createDirStatus;
 
-        if (Utility.isExternalStorageAvailable())
+        if (CommonUtil.isExternalStorageAvailable())
             tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
         else
             tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");

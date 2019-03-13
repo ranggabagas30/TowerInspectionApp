@@ -15,7 +15,7 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.PrefUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;

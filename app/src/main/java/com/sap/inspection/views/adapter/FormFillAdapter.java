@@ -2,7 +2,6 @@ package com.sap.inspection.views.adapter;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.os.Debug;
 import android.text.InputType;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -20,7 +19,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.github.aakira.expandablelayout.Utils;
-import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
@@ -29,19 +27,14 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
-import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
-import com.sap.inspection.model.value.DbManagerValue;
-import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.rules.SavingRule;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormInputText;
 import com.sap.inspection.view.MyTextView;
 import com.sap.inspection.view.PhotoItem;
 import com.sap.inspection.view.PhotoItemRadio;
-import com.slidinglayer.util.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -406,7 +399,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 					DebugLog.d("default value not null");
 					if (getItem(position).workItemModel.default_value.isEmpty()) {
 
-					   /* if (CommonUtils.isNumeric(getItem(position).workItemModel.default_value)) {
+					   /* if (CommonUtil.isNumeric(getItem(position).workItemModel.default_value)) {
 
 							holder.input.setHint("0");
 
@@ -424,7 +417,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 				}
 
-                /*if (CommonUtils.isNumeric(getItem(position).workItemModel.default_value)) {
+                /*if (CommonUtil.isNumeric(getItem(position).workItemModel.default_value)) {
 
 					holder.input.setInputType(InputType.TYPE_CLASS_NUMBER);
 

@@ -10,8 +10,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.Utility;
-import com.slidinglayer.util.CommonUtils;
+import com.sap.inspection.util.CommonUtil;
 
 import java.io.File;
 
@@ -27,7 +26,7 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 	@Override
 	protected Void doInBackground(Void... arg0) {
 		File tempDir;
-		if (Utility.isExternalStorageAvailable())
+		if (CommonUtil.isExternalStorageAvailable())
 			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
 		else
 			tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
@@ -80,7 +79,7 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 		mPref.edit().putString(r.getString(R.string.user_id), "").commit();
 		mPref.edit().putString(r.getString(R.string.user_authToken), "").commit();*/
 
-		CommonUtils.clearApplicationData();
+		CommonUtil.clearApplicationData();
 
 		return null;
 	}

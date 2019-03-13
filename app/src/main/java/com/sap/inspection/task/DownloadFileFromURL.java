@@ -3,22 +3,17 @@ package com.sap.inspection.task;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
-import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
-import com.sap.inspection.SettingActivity;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.Utility;
+import com.sap.inspection.util.CommonUtil;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -77,7 +72,7 @@ public class DownloadFileFromURL extends AsyncTask<String, String, Boolean> {
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
             File tempDir;
-            if (Utility.isExternalStorageAvailable()) {
+            if (CommonUtil.isExternalStorageAvailable()) {
                 DebugLog.d("external storage available");
                 tempDir = Environment.getExternalStorageDirectory();
                 DebugLog.d("temp dir present");
@@ -151,6 +146,6 @@ public class DownloadFileFromURL extends AsyncTask<String, String, Boolean> {
 
         responseHandler.sendMessage(message);
 
-        //Utility.installAPK(activity, context);
+        //CommonUtil.installAPK(activity, context);
     }
 }

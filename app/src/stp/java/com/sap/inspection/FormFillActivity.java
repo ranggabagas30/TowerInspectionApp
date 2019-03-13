@@ -61,7 +61,7 @@ import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.ImageUtil;
-import com.sap.inspection.util.Utility;
+import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
@@ -206,8 +206,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		{
 			DebugLog.d("==================== on item selected");
 			FormFillAdapter adapter = (FormFillAdapter) listView.getAdapter();
-		    if (adapter.getItemViewType(position) == ItemFormRenderModel.TYPE_TEXT_INPUT)
-		    {
+		    if (adapter.getItemViewType(position) == ItemFormRenderModel.TYPE_TEXT_INPUT) {
 				DebugLog.d("here is the text input");
 		        listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 		        view.findViewById(R.id.item_form_input).requestFocus();
@@ -218,8 +217,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		        RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radioGroup);
 		        if (radioGroup.getCheckedRadioButtonId() == R.id.radioNOK)
 		        	view.findViewById(R.id.remark).requestFocus();
-		        else
-			    {
+		        else {
 			        if (!listView.isFocused())
 			        {
 			            // listView.setItemsCanFocus(false);
@@ -425,7 +423,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		public void onClick(View v) {
 			if (!MyApplication.getInstance().isInCheckHasilPm()) {
 
-				if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
+				if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
 					photoItem = (PhotoItemRadio) v.getTag();
 					takePicture(photoItem.getItemId());
 				/*
@@ -527,10 +525,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	{
 		File tempDir;
 		boolean createDirStatus;
-		if (Utility.isExternalStorageReadOnly()) {
+		if (CommonUtil.isExternalStorageReadOnly()) {
 			DebugLog.d("external storage is read only");
 		}
-		if (Utility.isExternalStorageAvailable()) {
+		if (CommonUtil.isExternalStorageAvailable()) {
 			DebugLog.d("external storage available");
 			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
 			if (!tempDir.exists()) {
@@ -586,7 +584,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				photoItem.deletePhoto();
 
 				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
-					photoLocation = Utility.getPersistentLocation(scheduleId);
+					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 					if (photoLocation != null) {
 						siteLatitude  = photoLocation.first();
 						siteLongitude = photoLocation.second();
@@ -609,7 +607,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                 //File file = ImageUtil.resizeAndSaveImageCheckExif(this, mImageUri.toString(), schedule.id);
 				if (null != file) {
 
-					if (Utility.isExternalStorageAvailable()) {
+					if (CommonUtil.isExternalStorageAvailable()) {
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 							Intent mediaScanIntent = new Intent(
 									Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -623,7 +621,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 
 					DebugLog.d( latitude+" || "+longitude);
-					if (!Utility.isCurrentLocationError(latitude, longitude)) {
+					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
 						photoItem.setPhotoDate();
 						photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
 					} else {

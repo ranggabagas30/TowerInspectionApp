@@ -7,26 +7,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.stetho.common.Util;
 import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.task.DownloadFileFromURL;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.event.DeleteAllScheduleEvent;
@@ -52,11 +47,10 @@ import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
-import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.PermissionUtil;
-import com.sap.inspection.util.Utility;
 import com.sap.inspection.view.FormInputText;
-import com.slidinglayer.util.CommonUtils;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -161,11 +155,11 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         update = (Button) findViewById(R.id.update);
         updateForm = (Button) findViewById(R.id.update_form);
         updateStatus = (TextView) findViewById(R.id.updateStatus);
-        CommonUtils.fixVersion(getApplicationContext());
+        CommonUtil.fixVersion(getApplicationContext());
         DebugLog.d("latest_version" + prefs.getString(this.getString(R.string.latest_version), ""));
         DebugLog.d("url_update" + prefs.getString(this.getString(R.string.url_update), ""));
 //        if (version != null && (version.equalsIgnoreCase(prefs.getString(this.getString(R.string.latest_version), "")) /*|| prefs.getString(this.getString(R.string.url_update), "").equalsIgnoreCase("")*/)) {
-        if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
+        if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
             update.setVisibility(View.VISIBLE);
             update.setEnabled(false);
             //tidak ada new Update
@@ -198,7 +192,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         deleteSchedule = (Button) findViewById(R.id.deleteSchedule);
         deleteSchedule.setOnClickListener(deleteScheduleClickListener);
 
-        if (Utility.isExternalStorageAvailable()) {
+        if (CommonUtil.isExternalStorageAvailable()) {
             DebugLog.d("external storage available");
             tempFile = Environment.getExternalStorageDirectory();
         } else {
@@ -256,7 +250,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             super.onBackPressed();
         else {
 
-            if (Utility.getNewAPKpath(this) == null)
+            if (CommonUtil.getNewAPKpath(this) == null)
                 Toast.makeText(this, "Mohon untuk klik \"Update\" untuk menggunakan aplikasi terbaru", Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(this, "Silahkan klik tombol \"Memasang\" untuk menginstall aplikasi terbaru", Toast.LENGTH_LONG).show();
@@ -332,10 +326,10 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
             requestStoragePermission(); // check storage permission first
             /*
-            if (Utility.getNewAPKpath(SettingActivity.this) == null)
+            if (CommonUtil.getNewAPKpath(SettingActivity.this) == null)
                 requestStoragePermission(); // check storage permission first
             else {
-                Utility.installAPK(activity, SettingActivity.this);
+                CommonUtil.installAPK(activity, SettingActivity.this);
             }*/
 
             /*DownloadFileFromURL downloadFileFromURL = new DownloadFileFromURL(SettingActivity.this.activity, SettingActivity.this);
@@ -575,7 +569,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     @Override
     protected void onResume() {
         super.onResume();
-        if (Utility.isExternalStorageAvailable()) {
+        if (CommonUtil.isExternalStorageAvailable()) {
             DebugLog.d("external storage available");
             tempFile = Environment.getExternalStorageDirectory();
         } else {
@@ -648,7 +642,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                 InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
                 File tempDir;
-                if (Utility.isExternalStorageAvailable()) {
+                if (CommonUtil.isExternalStorageAvailable()) {
                     DebugLog.d("external storage available");
                     tempDir = Environment.getExternalStorageDirectory();
                     DebugLog.d("temp dir present");
@@ -718,7 +712,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             } else {
 
                 // just install the new APK
-                Utility.installAPK(activity, SettingActivity.this);
+                CommonUtil.installAPK(activity, SettingActivity.this);
             }
         }
     }
@@ -909,7 +903,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             DebugLog.d("Already have permission, do the thing");
             updateAPK();
             /*// just install the new APK
-            Utility.installAPK(activity, this);*/
+            CommonUtil.installAPK(activity, this);*/
 
         } else {
 
@@ -957,7 +951,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             updateAPK();
 
             /*// just install the new APK
-            Utility.installAPK(activity, this);*/
+            CommonUtil.installAPK(activity, this);*/
 
         } else {
 

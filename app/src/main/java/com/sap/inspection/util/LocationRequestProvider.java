@@ -34,7 +34,6 @@ public class LocationRequestProvider implements
     private Context mContext;
 
     public interface LocationCallback {
-
         void handleNewLocation(Location location);
     }
 

@@ -1,6 +1,5 @@
 package com.sap.inspection;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,7 +17,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -29,16 +27,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.AppConfig;
-import com.rindang.zconfig.ProdConfig;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.AlertDialogManager;
 import com.sap.inspection.model.DbManager;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.LoginLogModel;
 import com.sap.inspection.model.UserModel;
 import com.sap.inspection.model.form.ColumnModel;
@@ -49,9 +44,7 @@ import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.PrefUtil;
-import com.sap.inspection.util.Utility;
-import com.slidinglayer.util.CommonUtils;
+import com.sap.inspection.util.CommonUtil;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -67,12 +60,6 @@ import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.AppSettingsDialog;
-import pub.devrel.easypermissions.EasyPermissions;
-import pub.devrel.easypermissions.PermissionRequest;
 
 public class LoginActivity extends BaseActivity {
 
@@ -246,14 +233,14 @@ public class LoginActivity extends BaseActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		CommonUtils.fixVersion(getApplicationContext());
+		CommonUtil.fixVersion(getApplicationContext());
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		update = (Button) findViewById(R.id.update);
 		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
 		DebugLog.d("pref version Name = " + getPreference(R.string.latest_version,""));
 		//rangga
 		update.setVisibility(View.GONE);
-		/*if (!CommonUtils.isUpdateAvailable(getApplicationContext())) {
+		/*if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
 			update.setVisibility(View.GONE);
 		}
 		else{
@@ -265,7 +252,7 @@ public class LoginActivity extends BaseActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (!Utility.checkGpsStatus(this) && !Utility.checkNetworkStatus(this)) {
+		if (!CommonUtil.checkGpsStatus(this) && !CommonUtil.checkNetworkStatus(this)) {
 			gpsDialog().show();
 		}
 	}
@@ -665,7 +652,7 @@ public class LoginActivity extends BaseActivity {
 			pDialog.dismiss();
 
 			File tempFile;
-			if (Utility.isExternalStorageAvailable()) {
+			if (CommonUtil.isExternalStorageAvailable()) {
 				DebugLog.d("external storage available");
 				tempFile = Environment.getExternalStorageDirectory();
 			} else {

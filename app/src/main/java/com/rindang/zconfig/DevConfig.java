@@ -3,7 +3,7 @@ package com.rindang.zconfig;
 import android.view.View;
 
 import com.sap.inspection.R;
-import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.PrefUtil;
 
 
 public class DevConfig extends BaseConfig{

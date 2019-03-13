@@ -30,7 +30,7 @@ import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PrefUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.views.adapter.ScheduleAdapter;
 
 import java.security.PublicKey;

@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -55,20 +54,17 @@ import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.manager.ItemUploadManager;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.ImageUtil;
-import com.sap.inspection.util.Utility;
+import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
@@ -79,15 +75,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
 import de.greenrobot.event.EventBus;
-
-import static android.app.Activity.RESULT_OK;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -425,10 +418,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		public void onClick(View v) {
 
-			if (Utility.checkGpsStatus(FormFillActivity.this) || Utility.checkNetworkStatus(FormFillActivity.this)) {
+			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
 
-				if (Utility.isReadWriteStoragePermissionGranted(FormFillActivity.this)) {
+				if (CommonUtil.isReadWriteStoragePermissionGranted(FormFillActivity.this)) {
 
 					takePicture(photoItem.getItemId());
 
@@ -581,7 +574,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		boolean createDirStatus;
 
-		if (Utility.isExternalStorageReadOnly()) {
+		if (CommonUtil.isExternalStorageReadOnly()) {
 
 			DebugLog.d("external storage is read only");
 			Crashlytics.log("storage is read only");
@@ -591,7 +584,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			return null;
 		} else {
 
-			if (Utility.isExternalStorageAvailable()) {
+			if (CommonUtil.isExternalStorageAvailable()) {
 
 				DebugLog.d("external storage available");
 				tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
@@ -660,7 +653,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				photoItem.deletePhoto();
 
 				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
-					photoLocation = Utility.getPersistentLocation(scheduleId);
+					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 					if (photoLocation != null) {
 						siteLatitude  = photoLocation.first();
 						siteLongitude = photoLocation.second();
@@ -683,7 +676,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				if (null != file) {
 
-					if (Utility.isExternalStorageAvailable()) {
+					if (CommonUtil.isExternalStorageAvailable()) {
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 							Intent mediaScanIntent = new Intent(
 									Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -697,7 +690,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 
 					DebugLog.d( latitude+" || "+longitude);
-					if (!Utility.isCurrentLocationError(latitude, longitude)) {
+					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
 						photoItem.setPhotoDate();
 						photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
 					} else {
