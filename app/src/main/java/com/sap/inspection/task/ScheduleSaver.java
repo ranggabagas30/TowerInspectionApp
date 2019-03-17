@@ -31,14 +31,6 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		/*if (activity!=null)
-			if (!DbRepository.getInstance().getDB().isOpen())
-				DbRepository.getInstance().open(MyApplication.getInstance());
-		else if (mainActivity!=null)
-		   if (!DbRepositoryValue.getInstance().getDB().isOpen())
-				DbRepositoryValue.getInstance().open(MyApplication.getInstance());*/
-
-		//DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		DebugLog.d( "open db...");
 	}
 

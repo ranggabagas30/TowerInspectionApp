@@ -8,7 +8,9 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.2'
+
+        // in order to use buildToolsVersion 27.0.3
+        classpath 'com.android.tools.build:gradle:3.1.0'
         classpath 'com.google.gms:google-services:4.2.0'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -19,11 +21,11 @@ buildscript {
 // To avoid manually setting the same values in all Android modules, set the value on the root
 // project and then reference this from the modules
 ext {
-    compileSdkVersion = 26
-    buildToolsVersion = "28.0.3"
-    supportLibVersion = "26.1.0"
+    compileSdkVersion = 27
+    buildToolsVersion = "27.0.3"
+    supportLibVersion = "27.1.1"
     minSdkVersion  = 19
-    targetSdkVersion = 26
+    targetSdkVersion = 27
     playServicesVersionLocation = "16.0.0"
     playServicesVersionAnalytics = "16.0.5"
 }
@@ -32,6 +34,18 @@ allprojects {
     repositories {
         jcenter()
         maven { url "https://maven.google.com" }
+    }
+
+    subprojects {
+        afterEvaluate {
+            project ->
+                if (project.hasProperty("android")) {
+                    android {
+                        compileSdkVersion = rootProject.ext.compileSdkVersion
+                        buildToolsVersion = rootProject.ext.buildToolsVersion
+                    }
+                }
+        }
     }
 }
 

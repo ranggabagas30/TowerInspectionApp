@@ -76,11 +76,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 	private SharedPreferences prefs;
 
-	private String file_url;
-	private boolean isAccessStorageAllowed = false;
-	private boolean isReadStorageAllowed = false;
-	private boolean isWriteStorageAllowed = false;
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -88,7 +83,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		setContentView(R.layout.activity_main);
 
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		file_url = prefs.getString(this.getString(R.string.url_update), "");
 
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setCancelable(false);
@@ -126,12 +120,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		 *          in order to make sure that using only the latest version
 		 * */
 		checkAPKVersion();
-		/*if (!MyApplication.getInstance().getCHECK_APP_VERSION_STATE()) {
-
-			checkAPKVersion();
-			MyApplication.getInstance().setCHECK_APP_VERSION_STATE(false);
-
-		}*/
 
 		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);

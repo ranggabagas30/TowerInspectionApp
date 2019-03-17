@@ -134,6 +134,9 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		} else if (resId == R.string.fiber_optic){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.fiber_optic)));
+		} else if (resId == R.string.foto_imbas_petir) {
+			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.foto_imbas_petir)));
 		} else if (resId == R.string.hasil_PM){
 			MyApplication.getInstance().setIsInCheckHasilPm(true);
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();

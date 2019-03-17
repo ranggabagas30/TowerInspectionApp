@@ -65,8 +65,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	private int trying = 0;
 	private static String formVersion;
 
-	AlertDialogManager alert = new AlertDialogManager();
-
 	private MainMenuFragment mainMenuFragment = MainMenuFragment.newInstance();
 	private ScheduleFragment scheduleFragment = ScheduleFragment.newInstance();
 	private BaseFragment currentFragment;
@@ -103,7 +101,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		}
 		else if (isLoadAfterLogin) {
 			if (GlobalVar.getInstance().anyNetwork(activity)) {
-				//DbRepository.getInstance().open(activity);
 				try {
 					progressDialog.show();
 				} catch (Exception e) {
@@ -121,12 +118,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
          *          in order to make sure that using only the latest version
          * */
         checkAPKVersion();
-		/*if (!MyApplication.getInstance().getCHECK_APP_VERSION_STATE()) {
 
-			checkAPKVersion();
-			MyApplication.getInstance().setCHECK_APP_VERSION_STATE(false);
-
-		}*/
 		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
 		LayoutParams rlp = (LayoutParams) mSlidingLayer.getLayoutParams();
@@ -298,6 +290,11 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 				DebugLog.d("colocation");
 				trackEvent(getResources().getString(R.string.colocation));
 				scheduleFragment.setScheduleBy(R.string.colocation);
+				break;
+			case R.string.foto_imbas_petir: 
+				DebugLog.d("foto imbas petir");
+				trackEvent(getString(R.string.foto_imbas_petir));
+				scheduleFragment.setScheduleBy(R.string.foto_imbas_petir);
 				break;
 			case R.string.hasil_PM:
 				DebugLog.d("hasil PM");

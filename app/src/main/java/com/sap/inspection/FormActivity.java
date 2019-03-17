@@ -44,24 +44,20 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
+		// get data bundle from ScheduleFragment
+		Bundle bundle = getIntent().getExtras();
+		dayDate = bundle.getString("dayDate");
+
+		// is in checkin mode ?
 		usingCheckin = MyApplication.getInstance().isScheduleNeedCheckIn();
 
-		/*if (!DbRepository.getInstance().getDB().isOpen() && !usingCheckin) {
-
-			DbRepository.getInstance().open(MyApplication.getInstance());
-		}*/
-
-		DebugLog.d("");
-
+		// init dialog
 		dialog = new ProgressDialog(activity);
-		//String generatingInspectionForm
 		dialog.setCancelable(false);
 		dialog.setMessage(getString(R.string.generatingInspectionForm));
 		dialog.show();
-		//get data bundle from ScheduleFragment
-		Bundle bundle = getIntent().getExtras();
-
-		dayDate = bundle.getString("dayDate");
 
 		DebugLog.d("scheduleId="+bundle.getString(Constants.scheduleId));
 		DebugLog.d("siteId="+bundle.getInt("siteId"));
@@ -69,34 +65,41 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		DebugLog.d("dayDate="+dayDate);
 
 		RowModel rModel = new RowModel();
+
+		// max level = jumlah workformgroup by workformid
 		DebugLog.d("===================================1 row model max level : "+rModel.getMaxLevel("1"));
 		DebugLog.d("===================================2 row model max level : "+rModel.getMaxLevel("2"));
 		DebugLog.d("===================================3 row model max level : "+rModel.getMaxLevel("3"));
-		
+
+		// get schedule base model by scheduleid
 		scheduleBaseModels = new ScheduleGeneral();
 		scheduleBaseModels = scheduleBaseModels.getScheduleById(bundle.getString(Constants.scheduleId));
 		DebugLog.d("===================================4 worktype id : "+scheduleBaseModels.work_type.id);
-						//penambahan debug tester untuk form_id
-//		DebugLog.d("===================================4 workform id : "+scheduleBaseModels.work_form.id);
 
+		//penambahan debug tester untuk form_id
+		//DebugLog.d("===================================4 workform id : "+scheduleBaseModels.work_form.id);
+
+		// get workformid by worktypeid
 		workFormModel = new WorkFormModel();
 		workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModels.work_type.id);
-		DebugLog.d("===================================4 form model max level : "+workFormModel.id);
-		DebugLog.d("===================================4 form model : "+workFormModel.name);
+		DebugLog.d("===================================4 form model id : "+workFormModel.id);
+		DebugLog.d("===================================4 form model name : "+workFormModel.name);
+
+		// get all workformgroup by workformid
 		WorkFormGroupModel groupModel = new WorkFormGroupModel();
 		workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
-		
-		
-		setContentView(R.layout.activity_main);
+
 		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
-		
+
 		//generate form
 		rowModel = new RowModel();
 		rowModel.isOpen = true;
 		rowModel.position = 0;
 		rowModel.text = "this is just a root place holder";
 		rowModel.children = new Vector<RowModel>();
+
+		// get all workformgroup submenu
 		for (WorkFormGroupModel model : workFormGroupModels) {
 			DebugLog.d("===================================4 form group model max level : "+model.id+" | "+model.name);
 			RowModel groupRow = new RowModel();
@@ -104,7 +107,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			groupRow.children = rowModel.getAllItemByWorkFormGroupId(model.id);
 			groupRow.text = model.name;
 			groupRow.level = 0;
-			rowModel.children.add(groupRow);
+			rowModel.children.add(groupRow); // children of
 		}
 
 		dialog.dismiss();
