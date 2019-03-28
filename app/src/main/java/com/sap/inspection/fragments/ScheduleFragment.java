@@ -1,9 +1,11 @@
 package com.sap.inspection.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.CallendarActivity;
 import com.sap.inspection.CheckInActivity;
@@ -23,9 +26,15 @@ import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
+import com.sap.inspection.model.ConfigModel;
+import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DefaultValueScheduleModel;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.WorkTypeModel;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
+import com.sap.inspection.model.config.formimbaspetir.ImbasPetirData;
+import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.task.ScheduleSaver;
@@ -42,7 +51,6 @@ import de.greenrobot.event.EventBus;
 public class ScheduleFragment extends BaseListTitleFragment implements OnItemClickListener{
 	private ScheduleAdapter adapter;
 	private Vector<ScheduleBaseModel> models;
-	private ArrayList<ScheduleBaseModel> itemScheduleModel;
 
 	private int filterBy = 0;
     private ProgressDialog dialog;
@@ -66,13 +74,10 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
 		actionRight.setVisibility(View.VISIBLE);
-		actionRight.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent = new Intent(activity, CallendarActivity.class);
-				intent.putExtra("filterBy", filterBy);
-				startActivityForResult(intent,MainActivity.REQUEST_CODE);
-			}
+		actionRight.setOnClickListener(v -> {
+			Intent intent = new Intent(activity, CallendarActivity.class);
+			intent.putExtra("filterBy", filterBy);
+			startActivityForResult(intent,MainActivity.REQUEST_CODE);
 		});
 	}
 
@@ -116,6 +121,9 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		if (resId == R.string.schedule){
 			ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
 			models = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getAllSchedule(activity));
+            ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+            Vector<ScheduleBaseModel> imbasPetirModels = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.foto_imbas_petir)));
+            checkImbasPetirConfig(imbasPetirModels);
 		}else if (resId == R.string.preventive){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
@@ -137,6 +145,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		} else if (resId == R.string.foto_imbas_petir) {
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.foto_imbas_petir)));
+			checkImbasPetirConfig(models);
 		} else if (resId == R.string.hasil_PM){
 			MyApplication.getInstance().setIsInCheckHasilPm(true);
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
@@ -146,6 +155,34 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 //		ScheduleBySiteModel siteModel = new ScheduleBySiteModel();
 //		models = siteModel.getListScheduleForScheduleAdapter(siteModel.getAllSchedule(activity));
 		adapter.setItems(models);
+	}
+
+	private void checkImbasPetirConfig(Vector<ScheduleBaseModel> listSchedules) {
+
+		FormImbasPetirConfig formImbasPetirConfig = FormImbasPetirConfig.getImbasPetirConfig();
+
+		if (formImbasPetirConfig == null) {
+
+			DebugLog.d("Form imbas petir config not found, create config");
+			FormImbasPetirConfig.createImbasPetirConfig();
+		}
+
+		DebugLog.d("== checking config data over schedules === ");
+		for (ScheduleBaseModel schedule : listSchedules) {
+
+			if (schedule.id != null) {
+
+				// if schedule data config not found, then add new data to the config
+
+				if (!FormImbasPetirConfig.isDataExist(schedule.id)) {
+
+					DebugLog.d("schedule data for scheduleid " + schedule.id + " not found, add new data !");
+					FormImbasPetirConfig.insertNewData(schedule.id);
+
+				}
+
+			}
+		}
 	}
 
 	public void setItemScheduleModelBy(String scheduleId, String userId) {
@@ -160,67 +197,72 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 	}
 
+	@SuppressLint("HandlerLeak")
 	private Handler itemScheduleHandler = new Handler(){
 
 		public void handleMessage(android.os.Message msg) {
+
+			dialog.dismiss();
+
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
-			if (bundle.getString("json") != null) {
-				String jsonItemSchedule = bundle.getString("json");
 
-				/* obtain the response */
-				ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
+			boolean isResponseOK = bundle.getBoolean("isresponseok");
 
-				if (!itemScheduleResponse.data.isEmpty()) {
+			if (isResponseOK) {
 
-					if (itemScheduleResponse.status == 200) {
+				if (bundle.getString("json") != null) {
+					String jsonItemSchedule = bundle.getString("json");
 
-						DebugLog.d("response OK");
-						ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
+					/* obtain the response */
+					ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
 
-						DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
+					if (!itemScheduleResponse.data.isEmpty()) {
 
-						for (DefaultValueScheduleModel item_default_value : itemScheduleGeneral.default_value_schedule) {
+						if (itemScheduleResponse.status == 200) {
 
-							String workFormItemId    = String.valueOf(item_default_value.getItem_id());
-							String workFormGroupId   = String.valueOf(item_default_value.getGroup_id());
-							String new_default_value = String.valueOf(item_default_value.getDefault_value());
+							DebugLog.d("response OK");
+							ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
 
-							DebugLog.d("{");
-							DebugLog.d("--item_id  : " + workFormItemId);
-							DebugLog.d("--group_id : " + workFormGroupId);
-							DebugLog.d("--default_value : " + new_default_value);
-							DebugLog.d("}");
+							DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
 
-							if (!(new_default_value == null && new_default_value.isEmpty())) {
+							for (DefaultValueScheduleModel item_default_value : itemScheduleGeneral.default_value_schedule) {
 
-								DebugLog.d("json default value not null, do update");
-								WorkFormItemModel.setDefaultValueFromItemSchedule(workFormItemId, workFormGroupId, new_default_value);
+								String workFormItemId    = String.valueOf(item_default_value.getItem_id());
+								String workFormGroupId   = String.valueOf(item_default_value.getGroup_id());
+								String new_default_value = String.valueOf(item_default_value.getDefault_value());
+
+								DebugLog.d("{");
+								DebugLog.d("--item_id  : " + workFormItemId);
+								DebugLog.d("--group_id : " + workFormGroupId);
+								DebugLog.d("--default_value : " + new_default_value);
+								DebugLog.d("}");
+
+								if (!(new_default_value == null && new_default_value.isEmpty())) {
+
+									DebugLog.d("json default value not null, do update");
+									WorkFormItemModel.setDefaultValueFromItemSchedule(workFormItemId, workFormGroupId, new_default_value);
+								}
 							}
+
+						} else {
+
+							Toast.makeText(getContext(), "Gagal mendapatkan item schedules\n" + itemScheduleResponse.status + " : " + itemScheduleResponse.messages, Toast.LENGTH_LONG).show();
+
+							DebugLog.d("response status code : " + itemScheduleResponse.status);
+							DebugLog.d("response message : " + itemScheduleResponse.messages);
 						}
-
-						dialog.dismiss();
-
 					} else {
 
-						dialog.dismiss();
-						Toast.makeText(getContext(), "Gagal mendapatkan item schedules\n" + itemScheduleResponse.status + " : " + itemScheduleResponse.messages, Toast.LENGTH_LONG).show();
-
-						DebugLog.d("response status code : " + itemScheduleResponse.status);
-						DebugLog.d("response message : " + itemScheduleResponse.messages);
+						Toast.makeText(getContext(), "Item schedules data kosong atau tidak ada", Toast.LENGTH_LONG).show();
+						DebugLog.d("item schedules kosong");
 					}
+
 				} else {
 
-					dialog.dismiss();
-					Toast.makeText(getContext(), "Item schedules data kosong atau tidak ada", Toast.LENGTH_LONG).show();
-					DebugLog.d("item schedules kosong");
+					Toast.makeText(getContext(), "Schedule ini tidak memiliki data item schedules", Toast.LENGTH_LONG).show();
+					DebugLog.e("repsonse json for ITEM SCHEDULES is null");
 				}
-
-			} else {
-
-				dialog.dismiss();
-				Toast.makeText(getContext(), "Schedule ini tidak memiliki data item schedules", Toast.LENGTH_LONG).show();
-				DebugLog.e("repsonse json for ITEM SCHEDULES is null");
 			}
 
 		}
@@ -254,8 +296,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		log("-=-="+ scheduleId +"-=-=-=");
 		log("-=-="+ userId +"-=-=-=");
 
-		models.get(position).user.printUserValue();
-
 		if (userId != null && !userId.equalsIgnoreCase("") && !MyApplication.getInstance().isInCheckHasilPm()) {
 
 			setItemScheduleModelBy(scheduleId, userId);
@@ -267,11 +307,12 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		} else {
 			intent = new Intent(activity, FormActivity.class);
 		}
-		intent.putExtra("userId", userId);
-		intent.putExtra("scheduleId", scheduleId);
-		intent.putExtra("siteId", siteId);
-		intent.putExtra("dayDate", dayDate);
-		intent.putExtra("workTypeId", workTypeId);
+		intent.putExtra(Constants.KEY_USERID, userId);
+		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+		intent.putExtra(Constants.KEY_SITEID, siteId);
+		intent.putExtra(Constants.KEY_DAYDATE, dayDate);
+		intent.putExtra(Constants.KEY_WORKTYPEID, workTypeId);
+		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
 		startActivity(intent);
 
 	}

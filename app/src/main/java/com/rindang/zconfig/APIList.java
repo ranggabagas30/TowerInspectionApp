@@ -42,6 +42,11 @@ public class APIList {
 		return AppConfig.getInstance().getV1()+"/work_forms";
 	}
 
+	//Form Imbas Petir
+	public static String formImbasPetirUrl(){
+	    return AppConfig.getInstance().getV1() + "/form_imbas_petir";
+    }
+
 	//FormGroup
 	public static String formGroupUrl(){
 		return AppConfig.getInstance().getV1()+"/work_form_groups";

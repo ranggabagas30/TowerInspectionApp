@@ -159,10 +159,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		list.setAdapter(adapter);
 		progressDialog = new ProgressDialog(activity);
 		Bundle bundle = getIntent().getExtras();
-		rowId = bundle.getInt("rowId");
-		workFormGroupId = bundle.getInt("workFormGroupId");
-        workFormGroupName = bundle.getString("workFormGroupName");
-        scheduleId = bundle.getString("scheduleId");
+		rowId = bundle.getInt(Constants.KEY_ROWID);
+		workFormGroupId = bundle.getInt(Constants.KEY_WORKFORMGROUPID);
+        workFormGroupName = bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
+        scheduleId = bundle.getString(Constants.KEY_SCHEDULEID);
 
 		/*DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);*/

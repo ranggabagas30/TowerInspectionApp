@@ -44,6 +44,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormTextChange;
@@ -62,6 +63,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
@@ -78,6 +80,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import de.greenrobot.event.EventBus;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -160,10 +164,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		Bundle bundle = getIntent().getExtras();
 
-		rowId = bundle.getInt("rowId");
-		workFormGroupId = bundle.getInt("workFormGroupId");
-		workFormGroupName = bundle.getString("workFormGroupName");
-		scheduleId = bundle.getString("scheduleId");
+		rowId = bundle.getInt(Constants.KEY_ROWID);
+		workFormGroupId = bundle.getInt(Constants.KEY_WORKFORMGROUPID);
+		workFormGroupName = bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
+		scheduleId = bundle.getString(Constants.KEY_SCHEDULEID);
 
 		/*DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);*/
@@ -172,7 +176,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(scheduleId);
 		PhotographModel = new ItemValueModel();
-		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+bundle.getString("scheduleId"));
+		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+bundle.getString(Constants.KEY_SCHEDULEID));
 		adapter.setWorkType(schedule.work_type.name);
 		DebugLog.d("workFormGroupName : " + workFormGroupName);
 		adapter.setWorkFormGroupName(workFormGroupName);
@@ -228,9 +232,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			        }
 			    }
 
-		    }
-		    else
-		    {
+		    } else {
 		        if (!listView.isFocused())
 		        {
 		            // listView.setItemsCanFocus(false);
@@ -421,39 +423,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		public void onClick(View v) {
-			if (!MyApplication.getInstance().isInCheckHasilPm()) {
-
-				if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
-					photoItem = (PhotoItemRadio) v.getTag();
-					takePicture(photoItem.getItemId());
-				/*
-				if (currentGeoPoint.latitude==0) {
-					Toast.makeText(activity, "GPS location is loading, please wait.", Toast.LENGTH_SHORT).show();
-				} else {
-					photoItem = (PhotoItemRadio) v.getTag();
-					takePicture(photoItem.getItemId());
-				}*/
-				} else {
-					new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
-							.setTopColor(color(R.color.theme_color))
-							.setButtonsColor(color(R.color.theme_color))
-							.setIcon(R.drawable.logo_app)
-							.setTitle(getString(R.string.informationGPS))
-							.setMessage(getString(R.string.enableGPS))
-							.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
-								@Override
-								public void onClick(View v) {
-									Intent gpsOptionsIntent = new Intent(
-											Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-									startActivity(gpsOptionsIntent);
-								}
-							})
-							.setNegativeButton(android.R.string.no, null)
-							.show();
-				}
-			} else {
-
-			}
+			requestStorageAndCameraPermission(v);
 		}
 	};
 
@@ -468,7 +438,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 			int pos = (int)v.getTag();
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			if (itemFormRenderModel.workItemModel.disable) {
+			if (itemFormRenderModel.workItemModel.disable){
 				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
 			}
 			else if (itemFormRenderModel.itemValue!=null) {
@@ -477,7 +447,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);
 			} else {
-				Toast.makeText(activity, "Data belum terisi", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, "ImbasPetirData belum terisi", Toast.LENGTH_LONG).show();
 			}
         }
     };
@@ -928,43 +898,49 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	@Override
 	public void onBackPressed() {
-		ArrayList<Integer> list = new ArrayList<>();
-		list.add(ItemFormRenderModel.TYPE_PICTURE_RADIO);
-		list.add(ItemFormRenderModel.TYPE_CHECKBOX);
-		list.add(ItemFormRenderModel.TYPE_RADIO);
-		list.add(ItemFormRenderModel.TYPE_TEXT_INPUT);
-		list.add(ItemFormRenderModel.TYPE_PICTURE);
-		list.add(ItemFormRenderModel.TYPE_EXPAND);
-		adapter.notifyDataSetChanged();
-		if (adapter!=null && !adapter.isEmpty()) {
-			boolean mandatoryFound = false;
-			DebugLog.d("adapter size "+adapter.getCount());
-			for (int i = 0; i < adapter.getCount(); i++) {
-				ItemFormRenderModel item = adapter.getItem(i);
-				DebugLog.d("count "+i);
-				if (item.workItemModel!=null) {
-					DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+
-							" disable="+item.workItemModel.disable);
-				}
-				if (item.itemValue!=null) {
-					DebugLog.d("itemValue="+item.itemValue.value);
-				}
 
-				if (list.contains(item.type) && !MyApplication.getInstance().isInCheckHasilPm()) {
-					if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
-						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
-							Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
-							mandatoryFound = true;
-							break;
+		if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
+			super.onBackPressed();
+		} else {
+
+			ArrayList<Integer> list = new ArrayList<>();
+			list.add(ItemFormRenderModel.TYPE_PICTURE_RADIO);
+			list.add(ItemFormRenderModel.TYPE_CHECKBOX);
+			list.add(ItemFormRenderModel.TYPE_RADIO);
+			list.add(ItemFormRenderModel.TYPE_TEXT_INPUT);
+			list.add(ItemFormRenderModel.TYPE_PICTURE);
+			list.add(ItemFormRenderModel.TYPE_EXPAND);
+			adapter.notifyDataSetChanged();
+			if (adapter!=null && !adapter.isEmpty()) {
+				boolean mandatoryFound = false;
+				DebugLog.d("adapter size "+adapter.getCount());
+				for (int i = 0; i < adapter.getCount(); i++) {
+					ItemFormRenderModel item = adapter.getItem(i);
+					DebugLog.d("count "+i);
+					if (item.workItemModel!=null) {
+						DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+
+								" disable="+item.workItemModel.disable);
+					}
+					if (item.itemValue!=null) {
+						DebugLog.d("itemValue="+item.itemValue.value);
+					}
+
+					if (list.contains(item.type) && !MyApplication.getInstance().isInCheckHasilPm()) {
+						if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
+							if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
+								Toast.makeText(activity, item.workItemModel.label + " wajib diisi", Toast.LENGTH_SHORT).show();
+								mandatoryFound = true;
+								break;
+							}
 						}
 					}
 				}
-			}
-			DebugLog.d("mandatoryFound="+mandatoryFound);
-			if (!mandatoryFound)
+				DebugLog.d("mandatoryFound="+mandatoryFound);
+				if (!mandatoryFound)
+					super.onBackPressed();
+			} else
 				super.onBackPressed();
-		} else
-			super.onBackPressed();
+		}
 	}
 
 	private AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener() {
@@ -982,4 +958,75 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		}
 	};
+
+	/**
+	 * Permission
+	 *
+	 **/
+
+	final int STORAGE_AND_CAMERA_PERMISSION = Constants.RC_STORAGE_PERMISSION + Constants.RC_CAMERA;
+	String[] permsStorageAndCamera = new String[]{PermissionUtil.READ_EXTERNAL_STORAGE, PermissionUtil.WRITE_EXTERNAL_STORAGE, PermissionUtil.CAMERA};
+
+	@AfterPermissionGranted(STORAGE_AND_CAMERA_PERMISSION)
+	private void requestStorageAndCameraPermission(View view) {
+
+		if (PermissionUtil.hasPermission(this, permsStorageAndCamera)) {
+
+			// Already has permission
+			DebugLog.d("Already have permission, do the thing");
+			openCamera(view);
+
+		} else {
+
+			// Do not have permissions, request them now
+			DebugLog.d("Do not have permissions, request them now");
+			PermissionUtil.requestPermission(this, getString(R.string.rationale_storageandcamera), STORAGE_AND_CAMERA_PERMISSION, permsStorageAndCamera);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		DebugLog.d("request permission result");
+
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+		if (requestCode == STORAGE_AND_CAMERA_PERMISSION) {
+
+			if (PermissionUtil.hasPermission(this, permsStorageAndCamera)) {
+
+				DebugLog.d("permission allowed");
+				Toast.makeText(this, "Permission storage and camera allowed", Toast.LENGTH_LONG).show();
+
+			}
+		}
+	}
+
+	private void openCamera(View view) {
+		if (!MyApplication.getInstance().isInCheckHasilPm()) {
+
+			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
+				photoItem = (PhotoItemRadio) view.getTag();
+				takePicture(photoItem.getItemId());
+			} else {
+				new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
+						.setTopColor(color(R.color.theme_color))
+						.setButtonsColor(color(R.color.theme_color))
+						.setIcon(R.drawable.logo_app)
+						.setTitle(getString(R.string.informationGPS))
+						.setMessage(getString(R.string.enableGPS))
+						.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+							@Override
+							public void onClick(View view) {
+								Intent gpsOptionsIntent = new Intent(
+										Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+								startActivity(gpsOptionsIntent);
+							}
+						})
+						.setNegativeButton(android.R.string.no, null)
+						.show();
+			}
+		}
+	}
+
 }

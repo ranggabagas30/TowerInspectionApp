@@ -36,6 +36,7 @@ import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.LocationRequestProvider;
 import com.sap.inspection.util.PermissionUtil;
+import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.FormInputText;
 
 import org.apache.http.HttpResponse;
@@ -73,7 +74,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     /* variabel for get extra data from NavigationAdapter */
     private int mExtraSiteId, mExtraWorkTypeId;
-    private String mExtraScheduleId, mExtraDayDate;
+    private String mExtraScheduleId, mExtraDayDate, mExtraWorkTypeName;
 
     /* variabel for intent */
     private static final int NOTIFICATION_CHECK_IN = 101;
@@ -359,11 +360,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         MyApplication.getInstance().checkinDataModel = mParamObject;
 
         mToFormFillActivityIntent = new Intent(this, FormActivity.class);
-        mToFormFillActivityIntent.putExtra("scheduleId", mExtraScheduleId);
-        mToFormFillActivityIntent.putExtra("siteId", mExtraSiteId);
-        mToFormFillActivityIntent.putExtra("dayDate", mExtraDayDate);
-        mToFormFillActivityIntent.putExtra("workTypeId", mExtraWorkTypeId);
-
+        mToFormFillActivityIntent.putExtra(Constants.KEY_SCHEDULEID, mExtraScheduleId);
+        mToFormFillActivityIntent.putExtra(Constants.KEY_SITEID, mExtraSiteId);
+        mToFormFillActivityIntent.putExtra(Constants.KEY_DAYDATE, mExtraDayDate);
+        mToFormFillActivityIntent.putExtra(Constants.KEY_WORKTYPEID, mExtraWorkTypeId);
+        mToFormFillActivityIntent.putExtra(Constants.KEY_WORKTYPENAME, mExtraWorkTypeName);
         startActivity(mToFormFillActivityIntent);
     }
 
@@ -389,10 +390,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     private void getBundleDataFromScheduleFragment() {
         Bundle receivedData = getIntent().getExtras();
-        mExtraScheduleId = receivedData != null ? receivedData.getString("scheduleId") : null;
-        mExtraSiteId = receivedData != null ? receivedData.getInt("siteId") : 0;
-        mExtraDayDate = receivedData != null ? receivedData.getString("dayDate") : null;
-        mExtraWorkTypeId = receivedData != null ? receivedData.getInt("workTypeId") : 0;
+        mExtraScheduleId = receivedData != null ? receivedData.getString(Constants.KEY_SCHEDULEID) : null;
+        mExtraSiteId = receivedData != null ? receivedData.getInt(Constants.KEY_SITEID) : 0;
+        mExtraDayDate = receivedData != null ? receivedData.getString(Constants.KEY_DAYDATE) : null;
+        mExtraWorkTypeId = receivedData != null ? receivedData.getInt(Constants.KEY_WORKTYPEID) : 0;
+        mExtraWorkTypeName = receivedData != null ? receivedData.getString(Constants.KEY_WORKTYPENAME) : null;
     }
 
     private void preparingScheduleAndSiteData() {
@@ -497,7 +499,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             DebugLog.d("response string status code : " + statusCode);
             DebugLog.d("json /n" + s);
 
-            if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
+            if (!StringUtil.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
                 DebugLog.d("not json type");
 
                 if (statusCode == 404) {

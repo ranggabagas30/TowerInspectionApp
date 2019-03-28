@@ -21,7 +21,6 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 	
 	public void setMainActivity(MainActivity mainActivity) {
 		this.mainActivity = mainActivity;
-//		this.activity = mainActivity;
 	}
 	
 	public void setActivity(Activity activity){
@@ -50,14 +49,14 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 		DebugLog.d( "saving schedule "+values[0]+" %...");
 		EventBus.getDefault().post(new ScheduleProgressEvent(values[0]));
 		if (mainActivity != null)
-			mainActivity.setProgressDialogMessage("schedule","saving schedule "+values[0]+" %...");
+		    mainActivity.showMessageDialog("schedule : saving schedule "+values[0]+" %...");
 	}
 
 	@Override
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
 		DebugLog.d( "on post db...");
-		//DbRepositoryValue.getInstance().close();
+
 		EventBus.getDefault().post(new ScheduleProgressEvent(100,true));
 		if (mainActivity != null)
 			mainActivity.setFlagScheduleSaved(true);

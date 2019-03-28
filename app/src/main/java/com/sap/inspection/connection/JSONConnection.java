@@ -19,6 +19,7 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ErrorSatutempatModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -40,19 +41,20 @@ import java.net.SocketTimeoutException;
 public class JSONConnection extends AsyncTask<Void, Void, String>{
 
 	//	private Activity activity;
+	private final String TAG = JSONConnection.class.getSimpleName();
 	private String url;
 	private Handler handler;
-	private String json;
-	private String errMsg;
+	private String response;
 	private int statusCode = 0;
 	private boolean notJson = false;
+	private boolean isResponseOK = true;
 	private Context context;
 	private HttpClient client;
-	private HttpGet request;
-	private HttpResponse response;
+	private HttpGet httpRequest;
+	private HttpResponse httpResponse;
 	private InputStream data;
 
-	public JSONConnection(Context context, String url,Handler handler) {
+	public JSONConnection(Context context, String url, Handler handler) {
 		this.url = url;
 		this.handler = handler;
 		this.context = context;
@@ -60,9 +62,8 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 
 	@Override
 	protected void onPreExecute() {
-		DebugLog.d("url="+url);
+		DebugLog.d("url = " + url);
 		super.onPreExecute();
-		//		activity.setProgressBarIndeterminateVisibility(true);
 	}
 
 	@Override
@@ -71,124 +72,117 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			DebugLog.d("GET JSON URL");
 			HttpParams httpParameters = new BasicHttpParams();
 
-			/*// Set the timeout in milliseconds until a connection is established.
-			// The default value is zero, that means the timeout is not used. 
-			int timeoutConnection = 6000;
-			HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-			// Set the default socket timeout (SO_TIMEOUT) 
-			// in milliseconds which is the timeout for waiting for data.
-			int timeoutSocket = 6000;
-			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);*/
-
 			client = new DefaultHttpClient(httpParameters);
 			try {
 
-				request = new HttpGet(url);
+				httpRequest = new HttpGet(url);
 			} catch (Exception e) {
 				e.printStackTrace();
 				MyApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
+
+				isResponseOK = false;
+				response = e.getMessage();
+				return response;
 			}
 
 			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
 			DebugLog.d("cookie = "+mPref.getString(context.getString(R.string.user_cookie), ""));
 			if (mPref.getString(context.getString(R.string.user_cookie), null) != null){
-				request.addHeader("Cookie", mPref.getString(context.getString(R.string.user_cookie), ""));
+				httpRequest.addHeader("Cookie", mPref.getString(context.getString(R.string.user_cookie), ""));
 			}
-			
-//			request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+
 			DebugLog.d("execute request ... ");
-			response = client.execute(request);
+			httpResponse = client.execute(httpRequest);
 			
 			//pull cookie
-			Header cookie = response.getFirstHeader("Set-Cookie");
+			Header cookie = httpResponse.getFirstHeader("Set-Cookie");
 			if (cookie != null){
 				mPref.edit().putString(context.getString(R.string.user_cookie), cookie.getValue()).commit();
 			}
 			
-			data = response.getEntity().getContent();
-			statusCode = response.getStatusLine().getStatusCode();
-			DebugLog.d("content type name  : "+ response.getEntity().getContentType().getName() == null ? "null" : response.getEntity().getContentType().getName());
-			DebugLog.d("content type value : "+ response.getEntity().getContentType().getValue() == null ? "null" : response.getEntity().getContentType().getValue());
-			if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
-				DebugLog.d("not json type");
-				DebugLog.e(ConvertInputStreamToString(data));
-				notJson = true;
-				return null;
-			}
-			String s = ConvertInputStreamToString(data);
-			DebugLog.d("json = "+s);
+			data = httpResponse.getEntity().getContent();
+			statusCode = httpResponse.getStatusLine().getStatusCode();
 
-			return s;
+			DebugLog.d("content type name  : "+ httpResponse.getEntity().getContentType().getName() == null ? "null" : httpResponse.getEntity().getContentType().getName());
+			DebugLog.d("content type value : "+ httpResponse.getEntity().getContentType().getValue() == null ? "null" : httpResponse.getEntity().getContentType().getValue());
+
+			if (!StringUtil.checkIfContentTypeJson(httpResponse.getEntity().getContentType().getValue())){
+
+				isResponseOK = false;
+				notJson = true;
+
+				DebugLog.d("not json type");
+			}
+
+			response = StringUtil.ConvertInputStreamToString(data);
+
 		} catch (NullPointerException npe) {
 
-			errMsg = npe.getMessage();
+			isResponseOK = false;
+			response = npe.getMessage();
 			npe.printStackTrace();
-			Crashlytics.log(Log.ERROR, "jsonconnection", npe.getMessage());
-			DebugLog.d("err ||||| "+errMsg);
 
 		} catch (SocketTimeoutException e) {
-			errMsg = e.getMessage();
+
+			isResponseOK = false;
+			response = e.getMessage();
 			e.printStackTrace();
-			Crashlytics.log(Log.ERROR, "jsonconnection", e.getMessage());
-			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.TIMEOUT_EXCEPTION);
+
 		}
 		catch (ClientProtocolException e) {
-			errMsg = e.getMessage();
+
+			isResponseOK = false;
+			response = e.getMessage();
 			e.printStackTrace();
-			Crashlytics.log(Log.ERROR, "jsonconnection", e.getMessage());
-			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
+
 		}
 		catch (IOException e) {
-			errMsg = e.getMessage();
+
+			isResponseOK = false;
+			response = e.getMessage();
 			e.printStackTrace();
-			Crashlytics.log(Log.ERROR, "jsonconnection", e.getMessage());
-			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
+
 		}
 
-		return null;
+		return response;
 	}
 
 	@Override
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
-		//		setJson(result);
-		if (notJson && result == null) {
 
-			//Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
-			Crashlytics.log("response from server is not json format and result is null");
+		if (isResponseOK) {
+
+			BaseResponseModel responseModel = new Gson().fromJson(result, BaseResponseModel.class);
+			if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
+				Crashlytics.log(Log.ERROR, "jsonconnection", "error status code : " + responseModel.status);
+				MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
+			}
+
+		} else {
+
+			if (notJson) {
+
+				MyApplication.getInstance().toast(context.getString(R.string.notjsontype), Toast.LENGTH_LONG);
+				Crashlytics.log(context.getString(R.string.notjsontype) + " = " + result);
+
+			} else {
+
+				MyApplication.getInstance().toast("error : " + result, Toast.LENGTH_LONG);
+				Crashlytics.log(Log.ERROR, TAG, result);
+
+			}
 		}
-		else if (result != null) {
-				BaseResponseModel responseModel = new Gson().fromJson(result, BaseResponseModel.class);
-					if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
-						Crashlytics.log(Log.ERROR, "jsonconnection", "error status code : " + responseModel.status);
-						MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
-					}
 
-/*
-			try {
-				if (JSONConnection.anyServerError(result, context))
-					result = null;
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}*/
-
-			//perubahan irwan
-		}
-
-		DebugLog.d(url);
 		Bundle bundle = new Bundle();
 		bundle.putString("json", result);
 		bundle.putString("url", url);
 		bundle.putString("methode", "GET");
 		bundle.putInt("statusCode", statusCode);
+		bundle.putBoolean("isresponseok", isResponseOK);
 		Message msg = new Message();
 		msg.setData(bundle);
+
 		if (handler!=null) {
 
 			DebugLog.d("handler is not null");
@@ -196,52 +190,19 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 		} else {
 			DebugLog.d("handler is null");
 		}
-		//		activity.setProgressBarIndeterminateVisibility(false);
 	}
 	
 	
 	@Override
 	protected void onCancelled(String result) {
 		super.onCancelled(result);
-		request.abort();
+		httpRequest.abort();
 	}
 
 	@Override
 	protected void onCancelled() {
 		super.onCancelled();
-		request.abort();
-	}
-	public static String ConvertInputStreamToString(InputStream is) {
-		String str = null;
-		byte[] b = null;
-		try {
-			StringBuffer buffer = new StringBuffer();
-			b = new byte[4096];
-			for (int n; (n = is.read(b)) != -1;) {
-				buffer.append(new String(b, 0, n));
-				DebugLog.d("== (b:" + b + ";b.length:" + b.length + ";n:" + n );
-			}
-			str = buffer.toString();
-
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		return str;
-	}
-
-	public void setJson(String json) {
-		this.json = json;
-	}
-
-	public String getJson() {
-		return json;
-	}
-
-	// check if the content type is json
-	public static boolean checkIfContentTypeJson(String contentType){
-		int idxSemiColon = contentType.indexOf(Constants.JSON_CONTENT_TYPE);
-		DebugLog.d(contentType + " | " + idxSemiColon);
-		return idxSemiColon != -1;
+		httpRequest.abort();
 	}
 	
 	public static boolean anyServerError(String json, Context context) throws JSONException{

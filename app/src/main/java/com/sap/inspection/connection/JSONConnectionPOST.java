@@ -14,6 +14,7 @@ import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -103,9 +104,6 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 
 			if (isUrlOk) {
 
-				//penambahan irwan
-//			request.setHeader("Content-Type", BuildConfig.VERSION_NAME);
-//			request.setHeader("Content-Type", String.valueOf(Build.VERSION.SDK_INT));
 				request.setHeader("Content-Type", "application/x-www-form-urlencoded");
 				SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
 				if (mPref.getString(context.getString(R.string.user_cookie), null) != null){
@@ -135,13 +133,13 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 				statusCode = response.getStatusLine().getStatusCode();
 				DebugLog.d("content type name  : "+response.getEntity().getContentType().getName());
 				DebugLog.d("content type value : "+response.getEntity().getContentType().getValue());
-				if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
+				if (!StringUtil.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
 					DebugLog.d("not json type");
-					DebugLog.d( ConvertInputStreamToString(data));
+					DebugLog.d(StringUtil.ConvertInputStreamToString(data));
 					notJson = true;
 					return null;
 				}
-				String s = ConvertInputStreamToString(data);
+				String s = StringUtil.ConvertInputStreamToString(data);
 				DebugLog.d("json /n"+s);
 				return s;
 			} else {
@@ -178,7 +176,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 	@Override
 	protected void onPostExecute(String result) {
 		super.onPostExecute(result);
-		//		setJson(result);
+
 		if (notJson && result == null) {
 
 			//Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
@@ -216,31 +214,5 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 		super.onCancelled();
 		request.abort();
 	}
-	
-	public static String ConvertInputStreamToString(InputStream is) {
-		String str = null;
-//		String version = BuildConfig.VERSION_NAME;
-		byte[] b = null;
-		try {
-			StringBuffer buffer = new StringBuffer();
-			b = new byte[4096];
-			for (int n; (n = is.read(b)) != -1;) {
-				buffer.append(new String(b, 0, n));
-			}
-			str = buffer.toString();
-//			version.toString();
 
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		return str;
-	}
-
-	public void setJson(String json) {
-		this.json = json;
-	}
-
-	public String getJson() {
-		return json;
-	}
 }

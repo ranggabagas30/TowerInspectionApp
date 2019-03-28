@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -98,7 +99,7 @@ public class JSONConnectionPUTPayloadJson extends AsyncTask<Void, Void, String>{
 			data = response.getEntity().getContent();
 			DebugLog.d("content type name  : "+response.getEntity().getContentType().getName());
 			DebugLog.d("content type value : "+response.getEntity().getContentType().getValue());
-			if (!JSONConnection.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
+			if (!StringUtil.checkIfContentTypeJson(response.getEntity().getContentType().getValue())){
 				DebugLog.d(ConvertInputStreamToString(data));
 				DebugLog.d("not json type");
 				notJson = true;

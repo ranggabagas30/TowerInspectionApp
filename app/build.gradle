@@ -59,16 +59,23 @@ android {
 
     flavorDimensions "default"
 
+    def DBMANAGERVALUE_SCHEMA_VERSION = "DBMANAGERVALUE_SCHEMA_VERSION"
+    def DBMANAGER_SCHEMA_VERSION = "DBMANAGER_SCHEMA_VERSION"
+
     productFlavors {
         sap {
             applicationId 'com.sap.inspection'
             dimension "default"
+            buildConfigField ("int", DBMANAGERVALUE_SCHEMA_VERSION, "8")
+            buildConfigField ("int", DBMANAGER_SCHEMA_VERSION, "9")
         }
         stp {
             applicationId 'com.stp.inspection'
             versionCode 19020300
             versionName "2.3.0"
             dimension "default"
+            buildConfigField ("int", DBMANAGERVALUE_SCHEMA_VERSION, "9")
+            buildConfigField ("int", DBMANAGER_SCHEMA_VERSION, "9")
         }
     }
     compileOptions {

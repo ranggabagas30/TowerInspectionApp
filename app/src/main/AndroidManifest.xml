@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.sap.inspection">
-
     <!-- vc 6 vn 0.0.7 check if any update -->
     <!-- vc 7 vn 0.0.8 check db closed if not opened on mainactivity -->
     <!-- vc 8 vn 0.0.9 enable full GPS -->
@@ -17,15 +15,14 @@
     <!-- vc 17 vn 0.0.18 corrective form done, but upload for it is still hidden, upload delete all corrective datas, skip corrective upload -->
     <!-- vc 18 vn 0.0.19 reupload all data with confirmation, update always download apk -->
     <!-- vc 19 vn 0.0.20 hot fix, jsonObject.wrap tidak di support di icecream -->
-
-    <!--<uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!--
+<uses-permission android:name="android.permission.WAKE_LOCK" />
     <permission
         android:name="com.sap.inspection.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
     <uses-permission android:name="com.sap.inspection.permission.C2D_MESSAGE" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />-->
-
-
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -36,10 +33,11 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CLEAR_APP_CACHE"
+    <uses-permission
+        android:name="android.permission.CLEAR_APP_CACHE"
         tools:ignore="ProtectedPermissions" />
-    <uses-feature android:name="android.permission.READ_PHONE_STATE" />
 
+    <uses-feature android:name="android.permission.READ_PHONE_STATE" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
@@ -49,8 +47,9 @@
         android:icon="@drawable/logo_app"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-
-        <!--<provider
+        <activity android:name=".FormActivityWarga"></activity>
+        <!--
+        <provider
             android:authorities="${applicationId}"
             android:name=".tools.contentprovider.GenericFileProvider"
             android:exported="false"
@@ -59,9 +58,9 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
 
-        </provider>-->
-        <service
-            android:name="com.rindang.pushnotification.FCMListenerService">
+        </provider>
+        -->
+        <service android:name="com.rindang.pushnotification.FCMListenerService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -96,10 +95,9 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".SettingActivity"
-            android:screenOrientation="portrait" />
-
-        <!-- Needed for push notification -->
-        <!--<receiver
+            android:screenOrientation="portrait" /> <!-- Needed for push notification -->
+        <!--
+<receiver
             android:name="com.rindang.pushnotification.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
@@ -108,10 +106,9 @@
 
                 <category android:name="com.sap.inspection" />
             </intent-filter>
-        </receiver>-->
-
-        <!--<service android:name="com.rindang.pushnotification.GcmIntentService" />-->
-
+        </receiver>
+        -->
+        <!-- <service android:name="com.rindang.pushnotification.GcmIntentService" /> -->
         <uses-library android:name="com.google.android.maps" />
 
         <meta-data
@@ -126,9 +123,7 @@
 
         <activity
             android:name=".CheckInActivity"
-            android:windowSoftInputMode="stateHidden">
-
-        </activity>
+            android:windowSoftInputMode="stateHidden"></activity>
     </application>
 
 </manifest>

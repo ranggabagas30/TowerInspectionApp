@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.R;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.tools.DebugLog;
@@ -135,7 +136,7 @@ public class NavigationAdapterByOperator extends MyBaseAdapter {
 		@Override
 		public void onClick(View v) {
 			int position = (Integer) v.getTag();
-			toogleExpand(position);
+			toggleExpand(position);
 		}
 	};
 
@@ -145,17 +146,17 @@ public class NavigationAdapterByOperator extends MyBaseAdapter {
 			int position = (Integer) v.getTag();
 			if (getItem(position).hasForm){
 				Intent intent = new Intent(context, FormFillActivity.class);
-				intent.putExtra("rowId", getItem(position).id);
-				intent.putExtra("scheduleId", scheduleModel.id);
-				intent.putExtra("workFormGroupId", workFormGroupId);
+				intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
+				intent.putExtra(Constants.KEY_SCHEDULEID, scheduleModel.id);
+				intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
 				context.startActivity(intent);
 			}else
-				toogleExpand(position);
+				toggleExpand(position);
 //			Toast.makeText(context, getItem(position).position, Toast.LENGTH_SHORT).show();
 		}
 	};
 	
-	private void toogleExpand(int position){
+	private void toggleExpand(int position){
 		if (getItem(position).isOpen)
 			getItem(position).isOpen = false;
 		else if (getItem(position).children != null && getItem(position).children.size() > 0){

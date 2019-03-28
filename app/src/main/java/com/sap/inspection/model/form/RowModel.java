@@ -243,6 +243,9 @@ public class RowModel extends BaseModel {
 		do {
 			RowModel model = getRowFromCursor(cursor); 
 			model.row_columns = getRowColumnModels(model.id);
+			DebugLog.d("get row-col by rowid : " + model.id);
+			DebugLog.d("row-col size : " + model.row_columns.size());
+
 			for (RowColumnModel row_col : model.row_columns) {
 				DebugLog.d("== row_col "+row_col.id);
 				for (WorkFormItemModel item : row_col.items) {
@@ -255,7 +258,7 @@ public class RowModel extends BaseModel {
 				if (model.text != null)
 					break;
 			}
-			DebugLog.d("===== level : "+model.level+"  text : "+model.text+"  id : "+model.id+"   position : "+model.position+"   ancestry : "+model.ancestry+" row_col size : "+model.row_columns.size());
+			DebugLog.d("===== level : "+model.level+", text : "+model.text+", id : "+model.id+", position : "+model.position+", ancestry : "+model.ancestry+", row_col size : "+model.row_columns.size());
 			result.add(model);
 		} while(cursor.moveToNext());
 
@@ -326,7 +329,6 @@ public class RowModel extends BaseModel {
 
 		RowModel result = null;
 
-
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
 		String where = null;
@@ -373,13 +375,78 @@ public class RowModel extends BaseModel {
 
 		return result;
 	}
-	
-	private Vector<RowColumnModel> getRowColumnModels(int rowId){
+
+	public static Vector<RowModel> getWargaKeNavigationItemsRowModel(String parentId) {
+
+	    DebugLog.d("get wargaKe navigation menu items ");
+
+	    String table = DbManager.mWorkFormRow;
+	    String where = DbManager.colParentId + "=?";
+	    String[] args = new String[]{parentId};
+
+        DbRepository.getInstance().open(MyApplication.getInstance());
+        Cursor cursor = DbRepository.getInstance().getDB().query(true, table, null, where, args, null, null, null, null);
+
+        if (!cursor.moveToFirst()) {
+            DbRepository.getInstance().close();
+            return null;
+        }
+
+        Vector<RowModel> navigationItemRowModels = new Vector<>();
+
+        do {
+
+            RowModel result = getRowFromCursor(cursor);
+			result.text = getRowLabel(result.id);
+
+			DebugLog.d("== result navigation items ==");
+			DebugLog.d("id : " + result.id);
+			DebugLog.d("name : " + result.text);
+			DebugLog.d("parentid : " + result.parent_id);
+			DebugLog.d("ancestry : " + result.ancestry);
+			DebugLog.d("level : " + result.level);
+			DebugLog.d("hasForm : " + result.hasForm);
+			DebugLog.d("workFormGroupId : " + result.work_form_group_id);
+
+            navigationItemRowModels.add(result);
+
+            if (result.level == 1) {
+
+				DebugLog.d("==== get children navigation ===");
+				result.children = getWargaKeNavigationItemsRowModel(String.valueOf(result.id));
+
+            }
+
+        } while (cursor.moveToNext());
+
+        cursor.close();
+        DbRepository.getInstance().close();
+
+        return navigationItemRowModels;
+    }
+
+    private static String getRowLabel(int rowId) {
+
+		Vector<RowColumnModel> rowColumnModels = getRowColumnModels(rowId);
+
+		for (RowColumnModel row_col : rowColumnModels) {
+			DebugLog.d("== row_col "+row_col.id);
+			for (WorkFormItemModel item : row_col.items) {
+				DebugLog.d("== item "+item.label);
+				if (item.label != null){
+					return item.label;
+				}
+			}
+		}
+		return null;
+	}
+
+	private static Vector<RowColumnModel> getRowColumnModels(int rowId){
 		RowColumnModel rowColumnModel = new RowColumnModel();
 		return rowColumnModel.getAllItemByWorkFormRowId(rowId);
 	}
 
-	private RowModel getRowFromCursor(Cursor c) {
+	private static RowModel getRowFromCursor(Cursor c) {
 		RowModel item= new RowModel();
 
 		if (null == c)

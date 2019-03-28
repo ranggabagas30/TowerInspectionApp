@@ -33,7 +33,7 @@ public class DeleteAllDataDialog {
 		View v = LayoutInflater.from(context).inflate(R.layout.dialog_send_feedback, null);
 		initializeView(v);
 		dialog.setView(v);
-		dialog.setTitle("Delete All Data");
+		dialog.setTitle("Delete All ImbasPetirData");
 		this.dialog = dialog.show();
 	}
 

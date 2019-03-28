@@ -21,6 +21,7 @@ public class NavigationFragment extends BaseFragment {
 	private TextView title, subTitle;
 	private RowModel navigationModel;
 	private ScheduleBaseModel schedule;
+    private String workTypeName;
 
 	private FormActivityListener backPressedListener;
 	
@@ -45,24 +46,16 @@ public class NavigationFragment extends BaseFragment {
 		subTitle = (TextView) root.findViewById(R.id.header_subtitle);
 		subTitle.setText(schedule.work_type.name);
 		back = root.findViewById(R.id.action_left);
-		back.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (null != backPressedListener)
-					backPressedListener.myOnBackPressed();
-			}
+		back.setOnClickListener(v -> {
+			if (null != backPressedListener)
+				backPressedListener.myOnBackPressed();
 		});
 		mainmenu = root.findViewById(R.id.action_right);
-		mainmenu.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				getActivity().finish();
-			}
-		});
+		mainmenu.setOnClickListener(v -> getActivity().finish());
 		list.setAdapter(adapter);
 		adapter.setScheduleId(schedule.id);
 		adapter.setItems(navigationModel);
+		adapter.setWorkTypeName(workTypeName);
 		return root;
 	}
 
@@ -77,4 +70,8 @@ public class NavigationFragment extends BaseFragment {
 	public void setNavigationModel(RowModel navigationModel) {
 		this.navigationModel = navigationModel;
 	}
+
+	public void setWorkTypeName(String workTypeName) {
+	    this.workTypeName = workTypeName;
+    }
 }

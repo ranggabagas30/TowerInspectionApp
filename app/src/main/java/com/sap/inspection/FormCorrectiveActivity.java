@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -129,13 +130,13 @@ public class FormCorrectiveActivity extends BaseActivity {
 		list.setAdapter(adapter);
 		progressDialog = new ProgressDialog(activity);
 		Bundle bundle = getIntent().getExtras();
-//		rowId = bundle.getInt("rowId");
-//		workFormGroupId = bundle.getInt("workFormGroupId");
+//		rowId = bundle.getInt(Constants.KEY_ROWID);
+//		workFormGroupId = bundle.getInt(Constants.KEY_WORKFORMGROUPID);
 
 		/*DbRepository.getInstance().open(activity);
 		DbRepositoryValue.getInstance().open(activity);*/
 		schedule = new ScheduleGeneral();
-		schedule = schedule.getScheduleById(bundle.getString("scheduleId"));
+		schedule = schedule.getScheduleById(bundle.getString(Constants.KEY_SCHEDULEID));
 
 		search = (AutoCompleteTextView) findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);

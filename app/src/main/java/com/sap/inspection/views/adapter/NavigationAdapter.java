@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.CheckInActivity;
+import com.sap.inspection.FormActivity;
+import com.sap.inspection.FormActivityWarga;
 import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
@@ -23,6 +25,8 @@ import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
+import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
@@ -30,6 +34,7 @@ import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +50,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 	private RowModel model;
 	private Vector<RowModel> shown;
 	private String scheduleId;
+	private String workTypeName;
 	private ScheduleBaseModel scheduleBaseModel;
     private int positionAncestry;
 
@@ -57,6 +63,11 @@ public class NavigationAdapter extends MyBaseAdapter {
 	public String getScheduleId() {
 		return scheduleId;
 	}
+
+	public void setWorkTypeName(String workTypeName) {
+        this.workTypeName = workTypeName;
+    }
+
 	public NavigationAdapter(Context context) {
 		this.context = context;
 		if (null == model)
@@ -153,8 +164,23 @@ public class NavigationAdapter extends MyBaseAdapter {
 			holder.uploadWorkFormGroup.setOnClickListener(uploadWorkFormGroupListener);
 			holder.title = (TextView) view.findViewById(R.id.title);
 			holder.title.setOnClickListener(ItemClickListener);
+
 			if (getItemViewType(position) == 0){
+
 				holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
+
+			} else
+			if (getItemViewType(position) == 1) {
+
+				RowModel rowModel = getItem(position);
+
+				if (rowModel.text.contains(Constants.regexWargaKe)) {
+
+					holder.removeSubMenu = view.findViewById(R.id.removesubmenu);
+					holder.removeSubMenu.setVisibility(View.VISIBLE);
+					holder.removeSubMenu.setTag(rowModel);
+					holder.removeSubMenu.setOnClickListener(removeSubMenuClickListener);
+				}
 			}
 
 			view.setTag(holder);
@@ -186,7 +212,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 		@Override
 		public void onClick(View v) {
 			int position = (Integer) v.getTag();
-			toogleExpand(position);
+			toggleExpand(position);
 		}
 	};
 
@@ -250,33 +276,71 @@ public class NavigationAdapter extends MyBaseAdapter {
             }
 			if (getItem(position).text.equalsIgnoreCase("others form")){
 				Intent intent = new Intent(context, FormFillActivity.class);
-				intent.putExtra("rowId", getItem(position).id);
-				intent.putExtra("workFormGroupId", getItem(position).work_form_group_id);
-				intent.putExtra("scheduleId", scheduleId);
-                intent.putExtra("workFormGroupName", shown.get(positionAncestry).text);
+				intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
+				intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
+				intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+                intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, shown.get(positionAncestry).text);
 				DebugLog.d("----ini others form lho----- "+scheduleId);
 //				context.startActivity(intent);
 			}
 			else if (getItem(position).hasForm){
-				DebugLog.d("----schedule id----- "+scheduleId);
 
-				String workFormGroupName = shown.get(positionAncestry).text;
-				Intent intent;
-				intent = new Intent(context, FormFillActivity.class);
-				intent.putExtra("rowId", getItem(position).id);
-				intent.putExtra("workFormGroupId", getItem(position).work_form_group_id);
-				intent.putExtra("scheduleId", scheduleId);
-				intent.putExtra("workFormGroupName", workFormGroupName);
-				intent.putExtra("scheduleBaseModel", scheduleBaseModel);
-				context.startActivity(intent);
+                DebugLog.d("----schedule id----- "+scheduleId);
+
+                String workFormGroupName = shown.get(positionAncestry).text;
+                Intent intent;
+
+                // if the navigation item is "Warga Ke-"
+				if (getItem(position).text.contains(Constants.regexWargaKe)) {
+
+					int parentId = getItem(position).id;
+					int wargaKeIndex = StringUtil.getWargaKeIndex(getItem(position).text) - 1; // converts to zero index
+
+					int indexOfData = FormImbasPetirConfig.indexOfData(scheduleId);
+
+					intent = new Intent(context, FormActivityWarga.class);
+					intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
+					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
+					intent.putExtra(Constants.KEY_WORKFORMGROUPID, String.valueOf(getItem(position).work_form_group_id));
+					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
+
+					ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(indexOfData);
+
+					if (wargas != null && !wargas.isEmpty()) {
+
+						String wargaId = wargas.get(wargaKeIndex).getWargaid();
+						intent.putExtra(Constants.KEY_WARGAID, wargaId);
+
+					}
+
+				} else {
+					intent = new Intent(context, FormFillActivity.class);
+					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
+					intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
+					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
+				}
+                context.startActivity(intent);
+
 //				Toast.makeText(context, "tester", Toast.LENGTH_SHORT).show();
 			}else
-				toogleExpand(position);
+				toggleExpand(position);
 //						Toast.makeText(context, "tester "+getItem(position).position, Toast.LENGTH_SHORT).show();
 		}
 	};
 
-	private void toogleExpand(int position){
+	OnClickListener removeSubMenuClickListener = v -> {
+
+		RowModel removeRowModel = (RowModel) v.getTag();
+
+		DebugLog.d("remove model id : " + removeRowModel.id);
+		DebugLog.d("remove model name : " + removeRowModel.text);
+	};
+
+	private void toggleExpand(int position){
 		if (getItem(position).isOpen){
 			getItem(position).isOpen = false;
 			DebugLog.d("closed");
@@ -293,6 +357,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 	private class ViewHolder {
 		ImageView expandCollapse;
 		ImageView uploadWorkFormGroup;
+		ImageView removeSubMenu;
 		TextView title;
 	}
 

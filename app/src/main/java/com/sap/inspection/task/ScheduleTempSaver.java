@@ -49,7 +49,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 		DebugLog.d("saving schedule "+values[0]+" %...");
 		EventBus.getDefault().post(new ScheduleTempProgressEvent(values[0]));
 		if (mainActivity != null)
-			mainActivity.setProgressDialogMessage("schedule","saving schedule "+values[0]+" %...");
+			mainActivity.showMessageDialog("schedule : saving schedule "+values[0]+" %...");
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 		if (activity != null)
 			try {
 				if (activity instanceof SettingActivity)
-				((SettingActivity)activity).hideDialog();
+				    ((SettingActivity)activity).hideDialog();
 				else
 					((MainActivity)activity).hideDialog();
 			} catch (Exception e) {

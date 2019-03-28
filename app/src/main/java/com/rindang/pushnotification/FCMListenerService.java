@@ -29,9 +29,9 @@ public class FCMListenerService extends FirebaseMessagingService {
         DebugLog.d("==== FIREBASE MESSAGE RECEIVED ====\n");
 
         // [START_EXCLUDE]
-        // There are two types of messages : data messages and notification messages. Data messages
+        // There are two types of messages : data messages and notification messages. ImbasPetirData messages
         // are handled
-        // here in onMessageReceived whether the app is in the foreground or background. Data
+        // here in onMessageReceived whether the app is in the foreground or background. ImbasPetirData
         // messages are the type
         // traditionally used with GCM. Notification messages are only received here in
         // onMessageReceived when the app

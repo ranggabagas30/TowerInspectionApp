@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.RowModel;
@@ -23,7 +24,7 @@ import com.sap.inspection.model.migrate.GeneralPatch9;
 public class DbManager extends SQLiteOpenHelper {
 
 	public static final String dbName = "sap.db";
-	public static final int schema_version = 9;
+	public static final int schema_version = BuildConfig.DBMANAGER_SCHEMA_VERSION;
 
 	public static final String colCreatedAt = "created_at";
 	public static final String colUpdatedAt = "updated_at";
@@ -31,7 +32,6 @@ public class DbManager extends SQLiteOpenHelper {
 
 	public static final String colID = "id";
 	public static final String colName = "name";
-
 
 	// token table
 	public static final String mTokenTable 	= "Tokens";
@@ -136,12 +136,12 @@ public class DbManager extends SQLiteOpenHelper {
 	public static final String colParentId 			= "parentId";
 	public static final String colLevel 			= "level";
 
-	// Form Value
-	public static final String mFormValue 		= "FromValues";
-	public static final String colScheduleId 	= "scheduleId";
-	public static final String colItemId	 	= "itemId";
-	public static final String colIsPhoto 		= "isPhoto";
 	public static final String colValue 		= "value";
+
+	// config table
+	public static final String mConfig				= "config";
+	public static final String colConfigName		= "configName";
+	public static final String colConfigData		= "configData";
 
 	// Site table
 	//	public static final String mSites 			= "Sites";
@@ -257,6 +257,8 @@ public class DbManager extends SQLiteOpenHelper {
 		db.execSQL(WorkFormItemModel.createDB());
 		//		Form Item Option Model
 		db.execSQL(WorkFormOptionsModel.createDB());
+		//		Config Model
+		db.execSQL(ConfigModel.createDB());
 	}
 
 	@Override
@@ -323,5 +325,8 @@ public class DbManager extends SQLiteOpenHelper {
 
 		//		Form Item Option Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkFormOption);
+
+		//		Config Model
+		db.execSQL("DROP TABLE IF EXISTS " + mConfig);
 	}
 }

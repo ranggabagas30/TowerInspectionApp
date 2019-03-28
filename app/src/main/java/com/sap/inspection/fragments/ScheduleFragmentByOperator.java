@@ -112,7 +112,7 @@ public class ScheduleFragmentByOperator extends BaseListTitleFragment implements
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 		Intent intent = new Intent(activity, FormActivity.class);
-		intent.putExtra(Constants.scheduleId, models.get(position).id);
+		intent.putExtra(Constants.KEY_SCHEDULEID, models.get(position).id);
 		startActivity(intent);
 	}
 	

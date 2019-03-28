@@ -4,12 +4,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.tools.DebugLog;
 
 public class DbManagerValue extends SQLiteOpenHelper {
 
 	public static final String dbName = "value.db";
-	static final int schema_version = 8;
+	static final int schema_version = BuildConfig.DBMANAGERVALUE_SCHEMA_VERSION;
 
 	public static final String colCreatedAt = "created_at";
 	public static final String colUpdatedAt = "updated_at";
@@ -36,6 +37,8 @@ public class DbManagerValue extends SQLiteOpenHelper {
 	public static final String colUploadStatus 	= "uploadStatus";
 	public static final String colDisable		= "disable";
 	public static final String colPhotoDate		= "photoDate";
+	public static final String colWargaId		= "wargaId";
+	public static final String colBarangId		= "barangId";
 
 	// Row Value
 	public static final String mRowValue 		= "RowValues";
@@ -187,6 +190,38 @@ public class DbManagerValue extends SQLiteOpenHelper {
 								+ DbManagerValue.colIsPhoto + ","
 								+ DbManagerValue.colCreatedAt
 								+ " FROM " + mFormValue +"temp");
+					db.execSQL("DROP TABLE " + mFormValue+"temp");
+				}
+			},
+			new Patch() {
+				@Override
+				public void apply(SQLiteDatabase db) {  /** version 9, PATCHES[8] **/
+					DebugLog.d("general patch 9");
+					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colWargaId + " INTEGER DEFAULT 0");
+					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colBarangId + " INTEGER DEFAULT 0");
+				}
+				@Override
+				public void revert(SQLiteDatabase db) {
+					DebugLog.d("revert patch to 8");
+					db.execSQL("ALTER TABLE " + mFormValue + " RENAME TO " + mFormValue +"temp");
+					onCreate(db);
+					db.execSQL("INSERT INTO " + mFormValue + " SELECT "
+							+ DbManagerValue.colScheduleId + ","
+							+ DbManagerValue.colOperatorId + ","
+							+ DbManagerValue.colItemId + ","
+							+ DbManagerValue.colSiteId + ","
+							+ DbManagerValue.colGPSAccuracy + ","
+							+ DbManagerValue.colRowId + ","
+							+ DbManagerValue.colRemark + ","
+							+ DbManagerValue.colPhotoStatus + ","
+							+ DbManagerValue.colLatitude + ","
+							+ DbManagerValue.colLongitude + ","
+							+ DbManagerValue.colValue + ","
+							+ DbManagerValue.colUploadStatus + ","
+							+ DbManagerValue.colIsPhoto + ","
+							+ DbManagerValue.colCreatedAt + ","
+							+ DbManagerValue.colPhotoDate
+							+ " FROM " + mFormValue +"temp");
 					db.execSQL("DROP TABLE " + mFormValue+"temp");
 				}
 			}

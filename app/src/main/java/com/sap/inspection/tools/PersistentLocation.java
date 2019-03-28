@@ -58,7 +58,7 @@ public class PersistentLocation{
         DebugLog.d("stringSavedFromPref : " + stringSavedFromPref);
         if (!stringSavedFromPref.equalsIgnoreCase("")){
             if (stringSavedFromPref.length() > Integer.MAX_VALUE) {
-                MyApplication.getInstance().toast("Data yang tersimpan penuh. Silahkan muat ulang dan hapus jadwal", Toast.LENGTH_LONG);
+                MyApplication.getInstance().toast("ImbasPetirData yang tersimpan penuh. Silahkan muat ulang dan hapus jadwal", Toast.LENGTH_LONG);
                 return null;
             } else  {
                 stringSavedFromPref = stringWithoutColons(stringSavedFromPref);

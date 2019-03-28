@@ -37,7 +37,7 @@
 //		super.onCreate(savedInstanceState);
 //		//get schedule from bundle
 //		Bundle bundle = getIntent().getExtras();
-//		scheduleId = bundle.getString(Constants.scheduleId);
+//		scheduleId = bundle.getString(Constants.KEY_SCHEDULEID);
 //		scheduleModel = new ScheduleGeneral();
 //		scheduleModel = scheduleModel.getScheduleById(activity, scheduleId);
 //		

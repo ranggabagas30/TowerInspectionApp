@@ -305,7 +305,6 @@ public class CommonUtil {
         };
     }
 
-
     /**
      * get DeviceID (IMEI)
      * and installing APK programmatically

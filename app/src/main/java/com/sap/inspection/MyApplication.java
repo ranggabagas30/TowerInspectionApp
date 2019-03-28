@@ -45,6 +45,7 @@ public class MyApplication extends Application {
 	private static MyApplication instance;
 	private HashMap< String, AbstractMap.SimpleEntry<String, String> > hashMapSiteLocation;
 	private boolean IN_CHECK_HASIL_PM;
+	private boolean IN_FORM_IMBAS_PETIR;
 	private boolean SCHEDULE_NEED_CHECK_IN;
 	private boolean CHECK_APP_VERSION_STATE;
 	private boolean DEVICE_REGISTER_STATE;
@@ -203,6 +204,7 @@ public class MyApplication extends Application {
 		SCHEDULE_NEED_CHECK_IN = false;
 		CHECK_APP_VERSION_STATE = false;
 		DEVICE_REGISTER_STATE = false;
+		IN_FORM_IMBAS_PETIR = false;
 		checkinDataModel = new CheckinDataModel();
 	}
 
@@ -251,6 +253,14 @@ public class MyApplication extends Application {
 		}
 	}
 
+	public void setIN_FORM_IMBAS_PETIR(boolean IN_FORM_IMBAS_PETIR) {
+		this.IN_FORM_IMBAS_PETIR = IN_FORM_IMBAS_PETIR;
+	}
+
+	public boolean isIN_FORM_IMBAS_PETIR() {
+		return IN_FORM_IMBAS_PETIR;
+	}
+
 	public boolean isInCheckHasilPm() {
 		return IN_CHECK_HASIL_PM;
 	}
@@ -282,5 +292,4 @@ public class MyApplication extends Application {
 	public void setDEVICE_REGISTER_STATE(boolean DEVICE_REGISTER_STATE) {
 		this.DEVICE_REGISTER_STATE = DEVICE_REGISTER_STATE;
 	}
-
 }

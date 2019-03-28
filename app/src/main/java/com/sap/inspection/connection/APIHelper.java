@@ -4,10 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 
 import org.apache.http.NameValuePair;
@@ -19,18 +23,35 @@ import java.util.LinkedList;
 public class APIHelper {
 
 	public static void getJsonFromUrl(Context context, Handler handler, String url){
-		JSONConnection getJson = new JSONConnection(context,url, handler);
-		getJson.execute();
-	}
 
-	public static void getJsonFromUrl(Context context, Handler handler, String url,String token){
-		JSONConnection getJson = new JSONConnection(context,url+"&"+token, handler);
-		getJson.execute();
+		if (GlobalVar.getInstance().anyNetwork(context)) {
+
+			JSONConnection getJson = new JSONConnection(context,url, handler);
+			getJson.execute();
+
+		} else {
+
+			// network not available
+			DebugLog.d(context.getString(R.string.checkConnection));
+			MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+
+		}
 	}
 
 	public static void postParams(Context context,String url,Handler handler,LinkedList<NameValuePair> params){
-		JSONConnectionPOST postJson = new JSONConnectionPOST(context, url, handler, params);
-		postJson.execute();
+
+		if (GlobalVar.getInstance().anyNetwork(context)) {
+
+			JSONConnectionPOST postJson = new JSONConnectionPOST(context, url, handler, params);
+			postJson.execute();
+
+		} else {
+
+			// network not available
+			DebugLog.d(context.getString(R.string.checkConnection));
+			MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+
+		}
 	}
 
 	//Account
@@ -92,6 +113,10 @@ public class APIHelper {
 //		getJsonFromUrl(context, handler, APIList.formGroupUrl()+"?template=full&user_id="+userId+"&access_token="+getAccessToken(context));
 	}
 
+	public static void getFormImbasPetir(Context context, Handler handler) {
+	    getJsonFromUrl(context, handler, APIList.formImbasPetirUrl() + "?access_token=" + getAccessToken(context));
+    }
+
 	public static String getAccessToken(Context context){
 		SharedPreferences mpref =  PreferenceManager.getDefaultSharedPreferences(context);
 		return mpref.getString(context.getString(R.string.user_authToken), "");
@@ -101,5 +126,4 @@ public class APIHelper {
 	public static void getAPKVersion(Context context,Handler handler, String userId){
 		getJsonFromUrl(context, handler, APIList.apkUrl()+"?access_token="+getAccessToken(context));
 	}
-
 }

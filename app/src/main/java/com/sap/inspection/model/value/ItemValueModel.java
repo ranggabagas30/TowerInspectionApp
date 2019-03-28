@@ -57,6 +57,10 @@ public class ItemValueModel extends BaseModel {
 	public String picture;
 	public boolean disable;
 
+	// STP only
+	public int wargaId;
+	public int barangId;
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -130,8 +134,7 @@ public class ItemValueModel extends BaseModel {
 	public ItemValueModel getItemValue(Context context,String scheduleId, int itemId, int operatorId) {
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		ItemValueModel model = null;
-		model = getItemValue(scheduleId, itemId, operatorId);
+		ItemValueModel model = getItemValue(scheduleId, itemId, operatorId);
 		DbRepositoryValue.getInstance().close();
 		return model;
 	}
@@ -370,6 +373,28 @@ public class ItemValueModel extends BaseModel {
 						DbManagerValue.colLatitude, DbManagerValue.colLongitude,
 						DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
 						DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt);
+
+				DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+				SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
+
+				bindAndCheckNullString(stmt, 1, scheduleId);
+				stmt.bindLong(2, itemId);
+				bindAndCheckNullString(stmt, 3, value);
+				bindBooleanToInteger(stmt, 4, typePhoto);
+				stmt.bindLong(5, operatorId);
+				stmt.bindLong(6, rowId);
+				bindAndCheckNullString(stmt, 7, remark);
+				bindAndCheckNullString(stmt, 8, latitude);
+				bindAndCheckNullString(stmt, 9, longitude);
+				bindAndCheckNullString(stmt, 10, photoStatus);
+				stmt.bindLong(11, gpsAccuracy);
+				stmt.bindLong(12, uploadStatus);
+				bindAndCheckNullString(stmt, 13, getCurrentDate());
+				stmt.executeInsert();
+				stmt.close();
+				DbRepositoryValue.getInstance().close();
+
 				break;
 			}
 			case 8 : {
@@ -383,36 +408,72 @@ public class ItemValueModel extends BaseModel {
 						DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt,
 						DbManagerValue.colPhotoDate);
 
+				DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+				SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
+
+				bindAndCheckNullString(stmt, 1, scheduleId);
+				stmt.bindLong(2, itemId);
+				bindAndCheckNullString(stmt, 3, value);
+				bindBooleanToInteger(stmt, 4, typePhoto);
+				stmt.bindLong(5, operatorId);
+				stmt.bindLong(6, rowId);
+				bindAndCheckNullString(stmt, 7, remark);
+				bindAndCheckNullString(stmt, 8, latitude);
+				bindAndCheckNullString(stmt, 9, longitude);
+				bindAndCheckNullString(stmt, 10, photoStatus);
+				stmt.bindLong(11, gpsAccuracy);
+				stmt.bindLong(12, uploadStatus);
+				bindAndCheckNullString(stmt, 13, getCurrentDate());
+				bindAndCheckNullString(stmt, 14, photoDate);
+				stmt.executeInsert();
+				stmt.close();
+				DbRepositoryValue.getInstance().close();
+
+				break;
+			}
+			case 9 : {
+				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+						DbManagerValue.mFormValue , DbManagerValue.colScheduleId,
+						DbManagerValue.colItemId,DbManagerValue.colValue,
+						DbManagerValue.colIsPhoto,DbManagerValue.colOperatorId,
+						DbManagerValue.colRowId, DbManagerValue.colRemark,
+						DbManagerValue.colLatitude, DbManagerValue.colLongitude,
+						DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
+						DbManagerValue.colUploadStatus,DbManagerValue.colCreatedAt,
+						DbManagerValue.colPhotoDate,DbManagerValue.colWargaId,
+						DbManagerValue.colBarangId);
+
+				DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+				SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
+
+				bindAndCheckNullString(stmt, 1, scheduleId);
+				stmt.bindLong(2, itemId);
+				bindAndCheckNullString(stmt, 3, value);
+				bindBooleanToInteger(stmt, 4, typePhoto);
+				stmt.bindLong(5, operatorId);
+				stmt.bindLong(6, rowId);
+				bindAndCheckNullString(stmt, 7, remark);
+				bindAndCheckNullString(stmt, 8, latitude);
+				bindAndCheckNullString(stmt, 9, longitude);
+				bindAndCheckNullString(stmt, 10, photoStatus);
+				stmt.bindLong(11, gpsAccuracy);
+				stmt.bindLong(12, uploadStatus);
+				bindAndCheckNullString(stmt, 13, getCurrentDate());
+				bindAndCheckNullString(stmt, 14, photoDate);
+				stmt.bindLong(15, wargaId);
+				stmt.bindLong(16, barangId);
+				stmt.executeInsert();
+				stmt.close();
+				DbRepositoryValue.getInstance().close();
+
 				break;
 			}
 			default:
 				break;
 		}
 
-
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-
-		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
-
-		bindAndCheckNullString(stmt, 1, scheduleId);
-		stmt.bindLong(2, itemId);
-		bindAndCheckNullString(stmt, 3, value);
-		bindBooleanToInteger(stmt, 4, typePhoto);
-		stmt.bindLong(5, operatorId);
-		stmt.bindLong(6, rowId);
-		bindAndCheckNullString(stmt, 7, remark);
-		bindAndCheckNullString(stmt, 8, latitude);
-		bindAndCheckNullString(stmt, 9, longitude);
-		bindAndCheckNullString(stmt, 10, photoStatus);
-		stmt.bindLong(11, gpsAccuracy);
-		stmt.bindLong(12, uploadStatus);
-		bindAndCheckNullString(stmt, 13, getCurrentDate());
-
-		if (DbManagerValue.schema_version == 8)
-			bindAndCheckNullString(stmt, 14, photoDate);
-		stmt.executeInsert();
-		stmt.close();
-		DbRepositoryValue.getInstance().close();
 	}
 
 	private boolean isColumnExist(String colName) {
@@ -523,6 +584,25 @@ public class ItemValueModel extends BaseModel {
 				FormValueModel.photoDate = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoDate)));
 				break;
 			}
+			case 9 : {
+				FormValueModel.scheduleId = (c.getString(c.getColumnIndex(DbManagerValue.colScheduleId)));
+				FormValueModel.operatorId = (c.getInt(c.getColumnIndex(DbManagerValue.colOperatorId)));
+				FormValueModel.itemId = (c.getInt(c.getColumnIndex(DbManagerValue.colItemId)));
+				FormValueModel.rowId = (c.getInt(c.getColumnIndex(DbManagerValue.colRowId)));
+				FormValueModel.gpsAccuracy = (c.getInt(c.getColumnIndex(DbManagerValue.colGPSAccuracy)));
+				FormValueModel.remark = (c.getString(c.getColumnIndex(DbManagerValue.colRemark)));
+				FormValueModel.latitude = (c.getString(c.getColumnIndex(DbManagerValue.colLatitude)));
+				FormValueModel.longitude = (c.getString(c.getColumnIndex(DbManagerValue.colLongitude)));
+				FormValueModel.photoStatus = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoStatus)));
+				FormValueModel.value = (c.getString(c.getColumnIndex(DbManagerValue.colValue)));
+				FormValueModel.uploadStatus = (c.getInt(c.getColumnIndex(DbManagerValue.colUploadStatus)));
+				FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1;
+				FormValueModel.createdAt = (c.getString(c.getColumnIndex(DbManagerValue.colCreatedAt)));
+				FormValueModel.photoDate = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoDate)));
+				FormValueModel.wargaId	 = (c.getInt(c.getColumnIndex(DbManagerValue.colWargaId)));
+				FormValueModel.barangId	 = (c.getInt(c.getColumnIndex(DbManagerValue.colBarangId)));
+				break;
+			}
 			default:
 				break;
 		}
@@ -602,6 +682,28 @@ public class ItemValueModel extends BaseModel {
 								+ DbManagerValue.colCreatedAt + " varchar, "
 								+ DbManagerValue.colPhotoDate + " varchar,"
 								+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
+				break;
+			}
+			case 9 : {
+				createTable = "create table if not exists " + DbManagerValue.mFormValue
+						+ " ("+ DbManagerValue.colScheduleId + " integer, "
+						+ DbManagerValue.colOperatorId + " integer, "
+						+ DbManagerValue.colItemId + " integer, "
+						+ DbManagerValue.colSiteId + " integer, "
+						+ DbManagerValue.colGPSAccuracy + " integer, "
+						+ DbManagerValue.colRowId + " integer, "
+						+ DbManagerValue.colRemark + " varchar, "
+						+ DbManagerValue.colPhotoStatus + " varchar, "
+						+ DbManagerValue.colLatitude + " varchar, "
+						+ DbManagerValue.colLongitude + " varchar, "
+						+ DbManagerValue.colValue + " varchar, "
+						+ DbManagerValue.colUploadStatus + " integer, "
+						+ DbManagerValue.colIsPhoto + " integer, "
+						+ DbManagerValue.colCreatedAt + " varchar, "
+						+ DbManagerValue.colPhotoDate + " varchar, "
+						+ DbManagerValue.colWargaId + " integer, "
+						+ DbManagerValue.colBarangId + " integer,"
+						+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
 				break;
 			}
 			default:

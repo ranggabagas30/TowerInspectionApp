@@ -69,8 +69,19 @@ public class Constants {
 	/**
 	 * ============================ Passing param ===================================================== 
 	 */
-	
-	public static String scheduleId = "scheduleId";
+
+	public static String KEY_USERID = "KEY_USERID";
+	public static String KEY_SCHEDULEID = "KEY_SCHEDULEID";
+	public static String KEY_SITEID = "KEY_SITEID";
+	public static String KEY_ROWID = "KEY_ROWID";
+	public static String KEY_WORKFORMGROUPID = "KEY_WORKFORMGROUPID";
+	public static String KEY_WARGAID = "KEY_WARGAID";
+	public static String KEY_PARENTID = "KEY_PARENTID";
+	public static String KEY_WORKTYPEID = "KEY_WORKTYPEID";
+	public static String KEY_WORKTYPENAME = "KEY_WORKTYPENAME";
+	public static String KEY_DAYDATE = "KEY_DAYDATE";
+	public static String KEY_WORKFORMGROUPNAME = "KEY_WORKFORMGROUPNAME";
+	public static String KEY_SCHEDULEBASEMODEL = "KEY_SCHEDULEBASEMODEL";
 
 	public static final String LOADAFTERLOGIN = "load";
 	public static final String LOADSCHEDULE = "load_schedule";
@@ -92,6 +103,7 @@ public class Constants {
 	public static final String regexChecklist = "(.*)CHECKLIST(.*)";
 	public static final String regexSiteInformation = "(.*)SITE INFORMATION(.*)";
 	public static final String regexPREVENTIVE = "(.*)PREVENTIVE(.*)";
+	public static final String regexWargaKe	= "Warga Ke-";
 
 	/**
 	 * ============================= REQUEST CODE =================================================
@@ -100,6 +112,7 @@ public class Constants {
 	public static final int RC_STORAGE_PERMISSION = 1;
 	public static final int RC_READ_PHONE_STATE = 2;
 	public static final int RC_LOCATION_PERMISSION = 3;
+	public static final int RC_CAMERA = 4;
 
 	public static final int RC_INSTALL_APK = 101;
 } 

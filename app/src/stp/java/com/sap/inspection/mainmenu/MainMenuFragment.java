@@ -64,7 +64,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.drawable.ic_settings,
 					R.drawable.fofo,
 					R.drawable.ic_hasilpm,
-					R.drawable.fofo // dummy menu Foto Imbas Petir
+					R.drawable.ic_imbas_petir // dummy menu Foto Imbas Petir
 			};
 			this.icons = getArrayList(icons);
 		}
