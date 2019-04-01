@@ -230,5 +230,6 @@
     <orderEntry type="library" name="Gradle: org.apache.http.legacy-android-27" level="project" />
     <orderEntry type="module" module-name="baseassets" />
     <orderEntry type="module" module-name="baseassets" />
+    <orderEntry type="module" module-name="baseassets" />
   </component>
 </module>

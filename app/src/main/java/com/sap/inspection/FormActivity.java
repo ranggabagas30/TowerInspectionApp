@@ -307,13 +307,9 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 					for (int i = 0; i < wargaSize; i++) {
 
-						int wargake = i + 1;
-
-						StringBuilder wargaLabel = new StringBuilder();
-
 						RowModel wargaKeModel = rowModel.getAllItemByWorkFormGroupId(model.id).get(0);
 
-						wargaLabel.append(wargaKeModel.text).append(wargake);
+						StringBuilder wargaLabel = new StringBuilder(wargaKeModel.text).append(wargas.get(i).getWargaid());
 
 						wargaKeModel.text = new String(wargaLabel);
 

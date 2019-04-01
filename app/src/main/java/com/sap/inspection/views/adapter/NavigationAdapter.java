@@ -151,6 +151,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 				break;
 			case 1:
 				view = LayoutInflater.from(context).inflate(R.layout.item_navigation_2,null);
+				holder.removeSubMenu = view.findViewById(R.id.removesubmenu);
 				break;
 			case 2:
 				view = LayoutInflater.from(context).inflate(R.layout.item_navigation_3,null);
@@ -168,26 +169,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 			holder.title.setOnClickListener(ItemClickListener);
 
 			if (getItemViewType(position) == 0){
-
 				holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
-
-			} else
-			if (getItemViewType(position) == 1) {
-
-				RowModel rowModel = getItem(position);
-
-				DebugLog.d("view type = 1");
-				DebugLog.d("label name = " + rowModel.text);
-
-				if (rowModel.text.contains(Constants.regexWargaKe)) {
-
-					DebugLog.d("remove submenu visibility is VISIBLE");
-
-					holder.removeSubMenu = view.findViewById(R.id.removesubmenu);
-					holder.removeSubMenu.setVisibility(View.VISIBLE);
-					holder.removeSubMenu.setTag(rowModel);
-					holder.removeSubMenu.setOnClickListener(removeSubMenuClickListener);
-				}
 			}
 
 			view.setTag(holder);
@@ -206,6 +188,27 @@ public class NavigationAdapter extends MyBaseAdapter {
 			break;
 		case 1:
 			holder.expandCollapse.setImageResource(getItem(position).isOpen ? R.drawable.ic_collapse_2 : R.drawable.ic_expand_2);
+
+			RowModel rowModel = getItem(position);
+
+			DebugLog.d("view type = 1");
+			DebugLog.d("label name = " + rowModel.text);
+
+			if (rowModel.text.contains(Constants.regexWargaKe)) {
+
+				DebugLog.d("remove submenu visibility is VISIBLE");
+
+				holder.removeSubMenu.setVisibility(View.VISIBLE);
+				holder.removeSubMenu.setTag(rowModel);
+				holder.removeSubMenu.setOnClickListener(removeSubMenuClickListener);
+
+			} else {
+
+				DebugLog.d("remove submenu visibility is INVISIBLE");
+				holder.removeSubMenu.setVisibility(View.INVISIBLE);
+
+			}
+
 			break;
 
 		default:
@@ -387,21 +390,5 @@ public class NavigationAdapter extends MyBaseAdapter {
 		ImageView uploadWorkFormGroup;
 		ImageView removeSubMenu;
 		TextView title;
-	}
-
-	public void showInputAmountWargaDialog(int dataIndex) {
-
-		FormActivity activity = ((FormActivity) context);
-
-		activity.inputJumlahWargaDialog.setConfirmButton("Tambah", amountOfWarga -> {
-
-			// insert new data warga as many as amount inputted
-			MyApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
-
-			FormImbasPetirConfig.insertDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
-
-
-
-		}).show();
 	}
 }

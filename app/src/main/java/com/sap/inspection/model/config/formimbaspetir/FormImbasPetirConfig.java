@@ -112,8 +112,8 @@ public class FormImbasPetirConfig
                String wargaId = "new" + String.valueOf(wargake);
 
                Warga warga = new Warga();
-               warga.setWargaid(wargaId);
-               warga.setWargake(wargake);
+               warga.setWargaid(wargaId); // real id
+               warga.setWargake(wargake); // dummy index only
                warga.setBarang(new ArrayList<>());
 
                wargas.add(warga);
