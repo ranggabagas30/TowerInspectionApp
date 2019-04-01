@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Debug;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -53,14 +54,18 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	private int siteId;
 	private int workTypeId;
 
-	NavigationFragment navigationFragment = NavigationFragment.newInstance();
+	private FragmentManager fm;
+	private Fragment currentFragment;
+	private NavigationFragment navigationFragment = NavigationFragment.newInstance();
 
-	private LovelyTextInputDialog inputJumlahWargaDialog;
+	public LovelyTextInputDialog inputJumlahWargaDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		fm = getSupportFragmentManager();
 
 		// set dialog
 		dialog = new ProgressDialog(activity);
@@ -117,6 +122,12 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		rowModel.text = "this is just";
 		rowModel.children = new Vector<>();
 
+		navigationFragment.setFormActivityListener(this);
+		navigationFragment.setSchedule(scheduleBaseModels);
+		navigationFragment.setNavigationModel(rowModel);
+		navigationFragment.setWorkTypeName(workTypeName);
+		navigateToFragment(navigationFragment, R.id.fragment_behind);
+
 		if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
 
 			checkDataWarga();
@@ -134,12 +145,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 				groupRow.level = 0;
 				rowModel.children.add(groupRow); // children of
 			}
-
-			navigationFragment.setFormActivityListener(this);
-			navigationFragment.setSchedule(scheduleBaseModels);
-			navigationFragment.setNavigationModel(rowModel);
-			navigationFragment.setWorkTypeName(workTypeName);
-			navigateToFragment(navigationFragment, R.id.fragment_behind);
 		}
 
 		dialog.dismiss();
@@ -156,8 +161,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	protected void onResume() {
 		super.onResume();
 		EventBus.getDefault().register(this);
-
-
 	}
 
 	@Override
@@ -204,11 +207,17 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	}
 
 	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
-		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
-		ft.replace(viewContainerResId, fragment);
-		ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		ft.add(viewContainerResId, fragment, fragment.getClass().getSimpleName());
 		ft.commit();
+	}
+
+	private Fragment getCurrentFragment(String tag) {
+
+		if (fm != null) {
+			return fm.findFragmentByTag(tag);
+		}
+		return null;
 	}
 
 	private RowModel generateOthersModel(){
@@ -240,31 +249,15 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 	private void checkDataWarga() {
 
-		int dataIndex = FormImbasPetirConfig.indexOfData(scheduleId);
+		int dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
 
 		if (dataIndex != -1) {
 
 			// found data by that scheduleid
 			// check amount of warga
 
-			ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
+			generateImbasPetirChildModel(dataIndex);
 
-			if (wargas != null) {
-
-				// if == 0, then show dialog to input amount of warga
-				if (wargas.size() == 0) {
-
-					DebugLog.d("data warga is empty");
-					showInputAmountWargaDialog(dataIndex);
-
-				} else {
-
-					// if != 0, then just generate the navigation child view
-					DebugLog.d("data warga is not empty, size : " + wargas.size());
-					generateImbasPetirChildModel(wargas.size());
-
-				}
-			}
 		} else {
 
 			// not found data by that scheduleid
@@ -272,85 +265,101 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		}
 	}
 
-	private void showInputAmountWargaDialog(int dataIndex) {
+	public void showInputAmountWargaDialog(int dataIndex) {
 
 		inputJumlahWargaDialog.setConfirmButton("Tambah", amountOfWarga -> {
 
 			// insert new data warga as many as amount inputted
 			MyApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
 
-			FormImbasPetirConfig.updateDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
+			FormImbasPetirConfig.insertDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
 
-			generateImbasPetirChildModel(Integer.valueOf(amountOfWarga));
+			generateImbasPetirChildModel(dataIndex);
+
+			updateItems();
 
 		}).show();
 	}
 
-	private void generateImbasPetirChildModel(int wargaSize) {
+	public void generateImbasPetirChildModel(int dataIndex) {
 
-		// get all workformgroup submenu
-		DebugLog.d("get all workformgroup submenu");
-		for (WorkFormGroupModel model : workFormGroupModels) {
+		ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
 
-			DebugLog.d("==== form group model id : " + model.id + " | " + model.name);
-			RowModel groupRow = new RowModel();
-			groupRow.work_form_group_id = model.id;
-			groupRow.text = model.name;
-			groupRow.level = 0;
+		if (wargas != null) {
 
-			if (model.name.equalsIgnoreCase("Warga")) {
+			int wargaSize = wargas.size();
 
-				Vector<RowModel> childRows = new Vector<>();
+			rowModel.children = new Vector<>();
 
-				for (int i = 0; i < wargaSize; i++) {
+			// get all workformgroup submenu
+			DebugLog.d("get all workformgroup submenu");
+			for (WorkFormGroupModel model : workFormGroupModels) {
 
-					int wargake = i + 1;
+				DebugLog.d("==== form group model id : " + model.id + " | " + model.name);
+				RowModel groupRow = new RowModel();
+				groupRow.work_form_group_id = model.id;
+				groupRow.text = model.name;
+				groupRow.level = 0;
 
-					StringBuilder wargaLabel = new StringBuilder();
+				if (model.name.equalsIgnoreCase("Warga")) {
 
-					RowModel wargaKeModel = rowModel.getAllItemByWorkFormGroupId(model.id).get(0);
+					Vector<RowModel> childRows = new Vector<>();
 
-					wargaKeModel.hasForm = true;
+					for (int i = 0; i < wargaSize; i++) {
 
-					wargaLabel.append(wargaKeModel.text).append(wargake);
+						int wargake = i + 1;
 
-					wargaKeModel.text = new String(wargaLabel);
+						StringBuilder wargaLabel = new StringBuilder();
 
-					DebugLog.d("-- child id : " + wargaKeModel.id);
-					DebugLog.d("-- child work form group id : " + wargaKeModel.work_form_group_id);
-					DebugLog.d("-- child name : " + wargaKeModel.text);
-					DebugLog.d("-- child level : " + wargaKeModel.level);
-					DebugLog.d("-- child ancestry : " + wargaKeModel.ancestry);
-					DebugLog.d("-- child parentid : " + wargaKeModel.parent_id);
-					DebugLog.d("\n\n");
-					childRows.add(wargaKeModel);
+						RowModel wargaKeModel = rowModel.getAllItemByWorkFormGroupId(model.id).get(0);
+
+						wargaLabel.append(wargaKeModel.text).append(wargake);
+
+						wargaKeModel.text = new String(wargaLabel);
+
+						DebugLog.d("-- child id : " + wargaKeModel.id);
+						DebugLog.d("-- child work form group id : " + wargaKeModel.work_form_group_id);
+						DebugLog.d("-- child name : " + wargaKeModel.text);
+						DebugLog.d("-- child level : " + wargaKeModel.level);
+						DebugLog.d("-- child hasForm : " + wargaKeModel.hasForm);
+						DebugLog.d("-- child ancestry : " + wargaKeModel.ancestry);
+						DebugLog.d("-- child parentid : " + wargaKeModel.parent_id);
+						DebugLog.d("\n\n");
+						childRows.add(wargaKeModel);
+					}
+
+					// row model for "tambah warga" submenu action
+					RowModel addWargaKeModel = new RowModel();
+					addWargaKeModel.id = -1;
+					addWargaKeModel.work_form_group_id = model.id;
+					addWargaKeModel.hasForm = false;
+					addWargaKeModel.text = "Tambah warga";
+					addWargaKeModel.level = 1;
+					addWargaKeModel.ancestry = null;
+					addWargaKeModel.parent_id = 0;
+
+					childRows.add(addWargaKeModel);
+
+					groupRow.children = childRows;
+
+				} else {
+
+					groupRow.children = rowModel.getAllItemByWorkFormGroupId(model.id);
 				}
 
-				// row model for "tambah warga" submenu action
-				RowModel addWargaKeModel = new RowModel();
-				addWargaKeModel.id = -1;
-				addWargaKeModel.work_form_group_id = model.id;
-				addWargaKeModel.hasForm = false;
-				addWargaKeModel.text = "Tambah warga";
-				addWargaKeModel.level = 1;
-				addWargaKeModel.ancestry = null;
-				addWargaKeModel.parent_id = 0;
-
-				childRows.add(addWargaKeModel);
-
-				groupRow.children = childRows;
-
-			} else {
-
-				groupRow.children = rowModel.getAllItemByWorkFormGroupId(model.id);
+				rowModel.children.add(groupRow);
 			}
-
-			rowModel.children.add(groupRow);
 		}
+	}
 
-		navigationFragment.setFormActivityListener(this);
-		navigationFragment.setSchedule(scheduleBaseModels);
-		navigationFragment.setNavigationModel(rowModel);
-		navigateToFragment(navigationFragment, R.id.fragment_behind);
+	private void updateItems() {
+
+		currentFragment = getCurrentFragment(NavigationFragment.class.getSimpleName());
+
+		if (currentFragment instanceof NavigationFragment) {
+
+			((NavigationFragment) currentFragment).setItems(rowModel);
+
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package com.sap.inspection;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -761,6 +762,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
     }
 
+    @SuppressLint("HandlerLeak")
     Handler scheduleHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             Bundle bundle = msg.getData();
@@ -782,6 +784,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         ;
     };
 
+    @SuppressLint("HandlerLeak")
     Handler scheduleHandlerTemp = new Handler() {
         public void handleMessage(android.os.Message msg) {
             Bundle bundle = msg.getData();

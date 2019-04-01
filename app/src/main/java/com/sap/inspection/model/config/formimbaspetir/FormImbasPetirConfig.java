@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sap.inspection.model.ConfigModel;
 import com.sap.inspection.model.DbManager;
+import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
@@ -61,14 +62,27 @@ public class FormImbasPetirConfig
             return null;
     }
 
+    public static int getWargaIndex(ArrayList<Warga> wargas, String wargaId) {
+
+        int indexFound = -1;
+        int size = wargas.size();
+        for (int i = 0; i < size; i++) {
+            if (wargas.get(i).getWargaid().equalsIgnoreCase(wargaId)) {
+                indexFound = i;
+                break;
+            }
+        }
+        return indexFound;
+    }
+
     // get list of data warga
-    public static ArrayList<Warga> getDataWarga(int indexOfData) {
+    public static ArrayList<Warga> getDataWarga(int dataIndex) {
 
         FormImbasPetirConfig formImbasPetirConfig = getImbasPetirConfig();
 
         if (formImbasPetirConfig != null) {
 
-            ImbasPetirData data = formImbasPetirConfig.getData().get(indexOfData);
+            ImbasPetirData data = formImbasPetirConfig.getData().get(dataIndex);
 
             return data.getWarga();
         }
@@ -76,23 +90,40 @@ public class FormImbasPetirConfig
         return null;
     }
 
+
     // insert n empty data warga
-    public static void updateDataWarga(int dataIndex, int amountOfWarga) {
+    public static void insertDataWarga(int dataIndex, int amountOfWarga) {
 
-        ArrayList<Warga> wargas = new ArrayList<>();
+       FormImbasPetirConfig formImbasPetirConfig = getImbasPetirConfig();
 
-        for (int i = 1; i <= amountOfWarga; i++) {
+       if (formImbasPetirConfig != null) {
 
-            // initialize data warga
-            Warga warga = new Warga();
-            warga.setWargaid(String.valueOf(i));
-            warga.setBarang(new ArrayList<>());
+           ArrayList<ImbasPetirData> dataList = formImbasPetirConfig.getData();
+           ImbasPetirData data = dataList.get(dataIndex);
+           ArrayList<Warga> wargas = data.getWarga();
 
-            // add data warga to the list of warga
-            wargas.add(warga);
-        }
+           int size = wargas.size();
 
-        updateDataWarga(dataIndex, wargas);
+           DebugLog.d("size of data warga : " + size);
+           DebugLog.d("add empty data warga ...");
+           for (int i = 1; i <= amountOfWarga; i++) {
+
+               int wargake = i + size;
+               String wargaId = "new" + String.valueOf(wargake);
+
+               Warga warga = new Warga();
+               warga.setWargaid(wargaId);
+               warga.setWargake(wargake);
+               warga.setBarang(new ArrayList<>());
+
+               wargas.add(warga);
+
+               DebugLog.d("wargake : " + wargake);
+               DebugLog.d("wargaId : " + wargaId);
+           }
+
+           updateDataWarga(dataIndex, wargas);
+       }
     }
 
     // insert a list of data warga
@@ -118,7 +149,48 @@ public class FormImbasPetirConfig
         }
     }
 
-    public static int indexOfData(String scheduleId) {
+    public static boolean removeDataWarga(String scheduleId, String wargaId) {
+
+        // Todo: remove FormValue with wargaId = {wargaId}, scheduleId = {scheduleId}
+        // Todo: remove data warga config by {wargaId} and {scheduleId}
+        // Todo: update data warga config and save the config
+
+        int dataIndex = getDataIndex(scheduleId);
+
+        ArrayList<Warga> wargas = getDataWarga(dataIndex);
+
+        if (wargas != null) {
+
+            int indexRemove = getWargaIndex(wargas, wargaId);
+
+            if (indexRemove != -1) {
+
+                // remove FormValue with wargaId = {wargaId}, scheduleId = {scheduleId}
+                ItemValueModel.delete(scheduleId, ItemValueModel.UNSPECIFIED, ItemValueModel.UNSPECIFIED, wargaId, null);
+
+                // remove data warga config by {wargaId} and {scheduleId}
+                DebugLog.d("remove wargaid : " + wargaId);
+                wargas.remove(indexRemove);
+
+                // update data warga config
+                updateDataWarga(dataIndex, wargas);
+
+                return true;
+            } else {
+
+                DebugLog.d("wargaid not found");
+            }
+
+        } else {
+
+            DebugLog.d("list of data warga is empty");
+        }
+
+        return false;
+    }
+
+
+    public static int getDataIndex(String scheduleId) {
 
         int indexFound = -1;
 
@@ -145,7 +217,7 @@ public class FormImbasPetirConfig
 
     public static boolean isDataExist(String scheduleId) {
 
-        return indexOfData(scheduleId) != -1;
+        return getDataIndex(scheduleId) != -1;
     }
 
     public static void insertNewData(String scheduleId) {
@@ -161,7 +233,6 @@ public class FormImbasPetirConfig
             data.setScheduleid(scheduleId);
             data.setWarga(new ArrayList<>());
 
-            DebugLog.d("");
             dataList.add(data);
 
             formImbasPetirConfig.setData(dataList);

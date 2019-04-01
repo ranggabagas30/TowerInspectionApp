@@ -66,6 +66,7 @@ public class RowModel extends BaseModel {
 		return models;
 	}
 
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -398,6 +399,7 @@ public class RowModel extends BaseModel {
 
             RowModel result = getRowFromCursor(cursor);
 			result.text = getRowLabel(result.id);
+			result.hasForm = true;
 
 			DebugLog.d("== result navigation items ==");
 			DebugLog.d("id : " + result.id);

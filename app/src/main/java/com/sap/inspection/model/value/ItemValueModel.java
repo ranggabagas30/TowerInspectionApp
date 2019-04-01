@@ -38,6 +38,8 @@ public class ItemValueModel extends BaseModel {
 	public static final int UPLOAD_DONE = 2;
 	public static final int UPLOAD_FAIL = 3;
 
+	public static final int UNSPECIFIED = -1;
+
 	public String scheduleId;
 	public int operatorId;
 	public int itemId;
@@ -58,8 +60,8 @@ public class ItemValueModel extends BaseModel {
 	public boolean disable;
 
 	// STP only
-	public int wargaId;
-	public int barangId;
+	public String wargaId;
+	public String barangId;
 
 	@Override
 	public int describeContents() {
@@ -68,12 +70,6 @@ public class ItemValueModel extends BaseModel {
 
 	@Override
 	public void writeToParcel(Parcel arg0, int arg1) {
-	}
-
-	public static void delete(Context ctx, String scheduleId, int itemId, int operatorId){
-
-		delete(scheduleId, itemId, operatorId);
-
 	}
 
 	public static void deleteAll(Context ctx){
@@ -89,8 +85,20 @@ public class ItemValueModel extends BaseModel {
 
 	public static void delete(String scheduleId, int itemId, int operatorId){
 
+		delete(scheduleId, itemId, operatorId, null, null);
+	}
+
+	public static void delete(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {
+
+		String whereItemId = itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=" + itemId : "";				// if itemid is unspecified
+		String whereOperatorId = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=" + operatorId : ""; // if operatorid is unspecified
+		String whereWarga = wargaId != null ? " AND " + DbManagerValue.colWargaId + "=" + wargaId : "";
+		String whereBarang = barangId != null ? " AND " + DbManagerValue.colBarangId + "=" + barangId : "";
+
+		DebugLog.d("delete item(s) with scheduleid = " + scheduleId + whereWarga + whereBarang + whereItemId + whereOperatorId);
+
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		String sql = "DELETE FROM " + DbManagerValue.mFormValue + " WHERE "+DbManagerValue.colScheduleId+"="+scheduleId+" AND "+DbManagerValue.colItemId+"="+itemId+" AND "+DbManagerValue.colOperatorId+"="+operatorId;
+		String sql = "DELETE FROM " + DbManagerValue.mFormValue + " WHERE "+DbManagerValue.colScheduleId+"="+scheduleId + whereItemId + whereOperatorId + whereWarga + whereBarang;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
@@ -462,8 +470,8 @@ public class ItemValueModel extends BaseModel {
 				stmt.bindLong(12, uploadStatus);
 				bindAndCheckNullString(stmt, 13, getCurrentDate());
 				bindAndCheckNullString(stmt, 14, photoDate);
-				stmt.bindLong(15, wargaId);
-				stmt.bindLong(16, barangId);
+				bindAndCheckNullString(stmt, 15, wargaId);
+				bindAndCheckNullString(stmt, 16, barangId);
 				stmt.executeInsert();
 				stmt.close();
 				DbRepositoryValue.getInstance().close();
@@ -599,8 +607,8 @@ public class ItemValueModel extends BaseModel {
 				FormValueModel.typePhoto = c.getInt(c.getColumnIndex(DbManagerValue.colIsPhoto)) == 1;
 				FormValueModel.createdAt = (c.getString(c.getColumnIndex(DbManagerValue.colCreatedAt)));
 				FormValueModel.photoDate = (c.getString(c.getColumnIndex(DbManagerValue.colPhotoDate)));
-				FormValueModel.wargaId	 = (c.getInt(c.getColumnIndex(DbManagerValue.colWargaId)));
-				FormValueModel.barangId	 = (c.getInt(c.getColumnIndex(DbManagerValue.colBarangId)));
+				FormValueModel.wargaId	 = (c.getString(c.getColumnIndex(DbManagerValue.colWargaId)));
+				FormValueModel.barangId	 = (c.getString(c.getColumnIndex(DbManagerValue.colBarangId)));
 				break;
 			}
 			default:
@@ -701,8 +709,8 @@ public class ItemValueModel extends BaseModel {
 						+ DbManagerValue.colIsPhoto + " integer, "
 						+ DbManagerValue.colCreatedAt + " varchar, "
 						+ DbManagerValue.colPhotoDate + " varchar, "
-						+ DbManagerValue.colWargaId + " integer, "
-						+ DbManagerValue.colBarangId + " integer,"
+						+ DbManagerValue.colWargaId + " varchar, "
+						+ DbManagerValue.colBarangId + " varchar,"
 						+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
 				break;
 			}

@@ -70,8 +70,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	public void setWorkFormGroupName(String workFormGroupName) {
 		this.workFormGroupName = workFormGroupName;
-		isChecklistOrSiteInformation = workFormGroupName.toUpperCase().matches(Constants.regexChecklist) ||
-									  workFormGroupName.toUpperCase().matches(Constants.regexSiteInformation);
+		isChecklistOrSiteInformation = workFormGroupName.toUpperCase().matches(Constants.regexCHECKLIST) ||
+									  workFormGroupName.toUpperCase().matches(Constants.regexSITEINFORMATION);
 	}
 
 	public void setSavingRule(SavingRule savingRule) {

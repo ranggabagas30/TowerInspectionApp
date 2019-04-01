@@ -3,6 +3,7 @@ package com.sap.inspection.views.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,12 +54,14 @@ public class NavigationAdapter extends MyBaseAdapter {
 	private String workTypeName;
 	private ScheduleBaseModel scheduleBaseModel;
     private int positionAncestry;
+	int dataIndex = -1;
 
     public void setSchedule(ScheduleBaseModel scheduleBaseModel) {
     	this.scheduleBaseModel = scheduleBaseModel;
 	}
 	public void setScheduleId(String scheduleId) {
 		this.scheduleId = scheduleId;
+		dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
 	}
 	public String getScheduleId() {
 		return scheduleId;
@@ -80,7 +83,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 		this.model = model;
 		notifyDataSetChanged();
 	}
-
 
 	@Override
 	public void notifyDataSetChanged() {
@@ -174,7 +176,12 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 				RowModel rowModel = getItem(position);
 
+				DebugLog.d("view type = 1");
+				DebugLog.d("label name = " + rowModel.text);
+
 				if (rowModel.text.contains(Constants.regexWargaKe)) {
+
+					DebugLog.d("remove submenu visibility is VISIBLE");
 
 					holder.removeSubMenu = view.findViewById(R.id.removesubmenu);
 					holder.removeSubMenu.setVisibility(View.VISIBLE);
@@ -184,6 +191,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 			}
 
 			view.setTag(holder);
+
 		} else
 			holder = (ViewHolder) view.getTag();
 
@@ -296,8 +304,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 					int parentId = getItem(position).id;
 					int wargaKeIndex = StringUtil.getWargaKeIndex(getItem(position).text) - 1; // converts to zero index
 
-					int indexOfData = FormImbasPetirConfig.indexOfData(scheduleId);
-
 					intent = new Intent(context, FormActivityWarga.class);
 					intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
 					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
@@ -306,7 +312,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
 					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
 
-					ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(indexOfData);
+					ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
 
 					if (wargas != null && !wargas.isEmpty()) {
 
@@ -326,9 +332,16 @@ public class NavigationAdapter extends MyBaseAdapter {
                 context.startActivity(intent);
 
 //				Toast.makeText(context, "tester", Toast.LENGTH_SHORT).show();
-			}else
-				toggleExpand(position);
+			} else {
+
+				if (getItem(position).id == -1) { // action tambah warga
+
+					((FormActivity) context).showInputAmountWargaDialog(dataIndex);
+
+				} else
+					toggleExpand(position);
 //						Toast.makeText(context, "tester "+getItem(position).position, Toast.LENGTH_SHORT).show();
+			}
 		}
 	};
 
@@ -338,6 +351,21 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 		DebugLog.d("remove model id : " + removeRowModel.id);
 		DebugLog.d("remove model name : " + removeRowModel.text);
+
+		String scheduleDeleteId = scheduleId;
+		String wargaDeleteId = String.valueOf(StringUtil.getWargaKeIndex(removeRowModel.text));
+
+		boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
+
+		String successfulMessage = "Sukses hapus data wargaid (" + wargaDeleteId + ")";
+		String failedMessage	 = "Gagal hapus data wargaid (" + wargaDeleteId + "). Item telah terhapus atau tidak ditemukan";
+
+		if (isSuccessful) {
+			MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
+		} else {
+			MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
+		}
+
 	};
 
 	private void toggleExpand(int position){
@@ -361,5 +389,19 @@ public class NavigationAdapter extends MyBaseAdapter {
 		TextView title;
 	}
 
+	public void showInputAmountWargaDialog(int dataIndex) {
 
+		FormActivity activity = ((FormActivity) context);
+
+		activity.inputJumlahWargaDialog.setConfirmButton("Tambah", amountOfWarga -> {
+
+			// insert new data warga as many as amount inputted
+			MyApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
+
+			FormImbasPetirConfig.insertDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
+
+
+
+		}).show();
+	}
 }
