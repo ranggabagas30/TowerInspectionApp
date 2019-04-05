@@ -273,9 +273,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			MyApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
 
 			FormImbasPetirConfig.insertDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
-
 			generateImbasPetirChildModel(dataIndex);
-
 			updateItems();
 
 		}).show();

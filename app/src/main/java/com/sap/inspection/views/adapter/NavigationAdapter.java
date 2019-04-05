@@ -81,7 +81,56 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 	public void setItems(RowModel model){
 		this.model = model;
+		DebugLog.d("model size : " + model.children.size());
 		notifyDataSetChanged();
+	}
+
+	public void removeItem(RowModel removeItem) {
+
+    	RowModel newRowItems = model;
+		Vector<RowModel> dummyRowItems = new Vector<>();
+
+    	DebugLog.d("initial new row items size = " + newRowItems.children.size());
+		DebugLog.d("shown size = " + shown.size());
+
+		DebugLog.d("\n\n === start iterating === ");
+		for (RowModel navItem : newRowItems.children) { // prefer using newRowItems.children not model.children
+														// avoid ConcurrentModificationException while looping over Java ArrayList
+
+			DebugLog.d("nav label : " + navItem.text);
+			if (!navItem.text.equalsIgnoreCase(removeItem.text)) {
+
+				if (navItem.children != null && !navItem.children.isEmpty()) {
+
+					Vector<RowModel> newSubNavItems = new Vector<>();
+					for (RowModel subNavItem : navItem.children) {
+
+						DebugLog.d("== sub nav label : " + subNavItem.text);
+						if (!subNavItem.text.equalsIgnoreCase(removeItem.text)) {
+
+							newSubNavItems.add(subNavItem);
+
+						} else {
+							DebugLog.d("--> sub nav excluded");
+						}
+					}
+					navItem.children = newSubNavItems;
+				}
+
+				dummyRowItems.add(navItem);
+
+			} else {
+
+				DebugLog.d("-> nav exluded");
+			}
+		}
+		DebugLog.d("\n\n === stop iterating === ");
+
+		newRowItems.children = dummyRowItems;
+
+		DebugLog.d("new row items size : " + newRowItems.children.size());
+
+		setItems(newRowItems);
 	}
 
 	@Override
@@ -194,7 +243,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 			DebugLog.d("view type = 1");
 			DebugLog.d("label name = " + rowModel.text);
 
-			if (rowModel.text.contains(Constants.regexWargaKe)) {
+			if (rowModel.text.contains(Constants.regexWargaId)) {
 
 				DebugLog.d("remove submenu visibility is VISIBLE");
 
@@ -235,16 +284,17 @@ public class NavigationAdapter extends MyBaseAdapter {
 			} else {
 
 				if (!ItemUploadManager.getInstance().isRunning()) {
+
 					String scheduleId = getScheduleId();
 					int position = (int) v.getTag();
+
 					RowModel rowModel = getItem(position);
 					DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
 
-					/*DbRepositoryValue.getInstance().open(context);
-					DbRepository.getInstance().open(context);*/
 					ItemValueModel itemValueModel = new ItemValueModel();
 					ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
 					ArrayList<ItemValueModel> listItemValue = itemValueModel.getItemValuesForUpload(scheduleId);
+
 					for (ItemValueModel model : listItemValue) {
 
 						WorkFormItemModel workFormItemModel = new WorkFormItemModel();
@@ -267,8 +317,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 						MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
 					}
 
-					//DbRepositoryValue.getInstance().close();
-					//DbRepository.getInstance().close();
 				} else {
 					MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
 				}
@@ -292,7 +340,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 				intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
                 intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, shown.get(positionAncestry).text);
 				DebugLog.d("----ini others form lho----- "+scheduleId);
-//				context.startActivity(intent);
 			}
 			else if (getItem(position).hasForm){
 
@@ -302,10 +349,9 @@ public class NavigationAdapter extends MyBaseAdapter {
                 Intent intent;
 
                 // if the navigation item is "Warga Ke-"
-				if (getItem(position).text.contains(Constants.regexWargaKe)) {
+				if (getItem(position).text.contains(Constants.regexWargaId)) {
 
 					int parentId = getItem(position).id;
-					int wargaKeIndex = StringUtil.getWargaKeIndex(getItem(position).text) - 1; // converts to zero index
 
 					intent = new Intent(context, FormActivityWarga.class);
 					intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
@@ -319,7 +365,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 					if (wargas != null && !wargas.isEmpty()) {
 
-						String wargaId = wargas.get(wargaKeIndex).getWargaid();
+						String wargaId = StringUtil.getWargaIdFromLabel(getItem(position).text);
 						intent.putExtra(Constants.KEY_WARGAID, wargaId);
 
 					}
@@ -333,8 +379,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
 				}
                 context.startActivity(intent);
-
-//				Toast.makeText(context, "tester", Toast.LENGTH_SHORT).show();
 			} else {
 
 				if (getItem(position).id == -1) { // action tambah warga
@@ -343,7 +387,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 				} else
 					toggleExpand(position);
-//						Toast.makeText(context, "tester "+getItem(position).position, Toast.LENGTH_SHORT).show();
 			}
 		}
 	};
@@ -352,11 +395,10 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 		RowModel removeRowModel = (RowModel) v.getTag();
 
-		DebugLog.d("remove model id : " + removeRowModel.id);
-		DebugLog.d("remove model name : " + removeRowModel.text);
+		DebugLog.d("remove item with id " + removeRowModel.id + " and label " + removeRowModel.text);
 
 		String scheduleDeleteId = scheduleId;
-		String wargaDeleteId = String.valueOf(StringUtil.getWargaKeIndex(removeRowModel.text));
+		String wargaDeleteId = StringUtil.getWargaIdFromLabel(removeRowModel.text);
 
 		boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
 
@@ -364,11 +406,11 @@ public class NavigationAdapter extends MyBaseAdapter {
 		String failedMessage	 = "Gagal hapus data wargaid (" + wargaDeleteId + "). Item telah terhapus atau tidak ditemukan";
 
 		if (isSuccessful) {
+			removeItem(removeRowModel);
 			MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
 		} else {
 			MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
 		}
-
 	};
 
 	private void toggleExpand(int position){

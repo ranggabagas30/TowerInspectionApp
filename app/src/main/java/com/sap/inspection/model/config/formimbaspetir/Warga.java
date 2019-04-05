@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Warga
 {
     private String wargaid;
-    private int wargake;
+    private boolean registered;
     private ArrayList<Barang> barang;
 
     public ArrayList<Barang> getBarang ()
@@ -28,17 +28,17 @@ public class Warga
         this.wargaid = wargaid;
     }
 
-    public int getWargake() {
-        return wargake;
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
     }
 
-    public void setWargake(int wargake) {
-        this.wargake = wargake;
+    public boolean isRegistered() {
+        return registered;
     }
 
     @Override
     public String toString()
     {
-        return "ClassPojo [barang = "+barang+", wargaid = "+wargaid+", wargake = " + wargake + "]";
+        return "ClassPojo [barang = "+barang+", wargaid = "+wargaid+"]";
     }
 }

@@ -6,6 +6,7 @@ public class ImbasPetirData
 {
     private String scheduleid;
     private ArrayList<Warga> warga;
+    private int countaddwarga = 0;
 
     public ArrayList<Warga> getWarga ()
     {
@@ -25,6 +26,14 @@ public class ImbasPetirData
     public void setScheduleid (String scheduleid)
     {
         this.scheduleid = scheduleid;
+    }
+
+    public void setCountaddwarga(int countaddwarga) {
+        this.countaddwarga = countaddwarga;
+    }
+
+    public int getCountaddwarga() {
+        return countaddwarga;
     }
 
     @Override

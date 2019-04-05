@@ -197,8 +197,8 @@ public class DbManagerValue extends SQLiteOpenHelper {
 				@Override
 				public void apply(SQLiteDatabase db) {  /** version 9, PATCHES[8] **/
 					DebugLog.d("general patch 9");
-					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colWargaId + " INTEGER DEFAULT 0");
-					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colBarangId + " INTEGER DEFAULT 0");
+					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colWargaId + " VARCHAR");
+					db.execSQL("ALTER TABLE " + mFormValue + " ADD COLUMN " + colBarangId + " VARCHAR");
 				}
 				@Override
 				public void revert(SQLiteDatabase db) {

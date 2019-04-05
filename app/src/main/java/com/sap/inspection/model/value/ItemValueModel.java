@@ -92,8 +92,8 @@ public class ItemValueModel extends BaseModel {
 
 		String whereItemId = itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=" + itemId : "";				// if itemid is unspecified
 		String whereOperatorId = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=" + operatorId : ""; // if operatorid is unspecified
-		String whereWarga = wargaId != null ? " AND " + DbManagerValue.colWargaId + "=" + wargaId : "";
-		String whereBarang = barangId != null ? " AND " + DbManagerValue.colBarangId + "=" + barangId : "";
+		String whereWarga = wargaId != null ? " AND " + DbManagerValue.colWargaId + "= '" + wargaId : "' ";
+		String whereBarang = barangId != null ? " AND " + DbManagerValue.colBarangId + "= '" + barangId : "' ";
 
 		DebugLog.d("delete item(s) with scheduleid = " + scheduleId + whereWarga + whereBarang + whereItemId + whereOperatorId);
 
@@ -475,7 +475,6 @@ public class ItemValueModel extends BaseModel {
 				stmt.executeInsert();
 				stmt.close();
 				DbRepositoryValue.getInstance().close();
-
 				break;
 			}
 			default:

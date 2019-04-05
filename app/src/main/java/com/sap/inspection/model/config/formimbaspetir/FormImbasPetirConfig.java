@@ -75,6 +75,30 @@ public class FormImbasPetirConfig
         return indexFound;
     }
 
+    public static void updateWarga(String scheduleId, String oldWargaId, String newWargaId) {
+
+        int dataindex = FormImbasPetirConfig.getDataIndex(scheduleId);
+
+        if (dataindex != -1) {
+
+            ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataindex);
+
+            if (wargas != null && !wargas.isEmpty()) {
+
+                int wargaindex = FormImbasPetirConfig.getWargaIndex(wargas, oldWargaId);
+
+                Warga warga = wargas.get(wargaindex);
+                warga.setWargaid(newWargaId);
+                warga.setRegistered(true);
+
+                wargas.set(wargaindex, warga);
+
+                FormImbasPetirConfig.updateDataWarga(dataindex, wargas);
+
+                DebugLog.d("update oldwargaid (" + oldWargaId + ") to (" + newWargaId + ")");
+            }
+        }
+    }
     // get list of data warga
     public static ArrayList<Warga> getDataWarga(int dataIndex) {
 
@@ -99,30 +123,50 @@ public class FormImbasPetirConfig
        if (formImbasPetirConfig != null) {
 
            ArrayList<ImbasPetirData> dataList = formImbasPetirConfig.getData();
+
+           // get imbas petir data config by index
            ImbasPetirData data = dataList.get(dataIndex);
+
+           // retrieve current list of data warga
            ArrayList<Warga> wargas = data.getWarga();
-
            int size = wargas.size();
+           int countaddwarga = data.getCountaddwarga();
 
+           DebugLog.d("count add warga : " + countaddwarga);
            DebugLog.d("size of data warga : " + size);
-           DebugLog.d("add empty data warga ...");
+           DebugLog.d("add " + amountOfWarga + " empty data warga ...");
+
+           // create {amountofdata} empty data warga
            for (int i = 1; i <= amountOfWarga; i++) {
 
-               int wargake = i + size;
+               int wargake = i + countaddwarga;
                String wargaId = "new" + String.valueOf(wargake);
 
                Warga warga = new Warga();
+               warga.setRegistered(false); // flag not registered yet for added warga data
                warga.setWargaid(wargaId); // real id
-               warga.setWargake(wargake); // dummy index only
                warga.setBarang(new ArrayList<>());
 
                wargas.add(warga);
 
-               DebugLog.d("wargake : " + wargake);
                DebugLog.d("wargaId : " + wargaId);
            }
+           countaddwarga = countaddwarga + amountOfWarga;
 
-           updateDataWarga(dataIndex, wargas);
+           // update current list of warga
+           data.setWarga(wargas);
+
+           // update current count of add data warga
+           data.setCountaddwarga(countaddwarga);
+
+           dataList.set(dataIndex, data);
+
+           formImbasPetirConfig.setData(dataList);
+
+           String configName = ConfigModel.CONFIG_ENUM.IMBAS_PETIR_CONFIG.name();
+           String configData = new Gson().toJson(formImbasPetirConfig);
+
+           ConfigModel.save(configName, configData);
        }
     }
 
