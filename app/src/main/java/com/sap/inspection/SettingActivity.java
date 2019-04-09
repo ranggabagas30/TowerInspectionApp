@@ -364,7 +364,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
     }
 
-    private Handler formVersionHandler = new Handler() {
+    /*private Handler formVersionHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             if (msg.getData() != null && msg.getData().getString("json") != null) {
                 VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
@@ -389,9 +389,53 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         }
 
         ;
+    };*/
+
+    @SuppressLint("HandlerLeak")
+    private Handler formVersionHandler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+
+            hideDialog();
+
+            Bundle bundle = msg.getData();
+            Gson gson = new Gson();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+                    VersionModel model = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
+                    formVersion = model.version;
+                    DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
+                    DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
+                    DebugLog.d("check version value from web: "+formVersion);
+
+                    if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
+
+                        DebugLog.d("form needs update");
+                        pDialog.setMessage(getString(R.string.getNewfromServer));
+                        APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
+
+                    }else{
+
+                        pDialog.setMessage(getString(R.string.getScheduleFromServer));
+                        APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+                    }
+
+                }else{
+
+                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
+                }
+
+            } else {
+
+                DebugLog.d("response is not OK");
+            }
+        }
     };
 
-    private Handler formSaverHandler = new Handler() {
+   /* private Handler formSaverHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             if (msg.getData() != null && msg.getData().getString("json") != null) {
                 initForm(msg.getData().getString("json"));
@@ -403,6 +447,31 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         }
 
         ;
+    };*/
+
+    @SuppressLint("HandlerLeak")
+    private Handler formSaverHandler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+
+            hideDialog();
+
+            Bundle bundle = msg.getData();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+                    initForm(bundle.getString("json"));
+                }else{
+                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
+                }
+
+            } else {
+
+                DebugLog.d("response is not OK");
+            }
+        }
     };
 
     private void initForm(String json) {
@@ -501,10 +570,9 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         public void onClick(View v) {
             trackEvent("user_upload");
             CorrectiveValueModel correctiveValueModel = new CorrectiveValueModel();
-//			correctiveValueModel.deleteAll(activity);
 
-            //DbRepositoryValue.getInstance().open(activity);
             ProgressDialog progressDialog = new ProgressDialog(activity);
+
             //string preparing item for upload
             progressDialog.setMessage(getString(R.string.preparingItemForUpload));
             progressDialog.show();

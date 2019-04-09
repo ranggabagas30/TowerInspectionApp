@@ -90,7 +90,7 @@ public class ColumnModel extends BaseModel {
 		return result;
 	}
 
-	public ArrayList<ColumnModel>  getAllItemByWorkFormGroupId(int workFormGroupId) {
+	public static ArrayList<ColumnModel> getAllItemByWorkFormGroupId(int workFormGroupId) {
 
 		ArrayList<ColumnModel> result = new ArrayList<ColumnModel>();
 		String table = DbManager.mWorkFormColumn;
@@ -116,7 +116,7 @@ public class ColumnModel extends BaseModel {
 		return result;
 	}
 
-	private ColumnModel getColumnFromCursor(Cursor c) {
+	private static ColumnModel getColumnFromCursor(Cursor c) {
 		ColumnModel item= new ColumnModel();
 
 		if (null == c)

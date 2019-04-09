@@ -42,11 +42,7 @@ public class RowColumnModel extends BaseModel {
 				+ "PRIMARY KEY (" + DbManager.colID + "))";
 	}
 
-	public void save(Context context){
-		save();
-	}
-
-	public static void delete(Context ctx){
+	public static void delete(){
 
 		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormRowCol;
@@ -93,8 +89,7 @@ public class RowColumnModel extends BaseModel {
 		return result;
 	}
 	
-	public Vector<RowColumnModel> getAllItemByWorkFormRowId(int workFormRowId) {
-
+	public static Vector<RowColumnModel> getAllItemByWorkFormRowId(int workFormRowId) {
 
 		Vector<RowColumnModel> result = new Vector<RowColumnModel>();
 
@@ -122,12 +117,13 @@ public class RowColumnModel extends BaseModel {
 		return result;
 	}
 	
-	private Vector<WorkFormItemModel> getWorkFormItemModels(int rowColumnId){
-		WorkFormItemModel formItemModel = new WorkFormItemModel();
-		return formItemModel.getAllItemByWorkFormRowColumnId(rowColumnId);
+	private static Vector<WorkFormItemModel> getWorkFormItemModels(int rowColumnId){
+
+		return WorkFormItemModel.getAllItemByWorkFormRowColumnId(rowColumnId);
+
 	}
 	
-	private RowColumnModel getRowColumnFromCursor(Cursor c) {
+	private static RowColumnModel getRowColumnFromCursor(Cursor c) {
 		RowColumnModel item= new RowColumnModel();
 
 		if (null == c)

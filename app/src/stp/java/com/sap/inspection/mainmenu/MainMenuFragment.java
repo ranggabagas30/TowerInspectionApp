@@ -19,7 +19,6 @@ import java.util.ArrayList;
 public class MainMenuFragment extends BaseTitleFragment {
 
 	private ArrayList<Integer> titles;
-
 	private ArrayList<Integer> icons;
 
 	private OnClickListener mainMenuClickListener;

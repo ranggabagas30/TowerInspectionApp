@@ -56,7 +56,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.drawable.ic_preventive,
 					R.drawable.ic_corrective,
 					R.drawable.ic_siteaudit,
-					R.drawable.ic_newlocation,
+					R.drawable.ic_imbas_petir,
 					R.drawable.ic_settings,
 					R.drawable.ic_hasilpm,
 			};
@@ -71,7 +71,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.string.preventive,
 					R.string.corrective,
 					R.string.site_audit,
-					R.string.newlocation,
+					R.string.foto_imbas_petir,
 					R.string.settings,
 					R.string.hasil_PM
 			};

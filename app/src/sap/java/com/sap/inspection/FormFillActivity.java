@@ -89,10 +89,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private LinearLayout root;
 	private RowModel rowModel;
 	private ArrayList<ColumnModel> column;
-	private int workFormGroupId;
+
+	// bundle data
+	private String wargaId;
+	private String barangId;
     private String scheduleId;
-    private String workFormGroupName;
+	private String workFormGroupName;
+	private int workFormGroupId;
 	private int rowId;
+
 	private ScheduleBaseModel schedule;
 	private ItemValueModel itemValueForShare;
 	private Uri mImageUri;
@@ -129,7 +134,27 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		DebugLog.d("");
+		setCurrentGeoPoint(new LatLng(0, 0));
+		setContentView(R.layout.activity_form_fill);
+
+		Bundle bundle = getIntent().getExtras();
+		if (bundle != null) {
+			rowId 				= bundle.getInt(Constants.KEY_ROWID);
+			workFormGroupId 	= bundle.getInt(Constants.KEY_WORKFORMGROUPID);
+			workFormGroupName 	= bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
+			scheduleId 			= bundle.getString(Constants.KEY_SCHEDULEID);
+			wargaId 			= bundle.getString(Constants.KEY_WARGAID);
+			barangId			= bundle.getString(Constants.KEY_BARANGID);
+
+			DebugLog.d("received bundle : ");
+			DebugLog.d("rowId = " + rowId);
+			DebugLog.d("workFormGroupId = " + workFormGroupId);
+			DebugLog.d("workFormGroupName = " + workFormGroupName);
+			DebugLog.d("scheduleId = " + scheduleId);
+			DebugLog.d("wargaId = " + wargaId);
+			DebugLog.d("barangId = " + barangId);
+		}
+
 		if (indexes == null)
 			indexes = new ArrayList<Integer>();
 		indexes.add(0);
@@ -146,34 +171,25 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				.addOnConnectionFailedListener(onConnectionFailedListener)
 				.build();
 
-		setCurrentGeoPoint(new LatLng(0, 0));
-		setContentView(R.layout.activity_form_fill);
-
 		searchView = findViewById(R.id.layout_search);
+
+		adapter = new FormFillAdapter(this);
+		adapter.setPhotoListener(photoClickListener);
+		adapter.setUploadListener(uploadClickListener);
 		list = (ListView) findViewById(R.id.list);
 		list.setOnItemSelectedListener(itemSelected);
 		list.setOnScrollListener(onScrollListener);
-		adapter = new FormFillAdapter(this);
-		adapter.setPhotoListener(photoClickListener);
-        adapter.setUploadListener(uploadClickListener);
 		list.setAdapter(adapter);
-		progressDialog = new ProgressDialog(activity);
-		Bundle bundle = getIntent().getExtras();
-		rowId = bundle.getInt(Constants.KEY_ROWID);
-		workFormGroupId = bundle.getInt(Constants.KEY_WORKFORMGROUPID);
-        workFormGroupName = bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
-        scheduleId = bundle.getString(Constants.KEY_SCHEDULEID);
 
-		/*DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);*/
-
-		DebugLog.d("rowId="+rowId+" workFormGroupId="+workFormGroupId+" scheduleId="+scheduleId);
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(scheduleId);
+
 		adapter.setWorkType(schedule.work_type.name);
 		adapter.setWorkFormGroupId(workFormGroupId);
-		DebugLog.d("workFormGroupName : " + workFormGroupName);
         adapter.setWorkFormGroupName(workFormGroupName);
+        adapter.setWargaId(wargaId);
+        adapter.setBarangId(barangId);
+
 		scroll = (ScrollView) findViewById(R.id.scroll);
 		search = (AutoCompleteTextView) findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);
@@ -185,13 +201,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			startActivity(intent);
 		});
 
-		progressDialog.setMessage("Generating form...");
-		progressDialog.setCancelable(false);
-		try {
-			progressDialog.show();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		showMessageDialog("Generating form...");
 		FormLoader loader = new FormLoader();
 		loader.execute();
 	}
@@ -285,7 +295,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	private void saveValue(String[] itemProperties,boolean isAdding,boolean isCompundButton){
 
-
 		if (itemProperties.length < 5){
 			DebugLog.d("invalid component to saved");
 			return;
@@ -303,6 +312,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			itemValueForShare.operatorId = Integer.parseInt(itemProperties[2]);
 			itemValueForShare.value = "";
 			itemValueForShare.typePhoto = itemProperties[4].equalsIgnoreCase("1");
+
+			DebugLog.d("item is null, initiate first");
 		}
 		DebugLog.d("=================================================================");
 		DebugLog.d("===== value : "+itemValueForShare.value);
@@ -346,16 +357,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 		}
 		else{
-			if (!isAdding)
+			if (!isAdding) {
+
+				DebugLog.d("deleting item row");
 				itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
+			}
 			else{
+				DebugLog.d("saving update values");
 				itemValueForShare.value = itemProperties[3];
 				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
 				itemValueForShare.save();
 			}
 		}
-		DebugLog.d("===== value : "+itemValueForShare.value);
-		DebugLog.d("row id : "+ itemValueForShare.rowId);
 		DebugLog.d("task done : "+itemValueForShare.countTaskDone(schedule.id, itemValueForShare.rowId));
 		setPercentage(itemValueForShare.rowId);
 	}
@@ -370,7 +383,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	public void onTextChange(String string, View view) {
 		if (view.getTag() != null){
 			DebugLog.d((String)view.getTag());
-			String[] split = ((String)view.getTag()).split("[|]");
+			String[] split = ((String) view.getTag()).split("[|]");
 			split[3] = string;
 			for (int i = 0; i < split.length; i++) {
 				DebugLog.d("=== "+split[i]);
@@ -392,8 +405,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		/*DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);*/
 		EventBus.getDefault().register(this);
 	}
 
@@ -401,8 +412,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	protected void onStop() {
 		// Disconnecting the client invalidates it.
 		googleApiClient.disconnect();
-		/*DbRepository.getInstance().close();
-		DbRepositoryValue.getInstance().close();*/
 		super.onStop();
 	}
 
@@ -437,6 +446,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					} else {
 
 						ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.RC_STORAGE_PERMISSION);
+
 					}
 				}
 
@@ -505,8 +515,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String permission = permissions[i];
 				int grantResult = grantResults[i];
 
-				if (
-						(permission.equalsIgnoreCase(Manifest.permission.READ_EXTERNAL_STORAGE)
+				if (    (permission.equalsIgnoreCase(Manifest.permission.READ_EXTERNAL_STORAGE)
 						&& grantResult == PackageManager.PERMISSION_DENIED) ||
 
 						(permission.equalsIgnoreCase(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -571,7 +580,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	{
 		File tempDir;
 		String createDirectory;
-
 		boolean createDirStatus;
 
 		if (CommonUtil.isExternalStorageReadOnly()) {
@@ -833,17 +841,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		protected Void doInBackground(Void... params) {
 			rowModel = new RowModel(FormFillActivity.this);
 			rowModel = rowModel.getItemById(workFormGroupId, rowId);
-			ColumnModel colModel = new ColumnModel();
-			column = colModel.getAllItemByWorkFormGroupId(workFormGroupId);
+
+			column = ColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
+
 			ItemFormRenderModel form;
 			setPageTitle();
+
 			//check if the head has a form
 			for(int i = 0; i < rowModel.row_columns.size(); i++){
 				if (rowModel.row_columns.get(i).items.size() > 0){
 					finishInflate = false;
 					DebugLog.d("-----------------------------------------------");
-					DebugLog.d("========================= head row id : "+rowModel.id);
-					DebugLog.d("========================= head row ancestry : "+rowModel.ancestry);
+					DebugLog.d("========================= head row id : " + rowModel.id);
+					DebugLog.d("========================= head row ancestry : " + rowModel.ancestry);
 					checkHeaderName(rowModel);
 					DebugLog.d("-----------------------------------------------");
 					form = new ItemFormRenderModel();
@@ -926,17 +936,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
-			progressDialog.setMessage("Generating form "+values[0]+" % complete");
+			//progressDialog.setMessage("Generating form "+values[0]+" % complete");
+			showMessageDialog("Generating form "+values[0]+" % complete");
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			title.setText(pageTitle);
-			try {
+			hideDialog();
+			/*try {
 				progressDialog.dismiss();
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
+			}*/
 			adapter.setItems(formModels);
 			boolean ada = false;
 			DebugLog.d("total formModels items : " + formModels.size());

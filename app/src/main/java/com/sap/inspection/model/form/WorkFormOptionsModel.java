@@ -90,7 +90,7 @@ public class WorkFormOptionsModel extends BaseModel {
 		return result;
 	}
 
-	public Vector<WorkFormOptionsModel> getAllItemByWorkFormItemId(int workFormItemId) {
+	public static Vector<WorkFormOptionsModel> getAllItemByWorkFormItemId(int workFormItemId) {
 
 		Vector<WorkFormOptionsModel> result = new Vector<WorkFormOptionsModel>();
 
@@ -144,7 +144,7 @@ public class WorkFormOptionsModel extends BaseModel {
 	//		return result;
 	//	}
 
-	private WorkFormOptionsModel getItemFromCursor(Cursor c) {
+	private static WorkFormOptionsModel getItemFromCursor(Cursor c) {
 		WorkFormOptionsModel item= new WorkFormOptionsModel();
 
 		if (null == c)

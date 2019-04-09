@@ -1,6 +1,7 @@
 package com.sap.inspection;
 
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -49,9 +50,14 @@ public abstract class BaseActivity extends FragmentActivity{
 
 	private boolean instanceStateSaved;
 
+	private ProgressDialog progressDialog;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setCancelable(false);
 
 		activity = this;
 //        int x = 0;
@@ -169,5 +175,25 @@ public abstract class BaseActivity extends FragmentActivity{
 		mFirebaseAnalytics.logEvent("track_event", bundle);
 	}
 
+	public void showDialog() {
 
+		if (progressDialog != null && !progressDialog.isShowing())
+			progressDialog.show();
+
+	}
+
+	public void hideDialog() {
+
+		if (progressDialog != null && progressDialog.isShowing())
+			progressDialog.dismiss();
+
+	}
+
+	public void showMessageDialog(String message) {
+
+		if (progressDialog != null) {
+			progressDialog.setMessage(message);
+			showDialog();
+		}
+	}
 }

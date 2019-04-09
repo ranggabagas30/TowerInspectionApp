@@ -291,22 +291,22 @@ public class NavigationAdapter extends MyBaseAdapter {
 					RowModel rowModel = getItem(position);
 					DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
 
-					ItemValueModel itemValueModel = new ItemValueModel();
 					ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
-					ArrayList<ItemValueModel> listItemValue = itemValueModel.getItemValuesForUpload(scheduleId);
+					ArrayList<ItemValueModel> listItemValue = ItemValueModel.getItemValuesForUpload(scheduleId);
 
 					for (ItemValueModel model : listItemValue) {
 
-						WorkFormItemModel workFormItemModel = new WorkFormItemModel();
-						workFormItemModel = workFormItemModel.getItemById(model.itemId, rowModel.work_form_group_id);
+						WorkFormItemModel workFormItemModel = WorkFormItemModel.getItemById(model.itemId, rowModel.work_form_group_id);
+
+						// get upload items by workformgroupid
 						if (rowModel.work_form_group_id == workFormItemModel.work_form_group_id) {
 							listItemUploadByWorkFormGroupId.add(model);
-							DebugLog.d("t1.workFormGroupId : " + workFormItemModel.work_form_group_id);
-							DebugLog.d("t1.scheduleId : " + model.scheduleId);
-							DebugLog.d("t1.operatorId : " + model.operatorId);
-							DebugLog.d("t1.itemId : " + model.itemId);
-							DebugLog.d("t1.remark : " + model.remark);
-							DebugLog.d("t1.value : "  + model.value);
+							DebugLog.d("t1.workFormGroupId : " + model.work_form_group_id);
+							DebugLog.d("t1.scheduleId : " + 	 model.scheduleId);
+							DebugLog.d("t1.operatorId : " + 	 model.operatorId);
+							DebugLog.d("t1.itemId : " + 		 model.itemId);
+							DebugLog.d("t1.remark : " +			 model.remark);
+							DebugLog.d("t1.value : "  + 		 model.value);
 						}
 						DebugLog.d("\n\n");
 					}

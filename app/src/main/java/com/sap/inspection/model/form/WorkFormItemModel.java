@@ -303,8 +303,9 @@ public class WorkFormItemModel extends BaseModel {
 	}
 	
 	private static Vector<WorkFormOptionsModel> getWorkFormOptionsModels(int workFormItemId){
-		WorkFormOptionsModel model = new WorkFormOptionsModel();
-		return model.getAllItemByWorkFormItemId(workFormItemId);
+
+		return WorkFormOptionsModel.getAllItemByWorkFormItemId(workFormItemId);
+
 	}
 
 	//	public Vector<WorkFormItemModel> getAllItemByWorkFormId(Context context, String workFormId) {

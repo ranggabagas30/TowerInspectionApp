@@ -49,6 +49,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 	private String workType;
 	private String workFormGroupName;
 	private int workFormGroupId;
+
+	// SAP only
+	private String wargaId;
+	private String barangId;
+
 	private OnClickListener photoListener;
     private OnClickListener uploadListener;
     private boolean isChecklistOrSiteInformation;
@@ -94,6 +99,17 @@ public class FormFillAdapter extends MyBaseAdapter {
 		this.scheduleId = scheduleId;
 	}
 
+	// SAP only
+	public void setWargaId(String wargaId) {
+		DebugLog.d("wargaid = " + wargaId);
+		this.wargaId = wargaId;
+	}
+
+	public void setBarangId(String barangId) {
+		DebugLog.d("barangid = " + barangId);
+		this.barangId = barangId;
+	}
+
 	public FormFillAdapter(Context context) {
 		this.context = context;
 		if (null == models)
@@ -111,7 +127,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	@Override
 	public void notifyDataSetChanged() {
-
 		shown.clear();
 		for (ItemFormRenderModel model : models) {
 			shown.addAll(model.getModels());
@@ -322,7 +337,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				DebugLog.d("workFormGroupId = " + workFormGroupId);
                 DebugLog.d("workFormGroupName = " + workFormGroupName);
 				DebugLog.d("workType = " + workType);
-				if (workFormGroupName.equalsIgnoreCase("Photograph") && BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+				if (workFormGroupName.equalsIgnoreCase("Photograph") && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 					DebugLog.d("Parent label : " + getItem(position).label);
 					holder.upload_status.setVisibility(View.VISIBLE);
 					int i = 0;
@@ -399,16 +414,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 					DebugLog.d("default value not null");
 					if (getItem(position).workItemModel.default_value.isEmpty()) {
 
-					   /* if (CommonUtil.isNumeric(getItem(position).workItemModel.default_value)) {
-
-							holder.input.setHint("0");
-
-                        } else {
-
-							holder.input.setHint("kosong");
-
-                        }*/
-
 						holder.input.setHint("0");
 
 					} else {
@@ -416,15 +421,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 					}
 
 				}
-
-                /*if (CommonUtil.isNumeric(getItem(position).workItemModel.default_value)) {
-
-					holder.input.setInputType(InputType.TYPE_CLASS_NUMBER);
-
-                } else {
-
-					holder.input.setInputType(InputType.TYPE_CLASS_TEXT);
-                }*/
 
 				holder.input.setTextChange(null);
 				holder.input.setTag(getItem(position));
@@ -640,29 +636,48 @@ public class FormFillAdapter extends MyBaseAdapter {
 		}
 	};
 
-	FormTextChange formTextChange = new FormTextChange() {
-
-		@Override
-		public void onTextChange(String string, View view) {
-			if (view.getTag() != null){
-				ItemFormRenderModel item = (ItemFormRenderModel) view.getTag();
-				saveValue(item, !string.equalsIgnoreCase(""),false,string);
-			}
+	FormTextChange formTextChange = (string, view) -> {
+		if (view.getTag() != null){
+			ItemFormRenderModel item = (ItemFormRenderModel) view.getTag();
+			saveValue(item, !string.equalsIgnoreCase(""),false,string);
 		}
 	};
 
-	private void saveValue(ItemFormRenderModel itemFormRenderModel, boolean isAdding, boolean isCompundButton,String value){
+	private void saveValue(ItemFormRenderModel itemFormRenderModel, boolean isAdding, boolean isCompundButton, String value){
 
-		DebugLog.d("=================================================================");
+		DebugLog.d("\n== SAVING VALUE ===");
 		if (itemFormRenderModel.itemValue == null){
 			itemFormRenderModel.itemValue = new ItemValueModel();
 			itemFormRenderModel.itemValue.operatorId = itemFormRenderModel.operatorId;
 			itemFormRenderModel.itemValue.itemId = itemFormRenderModel.workItemModel.id;
 			itemFormRenderModel.itemValue.scheduleId = itemFormRenderModel.schedule.id;
 			itemFormRenderModel.itemValue.rowId = itemFormRenderModel.rowId;
+
+			// SAP only
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+				itemFormRenderModel.itemValue.wargaId = wargaId;
+				itemFormRenderModel.itemValue.barangId = barangId;
+			}
 		}
-		DebugLog.d("isAdding="+isAdding+" isCompundButton="+isCompundButton+" value="+value);
-		DebugLog.d("===== value : "+itemFormRenderModel.itemValue.value);
+
+		DebugLog.d("=== ITEM UPDATES ===");
+		DebugLog.d("isAdding="+isAdding+", isCompundButton="+isCompundButton+", value="+value);
+		DebugLog.d("item scheduleid : " + itemFormRenderModel.itemValue.scheduleId);
+		DebugLog.d("item operatorid : " + itemFormRenderModel.itemValue.operatorId);
+		DebugLog.d("item itemid : " + itemFormRenderModel.itemValue.itemId);
+		DebugLog.d("item siteid : " + itemFormRenderModel.itemValue.siteId);
+		DebugLog.d("item gpsaccur : " + itemFormRenderModel.itemValue.gpsAccuracy);
+		DebugLog.d("item rowid : " + itemFormRenderModel.itemValue.rowId);
+		DebugLog.d("item remark : " + itemFormRenderModel.itemValue.remark);
+		DebugLog.d("item photostatus : " + itemFormRenderModel.itemValue.photoStatus);
+		DebugLog.d("item latitude : " + itemFormRenderModel.itemValue.latitude);
+		DebugLog.d("item longitude : " + itemFormRenderModel.itemValue.longitude);
+		DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+		DebugLog.d("item uploadstatus : " + itemFormRenderModel.itemValue.uploadStatus);
+		DebugLog.d("item photodate : " + itemFormRenderModel.itemValue.photoDate);
+		DebugLog.d("item wargaid : " + itemFormRenderModel.itemValue.wargaId);
+		DebugLog.d("item barangid : " + itemFormRenderModel.itemValue.barangId);
+
 		if (isCompundButton){
 			if (isAdding){ //adding value on check box
 				DebugLog.d("goto adding");
@@ -708,12 +723,21 @@ public class FormFillAdapter extends MyBaseAdapter {
 		}
 		else{
 			if (!isAdding){
-				if (itemFormRenderModel.itemValue.value != null)
-					itemFormRenderModel.itemValue.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
+				DebugLog.d("goto deleting");
+				if (itemFormRenderModel.itemValue.value != null) {
+
+					// SAP only
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId, wargaId, barangId);
+					} else {
+						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
+					}
+				}
 				itemFormRenderModel.itemValue = null;
 				itemFormRenderModel.schedule.sumTaskDone--;
 			}
 			else{
+				DebugLog.d("goto adding");
 				if (itemFormRenderModel.itemValue.value == null)
 					itemFormRenderModel.schedule.sumTaskDone++;
 				itemFormRenderModel.itemValue.value = value;
@@ -722,14 +746,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 			}
 		}
 		itemFormRenderModel.schedule.save();
-//		itemFormRenderModel.parent.setPercent();
-//		log("===== value : "+itemFormRenderModel.itemValue.value);
-//		log("row id : "+ itemFormRenderModel.itemValue.rowId);
-//		log("schedule Id : "+ itemFormRenderModel.itemValue.scheduleId);
-//		log("operator id : "+ itemFormRenderModel.itemValue.operatorId);
-//		log("item id : "+ itemFormRenderModel.itemValue.itemId);
 		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
-		//		setPercentage(itemFormRenderModel.itemValue.rowId);
 	}
 	
 	private void saveAfterCheck(ItemFormRenderModel itemFormRenderModel){

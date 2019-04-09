@@ -4,18 +4,17 @@ import java.util.ArrayList;
 
 public class Warga
 {
+    private String wargake;
     private String wargaid;
     private boolean registered;
     private ArrayList<Barang> barang;
 
-    public ArrayList<Barang> getBarang ()
-    {
-        return barang;
+    public String getWargake() {
+        return wargake;
     }
 
-    public void setBarang (ArrayList<Barang> barang)
-    {
-        this.barang = barang;
+    public void setWargake(String wargake) {
+        this.wargake = wargake;
     }
 
     public String getWargaid ()
@@ -34,6 +33,16 @@ public class Warga
 
     public boolean isRegistered() {
         return registered;
+    }
+
+    public ArrayList<Barang> getBarang ()
+    {
+        return barang;
+    }
+
+    public void setBarang (ArrayList<Barang> barang)
+    {
+        this.barang = barang;
     }
 
     @Override

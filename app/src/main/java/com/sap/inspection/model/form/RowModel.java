@@ -349,6 +349,7 @@ public class RowModel extends BaseModel {
 			return result;
 
 		}
+
 		do {
 			result = getRowFromCursor(cursor); 
 			result.row_columns = getRowColumnModels(result.id);
@@ -444,8 +445,9 @@ public class RowModel extends BaseModel {
 	}
 
 	private static Vector<RowColumnModel> getRowColumnModels(int rowId){
-		RowColumnModel rowColumnModel = new RowColumnModel();
-		return rowColumnModel.getAllItemByWorkFormRowId(rowId);
+
+		return RowColumnModel.getAllItemByWorkFormRowId(rowId);
+
 	}
 
 	private static RowModel getRowFromCursor(Cursor c) {

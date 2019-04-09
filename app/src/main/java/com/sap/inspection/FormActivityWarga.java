@@ -52,11 +52,12 @@ public class FormActivityWarga extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_activity_warga);
 
-        scheduleId          = getIntent().getStringExtra(Constants.KEY_SCHEDULEID);
-        wargaId             = getIntent().getStringExtra(Constants.KEY_WARGAID);
-        workFormGroupId     = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPID);
-        workFormGroupName   = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPNAME);
-        workFormParentId    = getIntent().getStringExtra(Constants.KEY_PARENTID);
+        DebugLog.d("received bundles : ");
+        scheduleId          = getIntent().getStringExtra(Constants.KEY_SCHEDULEID); DebugLog.d("scheduleId = " + scheduleId);
+        wargaId             = getIntent().getStringExtra(Constants.KEY_WARGAID);    DebugLog.d("wargaId = " + wargaId);
+        workFormGroupId     = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPID); DebugLog.d("workFormGroupId = " + workFormGroupId);
+        workFormGroupName   = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPNAME); DebugLog.d("workFormGroupName = " + workFormGroupName);
+        workFormParentId    = getIntent().getStringExtra(Constants.KEY_PARENTID); DebugLog.d("parentId = " + workFormParentId);
 
         mHeaderTitle = findViewById(R.id.header_title);
         mHeaderSubtitle = findViewById(R.id.header_subtitle);
@@ -152,13 +153,13 @@ public class FormActivityWarga extends BaseActivity {
         return navigationItem.children != null && !navigationItem.children.isEmpty();
     }
 
-    private void navigateToFormFillActivity(int rowId) {
+    private void navigateToFormFillActivity(RowModel rowModel) {
 
         Intent intent = new Intent(this, FormFillActivity.class);
         intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
         intent.putExtra(Constants.KEY_WARGAID, wargaId);
-        intent.putExtra(Constants.KEY_ROWID, rowId);
-        intent.putExtra(Constants.KEY_WORKFORMGROUPID, Integer.valueOf(workFormGroupId));
+        intent.putExtra(Constants.KEY_ROWID, rowModel.id);
+        intent.putExtra(Constants.KEY_WORKFORMGROUPID, rowModel.work_form_group_id);
         intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
         startActivity(intent);
 
@@ -293,7 +294,7 @@ public class FormActivityWarga extends BaseActivity {
 
                         if (!hasChild(navigationItem)) {
 
-                            navigateToFormFillActivity(navigationItem.id);
+                            navigateToFormFillActivity(navigationItem);
 
                         } else {
 

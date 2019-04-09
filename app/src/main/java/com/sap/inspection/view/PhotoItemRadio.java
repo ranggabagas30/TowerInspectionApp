@@ -25,6 +25,7 @@ import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.value.ItemValueModel;
@@ -198,7 +199,7 @@ public class PhotoItemRadio extends RelativeLayout {
 					ok.setChecked(true);
 					setPhotoRootVisiblity("OK");
 
-					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 						mandatory.setVisibility(View.GONE);
 				}
 				else if (value.photoStatus.equalsIgnoreCase("nok")){
@@ -207,7 +208,7 @@ public class PhotoItemRadio extends RelativeLayout {
 					nok.setChecked(true);
 					setPhotoRootVisiblity("NOK");
 
-					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 						if(remark.getText().toString().equalsIgnoreCase("") || value.remark.equalsIgnoreCase("")){
 							mandatory.setVisibility(View.VISIBLE);
 						} else {
@@ -222,14 +223,14 @@ public class PhotoItemRadio extends RelativeLayout {
 					na.setChecked(true);
 					value.photoStatus="NA";
 
-					if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 						mandatory.setVisibility(View.GONE);
 				}
 			}
 			else{
 				button.setVisibility(View.VISIBLE);
 				photoRoot.setVisibility(View.GONE);
-				/*if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+				/*if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 					radioGroup.check(R.id.radioNOK);
 					setPhotoRootVisiblity("NOK");
 					mandatory.setVisibility(View.VISIBLE);
@@ -303,7 +304,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			initValue();
 			if (value != null){
 				value.remark = s.toString();
-				if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
 					if (s.toString().equalsIgnoreCase("")) {
 						if ((nok.isChecked() || value.photoStatus.equalsIgnoreCase("nok")) && !TextUtils.isEmpty(value.photoStatus))
@@ -352,7 +353,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			switch (checkedId) {
 			case R.id.radioOK:
 				button.setVisibility(View.VISIBLE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 					mandatory.setVisibility(View.GONE);
 				//remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 				setPhotoRootVisiblity("OK");
@@ -360,7 +361,7 @@ public class PhotoItemRadio extends RelativeLayout {
 
 			case R.id.radioNOK:
 				button.setVisibility(View.VISIBLE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
 					if(remark.getText().toString().equalsIgnoreCase("") || value.remark.equalsIgnoreCase("")){
 						mandatory.setVisibility(View.VISIBLE);
@@ -374,7 +375,7 @@ public class PhotoItemRadio extends RelativeLayout {
 
 			case R.id.radioNA:
 				button.setVisibility(View.GONE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 					mandatory.setVisibility(View.GONE);
 				//remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 				photoRoot.setVisibility(View.GONE);
@@ -383,7 +384,7 @@ public class PhotoItemRadio extends RelativeLayout {
 				break;
 
 			default:
-				if (BuildConfig.FLAVOR.equalsIgnoreCase("sap"))
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 					mandatory.setVisibility(View.GONE);
 				break;
 			}

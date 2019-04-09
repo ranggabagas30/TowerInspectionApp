@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -154,11 +155,7 @@ public class ItemFormRenderModel extends BaseModel {
             Toast.makeText(MyApplication.getInstance(), "Tidak ada operator", Toast.LENGTH_LONG).show();
             return;
         }
-//		do {
-//			firstItem = rowColumnModels.remove(0);
-//		}
-//		while (firstItem.items.size() == 0);
-        //init the header
+
         firstItem = null;
         int firstColId = -1;
         for (ColumnModel columnModel : columns) {
@@ -168,6 +165,7 @@ public class ItemFormRenderModel extends BaseModel {
                 break;
             }
         }
+
         DebugLog.d("first column detected : " + firstColId);
         if (firstColId == -1)
             return;
@@ -346,7 +344,6 @@ public class ItemFormRenderModel extends BaseModel {
             hasInput = true;
             child.type = TYPE_TEXT_INPUT;
             Log.d("default_value", "default value : " + child.workItemModel.default_value);
-
             this.addFillableTask();
             child.parent = this;
             add(child);
@@ -370,7 +367,7 @@ public class ItemFormRenderModel extends BaseModel {
             child.type = TYPE_PICTURE_RADIO;
             DebugLog.d("fieldType : file");
             DebugLog.d("workFormGroupName : " + workFormGroupName);
-            if ("Photograph".equalsIgnoreCase(workFormGroupName) && BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+            if ("Photograph".equalsIgnoreCase(workFormGroupName) && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
                 child.workItemModel.mandatory = true;
                 child.workItemModel.save();
             }

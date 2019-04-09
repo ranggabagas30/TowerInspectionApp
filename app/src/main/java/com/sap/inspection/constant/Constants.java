@@ -76,6 +76,7 @@ public class Constants {
 	public static String KEY_ROWID = "KEY_ROWID";
 	public static String KEY_WORKFORMGROUPID = "KEY_WORKFORMGROUPID";
 	public static String KEY_WARGAID = "KEY_WARGAID";
+	public static String KEY_BARANGID = "KEY_BARANGID";
 	public static String KEY_PARENTID = "KEY_PARENTID";
 	public static String KEY_WORKTYPEID = "KEY_WORKTYPEID";
 	public static String KEY_WORKTYPENAME = "KEY_WORKTYPENAME";
@@ -115,4 +116,11 @@ public class Constants {
 	public static final int RC_CAMERA = 4;
 
 	public static final int RC_INSTALL_APK = 101;
+
+	/**
+	 * ============================= GENERAL CONSTANTS =================================================
+	 * */
+
+	public static final String APPLICATION_SAP = "sap";
+	public static final String APPLICATION_STP = "stp";
 } 

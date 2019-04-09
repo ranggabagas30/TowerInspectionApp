@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -22,7 +21,6 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
@@ -32,12 +30,8 @@ import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.manager.AlertDialogManager;
-import com.sap.inspection.model.ConfigModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
-import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.ScheduleGeneral;
-import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
@@ -67,14 +61,16 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	private SlidingLayer mSlidingLayer;
 	public static final int REQUEST_CODE = 100;
 
+	private ViewPager pager;
+	private int trying = 0;
 	private static String formVersion;
-	private String jsonForm;
+
+	AlertDialogManager alert = new AlertDialogManager();
 
 	private MainMenuFragment mainMenuFragment = MainMenuFragment.newInstance();
 	private ScheduleFragment scheduleFragment = ScheduleFragment.newInstance();
-    private BaseFragment currentFragment;
+	private BaseFragment currentFragment;
 
-	private ProgressDialog progressDialog;
 	private boolean flagScheduleSaved = false;
 	private boolean flagFormSaved = false;
 	private int lastClicked = -1;
@@ -83,9 +79,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		progressDialog = new ProgressDialog(this);
-		progressDialog.setCancelable(false);
 
 		boolean isLoadSchedule   = getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false);
 		boolean isLoadAfterLogin = getIntent().getBooleanExtra(Constants.LOADAFTERLOGIN,false);
@@ -103,22 +96,27 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 			}
 			showMessageDialog(getString(R.string.getScheduleFromServer));
-			APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
+			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 
 		} else if (isLoadAfterLogin) {
 
 			DebugLog.d("load after login");
-				setFlagScheduleSaved(true);
+			setFlagScheduleSaved(true);
 		}
 
-        /**
-         * added by : Rangga
-         * date : 26/02/2019
-         * reason : every time application is started, should check app's latest version
-         *          in order to make sure that using only the latest version
-         * */
-        checkAPKVersion();
+		/**
+		 * added by : Rangga
+		 * date : 26/02/2019
+		 * reason : every time application is started, should check app's latest version
+		 *          in order to make sure that using only the latest version
+		 * */
+		checkAPKVersion();
+		/*if (!MyApplication.getInstance().getCHECK_APP_VERSION_STATE()) {
 
+			checkAPKVersion();
+			MyApplication.getInstance().setCHECK_APP_VERSION_STATE(false);
+
+		}*/
 		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
 		LayoutParams rlp = (LayoutParams) mSlidingLayer.getLayoutParams();
@@ -137,7 +135,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		if (lastClicked != -1){
 			scheduleFragment.setScheduleBy(lastClicked);
 		}
-
 		EventBus.getDefault().register(this);
 	}
 
@@ -146,80 +143,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		super.onPause();
 		EventBus.getDefault().unregister(this);
 	}
-
-	@Override
-	public void onBackPressed() {
-		if (mSlidingLayer.isOpened())
-			mSlidingLayer.closeLayer(true);
-		else
-			finish();
-	}
-
-	OnClickListener mainMenuClick = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			MyApplication.getInstance().setIsInCheckHasilPm(false);
-			int i = (Integer) v.getTag();
-			switch (i) {
-			case R.string.schedule:
-				DebugLog.d("schedule");
-				trackEvent(getResources().getString(R.string.schedule));
-				scheduleFragment.setScheduleBy(R.string.schedule);
-				break;
-			case R.string.site_audit:
-				DebugLog.d("site audit");
-				trackEvent(getResources().getString(R.string.site_audit));
-				scheduleFragment.setScheduleBy(R.string.site_audit);
-				break;
-			case R.string.preventive:
-				DebugLog.d("preventive");
-				trackEvent(getResources().getString(R.string.preventive));
-				scheduleFragment.setScheduleBy(R.string.preventive);
-				break;
-			case R.string.corrective:
-				DebugLog.d("corrective");
-//				Toast.makeText(activity, "Coming soon",Toast.LENGTH_LONG).show();
-				trackEvent(getResources().getString(R.string.corrective));
-				scheduleFragment.setScheduleBy(R.string.corrective);
-				break;
-			case R.string.newlocation:
-				DebugLog.d("new location");
-				trackEvent(getResources().getString(R.string.newlocation));
-				scheduleFragment.setScheduleBy(R.string.newlocation);
-				break;
-			case R.string.fiber_optic:
-				 DebugLog.d("fiber optik");
-				 trackEvent(getResources().getString(R.string.fiber_optic));
-				 scheduleFragment.setScheduleBy(R.string.fiber_optic);
-//				Toast.makeText(activity, "tester", Toast.LENGTH_SHORT).show();
-				 break;
-			case R.string.colocation:
-				DebugLog.d("colocation");
-				trackEvent(getResources().getString(R.string.colocation));
-				scheduleFragment.setScheduleBy(R.string.colocation);
-				break;
-			case R.string.foto_imbas_petir: 
-				DebugLog.d("foto imbas petir");
-				trackEvent(getString(R.string.foto_imbas_petir));
-				scheduleFragment.setScheduleBy(R.string.foto_imbas_petir);
-				break;
-			case R.string.hasil_PM:
-				DebugLog.d("hasil PM");
-				trackEvent(getResources().getString(R.string.hasil_PM));
-				scheduleFragment.setScheduleBy(R.string.hasil_PM);
-				break;
-			case R.string.settings:
-				DebugLog.d("settings");
-				trackEvent(getResources().getString(R.string.settings));
-				Intent intent = new Intent(activity, SettingActivity.class);
-				startActivity(intent);
-				return;
-			default:
-				break;
-			}
-			mSlidingLayer.openLayer(true);
-		}
-	};
 
 	private void offlineSchedule(){
 		byte[] buffer = null;
@@ -245,190 +168,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			}
 		}
 	}
-
-	public void onEvent(ScheduleTempProgressEvent event) {
-		if (event.done) {
-			hideDialog();
-			Toast.makeText(activity, "Schedule diperbaharui", Toast.LENGTH_SHORT).show();
-		} else {
-
-            //showMessageDialog("menyimpan schedule " + event.progress + " %...");
-        }
-
-	}
-
-	public void onEvent(DeleteAllScheduleEvent event) {
-		DbRepository.getInstance().open(MyApplication.getInstance());
-		DbRepository.getInstance().clearData(DbManager.mSchedule);
-		DbRepository.getInstance().close();
-
-
-		ScheduleTempSaver scheduleSaver = new ScheduleTempSaver();
-		scheduleSaver.setActivity(activity);
-		scheduleSaver.execute(event.scheduleResponseModel.data.toArray());
-	}
-
-	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
-		if (fragment.equals(currentFragment))
-			return;
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = fm.beginTransaction();
-		ft.replace(viewContainerResId, fragment);
-		//		ft.addToBackStack(null);
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-		ft.commit();
-	}
-
-	public void setFlagScheduleSaved(boolean flagScheduleSaved) {
-		this.flagScheduleSaved = flagScheduleSaved;
-		hideDialog();
-	}
-
-	private void initFormOffline(){
-		WorkFormModel form = new WorkFormModel();
-		if (form.countItem() != 0){
-
-			return;
-		}
-		byte[] buffer = null;
-		InputStream is;
-		try {
-			is = this.getAssets().open("forms_14_10_2014.txt");
-			int size = is.available();
-			buffer = new byte[size];
-			is.read(buffer);
-			is.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String bufferString = new String(buffer);
-		//		progress_dialog.setMessage("initialize default form template");
-		//		progress_dialog.setCancelable(false);
-		//		progress_dialog.show();
-		initForm(bufferString);
-	}
-
-	private void initForm(String json){
-		Gson gson = new Gson();
-		FormResponseModel formResponseModel = gson.fromJson(json,FormResponseModel.class);
-		if (formResponseModel.status == 200){
-			new FormSaver().execute(formResponseModel.data.toArray());
-		}
-	}
-
-	private void initFormImbasPetir(String json) {
-		Gson gson = new Gson();
-		FormResponseModel formResponseModel = gson.fromJson(json, FormResponseModel.class);
-		if (formResponseModel.status == 200) {
-			new FormImbasPetirSaver().execute(formResponseModel.data.toArray());
-		}
-	}
-
-	private void checkAPKVersion(){
-		DebugLog.d("check apk version");
-		showMessageDialog(getString(R.string.checkversionapplication));
-		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
-	}
-
-	private void checkFormVersion(){
-		DebugLog.d("check form version");
-		showMessageDialog(getString(R.string.checkfromversion));
-		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
-	}
-	
-	private void checkFormVersionOffline(){
-		DebugLog.d("check form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
-		DebugLog.d("check form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
-		if (getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null) != null){
-			showMessageDialog(getString(R.string.getScheduleFromServer));
-			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
-		}
-		else{
-			showMessageDialog("Generate offline form");
-			initFormOffline();
-		}
-	}
-
-	public void showDialog() {
-
-		if (progressDialog != null && !progressDialog.isShowing())
-			progressDialog.show();
-
-	}
-
-	public void hideDialog() {
-
-		if (progressDialog != null && progressDialog.isShowing())
-			progressDialog.dismiss();
-
-	}
-
-	public void showMessageDialog(String message) {
-
-		if (progressDialog != null) {
-			progressDialog.setMessage(message);
-			showDialog();
-		}
-	}
-
-	/**
-	 * ===== list all handlers ======
-	 *
-	 * */
-	@SuppressLint("HandlerLeak")
-	private Handler apkHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
-
-			hideDialog();
-			Bundle bundle = msg.getData();
-			Gson gson = new Gson();
-
-			boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-			if (isResponseOK) {
-
-				CommonUtil.fixVersion(getApplicationContext());
-				if (bundle.getString("json") != null){
-					VersionModel model = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
-					DebugLog.d("latest_version from server : " + model.version);
-					writePreference(R.string.latest_version, model.version);
-					writePreference(R.string.url_update, model.download);
-					String version;
-					try {
-						version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-						DebugLog.d(version);
-					} catch (NameNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						Crashlytics.logException(e);
-						Toast.makeText(activity, "check apk version error : " + e.getMessage(), Toast.LENGTH_LONG).show();
-					}
-
-					if (CommonUtil.isUpdateAvailable(getApplicationContext())) {
-
-						//update is mandatory, go to Settings screen to manually update apk
-						Toast.makeText(activity, getString(R.string.newUpdateSTPapplication), Toast.LENGTH_LONG).show();
-						startActivity(new Intent(MainActivity.this, SettingActivity.class));
-
-					} else {
-
-						// lakukan cek dan unduh form ketka belum update apk
-						checkFormVersion();
-					}
-
-				}else{
-
-					Toast.makeText(activity, getString(R.string.memriksaUpdateGagal), Toast.LENGTH_LONG).show();
-				}
-				// jangan lakukan cek dan unduh form ketika belum update apk
-				//checkFormVersion();
-				//checkFormVersionOffline();
-			} else {
-
-			}
-		}
-	};
 
 	@SuppressLint("HandlerLeak")
 	Handler scheduleHandler = new Handler(){
@@ -457,147 +196,152 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 			} else {
 
+				DebugLog.d("repsonse not ok");
 			}
 		}
 	};
 
-	@SuppressLint("HandlerLeak")
 	Handler scheduleHandlerTemp = new Handler() {
 		public void handleMessage(android.os.Message msg) {
-
-			hideDialog();
-
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
-
-			boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-			if (isResponseOK) {
-
-				if (bundle.getString("json") != null) {
-					ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
-					DebugLog.d("scheduleResponseModel.status : " + scheduleResponseModel.status);
-					if (scheduleResponseModel.status == 200) {
-						DeleteAllScheduleEvent deleteAllScheduleEvent = new DeleteAllScheduleEvent();
-						deleteAllScheduleEvent.scheduleResponseModel = scheduleResponseModel;
-						EventBus.getDefault().post(deleteAllScheduleEvent);
-					}
-				} else {
-					Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
+			if (bundle.getString("json") != null) {
+				ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
+				DebugLog.d("scheduleResponseModel.status : " + scheduleResponseModel.status);
+				if (scheduleResponseModel.status == 200) {
+					DeleteAllScheduleEvent deleteAllScheduleEvent = new DeleteAllScheduleEvent();
+					deleteAllScheduleEvent.scheduleResponseModel = scheduleResponseModel;
+					EventBus.getDefault().post(deleteAllScheduleEvent);
 				}
 			} else {
-
+				hideDialog();
+				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
 			}
 		}
 	};
 
-	@SuppressLint("HandlerLeak")
-	private Handler formVersionHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
-
+	public void onEvent(ScheduleTempProgressEvent event) {
+		if (event.done) {
 			hideDialog();
+			Toast.makeText(activity, "Schedule diperbaharui", Toast.LENGTH_SHORT).show();
+		} else
+			showMessageDialog("menyimpan schedule " + event.progress + " %...");
+	}
 
-			Bundle bundle = msg.getData();
-			Gson gson = new Gson();
+	public void onEvent(DeleteAllScheduleEvent event) {
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().clearData(DbManager.mSchedule);
+		DbRepository.getInstance().close();
 
-			boolean isResponseOK = bundle.getBoolean("isresponseok");
 
-			if (isResponseOK) {
+		ScheduleTempSaver scheduleSaver = new ScheduleTempSaver();
+		scheduleSaver.setActivity(activity);
+		scheduleSaver.execute(event.scheduleResponseModel.data.toArray());
+	}
 
-				if (bundle.getString("json") != null){
-					VersionModel model = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
-					formVersion = model.version;
-					DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
-					DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
-					DebugLog.d("check version value from web: "+formVersion);
+	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
+		if (fragment.equals(currentFragment))
+			return;
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		ft.replace(viewContainerResId, fragment);
+		//		ft.addToBackStack(null);
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		ft.commit();
+	}
 
-					if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
+	@Override
+	public void onBackPressed() {
+		if (mSlidingLayer.isOpened())
+			mSlidingLayer.closeLayer(true);
+		else
+			finish();
+	}
 
-						DebugLog.d("form needs update");
-						showMessageDialog(getString(R.string.getNewfromServer));
-						APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
-
-					}else{
-
-						DebugLog.d("form doesn't need to be updated");
-						if (!MyApplication.getInstance().getDEVICE_REGISTER_STATE()) {
-
-							// haven't yet register device, do device registration
-							requestReadPhoneStatePermission();
-
-						}
-						showMessageDialog(getString(R.string.getScheduleFromServer));
-						APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
-					}
-
-				}else{
-
-					Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-				}
-
-			} else {
-
+	OnClickListener mainMenuClick = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			MyApplication.getInstance().setIsInCheckHasilPm(false);
+			int i = (Integer) v.getTag();
+			switch (i) {
+				case R.string.schedule:
+					DebugLog.d("schedule");
+					trackEvent(getResources().getString(R.string.schedule));
+					scheduleFragment.setScheduleBy(R.string.schedule);
+					break;
+				case R.string.site_audit:
+					DebugLog.d("site audit");
+					trackEvent(getResources().getString(R.string.site_audit));
+					scheduleFragment.setScheduleBy(R.string.site_audit);
+					break;
+				case R.string.preventive:
+					DebugLog.d("preventive");
+					trackEvent(getResources().getString(R.string.preventive));
+					scheduleFragment.setScheduleBy(R.string.preventive);
+					break;
+				case R.string.corrective:
+					DebugLog.d("corrective");
+//				Toast.makeText(activity, "Coming soon",Toast.LENGTH_LONG).show();
+					trackEvent(getResources().getString(R.string.corrective));
+					scheduleFragment.setScheduleBy(R.string.corrective);
+					break;
+				case R.string.newlocation:
+					DebugLog.d("new location");
+					trackEvent(getResources().getString(R.string.newlocation));
+					scheduleFragment.setScheduleBy(R.string.newlocation);
+					break;
+				case R.string.fiber_optic:
+					DebugLog.d("fiber optik");
+					trackEvent(getResources().getString(R.string.fiber_optic));
+					scheduleFragment.setScheduleBy(R.string.fiber_optic);
+//				Toast.makeText(activity, "tester", Toast.LENGTH_SHORT).show();
+					break;
+				case R.string.colocation:
+					DebugLog.d("colocation");
+					trackEvent(getResources().getString(R.string.colocation));
+					scheduleFragment.setScheduleBy(R.string.colocation);
+					break;
+				case R.string.hasil_PM:
+					DebugLog.d("hasil PM");
+					trackEvent(getResources().getString(R.string.hasil_PM));
+					scheduleFragment.setScheduleBy(R.string.hasil_PM);
+					break;
+				case R.string.settings:
+					DebugLog.d("settings");
+					trackEvent(getResources().getString(R.string.settings));
+					Intent intent = new Intent(activity, SettingActivity.class);
+					startActivity(intent);
+					return;
+				default:
+					break;
 			}
+			mSlidingLayer.openLayer(true);
 		}
 	};
 
-	@SuppressLint("HandlerLeak")
-	private Handler formSaverHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
+	public void setProgressDialogMessage(String from,String message){
+		showMessageDialog(message);
+	}
 
-			hideDialog();
+	public void setFlagScheduleSaved(boolean flagScheduleSaved) {
+		this.flagScheduleSaved = flagScheduleSaved;
+		hideDialog();
+	}
 
-			Bundle bundle = msg.getData();
+	public boolean isFlagFormSaved() {
+		return flagFormSaved;
+	}
 
-			boolean isResponseOK = bundle.getBoolean("isresponseok");
+	public boolean isFlagScheduleSaved() {
+		return flagScheduleSaved;
+	}
 
-			if (isResponseOK) {
-
-				if (bundle.getString("json") != null){
-					initForm(bundle.getString("json"));
-				}else{
-					Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-				}
-
-			} else {
-
-			}
-		}
-	};
-
-	@SuppressLint("HandlerLeak")
-	private Handler formImbasPetirSaverHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
-
-			hideDialog();
-			Bundle bundle = msg.getData();
-
-			boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-			if (isResponseOK) {
-				if (bundle.getString("json") != null){
-					initFormImbasPetir(bundle.getString("json"));
-				}else{
-
-					Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-				}
-			} else {
-
-			}
-		}
-	};
-
-
-	/**
-	 *
-	 * ====== list all async task ======
-	 *
-	 * */
 	private class FormSaver extends AsyncTask<Object, Integer, Void>{
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 
+			showMessageDialog("Persiapan menyimpan forms");
 			DbRepository.getInstance().open(MyApplication.getInstance());
 			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
@@ -606,7 +350,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
 			DbRepository.getInstance().close();
 
-			showMessageDialog("Persiapan menyimpan forms");
 		}
 
 		@Override
@@ -667,79 +410,185 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
+			//			setFlagFormSaved(true);
 			showMessageDialog("saving forms complete");
-			hideDialog();
-			APIHelper.getFormImbasPetir(activity, formImbasPetirSaverHandler);
-
-		}
-	}
-
-	private class FormImbasPetirSaver extends AsyncTask<Object, Integer, Void>{
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			showMessageDialog("Persiapan menyimpan form imbas petir");
-		}
-
-		@Override
-		protected Void doInBackground(Object... params) {
-			int sum = 0;
-			for (int i = 0; i < params.length; i++) {
-				if (((WorkFormModel)params[i]).groups != null)
-					for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
-						if (group.table == null){
-							continue;
-						}
-						DebugLog.d("group name : "+group.name);
-						DebugLog.d("group table : "+group.table.toString());
-						DebugLog.d("group table header : "+group.table.headers.toString());
-						sum += group.table.headers.size();
-						sum += group.table.rows.size();
-					}
-			}
-
-			int curr = 0;
-			for (int i = 0; i < params.length; i++) {
-				((WorkFormModel)params[i]).save();
-				if (((WorkFormModel)params[i]).groups != null)
-					for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
-						if (group.table == null){
-							continue;
-						}
-						for (ColumnModel columnModel : group.table.headers) {
-							curr ++;
-							publishProgress(curr*100/sum);
-							columnModel.save();
-						}
-
-						for (RowModel rowModel : group.table.rows) {
-							curr ++;
-							publishProgress(curr*100/sum);
-							rowModel.save();
-						}
-					}
-			}
-
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			super.onProgressUpdate(values);
-			DebugLog.d("saving forms "+values[0]+" %...");
-			showMessageDialog("saving forms "+values[0]+" %...");
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			showMessageDialog("saving form imbas petir is complete");
-			showMessageDialog(getString(R.string.getScheduleFromServer));
-			hideDialog();
-
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 		}
 	}
+
+	private void initFormOffline(){
+		WorkFormModel form = new WorkFormModel();
+		//DbRepository.getInstance().open(this);
+		if (form.countItem() != 0){
+			//			DbRepository.getInstance().close();
+			//			setFlagFormSaved(true);
+			return;
+		}
+		byte[] buffer = null;
+		InputStream is;
+		try {
+			is = this.getAssets().open("forms_14_10_2014.txt");
+			int size = is.available();
+			buffer = new byte[size];
+			is.read(buffer);
+			is.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String bufferString = new String(buffer);
+		//		progress_dialog.setMessage("initialize default form template");
+		//		progress_dialog.setCancelable(false);
+		//		progress_dialog.show();
+		initForm(bufferString);
+	}
+
+	private void initForm(String json){
+		Gson gson = new Gson();
+		FormResponseModel formResponseModel = gson.fromJson(json,FormResponseModel.class);
+		if (formResponseModel.status == 200){
+			FormSaver formSaver = new FormSaver();
+			formSaver.execute(formResponseModel.data.toArray());
+		}
+	}
+
+	private void checkAPKVersion(){
+		DebugLog.d("check apk version");
+		showMessageDialog(getString(R.string.checkversionapplication));
+		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
+	}
+
+	@SuppressLint("HandlerLeak")
+	private Handler apkHandler = new Handler(){
+		public void handleMessage(android.os.Message msg) {
+			CommonUtil.fixVersion(getApplicationContext());
+			if (msg.getData() != null && msg.getData().getString("json") != null){
+				VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
+				DebugLog.d("latest_version from server : " + model.version);
+				writePreference(R.string.latest_version, model.version);
+				writePreference(R.string.url_update, model.download);
+				String version = null;
+				try {
+					version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+					DebugLog.d(version);
+				} catch (NameNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+//				if (!version.equalsIgnoreCase(getPreference(R.string.latest_version, "")) /*&& !getPreference(R.string.url_update, "").equalsIgnoreCase("")*/){
+
+				if (CommonUtil.isUpdateAvailable(getApplicationContext())) {
+					//String update STP version
+					Toast.makeText(activity, getString(R.string.newUpdateSTPapplication), Toast.LENGTH_LONG).show();
+					startActivity(new Intent(MainActivity.this, SettingActivity.class));
+				} else {
+
+					// lakukan cek dan unduh form ketka belum update apk
+					checkFormVersion();
+				}
+
+			}else{
+				Toast.makeText(activity, getString(R.string.memriksaUpdateGagal), Toast.LENGTH_LONG).show();
+			}
+			// jangan lakukan cek dan unduh form ketika belum update apk
+			//checkFormVersion();
+			//checkFormVersionOffline();
+		};
+	};
+
+	private void checkFormVersion(){
+		DebugLog.d("check form version");
+		showMessageDialog(getString(R.string.checkfromversion));
+		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
+	}
+
+	private void checkFormVersionOffline(){
+		DebugLog.d("check form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
+		DebugLog.d("check form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
+		if (getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null) != null){
+			showMessageDialog(getString(R.string.getScheduleFromServer));
+			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+		}
+		else{
+			showMessageDialog("Generate offline form");
+			initFormOffline();
+		}
+	}
+
+	@SuppressLint("HandlerLeak")
+	private Handler formVersionHandler = new Handler(){
+		public void handleMessage(android.os.Message msg) {
+
+			hideDialog();
+
+			Bundle bundle = msg.getData();
+			Gson gson = new Gson();
+
+			boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+			if (isResponseOK) {
+
+				if (bundle.getString("json") != null){
+					VersionModel model = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
+					formVersion = model.version;
+					DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
+					DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
+					DebugLog.d("check version value from web: "+formVersion);
+
+					if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
+
+						DebugLog.d("form needs update");
+						showMessageDialog(getString(R.string.getNewfromServer));
+						APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
+
+					}else{
+
+						DebugLog.d("form doesn't need to be updated");
+						if (!MyApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+
+							// haven't yet register device, do device registration
+							requestReadPhoneStatePermission();
+
+						}
+						showMessageDialog(getString(R.string.getScheduleFromServer));
+						APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+					}
+
+				}else{
+
+					Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
+				}
+
+			} else {
+
+				DebugLog.d("response is not OK");
+			}
+		}
+	};
+
+	@SuppressLint("HandlerLeak")
+	private Handler formSaverHandler = new Handler(){
+		public void handleMessage(android.os.Message msg) {
+
+			hideDialog();
+
+			Bundle bundle = msg.getData();
+
+			boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+			if (isResponseOK) {
+
+				if (bundle.getString("json") != null){
+					initForm(bundle.getString("json"));
+				}else{
+					Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
+				}
+
+			} else {
+
+			}
+		}
+	};
 
 	@AfterPermissionGranted(Constants.RC_READ_PHONE_STATE)
 	private void requestReadPhoneStatePermission() {
@@ -803,11 +652,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		}
 	}
 
-	/**
-	 *
-	 * ====== functions which need permission ======
-	 *
-	 * */
 	private void setFCMTokenRegistration() {
 
 		String FCMRegToken = com.sap.inspection.util.PrefUtil.getStringPref(R.string.app_fcm_reg_id, "");

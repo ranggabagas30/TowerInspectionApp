@@ -184,6 +184,9 @@ public class ItemUploadManager {
                 publish(itemValues.size() + " item yang tersisa");
                 latestStatus = itemValues.size() + " item yang tersisa";
 
+                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+                    checkWargaIDRegistration(itemValues.get(0));
+
                 /** upload Photo **/
                 response = uploadItem2(itemValues.get(0));
                 DebugLog.d("response=" + response);
@@ -234,7 +237,7 @@ public class ItemUploadManager {
 
 
             // SAP only
-            if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")){
+            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)){
 
                 //after uploading data, then send messageToServer to the backend server
                 response = uploadStatus(scheduleId, messageToServer);
@@ -258,6 +261,27 @@ public class ItemUploadManager {
             return null;
         }
 
+        private void checkWargaIDRegistration(ItemValueModel item) {
+
+            if (StringUtil.isWargaNotRegistered(item.wargaId)) {
+
+                int dataindex = FormImbasPetirConfig.getDataIndex(scheduleId);
+
+                if (dataindex != -1) {
+
+                    ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataindex);
+
+                    Warga warga = FormImbasPetirConfig.getWarga(wargas, item.wargaId);
+
+                    if (warga != null) {
+                        DebugLog.d("warga is not registered, change with real wargaid --> (" + item.wargaId + "," + warga.getWargaid() + ")");
+                        item.wargaId = warga.getWargaid();
+                        itemValues.set(0, item);
+                    }
+                }
+            }
+        }
+
         private void processUploadResponse() {
 
             ItemDefaultResponseModel responseUploadItemModel = gson.fromJson(response, ItemDefaultResponseModel.class);
@@ -268,13 +292,19 @@ public class ItemUploadManager {
                 ItemValueModel item = itemValues.remove(0);
                 item.uploadStatus = ItemValueModel.UPLOAD_DONE;
 
-                if (item.wargaId != null) {
+                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-                    String oldWargaId = item.wargaId;
-                    String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
-                    updateWargaId(oldWargaId, newWargaId);
+                    if (StringUtil.isWargaNotRegistered(item.wargaId)) {
 
-                    item.wargaId      = newWargaId;
+                        String oldWargaId = item.wargaId;
+                        String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
+
+                        // update wargaid and barangid
+                        updateWargaId(oldWargaId, newWargaId);
+
+                        // update warga id to the table
+                        item.wargaId = newWargaId;
+                    }
 
                     if (item.barangId != null) {
 
@@ -282,6 +312,7 @@ public class ItemUploadManager {
                         String newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
                         updateBarangId(oldBarangId, newBarangId);
 
+                        // update barang id to the table
                         item.barangId = newBarangId;
                     }
                 }
@@ -322,14 +353,14 @@ public class ItemUploadManager {
 
         private void updateWargaId(String oldWargaId, String newWargaId) {
 
-            DebugLog.d("update warga id");
+            DebugLog.d("update warga id : (old,new) = (" + oldWargaId + "," + newWargaId + ")");
             FormImbasPetirConfig.updateWarga(scheduleId, oldWargaId, newWargaId);
 
         }
 
         private void updateBarangId(String oldBarangId, String newBarangId) {
 
-            DebugLog.d("update barang id");
+            DebugLog.d("update barang id : (old,new) = (" + oldBarangId + "," + newBarangId + ")");
 
         }
 

@@ -90,15 +90,16 @@ public class ItemValueModel extends BaseModel {
 
 	public static void delete(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {
 
+		DebugLog.d("(scheduleId, itemid, operatorid, wargaid, barangid) = (" + scheduleId + ", " + itemId + ", " + operatorId + ", " + wargaId + ", " + barangId + ")");
 		String whereItemId = itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=" + itemId : "";				// if itemid is unspecified
 		String whereOperatorId = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=" + operatorId : ""; // if operatorid is unspecified
-		String whereWarga = wargaId != null ? " AND " + DbManagerValue.colWargaId + "= '" + wargaId : "' ";
-		String whereBarang = barangId != null ? " AND " + DbManagerValue.colBarangId + "= '" + barangId : "' ";
+		String whereWarga = wargaId != null ? " AND " + DbManagerValue.colWargaId + "= '" + wargaId + "'" : "";
+		String whereBarang = barangId != null ? " AND " + DbManagerValue.colBarangId + "= '" + barangId + "'" : "";
 
 		DebugLog.d("delete item(s) with scheduleid = " + scheduleId + whereWarga + whereBarang + whereItemId + whereOperatorId);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		String sql = "DELETE FROM " + DbManagerValue.mFormValue + " WHERE "+DbManagerValue.colScheduleId+"="+scheduleId + whereItemId + whereOperatorId + whereWarga + whereBarang;
+		String sql = "DELETE FROM " + DbManagerValue.mFormValue + " WHERE " + DbManagerValue.colScheduleId + "=" + scheduleId + whereItemId + whereOperatorId + whereWarga + whereBarang;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
@@ -290,7 +291,7 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
-	public ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
+	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
 
 		ArrayList<ItemValueModel> model = new ArrayList<ItemValueModel>();
 		String table = DbManagerValue.mFormValue;
@@ -342,6 +343,8 @@ public class ItemValueModel extends BaseModel {
 		log("schedule Id : "+  scheduleId);
 		log("operator id : "+  operatorId);
 		log("item id : " + itemId);
+		log("warga id : " + wargaId);
+		log("barang id : " + barangId);
 		log("------------------------------------");
 		save(scheduleId, photoStatus);
 	}
@@ -520,7 +523,7 @@ public class ItemValueModel extends BaseModel {
 	}
 
 
-	private ItemValueModel getSiteFromCursor(Cursor c) {
+	private static ItemValueModel getSiteFromCursor(Cursor c) {
 		ItemValueModel FormValueModel = null;
 
 		if (null == c)
@@ -730,4 +733,8 @@ public class ItemValueModel extends BaseModel {
 		DbRepositoryValue.getInstance().close();
 	}
 
+	@Override
+	public String toString() {
+		return super.toString();
+	}
 }

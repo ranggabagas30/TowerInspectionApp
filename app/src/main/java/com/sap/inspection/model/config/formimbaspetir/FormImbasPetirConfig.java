@@ -62,12 +62,23 @@ public class FormImbasPetirConfig
             return null;
     }
 
+    public static Warga getWarga(ArrayList<Warga> wargas, String wargaId) {
+
+        int indexFound = getWargaIndex(wargas, wargaId);
+
+        if (indexFound != - 1) {
+            return wargas.get(indexFound);
+        }
+        return null;
+    }
+
     public static int getWargaIndex(ArrayList<Warga> wargas, String wargaId) {
 
         int indexFound = -1;
         int size = wargas.size();
         for (int i = 0; i < size; i++) {
-            if (wargas.get(i).getWargaid().equalsIgnoreCase(wargaId)) {
+            if (wargas.get(i).getWargaid().equalsIgnoreCase(wargaId) ||
+                wargas.get(i).getWargake().equalsIgnoreCase(wargaId)) {
                 indexFound = i;
                 break;
             }
@@ -85,7 +96,7 @@ public class FormImbasPetirConfig
 
             if (wargas != null && !wargas.isEmpty()) {
 
-                int wargaindex = FormImbasPetirConfig.getWargaIndex(wargas, oldWargaId);
+                int wargaindex = getWargaIndex(wargas, oldWargaId);
 
                 Warga warga = wargas.get(wargaindex);
                 warga.setWargaid(newWargaId);
@@ -99,6 +110,7 @@ public class FormImbasPetirConfig
             }
         }
     }
+
     // get list of data warga
     public static ArrayList<Warga> getDataWarga(int dataIndex) {
 
@@ -142,14 +154,16 @@ public class FormImbasPetirConfig
                int wargake = i + countaddwarga;
                String wargaId = "new" + String.valueOf(wargake);
 
-               Warga warga = new Warga();
+               Warga warga = new Warga();  //\\ init warga
+               warga.setWargake(wargaId);    // temporary id
+               warga.setWargaid(wargaId);   // real id
                warga.setRegistered(false); // flag not registered yet for added warga data
-               warga.setWargaid(wargaId); // real id
                warga.setBarang(new ArrayList<>());
 
                wargas.add(warga);
 
-               DebugLog.d("wargaId : " + wargaId);
+               DebugLog.d("wargake : " + warga.getWargake());
+               DebugLog.d("wargaId : " + warga.getWargaid());
            }
            countaddwarga = countaddwarga + amountOfWarga;
 

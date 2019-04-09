@@ -365,12 +365,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		setPercentage(itemValueForShare.rowId);
 	}
 
-	/*private int getTaskDone(int rowId,String scheduleId){
-		ItemValueModel valueModel = new ItemValueModel();
-		return valueModel.countTaskDone(scheduleId, rowId);
-
-	}*/
-
 	@Override
 	public void onTextChange(String string, View view) {
 		if (view.getTag() != null){
@@ -397,8 +391,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		/*DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);*/
 		EventBus.getDefault().register(this);
 	}
 
@@ -406,8 +398,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	protected void onStop() {
 		DebugLog.d("onStop");
 		googleApiClient.disconnect();
-		/*DbRepository.getInstance().close();
-		DbRepositoryValue.getInstance().close();*/
 		super.onStop();
 	}
 
