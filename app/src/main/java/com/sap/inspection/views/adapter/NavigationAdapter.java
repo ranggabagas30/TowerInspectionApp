@@ -349,7 +349,7 @@ public class NavigationAdapter extends MyBaseAdapter {
                 Intent intent;
 
                 // if the navigation item is "Warga Ke-"
-				if (getItem(position).text.contains(Constants.regexWargaId)) {
+				if (getItem(position).text.contains(Constants.regexWargaId) && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
 					int parentId = getItem(position).id;
 
@@ -365,9 +365,21 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 					if (wargas != null && !wargas.isEmpty()) {
 
-						String wargaId = StringUtil.getWargaIdFromLabel(getItem(position).text);
-						intent.putExtra(Constants.KEY_WARGAID, wargaId);
+						String wargaIdFromLabel = StringUtil.getWargaIdFromLabel(getItem(position).text);
 
+						Warga warga = FormImbasPetirConfig.getWarga(wargas, wargaIdFromLabel);
+
+						String message = "warga is null";
+
+						if (warga != null) {
+
+							message = "warga is not null";
+							String wargaId = warga.getWargaid();
+							intent.putExtra(Constants.KEY_WARGAID, wargaId);
+							context.startActivity(intent);
+						}
+
+						DebugLog.e(message);
 					}
 
 				} else {
@@ -377,8 +389,8 @@ public class NavigationAdapter extends MyBaseAdapter {
 					intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
 					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
 					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
+					context.startActivity(intent);
 				}
-                context.startActivity(intent);
 			} else {
 
 				if (getItem(position).id == -1) { // action tambah warga

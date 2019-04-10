@@ -75,9 +75,9 @@ public class StringUtil {
         return label;
     }
 
-    public static boolean isWargaNotRegistered(String label) {
+    public static boolean isNotRegistered(String label) {
 
-        return label != null && label.contains("new"); // i.e. wargaid = "new1", then it's considered as not registered yet
+        return label != null && label.contains("new") && !label.equalsIgnoreCase(Constants.EMPTY); // i.e. wargaid = "new1", then it's considered as not registered yet
 
     }
 }

@@ -123,4 +123,6 @@ public class Constants {
 
 	public static final String APPLICATION_SAP = "sap";
 	public static final String APPLICATION_STP = "stp";
+
+	public static final String EMPTY = "EMPTY";
 } 

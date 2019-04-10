@@ -3,6 +3,7 @@ package com.sap.inspection.task;
 import android.app.Activity;
 import android.os.AsyncTask;
 
+import com.sap.inspection.BaseActivity;
 import com.sap.inspection.MainActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.SettingActivity;
@@ -48,8 +49,14 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 		super.onProgressUpdate(values);
 		DebugLog.d( "saving schedule "+values[0]+" %...");
 		EventBus.getDefault().post(new ScheduleProgressEvent(values[0]));
-		if (mainActivity != null)
-		    mainActivity.showMessageDialog("schedule : saving schedule "+values[0]+" %...");
+
+		if (activity != null) {
+
+			if (activity instanceof BaseActivity) ((BaseActivity) activity).showMessageDialog("saving schedule "+values[0]+" %...");
+		}
+
+		/*if (mainActivity != null)
+		    mainActivity.showMessageDialog("saving schedule "+values[0]+" %...");*/
 	}
 
 	@Override
@@ -58,13 +65,27 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 		DebugLog.d( "on post db...");
 
 		EventBus.getDefault().post(new ScheduleProgressEvent(100,true));
-		if (mainActivity != null)
+
+		if (activity != null) {
+			if (activity instanceof MainActivity) {
+				((MainActivity) activity).hideDialog();
+				((MainActivity) activity).setFlagScheduleSaved(true);
+
+			} else if (activity instanceof SettingActivity) {
+				((SettingActivity) activity).hideDialog();
+			}
+		}
+		/*if (mainActivity != null) {
 			mainActivity.setFlagScheduleSaved(true);
 		if (activity != null)
 			try {
-				((SettingActivity)activity).hideDialog();
+				if (activity instanceof SettingActivity)
+					((SettingActivity)activity).hideDialog();
+				else
+					((MainActivity)activity).hideDialog();
 			} catch (Exception e) {
 				e.printStackTrace();
-		}
+			}
+		}*/
 	}
 }

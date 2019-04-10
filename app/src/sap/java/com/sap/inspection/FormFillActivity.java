@@ -63,6 +63,7 @@ import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.ExifUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.view.FormItem;
@@ -86,7 +87,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	public static final int REQUEST_CODE = 100;
 	private static final int MenuShootImage = 101;
-	private LinearLayout root;
 	private RowModel rowModel;
 	private ArrayList<ColumnModel> column;
 
@@ -101,34 +101,29 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private ScheduleBaseModel schedule;
 	private ItemValueModel itemValueForShare;
 	private Uri mImageUri;
-	private HashMap<Integer, ItemUpdateResultViewModel> itemValuesProgressView;
 	public ArrayList<Integer> indexes;
 	public ArrayList<String> labels;
 	public ArrayList<FormItem> formItems;
 	private ArrayList<ItemFormRenderModel> formModels;
-	private PhotoItemRadio photoItem;
-	private ItemUploadManager itemUploadManager;
-	private ScrollView scroll;
-	private AutoCompleteTextView search;
-	private ListView list;
-	private View searchView;
 	private File photo;
 	private FormFillAdapter adapter;
 
+	private String pageTitle;
 	private LatLng currentGeoPoint;
 	private int accuracy;
-	private String make;
-	private String model;
-	private String imei;
-	private TextView title;
-	private String pageTitle;
 	private boolean finishInflate;
-
-	private ProgressDialog progressDialog;
 
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
 
+	// view
+	private ScrollView scroll;
+	private LinearLayout root;
+	private PhotoItemRadio photoItem;
+	private AutoCompleteTextView search;
+	private ListView list;
+	private View searchView;
+	private TextView title;
 	private Button mBtnSettings;
 
 	@Override
@@ -143,8 +138,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			workFormGroupId 	= bundle.getInt(Constants.KEY_WORKFORMGROUPID);
 			workFormGroupName 	= bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
 			scheduleId 			= bundle.getString(Constants.KEY_SCHEDULEID);
-			wargaId 			= bundle.getString(Constants.KEY_WARGAID);
-			barangId			= bundle.getString(Constants.KEY_BARANGID);
+			wargaId 			= bundle.getString(Constants.KEY_WARGAID) != null ? bundle.getString(Constants.KEY_WARGAID) : Constants.EMPTY;
+			barangId			= bundle.getString(Constants.KEY_BARANGID) != null ? bundle.getString(Constants.KEY_BARANGID) : Constants.EMPTY;
 
 			DebugLog.d("received bundle : ");
 			DebugLog.d("rowId = " + rowId);
@@ -171,26 +166,31 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				.addOnConnectionFailedListener(onConnectionFailedListener)
 				.build();
 
-		searchView = findViewById(R.id.layout_search);
+		// init schedule
+		schedule = new ScheduleGeneral();
+		schedule = schedule.getScheduleById(scheduleId);
 
 		adapter = new FormFillAdapter(this);
+		adapter.setScheduleId(scheduleId);
 		adapter.setPhotoListener(photoClickListener);
 		adapter.setUploadListener(uploadClickListener);
-		list = (ListView) findViewById(R.id.list);
+		adapter.setWorkType(schedule.work_type.name);
+		adapter.setWorkFormGroupId(workFormGroupId);
+		adapter.setWorkFormGroupName(workFormGroupName);
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			adapter.setWargaId(wargaId);
+			adapter.setBarangId(barangId);
+		}
+
+		list 	= findViewById(R.id.list);
 		list.setOnItemSelectedListener(itemSelected);
 		list.setOnScrollListener(onScrollListener);
 		list.setAdapter(adapter);
 
-		schedule = new ScheduleGeneral();
-		schedule = schedule.getScheduleById(scheduleId);
-
-		adapter.setWorkType(schedule.work_type.name);
-		adapter.setWorkFormGroupId(workFormGroupId);
-        adapter.setWorkFormGroupName(workFormGroupName);
-        adapter.setWargaId(wargaId);
-        adapter.setBarangId(barangId);
-
+		// init view
 		scroll = (ScrollView) findViewById(R.id.scroll);
+		searchView = findViewById(R.id.layout_search);
 		search = (AutoCompleteTextView) findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);
 		root = (LinearLayout) findViewById(R.id.root);
@@ -201,9 +201,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			startActivity(intent);
 		});
 
-		showMessageDialog("Generating form...");
-		FormLoader loader = new FormLoader();
-		loader.execute();
+		new FormLoader().execute();
 	}
 	
 	OnItemSelectedListener itemSelected = new OnItemSelectedListener() {
@@ -256,40 +254,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		    // This happens when you start scrolling, so we need to prevent it from staying
 		    // in the afterDescendants mode if the EditText was focused 
 		    listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-		}
-	};
-
-
-	private void setPercentage(int rowId){
-		if (null != itemValuesProgressView.get(rowId) && finishInflate){
-			int taskDone = itemValueForShare.countTaskDone(schedule.id, rowId);
-			if (taskDone != 0){
-				itemValuesProgressView.get(rowId).colored.setText(String.valueOf(
-						itemValuesProgressView.get(rowId).getPercentage(
-								taskDone)+"%"));
-				//TODO change to match the database
-				SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-				itemValuesProgressView.get(rowId).plain.setText(" on "+df.format(Calendar.getInstance().getTime().getTime()));
-			}else{
-				itemValuesProgressView.get(rowId).colored.setText("");
-				itemValuesProgressView.get(rowId).plain.setText("No action yet");
-			}
-
-		}
-	}
-
-	OnCheckedChangeListener checkedChangeListener = new OnCheckedChangeListener() {
-
-		@Override
-		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-			if (buttonView.getTag() != null){
-				DebugLog.d((String)buttonView.getTag());
-				String[] split = ((String)buttonView.getTag()).split("[|]");
-				for (int i = 0; i < split.length; i++) {
-					DebugLog.d("=== "+split[i]);
-				}
-				saveValue(split, isChecked, true);
-			}
 		}
 	};
 
@@ -370,13 +334,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 		}
 		DebugLog.d("task done : "+itemValueForShare.countTaskDone(schedule.id, itemValueForShare.rowId));
-		setPercentage(itemValueForShare.rowId);
-	}
-
-	private int getTaskDone(int rowId,String scheduleId){
-		ItemValueModel valueModel = new ItemValueModel();
-		return valueModel.countTaskDone(scheduleId, rowId);
-
+		//setPercentage(itemValueForShare.rowId);
 	}
 
 	@Override
@@ -729,7 +687,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			fileOutputStream.flush();
 			fileOutputStream.close();
 			ExifInterface exif = new ExifInterface(filename);
-			createExifData(exif);
+			ExifUtil.createExifData(this, exif, currentGeoPoint.latitude, currentGeoPoint.longitude);
 			exif.saveAttributes();
 			return true;
 
@@ -743,88 +701,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		return false;
 	}
 
-	/*
-	 * called when exif data profile is created
-	 */
-	public void createExifData(ExifInterface exif){
-		// create a reference for Latitude and Longitude
-		double lat = currentGeoPoint.latitude;
-		if (lat < 0) {
-			exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "S");
-			lat = -lat;
-		} else {
-			exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "N");
-		}
-
-		exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE,
-				formatLatLongString(lat));
-
-		double lon = currentGeoPoint.longitude;
-		if (lon < 0) {
-			exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "W");
-			lon = -lon;
-		} else {
-			exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "E");
-		}
-		exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE,
-				formatLatLongString(lon));
-		try {
-			exif.saveAttributes();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		make = android.os.Build.MANUFACTURER; // get the make of the device
-		model = android.os.Build.MODEL; // get the model of the divice
-
-		exif.setAttribute(ExifInterface.TAG_MAKE, make);
-		TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-		imei = telephonyManager.getDeviceId();
-		exif.setAttribute(ExifInterface.TAG_MODEL, model+" - "+imei);
-
-		exif.setAttribute(ExifInterface.TAG_DATETIME, (new Date(System.currentTimeMillis())).toString()); // set the date & time
-
-	}
-
-	/*
-	 * format the Lat Long values according to standard exif format
-	 */
-	private static String formatLatLongString(double d) {
-		// format latitude and longitude according to exif format
-		StringBuilder b = new StringBuilder();
-		b.append((int) d);
-		b.append("/1,");
-		d = (d - (int) d) * 60;
-		b.append((int) d);
-		b.append("/1,");
-		d = (d - (int) d) * 60000;
-		b.append((int) d);
-		b.append("/1000");
-		return b.toString();
-	}
-
-	/*
-	public int initiateLocation(){
-		if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
-//			setCurrentGeoPoint(new LatLng( 
-//					(int)(locationManager.getLastKnownLocation(
-//							LocationManager.GPS_PROVIDER).getLatitude()*1000000.0),
-//							(int)(locationManager.getLastKnownLocation(
-//									LocationManager.GPS_PROVIDER).getLongitude()*1000000.0)));
-			return (int) locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getAccuracy();
-		}
-		else if (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) != null){
-//			setCurrentGeoPoint(new LatLng( 
-//					(int)(locationManager.getLastKnownLocation(
-//							LocationManager.NETWORK_PROVIDER).getLatitude()*1000000.0),
-//							(int)(locationManager.getLastKnownLocation(
-//									LocationManager.NETWORK_PROVIDER).getLongitude()*1000000.0)));
-			return (int) locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getAccuracy();
-		}
-		setCurrentGeoPoint(new LatLng(0,0));
-		return 0;
-
-	}*/
 
 	public void setCurrentGeoPoint(LatLng currentGeoPoint) {
 		this.currentGeoPoint = currentGeoPoint;
@@ -836,6 +712,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	private class FormLoader extends AsyncTask<Void, Integer, Void>{
 		String lastLable = null;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			showMessageDialog("Generating form...");
+		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
@@ -859,6 +741,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
 					form.setColumn(column);
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+						form.setWargaid(wargaId);
+						form.setBarangid(barangId);
+					}
 					form.setRowColumnModels(rowModel.row_columns, null);
 					if (form.hasInput){
 						DebugLog.d("========================= head row has input : ");
@@ -896,7 +782,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
 				form.setColumn(column);
-                form.setWorkFormGroupName(workFormGroupName);
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+					form.setWargaid(wargaId);
+					form.setBarangid(barangId);
+				}
+				form.setWorkFormGroupName(workFormGroupName);
 				form.setRowColumnModels(model.row_columns,parentLabel);
 				if (form.hasInput){
 					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
@@ -944,11 +834,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		protected void onPostExecute(Void result) {
 			title.setText(pageTitle);
 			hideDialog();
-			/*try {
-				progressDialog.dismiss();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}*/
+
 			adapter.setItems(formModels);
 			boolean ada = false;
 			DebugLog.d("total formModels items : " + formModels.size());
@@ -959,9 +845,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					break;
 				}
 			}
+
 			if (ada)
 				searchView.setVisibility(View.GONE);
-//			SearchAdapter searchAdapter = new SearchAdapter(activity, android.R.layout.select_dialog_item, android.R.id.text1, indexes);
+
 			ArrayAdapter<String> searchAdapter =
 					new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, labels){
 
@@ -969,11 +856,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					View v = super.getView(position, convertView, parent);
 					int i = 10;
 					((TextView) v).setTextSize(14);
-
-//					Typeface Type = getFont () ;  // custom method to get a font from "assets" folder
-//					((TextView) v).setTypeface(Type);
-//					((TextView) v).setTextColor(Color.RED);
-					((TextView) v) .setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);
+					((TextView) v).setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);
 
 					return v;
 				}

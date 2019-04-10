@@ -128,7 +128,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	private void insertCorrectiveToDB(int operatorId, int itemId){
 		CorrectiveValueModel model = new CorrectiveValueModel();
-		if (model.getItemValue(this.id, itemId, operatorId) == null){
+		if (CorrectiveValueModel.getItemValue(this.id, itemId, operatorId) == null){
 			model.itemId = itemId;
 			model.scheduleId = this.id;
 			model.operatorId = operatorId;

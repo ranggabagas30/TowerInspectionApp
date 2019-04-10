@@ -210,7 +210,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			ScheduleResponseModel scheduleResponseModel = gson.fromJson(bufferString, ScheduleResponseModel.class);
 			if (scheduleResponseModel.status == 200){
 				ScheduleSaver scheduleSaver = new ScheduleSaver();
-				scheduleSaver.setMainActivity(MainActivity.this);
+				scheduleSaver.setActivity(activity);
 				scheduleSaver.execute(scheduleResponseModel.data.toArray());
 			}
 		}
@@ -300,28 +300,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		}
 	}
 
-	public void showDialog() {
-
-		if (progressDialog != null && !progressDialog.isShowing())
-			progressDialog.show();
-
-	}
-
-	public void hideDialog() {
-
-		if (progressDialog != null && progressDialog.isShowing())
-			progressDialog.dismiss();
-
-	}
-
-	public void showMessageDialog(String message) {
-
-		if (progressDialog != null) {
-			progressDialog.setMessage(message);
-			showDialog();
-		}
-	}
-
 	/**
 	 * ===== list all handlers ======
 	 *
@@ -329,8 +307,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	@SuppressLint("HandlerLeak")
 	Handler scheduleHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
-
-			hideDialog();
 
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
@@ -343,16 +319,17 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
 					if (scheduleResponseModel.status == 200){
 						ScheduleSaver scheduleSaver = new ScheduleSaver();
-						scheduleSaver.setMainActivity(MainActivity.this);
+						scheduleSaver.setActivity(activity);
 						scheduleSaver.execute(scheduleResponseModel.data.toArray());
 					}
-				}else{
+				} else{
+					hideDialog();
 					setFlagScheduleSaved(true);
 					Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet),Toast.LENGTH_LONG).show();
 				}
 
 			} else {
-
+				hideDialog();
 				DebugLog.d("repsonse not ok");
 			}
 		}
@@ -362,7 +339,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	private Handler apkHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 
-			hideDialog();
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
 
@@ -384,6 +360,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						Crashlytics.logException(e);
+                        hideDialog();
 						Toast.makeText(activity, "check apk version error : " + e.getMessage(), Toast.LENGTH_LONG).show();
 					}
 
@@ -401,6 +378,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 				}else{
 
+                    hideDialog();
 					Toast.makeText(activity, getString(R.string.memriksaUpdateGagal), Toast.LENGTH_LONG).show();
 				}
 				// jangan lakukan cek dan unduh form ketika belum update apk
@@ -408,6 +386,8 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 				//checkFormVersionOffline();
 			} else {
 
+                hideDialog();
+                DebugLog.d("repsonse not ok");
 			}
 		}
 	};
@@ -415,8 +395,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	@SuppressLint("HandlerLeak")
 	private Handler formVersionHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
-
-			hideDialog();
 
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
@@ -453,11 +431,14 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 				}else{
 
+                    hideDialog();
 					Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
 				}
 
 			} else {
 
+                hideDialog();
+                DebugLog.d("repsonse not ok");
 			}
 		}
 	};
@@ -465,8 +446,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	@SuppressLint("HandlerLeak")
 	private Handler formSaverHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
-
-			hideDialog();
 
 			Bundle bundle = msg.getData();
 
@@ -477,11 +456,14 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 				if (bundle.getString("json") != null){
 					initForm(bundle.getString("json"));
 				}else{
+                    hideDialog();
 					Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
 				}
 
 			} else {
 
+                hideDialog();
+                DebugLog.d("repsonse not ok");
 			}
 		}
 	};
@@ -490,7 +472,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	private Handler formImbasPetirSaverHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 
-			hideDialog();
 			Bundle bundle = msg.getData();
 
 			boolean isResponseOK = bundle.getBoolean("isresponseok");
@@ -499,11 +480,13 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 				if (bundle.getString("json") != null){
 					initFormImbasPetir(bundle.getString("json"));
 				}else{
-
+                    hideDialog();
 					Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
 				}
 			} else {
 
+                hideDialog();
+                DebugLog.d("repsonse not ok");
 			}
 		}
 	};
@@ -589,7 +572,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			showMessageDialog("saving forms complete");
-			hideDialog();
 			APIHelper.getFormImbasPetir(activity, formImbasPetirSaverHandler);
 
 		}
@@ -656,8 +638,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			super.onPostExecute(result);
 			showMessageDialog("saving form imbas petir is complete");
 			showMessageDialog(getString(R.string.getScheduleFromServer));
-			hideDialog();
-
 			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
 		}
 	}

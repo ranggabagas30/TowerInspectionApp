@@ -26,6 +26,7 @@ import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.OperatorModel;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.model.value.ItemValueModel;
@@ -131,6 +132,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		for (ItemFormRenderModel model : models) {
 			shown.addAll(model.getModels());
 		}
+
 		for (int i = 0; i < shown.size(); i++) {
 			ItemFormRenderModel model = shown.get(i);
 			if (model.column!=null && model.column.column_name!=null
@@ -138,7 +140,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				shown.remove(i);
 		}
 
-		DebugLog.d("models size = "+shown.size());
+		DebugLog.d("models size = " + shown.size());
 		List<String> strings = new ArrayList<>();
 		for (int i = 0; i < this.shown.size(); i++) {
 			ItemFormRenderModel item = this.shown.get(i);
@@ -652,12 +654,18 @@ public class FormFillAdapter extends MyBaseAdapter {
 			itemFormRenderModel.itemValue.itemId = itemFormRenderModel.workItemModel.id;
 			itemFormRenderModel.itemValue.scheduleId = itemFormRenderModel.schedule.id;
 			itemFormRenderModel.itemValue.rowId = itemFormRenderModel.rowId;
+		}
 
-			// SAP only
-			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+		// SAP only
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+			if (wargaId.equalsIgnoreCase(Constants.EMPTY))
 				itemFormRenderModel.itemValue.wargaId = wargaId;
+			else
+				itemFormRenderModel.itemValue.wargaId = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
+
+			if (barangId.equalsIgnoreCase(Constants.EMPTY))
 				itemFormRenderModel.itemValue.barangId = barangId;
-			}
 		}
 
 		DebugLog.d("=== ITEM UPDATES ===");
@@ -725,13 +733,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 			if (!isAdding){
 				DebugLog.d("goto deleting");
 				if (itemFormRenderModel.itemValue.value != null) {
-
-					// SAP only
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId, wargaId, barangId);
-					} else {
-						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
-					}
+					ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
 				}
 				itemFormRenderModel.itemValue = null;
 				itemFormRenderModel.schedule.sumTaskDone--;

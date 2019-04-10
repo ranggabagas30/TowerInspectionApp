@@ -184,8 +184,8 @@ public class ItemUploadManager {
                 publish(itemValues.size() + " item yang tersisa");
                 latestStatus = itemValues.size() + " item yang tersisa";
 
-                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-                    checkWargaIDRegistration(itemValues.get(0));
+                /*if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+                    checkWargaIDRegistration(itemValues.get(0));*/
 
                 /** upload Photo **/
                 response = uploadItem2(itemValues.get(0));
@@ -197,7 +197,6 @@ public class ItemUploadManager {
                     processUploadResponse();
 
                 } else {
-
                     // stop upload progress
                     break;
                 }
@@ -227,6 +226,7 @@ public class ItemUploadManager {
 
             } else {
                 latestStatus = syncFail;
+                simpleResponseMessage = "response is null";
                 messageToServer = MESSAGE_FAILED;
             }
 
@@ -263,7 +263,7 @@ public class ItemUploadManager {
 
         private void checkWargaIDRegistration(ItemValueModel item) {
 
-            if (StringUtil.isWargaNotRegistered(item.wargaId)) {
+            if (StringUtil.isNotRegistered(item.wargaId)) {
 
                 int dataindex = FormImbasPetirConfig.getDataIndex(scheduleId);
 
@@ -275,8 +275,11 @@ public class ItemUploadManager {
 
                     if (warga != null) {
                         DebugLog.d("warga is not registered, change with real wargaid --> (" + item.wargaId + "," + warga.getWargaid() + ")");
-                        item.wargaId = warga.getWargaid();
-                        itemValues.set(0, item);
+
+                        String oldWargaId = item.wargaId;
+                        String newWargaId = warga.getWargaid();
+
+                        ItemValueModel.updateWargaId(oldWargaId, newWargaId);
                     }
                 }
             }
@@ -294,19 +297,21 @@ public class ItemUploadManager {
 
                 if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-                    if (StringUtil.isWargaNotRegistered(item.wargaId)) {
+                    if (StringUtil.isNotRegistered(item.wargaId)) {
 
                         String oldWargaId = item.wargaId;
                         String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
 
-                        // update wargaid and barangid
+                        // update wargaid in config
                         updateWargaId(oldWargaId, newWargaId);
 
-                        // update warga id to the table
+                        // update wargaid in FormValue table
+                        ItemValueModel.updateWargaId(oldWargaId, newWargaId);
+
                         item.wargaId = newWargaId;
                     }
 
-                    if (item.barangId != null) {
+                    if (StringUtil.isNotRegistered(item.barangId)) {
 
                         String oldBarangId = item.barangId;
                         String newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
@@ -321,6 +326,8 @@ public class ItemUploadManager {
 
                 DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
                 DebugLog.d("upload status : " + item.uploadStatus);
+
+                // insert or replace value data
                 item.save();
             } else {
                 if (responseUploadItemModel.status == 400 ||
@@ -396,9 +403,9 @@ public class ItemUploadManager {
                 params.add(new BasicNameValuePair("longitude", itemValue.longitude));
             if (itemValue.gpsAccuracy != 0)
                 params.add(new BasicNameValuePair("accuracy", String.valueOf(itemValue.gpsAccuracy)));
-            if (itemValue.wargaId != null)
+            if (itemValue.wargaId != null && !itemValue.wargaId.equalsIgnoreCase(Constants.EMPTY))
                 params.add(new BasicNameValuePair("wargaid", itemValue.wargaId));
-            if (itemValue.barangId != null)
+            if (itemValue.barangId != null && !itemValue.barangId.equalsIgnoreCase(Constants.EMPTY))
                 params.add(new BasicNameValuePair("barangid", itemValue.barangId));
             return params;
         }

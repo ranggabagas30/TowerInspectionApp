@@ -49,7 +49,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 		DebugLog.d("saving schedule "+values[0]+" %...");
 		EventBus.getDefault().post(new ScheduleTempProgressEvent(values[0]));
 		if (mainActivity != null)
-			mainActivity.showMessageDialog("schedule : saving schedule "+values[0]+" %...");
+			mainActivity.showMessageDialog("saving schedule "+values[0]+" %...");
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 		DebugLog.d("on post db...");
 		//DbRepositoryValue.getInstance().close();
 		EventBus.getDefault().post(new ScheduleTempProgressEvent(100,true));
-		if (mainActivity != null)
+		if (mainActivity != null) {
 			mainActivity.setFlagScheduleSaved(true);
 		if (activity != null)
 			try {
@@ -68,6 +68,7 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 					((MainActivity)activity).hideDialog();
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
 		}
 	}
 }

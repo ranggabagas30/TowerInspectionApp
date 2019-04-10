@@ -54,8 +54,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 		DbRepositoryValue.getInstance().close();
 	}
 
-	@Override
-	public CorrectiveValueModel getItemValue(Context context,String scheduleId, int itemId, int operatorId) {
+	public static CorrectiveValueModel getItemValue(Context context,String scheduleId, int itemId, int operatorId) {
 		CorrectiveValueModel model = null;
 
 		model = getItemValue(scheduleId, itemId, operatorId);
@@ -73,8 +72,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 		return count;
 	}
 
-	@Override
-	public CorrectiveValueModel getItemValue(String scheduleId,int itemId, int operatorId) {
+	public static CorrectiveValueModel getItemValue(String scheduleId,int itemId, int operatorId) {
 		CorrectiveValueModel model = null;
 		String table = DbManagerValue.mCorrectiveValue;
 		String[] columns = null;
@@ -287,7 +285,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 		DbRepositoryValue.getInstance().close();
 	}
 
-	private CorrectiveValueModel getSiteFromCursor(Cursor c) {
+	private static CorrectiveValueModel getSiteFromCursor(Cursor c) {
 		CorrectiveValueModel FormValueModel = null;
 
 		if (null == c)
@@ -337,5 +335,4 @@ public class CorrectiveValueModel extends ItemValueModel {
 		DbRepositoryValue.getInstance().getDB().update(DbManagerValue.mCorrectiveValue, cv, null, null);
 		DbRepositoryValue.getInstance().close();
 	}
-
 }

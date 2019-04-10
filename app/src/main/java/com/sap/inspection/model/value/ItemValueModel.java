@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Debug;
 import android.os.Parcel;
+import android.support.annotation.NonNull;
 
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.manager.ItemUploadManager;
@@ -17,10 +18,12 @@ import com.sap.inspection.tools.DebugLog;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +75,7 @@ public class ItemValueModel extends BaseModel {
 	public void writeToParcel(Parcel arg0, int arg1) {
 	}
 
-	public static void deleteAll(Context ctx){
+	public static void deleteAll(){
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mFormValue;
@@ -115,7 +118,7 @@ public class ItemValueModel extends BaseModel {
 		return listModel;
 	}
 
-	public ArrayList<ItemValueModel> getAllItemValueByScheduleId (String scheduleId) {
+	public static ArrayList<ItemValueModel> getAllItemValueByScheduleId (String scheduleId) {
 
 		ArrayList<ItemValueModel> listModel = null;
 		String table = DbManagerValue.mFormValue;
@@ -140,14 +143,6 @@ public class ItemValueModel extends BaseModel {
 		return listModel;
 	}
 
-	public ItemValueModel getItemValue(Context context,String scheduleId, int itemId, int operatorId) {
-
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		ItemValueModel model = getItemValue(scheduleId, itemId, operatorId);
-		DbRepositoryValue.getInstance().close();
-		return model;
-	}
-
 	public static int countTaskDone(String scheduleId, int rowId){
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
@@ -159,101 +154,57 @@ public class ItemValueModel extends BaseModel {
 		return count;
 	}
 
-	public ItemValueModel getItemValue(String scheduleId,int itemId, int operatorId) {
+	public static ItemValueModel getItemValue(String scheduleId, int itemId, int operatorId) {
 
+		return getItemValue(scheduleId, itemId, operatorId, null, null);
 
-		ItemValueModel model = null;
+	}
+
+	public static ItemValueModel getItemValue(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {
+
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
-		String where = DbManagerValue.colScheduleId+"=? AND "+DbManagerValue.colItemId+"=? AND "+DbManagerValue.colOperatorId+"=?";
-		String[] args = new String[]{scheduleId,String.valueOf(itemId),String.valueOf(operatorId)};
-		Cursor cursor;
+		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
+		String whereitemid   	= itemId > 0 ? " AND " + DbManagerValue.colItemId + "=?" : "";
+		String whereoperatorid  = operatorId > 0 ? " AND " + DbManagerValue.colOperatorId + "=?" : "";
+		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+
+		String where = wherescheduleid + whereitemid + whereoperatorid + wherewargaid + wherebarangid;
+		DebugLog.d("Get item(s) by (" + scheduleId + "," + itemId + "," + operatorId + "," + wargaId + "," + barangId +")");
+
+		List<String> argsList = new ArrayList<>();
+
+		if (scheduleId != null)
+			argsList.add(scheduleId);
+		if (itemId > 0)
+			argsList.add(String.valueOf(itemId));
+		if (operatorId > 0)
+			argsList.add(String.valueOf(operatorId));
+		if (wargaId != null)
+			argsList.add(wargaId);
+		if (barangId != null)
+			argsList.add(barangId);
+
+		String[] args = new String[argsList.size()];
+		args = argsList.toArray(args);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);;
 
 		if (!cursor.moveToFirst()) {
 
 			cursor.close();
 			DbRepositoryValue.getInstance().close();
-			return model;
+			return null;
 		}
 
-		model = getSiteFromCursor(cursor);
+		ItemValueModel model = getSiteFromCursor(cursor);
 
 		cursor.close();
 		DbRepositoryValue.getInstance().close();
 		return model;
 	}
-
-	public ItemValueModel getItemValue(int itemId, int operatorId, String userName) {
-
-
-
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		ItemValueModel model = null;
-		DbRepositoryValue.getInstance().getDB().execSQL("attach database "+userName+"_"+DbManager.dbName+" as general");
-
-		String query = "SELECT * FROM " + DbManagerValue.mFormValue + " t1 INNER JOIN general." + DbManager.mSchedule + " t2 ON t1." + DbManagerValue.colScheduleId + "=t2." + DbManager.colID +" ORDER BY t2." + DbManager.colWorkDate + " DESC";
-//		String[] args = new String[]{workType.toUpperCase()};
-		String[] args = null;
-		Cursor cursor = null;
-		try{
-			cursor = DbRepositoryValue.getInstance().getDB().rawQuery(query, args);
-		}catch (Exception e) {
-			// this gets called even if there is an exception somewhere above
-			if(cursor != null)
-				cursor.close();
-			DbRepositoryValue.getInstance().close();
-			return model;
-		}
-
-		if (!cursor.moveToFirst()) {
-			cursor.close();
-			DbRepositoryValue.getInstance().close();
-			return model;
-		}
-
-		model = getSiteFromCursor(cursor);
-
-		cursor.close();
-		DbRepositoryValue.getInstance().close();
-		return model;
-	}
-
-    public ItemValueModel getPhotoLocationItemValue(Context context, String scheduleId) {
-
-		ItemValueModel model = null;
-		model = getPhotoLocationItemValue(scheduleId);
-
-        return model;
-    }
-
-    public ItemValueModel getPhotoLocationItemValue(String scheduleId) {
-
-
-		ItemValueModel model = null;
-		String table = DbManagerValue.mFormValue;
-		String[] columns = null;
-		String where = DbManagerValue.colScheduleId+"=?";
-		String[] args = new String[]{scheduleId};
-		Cursor cursor;
-
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		cursor = DbRepositoryValue.getInstance().getDB().query(false, table, columns, where, args, null, null, DbManagerValue.colCreatedAt + " DESC ", "1");
-
-        if (!cursor.moveToFirst()) {
-        	cursor.close();
-			DbRepositoryValue.getInstance().close();
-			return model;
-		}
-
-        model = getSiteFromCursor(cursor);
-
-        cursor.close();
-        DbRepositoryValue.getInstance().close();
-        return model;
-    }
 
 	public ArrayList<ItemValueModel> getItemValuesForUpload() {
 
@@ -713,7 +664,7 @@ public class ItemValueModel extends BaseModel {
 						+ DbManagerValue.colPhotoDate + " varchar, "
 						+ DbManagerValue.colWargaId + " varchar, "
 						+ DbManagerValue.colBarangId + " varchar,"
-						+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "))";
+						+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "," + DbManagerValue.colWargaId + "," + DbManagerValue.colBarangId + "))";
 				break;
 			}
 			default:
@@ -730,6 +681,22 @@ public class ItemValueModel extends BaseModel {
 		cv.put(DbManagerValue.colUploadStatus, UPLOAD_NONE);
 
 		DbRepositoryValue.getInstance().getDB().update(DbManagerValue.mFormValue, cv, null, null);
+		DbRepositoryValue.getInstance().close();
+	}
+
+	public static void updateWargaId(String oldWargaId, String newWargaId) {
+
+		DebugLog.d("update values (oldWargaId, NewWargaId) : (" + oldWargaId + "," + newWargaId + ")");
+
+		String where  = DbManagerValue.colWargaId + "=?";
+		String[] args = new String[] {oldWargaId};
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+
+		ContentValues cv = new ContentValues();
+		cv.put(DbManagerValue.colWargaId, newWargaId);
+
+		DbRepositoryValue.getInstance().getDB().update(DbManagerValue.mFormValue, cv, where, args);
 		DbRepositoryValue.getInstance().close();
 	}
 

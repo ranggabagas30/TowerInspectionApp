@@ -12,9 +12,11 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -61,6 +63,10 @@ public class ItemFormRenderModel extends BaseModel {
     private int fillableTask = 0;
     private int filledTask = 0;
 
+    // SAP only
+    private String wargaId;
+    private String barangId;
+
     public void setColumn(ArrayList<ColumnModel> column) {
         this.columns = column;
     }
@@ -73,12 +79,6 @@ public class ItemFormRenderModel extends BaseModel {
         return percent == 0 ? "" : percent + "%";
     }
 
-    /*public void setPercent() {
-        ItemValueModel model = new ItemValueModel();
-        filledTask = model.countTaskDone(schedule.id, rowId);
-        countPercent();
-    }
-*/
     public void addFillableTask() {
         fillableTask++;
     }
@@ -89,6 +89,15 @@ public class ItemFormRenderModel extends BaseModel {
 
     public void setWorkFormGroupName(String workFormGroupName) {
         this.workFormGroupName = workFormGroupName;
+    }
+
+    public void setWargaid(String wargaId) {
+        this.wargaId = wargaId;
+        DebugLog.d("wargaid : " + wargaId);
+    }
+
+    public void setBarangid(String barangId) {
+        this.barangId = barangId;
     }
 
     public void addFilled() {
@@ -324,15 +333,33 @@ public class ItemFormRenderModel extends BaseModel {
         }
 
         DebugLog.d(schedule.id + " | " + workItemModel.id + " | " + operatorId + " | " + rowId);
-        ItemValueModel initValue = new ItemValueModel();
         ItemFormRenderModel child = new ItemFormRenderModel();
         child.workItemModel = workItemModel;
-        child.itemValue = initValue.getItemValue(schedule.id, workItemModel.id, operatorId);
+
+        if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+            if (StringUtil.isNotRegistered(wargaId)) {
+
+                String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(schedule.id, wargaId);
+                DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," +realwargaId +")");
+
+                wargaId = realwargaId;
+            }
+
+            if (StringUtil.isNotRegistered(barangId)) {
+
+            }
+            child.itemValue = ItemValueModel.getItemValue(schedule.id, workItemModel.id, operatorId, wargaId, barangId);
+
+        } else {
+
+            child.itemValue = ItemValueModel.getItemValue(schedule.id, workItemModel.id, operatorId);
+
+        }
+
         child.rowId = rowId;
         child.operatorId = operatorId;
         child.schedule = schedule;
-        DebugLog.d("value : " + initValue.value);
-        DebugLog.d("uploadstatus : " + initValue.uploadStatus);
         if (workItemModel.field_type.equalsIgnoreCase("label") && workItemModel.expand) {
             hasInput = true;
             child.type = TYPE_EXPAND;
