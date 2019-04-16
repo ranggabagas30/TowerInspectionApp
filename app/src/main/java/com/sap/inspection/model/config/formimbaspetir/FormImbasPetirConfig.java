@@ -9,6 +9,7 @@ import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class FormImbasPetirConfig
 {
@@ -73,7 +74,22 @@ public class FormImbasPetirConfig
             ArrayList<Warga> wargas = getDataWarga(dataindex);
             Warga warga = getWarga(wargas, wargaId);
 
-            return warga.getWargaid();
+            return warga == null ? null : warga.getWargaid();
+        }
+        DebugLog.d("schedule data index not found");
+        return null;
+    }
+
+    public static String getRegisteredBarangId(String scheduleId, String wargaId, String barangId) {
+
+        int dataIndex = getDataIndex(scheduleId);
+
+        if (dataIndex != -1) {
+
+            DebugLog.d( "schedule data index found, get registered barang id (" + barangId + ")");
+            Barang barang = getBarang(dataIndex, wargaId, barangId);
+
+            return barang == null ? null : barang.getBarangid();
         }
         DebugLog.d("schedule data index not found");
         return null;
@@ -108,13 +124,78 @@ public class FormImbasPetirConfig
         return indexFound;
     }
 
-    public static void updateWarga(String scheduleId, String oldWargaId, String newWargaId) {
+    public static Barang getBarang(int dataindex, String wargaid, String barangid) {
 
-        int dataindex = FormImbasPetirConfig.getDataIndex(scheduleId);
+        ArrayList<Barang> barangs = getDataBarang(dataindex, wargaid);
+
+        if (barangs != null && !barangs.isEmpty()) {
+
+            for (Barang barang : barangs) {
+
+                if (barang.getBarangke().equalsIgnoreCase(barangid) ||
+                    barang.getBarangid().equalsIgnoreCase(barangid)) {
+
+                    DebugLog.d("barangid (" + barangid + ") is found");
+                    return barang;
+                }
+            }
+        }
+        DebugLog.d("barangid (" + barangid + ") is not found");
+        return null;
+    }
+
+    public static Barang getBarang(ArrayList<Barang> barangs, String barangId) {
+
+        if (barangs != null && !barangs.isEmpty()) {
+
+            for (Barang barang : barangs) {
+
+                if (barang.getBarangke().equalsIgnoreCase(barangId) ||
+                        barang.getBarangid().equalsIgnoreCase(barangId)) {
+
+                    return barang;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static int getBarangIndex(int dataindex, String wargaid, String barangid) {
+
+        ArrayList<Barang> barangs = getDataBarang(dataindex, wargaid);
+
+        int indexbarang = 0;
+        int indexFound = -1;
+
+        if (barangs != null && !barangs.isEmpty()) {
+
+            for (Barang barang : barangs) {
+
+                if (barang.getBarangke().equalsIgnoreCase(barangid) ||
+                    barang.getBarangid().equalsIgnoreCase(barangid)) {
+                    indexFound = indexbarang;
+                    break;
+                }
+
+                indexbarang++;
+            }
+        }
+        return indexFound;
+    }
+
+    public static int getBarangIndex(String scheduleId, String wargaId, String barangId) {
+
+        int dataIndex = getDataIndex(scheduleId);
+        return getBarangIndex(dataIndex, wargaId, barangId);
+    }
+
+    public static void updateWargaId(String scheduleId, String oldWargaId, String newWargaId) {
+
+        int dataindex = getDataIndex(scheduleId);
 
         if (dataindex != -1) {
 
-            ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataindex);
+            ArrayList<Warga> wargas = getDataWarga(dataindex);
 
             if (wargas != null && !wargas.isEmpty()) {
 
@@ -125,10 +206,44 @@ public class FormImbasPetirConfig
 
                 wargas.set(wargaindex, warga);
 
-                FormImbasPetirConfig.updateDataWarga(dataindex, wargas);
+                updateDataWarga(dataindex, wargas);
 
                 DebugLog.d("update config oldwargaid (" + oldWargaId + ") to (" + newWargaId + ")");
             }
+        }
+    }
+
+    public static void updateBarangId(String scheduleId, String wargaId, String oldBarangId, String newBarangId) {
+
+        int dataIndex = getDataIndex(scheduleId);
+
+        ArrayList<Warga> wargas = getDataWarga(dataIndex);
+
+        Warga warga = getWarga(wargas, wargaId);
+
+        if (warga != null) {
+            ArrayList<Barang> barangs = warga.getBarang();
+
+            int barangIndex = getBarangIndex(dataIndex, wargaId, oldBarangId);
+            barangs.get(barangIndex).setBarangid(newBarangId);
+
+            warga.setBarang(barangs);
+
+            updateWarga(dataIndex, wargaId, warga);
+        }
+    }
+
+    public static void updateWarga(int dataIndex, String wargaId, Warga newWarga) {
+
+        ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
+
+        if (wargas != null && !wargas.isEmpty()) {
+
+            int wargaindex = getWargaIndex(wargas, wargaId);
+
+            wargas.set(wargaindex, newWarga);
+
+            updateDataWarga(dataIndex, wargas);
         }
     }
 
@@ -147,6 +262,25 @@ public class FormImbasPetirConfig
         return null;
     }
 
+    public static ArrayList<Warga> getDataWarga(String scheduleId) {
+
+        int dataIndex = getDataIndex(scheduleId);
+
+        if (dataIndex != -1) {
+
+            return getDataWarga(dataIndex);
+        }
+        return null;
+    }
+
+    public static ArrayList<Barang> getDataBarang(int dataIndex, String wargaId) {
+
+        ArrayList<Warga> wargas = getDataWarga(dataIndex);
+
+        Warga warga = getWarga(wargas, wargaId);
+
+        return warga !=null ? warga.getBarang() : null;
+    }
 
     // insert n empty data warga
     public static void insertDataWarga(int dataIndex, int amountOfWarga) {
@@ -178,7 +312,6 @@ public class FormImbasPetirConfig
                 Warga warga = new Warga();  //\\ init warga
                 warga.setWargake(wargaId);    // temporary id
                 warga.setWargaid(wargaId);   // real id
-                warga.setRegistered(false); // flag not registered yet for added warga data
                 warga.setBarang(new ArrayList<>());
 
                 wargas.add(warga);
@@ -202,6 +335,54 @@ public class FormImbasPetirConfig
             String configData = new Gson().toJson(formImbasPetirConfig);
 
             ConfigModel.save(configName, configData);
+        }
+    }
+
+    public static void insertDataBarang(int dataIndex, String wargaId, int amountOfBarang) {
+
+        ArrayList<Warga> wargas = getDataWarga(dataIndex);
+
+        if (wargas != null) {
+
+            Warga warga = getWarga(wargas, wargaId);
+
+            if (warga != null) {
+
+                ArrayList<Barang> barangs = getDataBarang(dataIndex, wargaId);
+
+                if (barangs != null) {
+
+                    int barangSize = barangs.size();
+                    int countaddbarang = warga.getCountaddbarang();
+
+                    DebugLog.d("count add barang : " + countaddbarang);
+                    DebugLog.d("size of data barang : " + barangSize);
+                    DebugLog.d("add " + amountOfBarang + " empty data barang ...");
+
+                    for (int i = 1; i <= amountOfBarang; i++) {
+
+                        int barangke = i + countaddbarang;
+                        String barangId = "new" + String.valueOf(barangke);
+
+                        Barang barang = new Barang();
+                        barang.setBarangke(barangId);
+                        barang.setBarangid(barangId);
+
+                        barangs.add(barang);
+                    }
+
+                    countaddbarang += amountOfBarang;
+
+                    // update current count add barang
+                    warga.setCountaddbarang(countaddbarang);
+
+                    // update list of barang into data warga
+                    warga.setBarang(barangs);
+
+                    // update warga
+                    updateWarga(dataIndex, wargaId, warga);
+                }
+            }
         }
     }
 
@@ -268,6 +449,41 @@ public class FormImbasPetirConfig
         return false;
     }
 
+    public static boolean removeBarang(String scheduleId, String wargaId, String barangId) {
+
+        boolean isRemoved = false;
+        int dataIndex = getDataIndex(scheduleId);
+
+        if (dataIndex != -1) {
+
+            ArrayList<Barang> barangs = getDataBarang(dataIndex, wargaId);
+
+            //Barang removedBarang = getBarang(dataIndex, wargaId, barangId);
+            int indexRemovedBarang = getBarangIndex(dataIndex, wargaId, barangId);
+
+            if (barangs != null && !barangs.isEmpty() && indexRemovedBarang != -1) {
+
+                //isRemoved = barangs.remove(indexRemovedBarang);
+                barangs.remove(indexRemovedBarang);
+
+                ArrayList<Warga> wargas = getDataWarga(dataIndex);
+
+                if (wargas != null && !wargas.isEmpty()) {
+
+                    Warga warga = getWarga(wargas, wargaId);
+
+                    if (warga != null) {
+
+                        warga.setBarang(barangs);
+                        updateWarga(dataIndex, wargaId, warga);
+
+                        isRemoved = true;
+                    }
+                }
+            }
+        }
+        return isRemoved;
+    }
 
     public static int getDataIndex(String scheduleId) {
 

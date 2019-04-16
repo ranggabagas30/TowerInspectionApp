@@ -71,24 +71,29 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	public void setItemFormRenderModel(ItemFormRenderModel itemFormRenderModel) {
 		this.itemFormRenderModel = itemFormRenderModel;
+		DebugLog.d("itemFormRenderModel.wargaId = " + itemFormRenderModel.getWargaId());
+		DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
 	}
 
 	public void setLabel(String label) {
 		this.labelText = label;
 	}
 
+	// no usages
 	public void setScheduleId(String scheduleId) {
 		this.scheduleId = scheduleId;
 		if (value != null)
 			value.scheduleId = scheduleId;
 	}
 
+	// no usages
 	public void setItemId(int itemId) {
 		this.itemId = itemId;
 		if (value != null)
 			value.itemId = itemId;
 	}
 
+	// no usages
 	public void setOperatorId(int operatorId) {
 		this.operatorId = operatorId;
 		if (value != null)
@@ -169,8 +174,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		DebugLog.d("value : " + this.value);
 		imageView.setImageResource(R.drawable.logo_app);
 		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
-			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", "")
-					);
+			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
 		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
 			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
 
@@ -244,43 +248,43 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	private void setItemFormRenderedValue(){
 		if (itemFormRenderModel.itemValue == null){
+			DebugLog.d("itemFormRenderModel.itemValue == null");
 			if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
 				itemFormRenderModel.schedule.sumTaskDone+=itemFormRenderModel.schedule.operators.size();
 			else
 				itemFormRenderModel.schedule.sumTaskDone++;
 			itemFormRenderModel.schedule.save();
 		}
-		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
+		DebugLog.d("task done : " + itemFormRenderModel.schedule.sumTaskDone);
 		if (itemFormRenderModel != null){
+			DebugLog.d("itemFormRenderModel != null");
 			itemFormRenderModel.itemValue = value;
 		}
 	}
 
+	// no usages
 	public void save(Context context){
 		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
 		value.save(context);
 	}
 
 	public void save(){
-		/*if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(context);
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(context);*/
 		setItemFormRenderedValue();
-		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value+ " | " +value.createdAt);
+		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+ value.value+ " | " + value.wargaId + " | " + value.barangId + " | " + value.createdAt );
 		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
-			DebugLog.d("scopeType : operator");
+			DebugLog.d("scopeType : All");
 			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
 				value.operatorId = operatorModel.id;
-				/*if (itemFormRenderModel.workItemModel.work_form_group_id == 3 && itemFormRenderModel.workItemModel.field_type.equalsIgnoreCase("file")) {
-					itemFormRenderModel.workItemModel.mandatory = true;
-					itemFormRenderModel.workItemModel.save();
-				}*/
 				value.save();
 				DebugLog.d("== operator id : " + value.operatorId);
+				DebugLog.d("== warga id : " + value.wargaId);
+				DebugLog.d("== barang id : " + value.barangId);
 			}
 		}else{
-			DebugLog.d("scopeType : All");
+			DebugLog.d("scopeType : operator");
+			DebugLog.d("== operator id : " + value.operatorId);
+			DebugLog.d("== warga id : " + value.wargaId);
+			DebugLog.d("== barang id : " + value.barangId);
 			value.save();
 		}
 	}
@@ -319,32 +323,6 @@ public class PhotoItemRadio extends RelativeLayout {
 		}
 	};
 
-	//penambahan override method irwan
-//	TextWatcher textWatcher2 = new TextWatcher() {
-//
-//		@Override
-//		public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//		}
-//
-//		@Override
-//		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//		}
-//
-//		@Override
-//		public void afterTextChanged(Editable s) {
-//			DebugLog.d("material photo radio: " + s.toString());
-//			if (onInit)
-//				return;
-//			initValue();
-//			if (value != null){
-//				value.material_request = s.toString();
-//				save();
-//			}
-//		}
-//	};
-
 	OnCheckedChangeListener changeListener = new OnCheckedChangeListener() {
 
 		@Override
@@ -355,7 +333,6 @@ public class PhotoItemRadio extends RelativeLayout {
 				button.setVisibility(View.VISIBLE);
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 					mandatory.setVisibility(View.GONE);
-				//remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 				setPhotoRootVisiblity("OK");
 				break;
 
@@ -369,7 +346,6 @@ public class PhotoItemRadio extends RelativeLayout {
 						mandatory.setVisibility(View.GONE);
 					}
 				}
-				//remark.setVisibility(View.VISIBLE);
 				setPhotoRootVisiblity("NOK");
 				break;
 
@@ -377,7 +353,6 @@ public class PhotoItemRadio extends RelativeLayout {
 				button.setVisibility(View.GONE);
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 					mandatory.setVisibility(View.GONE);
-				//remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 				photoRoot.setVisibility(View.GONE);
 				if (value!=null)
 					value.photoStatus = "NA";
@@ -388,6 +363,7 @@ public class PhotoItemRadio extends RelativeLayout {
 					mandatory.setVisibility(View.GONE);
 				break;
 			}
+
 			if (value!=null)
 				save();
 		}
@@ -395,8 +371,11 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	private void setPhotoRootVisiblity(String photoStatus){
 		if (value!=null){
-			value.photoStatus=photoStatus;
-			DebugLog.d("value.photoStatus now : " + photoStatus);
+			value.photoStatus = photoStatus;
+			DebugLog.d("value.photoStatus now : " + value.photoStatus);
+			DebugLog.d("value.wargaid now : " + value.wargaId);
+			DebugLog.d("value.barangid now : " + value.barangId);
+
 			if (value.value != null){
 				photoRoot.setVisibility(View.VISIBLE);
 				setImage(value.value, value.latitude, value.longitude, value.gpsAccuracy);
@@ -405,19 +384,14 @@ public class PhotoItemRadio extends RelativeLayout {
 				photoRoot.setVisibility(View.GONE);
 		}else
 			photoRoot.setVisibility(View.GONE);
-
 	}
 
 	public ItemValueModel getValue() {
 		return value;
 	}
 
-	//	public void showPhotoAtribute(){
-	//		photoRoot.setVisibility(View.VISIBLE);
-	//		noPicture.setVisibility(View.GONE);
-	//	}
-
 	public void deletePhoto(){
+
 		DebugLog.d( "into deleted");
 		if (value != null && value.value != null){
 			DebugLog.d( "deleted value not null");
@@ -437,6 +411,8 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	public String setPhotoDate() {
+
+		// updating item value for photo date
 		value.photoDate = value.createdAt = DateTools.getCurrentDate();
 		return value.photoDate;
 	}
@@ -444,15 +420,15 @@ public class PhotoItemRadio extends RelativeLayout {
 	public void setUploadstatus(String uploadstatus) {
 		this.uploadstatus.setText(uploadstatus);
 	}
+
 	public void setImage(String uri,String latitude, String longitude,int accuracy){
 		if (value != null){
 
+			// updating item value
 			value.value = uri;
 			value.latitude = latitude;
 			value.longitude = longitude;
 			value.gpsAccuracy = accuracy;
-			/*value.uploadStatus = ItemValueModel.UPLOAD_NONE;
-			DebugLog.d("save => uploadStatus : " + value.uploadStatus);*/
 		}
 		else{
 			DebugLog.d("value = null, reset ! ");
@@ -461,8 +437,6 @@ public class PhotoItemRadio extends RelativeLayout {
 		}
 		save();
 
-//		this.latitude.setText("Lat. : "+ Float.parseFloat(latitude)/1000000);
-//		this.longitude.setText("Long. : "+Float.parseFloat(longitude)/1000000);
 		this.latitude.setText("Lat. : "+ latitude);
 		this.longitude.setText("Long. : "+ longitude);
 		this.accuracy.setText("Accurate up to : "+accuracy+" meters");
@@ -527,6 +501,13 @@ public class PhotoItemRadio extends RelativeLayout {
 				value.itemId = itemFormRenderModel.workItemModel.id;
 				value.scheduleId = itemFormRenderModel.schedule.id;
 				value.operatorId = itemFormRenderModel.operatorId;
+
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+					value.wargaId  = itemFormRenderModel.getWargaId();
+					value.barangId = itemFormRenderModel.getBarangId();
+
+				}
 			}
 		}
 	}
@@ -545,28 +526,6 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	public int getItemId() {
 		return itemFormRenderModel.workItemModel.id;
-	}
-
-	private File createTemporaryFile(String part, String ext) throws Exception
-	{
-		File tempDir;
-		ContextWrapper contextWrapper = new ContextWrapper(context);
-		if (CommonUtil.isExternalStorageAvailable()) {
-			DebugLog.d("external storage available");
-			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-		} else {
-			DebugLog.d("external storage not available");
-			tempDir = new File(contextWrapper.getFilesDir()+"/Camera/");
-		}
-		tempDir = new File(tempDir.getAbsolutePath() + "/TowerInspection"); // create temp folder
-		if (!tempDir.exists()) {
-			tempDir.mkdir();
-		}
-		tempDir = new File(tempDir.getAbsolutePath() + "/" + value.scheduleId+ "/"); // create schedule folder
-		if (!tempDir.exists()) {
-			tempDir.mkdir();
-		}
-		return File.createTempFile(part, ext, tempDir);
 	}
 
 	private void toggleEditable() {

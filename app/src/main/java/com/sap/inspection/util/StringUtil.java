@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.tools.DebugLog;
 
 import java.io.FileOutputStream;
@@ -58,6 +60,15 @@ public class StringUtil {
         return idxSemiColon != -1;
     }
 
+    public static boolean isPreventive(String scheduleId) {
+
+        ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
+        scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
+
+        String workTypeName = scheduleBaseModel.work_type.name;
+        return workTypeName.matches(Constants.regexPREVENTIVE);
+    }
+
     public static int getWargaKeIndex(String wargaKeText) {
 
         String pattern = "Warga Ke-";
@@ -73,6 +84,17 @@ public class StringUtil {
         DebugLog.d("wargaid : " + label);
 
         return label;
+    }
+
+    public static String getBarangIdFromLabel(String label) {
+
+        if (label.contains(Constants.regexBarangId)) {
+            String pattern = Constants.regexBarangId;
+            label = label.replace(pattern, "");
+            DebugLog.d("barangid : " + label);
+            return label;
+        }
+        return null;
     }
 
     public static boolean isNotRegistered(String label) {

@@ -183,7 +183,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			adapter.setBarangId(barangId);
 		}
 
-		list 	= findViewById(R.id.list);
+		list = findViewById(R.id.list);
 		list.setOnItemSelectedListener(itemSelected);
 		list.setOnScrollListener(onScrollListener);
 		list.setAdapter(adapter);
@@ -352,6 +352,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	public void onEvent(UploadProgressEvent event) {
 		DebugLog.d("event="+new Gson().toJson(event));
+		if (!event.done)
+			showMessageDialog(event.progressString);
+		else
+			hideDialog();
 	}
 
 	@Override
@@ -434,7 +438,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
         @Override
         public void onClick(View v) {
-			DebugLog.d("");
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
 				//string checkConnection
 				MyApplication.getInstance().toast(getString(R.string.checkConnection), Toast.LENGTH_SHORT);
@@ -834,7 +837,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		protected void onPostExecute(Void result) {
 			title.setText(pageTitle);
 			hideDialog();
-
 			adapter.setItems(formModels);
 			boolean ada = false;
 			DebugLog.d("total formModels items : " + formModels.size());
@@ -877,8 +879,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	};
 	
 	private void setPageTitle(){
+
 		if (rowModel.row_columns.size() > 0 && rowModel.row_columns.get(0).items.size() > 0)
 			pageTitle = rowModel.row_columns.get(0).items.get(0).label;
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && pageTitle.contains(Constants.regexBarangId)) {
+			pageTitle += barangId;
+		}
 	}
 
 	private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {

@@ -96,8 +96,17 @@ public class ItemFormRenderModel extends BaseModel {
         DebugLog.d("wargaid : " + wargaId);
     }
 
+    public String getWargaId() {
+        return wargaId;
+    }
+
     public void setBarangid(String barangId) {
         this.barangId = barangId;
+        DebugLog.d("barangid : " + barangId);
+    }
+
+    public String getBarangId() {
+        return barangId;
     }
 
     public void addFilled() {
@@ -129,6 +138,13 @@ public class ItemFormRenderModel extends BaseModel {
         if (children == null)
             children = new ArrayList<>();
         child.setParent(this);
+
+        if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+            child.setSchedule(schedule);
+            child.setWargaid(getWargaId());
+            child.setBarangid(getBarangId());
+        }
+
         children.add(child);
     }
 
@@ -337,22 +353,10 @@ public class ItemFormRenderModel extends BaseModel {
         child.workItemModel = workItemModel;
 
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-            if (StringUtil.isNotRegistered(wargaId)) {
-
-                String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(schedule.id, wargaId);
-                DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," +realwargaId +")");
-
-                wargaId = realwargaId;
-            }
-
-            if (StringUtil.isNotRegistered(barangId)) {
-
-            }
+            String wargaId  = getWargaId();
+            String barangId = getBarangId();
             child.itemValue = ItemValueModel.getItemValue(schedule.id, workItemModel.id, operatorId, wargaId, barangId);
-
         } else {
-
             child.itemValue = ItemValueModel.getItemValue(schedule.id, workItemModel.id, operatorId);
 
         }

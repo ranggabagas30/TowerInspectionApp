@@ -244,21 +244,31 @@ public class ItemValueModel extends BaseModel {
 
 	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
 
-		ArrayList<ItemValueModel> model = new ArrayList<ItemValueModel>();
+		return getItemValuesForUpload(scheduleId, null, null);
+	}
+
+	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
+
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
-		String where = null;
-		String[] args = null;
-		log("get itemvalues for " + scheduleId);
+		String wherescheduleid  = scheduleId != null ? DbManagerValue.colScheduleId + "=?" : "";
+		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
-		if (ItemUploadManager.getInstance().isRunning()){
-			where =DbManagerValue.colUploadStatus+"!=? AND "+DbManagerValue.colScheduleId+"=?";
-			args = new String[]{String.valueOf(UPLOAD_ONGOING), scheduleId};
-		}else{
-			where = DbManagerValue.colScheduleId+"=?";
-			args = new String[]{scheduleId};
-		}
-		log(where);
+		String where = wherescheduleid + wherewargaid + wherebarangid;
+		DebugLog.d("Get item(s) by (" + scheduleId + "," + wargaId + "," + barangId +")");
+
+		List<String> argsList = new ArrayList<>();
+
+		if (scheduleId != null)
+			argsList.add(scheduleId);
+		if (wargaId != null)
+			argsList.add(wargaId);
+		if (barangId != null)
+			argsList.add(barangId);
+
+		String[] args = new String[argsList.size()];
+		args = argsList.toArray(args);
 
 		Cursor cursor;
 
@@ -266,19 +276,21 @@ public class ItemValueModel extends BaseModel {
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()){
-			log("model null ");
 			cursor.close();
 			DbRepositoryValue.getInstance().close();
-			return model;
+			return null;
 		}
+
+		ArrayList<ItemValueModel> model = new ArrayList<>();
+
 		do{
 			model.add(getSiteFromCursor(cursor));
-			log("" + model.get(model.size() - 1).value);
 		}
 		while(cursor.moveToNext());
-		log("model size "+model.size());
+
 		cursor.close();
 		DbRepositoryValue.getInstance().close();
+
 		return model;
 	}
 
@@ -664,7 +676,9 @@ public class ItemValueModel extends BaseModel {
 						+ DbManagerValue.colPhotoDate + " varchar, "
 						+ DbManagerValue.colWargaId + " varchar, "
 						+ DbManagerValue.colBarangId + " varchar,"
-						+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId + "," + DbManagerValue.colWargaId + "," + DbManagerValue.colBarangId + "))";
+						+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId
+						//+ "," + DbManagerValue.colWargaId + "," + DbManagerValue.colBarangId
+						+ "))";
 				break;
 			}
 			default:
@@ -684,12 +698,13 @@ public class ItemValueModel extends BaseModel {
 		DbRepositoryValue.getInstance().close();
 	}
 
-	public static void updateWargaId(String oldWargaId, String newWargaId) {
+	// update wargaid by scheduleid
+	public static void updateWargaId(String scheduleId, String oldWargaId, String newWargaId) {
 
-		DebugLog.d("update values (oldWargaId, NewWargaId) : (" + oldWargaId + "," + newWargaId + ")");
+		DebugLog.d("update values scheduleid (oldWargaId, NewWargaId) : " + scheduleId + "(" + oldWargaId + "," + newWargaId + ")");
 
-		String where  = DbManagerValue.colWargaId + "=?";
-		String[] args = new String[] {oldWargaId};
+		String where  = DbManagerValue.colScheduleId + "=?" + " AND " +  DbManagerValue.colWargaId + "=?";
+		String[] args = new String[] {scheduleId, oldWargaId};
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
 

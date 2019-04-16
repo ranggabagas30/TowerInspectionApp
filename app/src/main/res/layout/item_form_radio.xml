@@ -11,8 +11,7 @@
         android:textStyle="italic|bold"
         android:text="Mandatory"
         android:id="@+id/item_form_mandatory"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
 
     <com.sap.inspection.view.MyTextView
         android:id="@+id/item_form_label"

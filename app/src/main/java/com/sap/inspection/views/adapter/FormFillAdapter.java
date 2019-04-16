@@ -32,6 +32,7 @@ import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.rules.SavingRule;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.FormInputText;
 import com.sap.inspection.view.MyTextView;
 import com.sap.inspection.view.PhotoItem;
@@ -39,6 +40,7 @@ import com.sap.inspection.view.PhotoItemRadio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class FormFillAdapter extends MyBaseAdapter {
 
@@ -129,10 +131,13 @@ public class FormFillAdapter extends MyBaseAdapter {
 	@Override
 	public void notifyDataSetChanged() {
 		shown.clear();
+
+		// add all children item models into the list (flattening)
 		for (ItemFormRenderModel model : models) {
 			shown.addAll(model.getModels());
 		}
 
+		// remove corrective item from shown list
 		for (int i = 0; i < shown.size(); i++) {
 			ItemFormRenderModel model = shown.get(i);
 			if (model.column!=null && model.column.column_name!=null
@@ -141,14 +146,17 @@ public class FormFillAdapter extends MyBaseAdapter {
 		}
 
 		DebugLog.d("models size = " + shown.size());
+
+		// add all items' label into the shown list
 		List<String> strings = new ArrayList<>();
 		for (int i = 0; i < this.shown.size(); i++) {
 			ItemFormRenderModel item = this.shown.get(i);
-			DebugLog.d("i="+i+" "+item.getLabel()+ " type="+item.type);
+			//DebugLog.d("i = " +i+ " "+item.getLabel()+ " type="+item.type + " wargaid = " + item.getWargaId() + " barangid = " + item.getBarangId());
 			if (item.type==ItemFormRenderModel.TYPE_EXPAND)
 				strings.add(item.workItemModel.label);
 		}
 
+		// removing item from shown which has type = TYPE HEADER
 		for (int i = 0; i < strings.size(); i++) {
 			String s = strings.get(i);
 			for (int j = 0; j < shown.size(); j++) {
@@ -379,8 +387,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 						}
 					}
-
-
 				}
 				holder.label.setText(getItem(position).workItemModel.labelHeader);
 				holder.colored.setText(getItem(position).getPercent());
@@ -388,6 +394,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE_RADIO:
 				DebugLog.d("TYPE_PICTURE_RADIO");
+				DebugLog.d("picture radio wargaid : " + wargaId);
 				holder.photoRadio.setItemFormRenderModel(getItem(position));
 				holder.photoRadio.setValue(getItem(position).itemValue,true);
 				holder.upload.setTag(position);
@@ -478,7 +485,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 //		log("item id : "+ getItem(position).workItemModel.id);
 	}
 
-	private void reviseCheckBox(LinearLayout linear,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
+	private void reviseCheckBox(LinearLayout linear,ItemFormRenderModel item, String[] split, int rowId, int operatorId){
 		boolean isHorizontal = true;
 		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
 		//boolean isEnabled = !item.workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation);
@@ -542,61 +549,78 @@ public class FormFillAdapter extends MyBaseAdapter {
 		linear.setOrientation(isHorizontal ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
 	}
 
-	private void reviseRadio(RadioGroup radioGroup,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
+	private void reviseRadio(RadioGroup radioGroup, ItemFormRenderModel item, String[] split, int rowId, int operatorId){
+
 		boolean isHorizontal = true;
 		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
-		//boolean isEnabled = !item.workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation);
+
 
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 		DebugLog.d("radioGroup child count after addview : " + radioGroup.getChildCount());
-		for (int i = 0; i< radioGroup.getChildCount(); i++){
+
+		/*for (int i = 0; i< radioGroup.getChildCount(); i++){
 			RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
 			radioButton.setOnCheckedChangeListener(null);
 			radioButton.setEnabled(isEnabled);
 			DebugLog.d("radioButton enabled ? " + isEnabled);
-		}
+		}*/
 
 		radioGroup.clearCheck();
+
+		Vector<WorkFormOptionsModel> options = item.workItemModel.options;
+		int optionSize = options.size();
+
 		isHorizontal = 3 >= item.workItemModel.options.size();
+
 		DebugLog.d("isHorizontal : " + isHorizontal);
 		DebugLog.d("radioGroup child count before addview : " + radioGroup.getChildCount());
 
-		for (int i = 0; i< radioGroup.getChildCount(); i++){
+		for (int i = 0; i < radioGroup.getChildCount(); i++){
+
 			//binding checkbox
-			if (i < item.workItemModel.options.size()){
+			if (i < optionSize){
+
 				RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
 				radioButton.setVisibility(View.VISIBLE);
-				radioButton.setText(item.workItemModel.options.get(i).label);
-				isHorizontal = item.workItemModel.options.get(i).label.length() < 4;
+				radioButton.setText(options.get(i).label);
+
+				isHorizontal = options.get(i).label.length() < 4;
+
 				//				radioButton.setTag(rowId+"|"+item.workItemModel.id+"|"+operatorId+"|"+item.workItemModel.options.get(i).value+"|0");
 				radioButton.setTag(item);
+
 				if (split != null)
 					for(int j = 0; j < split.length; j++){
-						if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j])) {
+
+						if (options.get(i).value.equalsIgnoreCase(split[j])) {
 							radioGroup.check(radioButton.getId());
 							DebugLog.d("split[" + j + "] = " + split[j]);
 						}
+
 					}
                 DebugLog.d("checkedChangeListener ... ");
 				radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
 			}
+
 			//remove unused checkbox
 			else radioGroup.getChildAt(i).setVisibility(View.GONE);
 		}
 
 		//adding and binding if some checkbox is missing
-		for(int i = radioGroup.getChildCount(); i < item.workItemModel.options.size(); i++){
+		for(int i = radioGroup.getChildCount(); i < optionSize; i++){
+
 			RadioButton radioButton = new RadioButton(context);
-			radioButton.setText(item.workItemModel.options.get(i).label);
-			isHorizontal = item.workItemModel.options.get(i).label.length() < 4;
+			radioButton.setText(options.get(i).label);
+			isHorizontal = options.get(i).label.length() < 4;
 			//			radioButton.setTag(rowId+"|"+item.workItemModel.id+"|"+operatorId+"|"+item.workItemModel.options.get(i).value+"|0");
 			radioButton.setTag(item);
+
 			radioGroup.addView(radioButton);
+
 			if (split != null)
 				for(int j = 0; j < split.length; j++){
-					if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j])) {
+					if (options.get(i).value.equalsIgnoreCase(split[j])) {
 						radioGroup.check(radioButton.getId());
-
 					}
 				}
 			radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
@@ -622,20 +646,16 @@ public class FormFillAdapter extends MyBaseAdapter {
 		LinearLayout expandButton;
 	}
 
-	OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {
-
-		@Override
-		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-			ItemFormRenderModel item = (ItemFormRenderModel) buttonView.getTag();
-			String value = null;
-			for (WorkFormOptionsModel option : item.workItemModel.options)
-				if (option.label.equals(buttonView.getText())){
-					value = option.value;
-					break;
-				}
-			DebugLog.d( "-=-=-=- value : "+value);
-			saveValue(item, isChecked, true, value);
-		}
+	OnCheckedChangeListener onCheckedChangeListener = (buttonView, isChecked) -> {
+		ItemFormRenderModel item = (ItemFormRenderModel) buttonView.getTag();
+		String value = null;
+		for (WorkFormOptionsModel option : item.workItemModel.options)
+			if (option.label.equals(buttonView.getText())){
+				value = option.value;
+				break;
+			}
+		DebugLog.d( "-=-=-=- value : "+value);
+		saveValue(item, isChecked, true, value);
 	};
 
 	FormTextChange formTextChange = (string, view) -> {
@@ -658,14 +678,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 		// SAP only
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-			if (wargaId.equalsIgnoreCase(Constants.EMPTY))
-				itemFormRenderModel.itemValue.wargaId = wargaId;
-			else
-				itemFormRenderModel.itemValue.wargaId = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
-
-			if (barangId.equalsIgnoreCase(Constants.EMPTY))
-				itemFormRenderModel.itemValue.barangId = barangId;
+			itemFormRenderModel.itemValue.wargaId = wargaId;
+			itemFormRenderModel.itemValue.barangId = barangId;
 		}
 
 		DebugLog.d("=== ITEM UPDATES ===");
@@ -694,8 +708,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 					itemFormRenderModel.itemValue.value = value;
 					itemFormRenderModel.schedule.sumTaskDone ++;
 				}
-				// any value apply before
 				else{
+					// any value apply before
 					String[] chkBoxValue = itemFormRenderModel.itemValue.value.split("[,]");
 					for(int i = 0; i < chkBoxValue.length; i++){ 
 						if (chkBoxValue[i].equalsIgnoreCase(value))
@@ -733,7 +747,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 			if (!isAdding){
 				DebugLog.d("goto deleting");
 				if (itemFormRenderModel.itemValue.value != null) {
-					ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
+
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId, itemFormRenderModel.itemValue.wargaId, itemFormRenderModel.itemValue.barangId);
+					else
+						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
 				}
 				itemFormRenderModel.itemValue = null;
 				itemFormRenderModel.schedule.sumTaskDone--;

@@ -243,6 +243,8 @@ public class NavigationAdapter extends MyBaseAdapter {
 			DebugLog.d("view type = 1");
 			DebugLog.d("label name = " + rowModel.text);
 
+			holder.removeSubMenu.setVisibility(View.INVISIBLE);
+
 			if (rowModel.text.contains(Constants.regexWargaId)) {
 
 				DebugLog.d("remove submenu visibility is VISIBLE");
@@ -250,11 +252,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 				holder.removeSubMenu.setVisibility(View.VISIBLE);
 				holder.removeSubMenu.setTag(rowModel);
 				holder.removeSubMenu.setOnClickListener(removeSubMenuClickListener);
-
-			} else {
-
-				DebugLog.d("remove submenu visibility is INVISIBLE");
-				holder.removeSubMenu.setVisibility(View.INVISIBLE);
 
 			}
 
@@ -267,13 +264,9 @@ public class NavigationAdapter extends MyBaseAdapter {
 		return view; 
 	}
 
-	OnClickListener expandCollapseListener = new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			int position = (Integer) v.getTag();
-			toggleExpand(position);
-		}
+	OnClickListener expandCollapseListener = v -> {
+		int position = (Integer) v.getTag();
+		toggleExpand(position);
 	};
 
 	OnClickListener uploadWorkFormGroupListener = new OnClickListener() {
@@ -285,36 +278,45 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 				if (!ItemUploadManager.getInstance().isRunning()) {
 
-					String scheduleId = getScheduleId();
-					int position = (int) v.getTag();
+					//if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(context.getString(R.string.foto_imbas_petir))) {
+					if (false) { // debug only
+						// upload method for imbas petir
 
-					RowModel rowModel = getItem(position);
-					DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
-
-					ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
-					ArrayList<ItemValueModel> listItemValue = ItemValueModel.getItemValuesForUpload(scheduleId);
-
-					for (ItemValueModel model : listItemValue) {
-
-						WorkFormItemModel workFormItemModel = WorkFormItemModel.getItemById(model.itemId, rowModel.work_form_group_id);
-
-						// get upload items by workformgroupid
-						if (rowModel.work_form_group_id == workFormItemModel.work_form_group_id) {
-							listItemUploadByWorkFormGroupId.add(model);
-							DebugLog.d("t1.workFormGroupId : " + model.work_form_group_id);
-							DebugLog.d("t1.scheduleId : " + 	 model.scheduleId);
-							DebugLog.d("t1.operatorId : " + 	 model.operatorId);
-							DebugLog.d("t1.itemId : " + 		 model.itemId);
-							DebugLog.d("t1.remark : " +			 model.remark);
-							DebugLog.d("t1.value : "  + 		 model.value);
-						}
-						DebugLog.d("\n\n");
-					}
-
-					if (listItemUploadByWorkFormGroupId.size()!= 0) {
-						ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
 					} else {
-						MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+
+						String scheduleId = getScheduleId();
+						int position = (int) v.getTag();
+
+						RowModel rowModel = getItem(position);
+						DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
+
+						ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
+						ArrayList<ItemValueModel> listItemValue = ItemValueModel.getItemValuesForUpload(scheduleId);
+
+						for (ItemValueModel model : listItemValue) {
+
+							WorkFormItemModel workFormItemModel = WorkFormItemModel.getItemById(model.itemId, rowModel.work_form_group_id);
+
+							// get upload items by workformgroupid
+							if (rowModel.work_form_group_id == workFormItemModel.work_form_group_id) {
+								listItemUploadByWorkFormGroupId.add(model);
+								DebugLog.d("t1.workFormGroupId : " + model.work_form_group_id);
+								DebugLog.d("t1.scheduleId : " + 	 model.scheduleId);
+								DebugLog.d("t1.operatorId : " + 	 model.operatorId);
+								DebugLog.d("t1.itemId : " + 		 model.itemId);
+								DebugLog.d("t1.photoStatus : " + 	 model.photoStatus);
+								DebugLog.d("t1.remark : " +			 model.remark);
+								DebugLog.d("t1.value : "  + 		 model.value);
+							}
+							DebugLog.d("\n\n");
+						}
+
+						if (listItemUploadByWorkFormGroupId.size()!= 0) {
+							ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
+						} else {
+							MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+						}
+
 					}
 
 				} else {
@@ -354,8 +356,9 @@ public class NavigationAdapter extends MyBaseAdapter {
 					int parentId = getItem(position).id;
 
 					intent = new Intent(context, FormActivityWarga.class);
-					intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
+					intent.putExtra(Constants.KEY_DATAINDEX, dataIndex);
 					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+					intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
 					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
 					intent.putExtra(Constants.KEY_WORKFORMGROUPID, String.valueOf(getItem(position).work_form_group_id));
 					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);

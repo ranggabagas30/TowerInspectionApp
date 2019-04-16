@@ -65,6 +65,24 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+        // get data bundle from ScheduleFragment
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+
+            scheduleId 	 = bundle.getString(Constants.KEY_SCHEDULEID);
+            siteId		 = bundle.getInt(Constants.KEY_SITEID);
+            workTypeId	 = bundle.getInt(Constants.KEY_WORKTYPEID);
+            workTypeName = bundle.getString(Constants.KEY_WORKTYPENAME);
+            dayDate 	 = bundle.getString(Constants.KEY_DAYDATE);
+        }
+
+        DebugLog.d("received bundles : ");
+        DebugLog.d("scheduleId=" + scheduleId);
+        DebugLog.d("siteId=" + siteId);
+        DebugLog.d("workTypeId=" + workTypeId);
+        DebugLog.d("workTypeName=" + workTypeName);
+        DebugLog.d("dayDate=" + dayDate);
+
 		fm = getSupportFragmentManager();
 
 		// set dialog
@@ -78,23 +96,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 				.setTopTitle("input Jumlah Warga")
 				.setTopTitleColor(R.color.lightgray)
 				.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
-
-		// get data bundle from ScheduleFragment
-		Bundle bundle = getIntent().getExtras();
-		if (bundle != null) {
-
-			scheduleId 	 = bundle.getString(Constants.KEY_SCHEDULEID);
-			siteId		 = bundle.getInt(Constants.KEY_SITEID);
-			workTypeId	 = bundle.getInt(Constants.KEY_WORKTYPEID);
-			workTypeName = bundle.getString(Constants.KEY_WORKTYPENAME);
-			dayDate 	 = bundle.getString(Constants.KEY_DAYDATE);
-		}
-
-		DebugLog.d("scheduleId=" + scheduleId);
-		DebugLog.d("siteId=" + siteId);
-		DebugLog.d("workTypeId=" + workTypeId);
-		DebugLog.d("workTypeName=" + workTypeName);
-		DebugLog.d("dayDate=" + dayDate);
 
 		// get schedule base model by scheduleid
 		scheduleBaseModels = new ScheduleGeneral();

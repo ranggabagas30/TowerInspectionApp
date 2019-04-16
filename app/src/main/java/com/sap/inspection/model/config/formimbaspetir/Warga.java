@@ -4,18 +4,11 @@ import java.util.ArrayList;
 
 public class Warga
 {
-    private String wargake;
     private String wargaid;
-    private boolean registered;
+    private String wargake;
+    private boolean registered = false;
     private ArrayList<Barang> barang;
-
-    public String getWargake() {
-        return wargake;
-    }
-
-    public void setWargake(String wargake) {
-        this.wargake = wargake;
-    }
+    private int countaddbarang = 0;
 
     public String getWargaid ()
     {
@@ -25,6 +18,14 @@ public class Warga
     public void setWargaid (String wargaid)
     {
         this.wargaid = wargaid;
+    }
+
+    public String getWargake() {
+        return wargake;
+    }
+
+    public void setWargake(String wargake) {
+        this.wargake = wargake;
     }
 
     public void setRegistered(boolean registered) {
@@ -43,6 +44,14 @@ public class Warga
     public void setBarang (ArrayList<Barang> barang)
     {
         this.barang = barang;
+    }
+
+    public int getCountaddbarang() {
+        return countaddbarang;
+    }
+
+    public void setCountaddbarang(int countaddbarang) {
+        this.countaddbarang = countaddbarang;
     }
 
     @Override

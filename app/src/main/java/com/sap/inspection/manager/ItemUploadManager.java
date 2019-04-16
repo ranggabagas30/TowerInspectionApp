@@ -1,5 +1,6 @@
 package com.sap.inspection.manager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
+import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
@@ -81,6 +83,7 @@ public class ItemUploadManager {
     public String syncFail = "Sinkronisasi gagal";
     private String latestStatus;
     private UploadValue uploadTask;
+    private Activity activity;
 
     public boolean isRunning() {
         return running;
@@ -100,6 +103,11 @@ public class ItemUploadManager {
 
     public String getLatestStatus() {
         return latestStatus;
+    }
+
+    public ItemUploadManager setActivity(Activity activity) {
+        this.activity = activity;
+        return this;
     }
 
     public void addItemValues(Collection<ItemValueModel> itemvalues) {
@@ -136,6 +144,16 @@ public class ItemUploadManager {
         }
     }
 
+    private void showMessageDialog(String message) {
+        if (activity instanceof BaseActivity)
+            ((BaseActivity) activity).showMessageDialog(message);
+    }
+
+    private void hideDialog() {
+        if (activity instanceof BaseActivity)
+            ((BaseActivity) activity).hideDialog();
+    }
+
     private class UploadValue extends AsyncTask<Void, String, Void> {
 
         // private Activity activity;
@@ -162,10 +180,12 @@ public class ItemUploadManager {
             super.onPreExecute();
             running = true;
             MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
+            showMessageDialog(MyApplication.getContext().getResources().getString(R.string.progressUpload));
         }
 
         private void publish(String msg) {
             publishProgress(msg);
+            showMessageDialog(msg);
         }
 
         @Override
@@ -184,8 +204,10 @@ public class ItemUploadManager {
                 publish(itemValues.size() + " item yang tersisa");
                 latestStatus = itemValues.size() + " item yang tersisa";
 
-                /*if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-                    checkWargaIDRegistration(itemValues.get(0));*/
+                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+                    ItemValueModel itemChanged = checkWargaAndBarangID(itemValues.get(0));
+                    itemValues.set(0, itemChanged);
+                }
 
                 /** upload Photo **/
                 response = uploadItem2(itemValues.get(0));
@@ -202,7 +224,7 @@ public class ItemUploadManager {
                 }
             }
 
-            if (scheduleId != null && isPreventive(scheduleId)) {
+            if (scheduleId != null && StringUtil.isPreventive(scheduleId)) {
                 DebugLog.d("hit corrective");
                 APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() + scheduleId + "/update");
             }
@@ -261,28 +283,20 @@ public class ItemUploadManager {
             return null;
         }
 
-        private void checkWargaIDRegistration(ItemValueModel item) {
+        private ItemValueModel checkWargaAndBarangID(ItemValueModel item) {
 
             if (StringUtil.isNotRegistered(item.wargaId)) {
-
-                int dataindex = FormImbasPetirConfig.getDataIndex(scheduleId);
-
-                if (dataindex != -1) {
-
-                    ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataindex);
-
-                    Warga warga = FormImbasPetirConfig.getWarga(wargas, item.wargaId);
-
-                    if (warga != null) {
-                        DebugLog.d("warga is not registered, change with real wargaid --> (" + item.wargaId + "," + warga.getWargaid() + ")");
-
-                        String oldWargaId = item.wargaId;
-                        String newWargaId = warga.getWargaid();
-
-                        ItemValueModel.updateWargaId(oldWargaId, newWargaId);
-                    }
-                }
+                String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(item.scheduleId, item.wargaId);
+                DebugLog.d("(wargaid, realwargaid) : (" + item.wargaId + "," + realwargaId +")");
+                item.wargaId = realwargaId;
             }
+
+            if (StringUtil.isNotRegistered(item.barangId)) {
+                String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(item.scheduleId, item.wargaId, item.barangId);
+                DebugLog.d("(barangid, realbarangid) : (" + item.barangId + "," + realbarangid +")");
+                item.barangId = realbarangid;
+            }
+            return item;
         }
 
         private void processUploadResponse() {
@@ -297,27 +311,30 @@ public class ItemUploadManager {
 
                 if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
+                    // form imbas petir check new wargaid and new barangid after registration
+
                     if (StringUtil.isNotRegistered(item.wargaId)) {
 
+                        //String scheduleId = item.scheduleId;
                         String oldWargaId = item.wargaId;
                         String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
 
-                        // update wargaid in config
+                        // update wargaid in the config
                         updateWargaId(oldWargaId, newWargaId);
-
-                        // update wargaid in FormValue table
-                        ItemValueModel.updateWargaId(oldWargaId, newWargaId);
 
                         item.wargaId = newWargaId;
                     }
 
                     if (StringUtil.isNotRegistered(item.barangId)) {
 
+                        String wargaId = item.wargaId;
                         String oldBarangId = item.barangId;
                         String newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
-                        updateBarangId(oldBarangId, newBarangId);
 
-                        // update barang id to the table
+                        // update barangid in the config
+                        updateBarangId(wargaId, oldBarangId, newBarangId);
+
+                        // update barangid in the table
                         item.barangId = newBarangId;
                     }
                 }
@@ -329,13 +346,14 @@ public class ItemUploadManager {
 
                 // insert or replace value data
                 item.save();
+
             } else {
                 if (responseUploadItemModel.status == 400 ||
                     responseUploadItemModel.status == 422 ||
                     responseUploadItemModel.status == 403 ||
                     responseUploadItemModel.status == 404) {
 
-                    simpleResponseMessage = responseUploadItemModel.messages + " with statuscode : " + responseUploadItemModel.status;
+                    simpleResponseMessage = " with statuscode : " + responseUploadItemModel.status + "\n" + responseUploadItemModel.messages;
                 }
                 itemValuesFailed.add(itemValues.remove(0));
             }
@@ -361,14 +379,14 @@ public class ItemUploadManager {
         private void updateWargaId(String oldWargaId, String newWargaId) {
 
             DebugLog.d("update warga id : (old,new) = (" + oldWargaId + "," + newWargaId + ")");
-            FormImbasPetirConfig.updateWarga(scheduleId, oldWargaId, newWargaId);
+            FormImbasPetirConfig.updateWargaId(scheduleId, oldWargaId, newWargaId);
 
         }
 
-        private void updateBarangId(String oldBarangId, String newBarangId) {
+        private void updateBarangId(String wargaId, String oldBarangId, String newBarangId) {
 
             DebugLog.d("update barang id : (old,new) = (" + oldBarangId + "," + newBarangId + ")");
-
+            FormImbasPetirConfig.updateBarangId(scheduleId, wargaId, oldBarangId, newBarangId);
         }
 
         private ArrayList<NameValuePair> getParams(ItemValueModel itemValue) {
@@ -384,7 +402,7 @@ public class ItemUploadManager {
 
                 params.add(new BasicNameValuePair("photo_status", itemValue.photoStatus));
 
-                if (null != itemValue.value && null != itemValue.photoStatus) {
+                if (null != itemValue.value) {
                     if (itemValue.photoDate == null) {
                         params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
                         DebugLog.d("photo_datetime : " + itemValue.createdAt);
@@ -441,13 +459,14 @@ public class ItemUploadManager {
 
                 ArrayList<NameValuePair> params = getParams(itemValue);
 
-                if (itemValue.photoStatus != null)
+                if (itemValue.photoStatus != null && itemValue.value != null)
                     reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
 
                 for (int i = 0; i < params.size(); i++) {
                     DebugLog.d(params.get(i).getName() + " || " + params.get(i).getValue());
                     reqEntity.addPart(params.get(i).getName(), new StringBody(params.get(i).getValue()));
                 }
+
                 System.gc();
 
                 InputStream data;
@@ -671,12 +690,14 @@ public class ItemUploadManager {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+            hideDialog();
             running = false;
         }
 
         @Override
         protected void onCancelled() {
             super.onCancelled();
+            hideDialog();
             running = false;
         }
 
@@ -704,15 +725,6 @@ public class ItemUploadManager {
         public String getJson() {
             return json;
         }
-    }
-
-    public boolean isPreventive(String scheduleId) {
-
-        ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
-        scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
-
-        String workTypeName = scheduleBaseModel.work_type.name;
-        return workTypeName.matches(Constants.regexPREVENTIVE);
     }
 
 }

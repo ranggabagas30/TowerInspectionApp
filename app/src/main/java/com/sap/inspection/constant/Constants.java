@@ -75,6 +75,7 @@ public class Constants {
 	public static String KEY_SITEID = "KEY_SITEID";
 	public static String KEY_ROWID = "KEY_ROWID";
 	public static String KEY_WORKFORMGROUPID = "KEY_WORKFORMGROUPID";
+	public static String KEY_DATAINDEX = "KEY_DATAINDEX";
 	public static String KEY_WARGAID = "KEY_WARGAID";
 	public static String KEY_BARANGID = "KEY_BARANGID";
 	public static String KEY_PARENTID = "KEY_PARENTID";
@@ -105,6 +106,7 @@ public class Constants {
 	public static final String regexSITEINFORMATION = "(.*)SITE INFORMATION(.*)";
 	public static final String regexPREVENTIVE = "(.*)PREVENTIVE(.*)";
 	public static final String regexWargaId	= "Warga Id-";
+	public static final String regexBarangId = "Barang Id-";
 
 	/**
 	 * ============================= REQUEST CODE =================================================
