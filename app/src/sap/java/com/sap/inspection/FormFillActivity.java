@@ -138,16 +138,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			workFormGroupId 	= bundle.getInt(Constants.KEY_WORKFORMGROUPID);
 			workFormGroupName 	= bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
 			scheduleId 			= bundle.getString(Constants.KEY_SCHEDULEID);
-			wargaId 			= bundle.getString(Constants.KEY_WARGAID) != null ? bundle.getString(Constants.KEY_WARGAID) : Constants.EMPTY;
-			barangId			= bundle.getString(Constants.KEY_BARANGID) != null ? bundle.getString(Constants.KEY_BARANGID) : Constants.EMPTY;
 
-			DebugLog.d("received bundle : ");
-			DebugLog.d("rowId = " + rowId);
-			DebugLog.d("workFormGroupId = " + workFormGroupId);
-			DebugLog.d("workFormGroupName = " + workFormGroupName);
-			DebugLog.d("scheduleId = " + scheduleId);
-			DebugLog.d("wargaId = " + wargaId);
-			DebugLog.d("barangId = " + barangId);
+            DebugLog.d("received bundle : ");
+            DebugLog.d("rowId = " + rowId);
+            DebugLog.d("workFormGroupId = " + workFormGroupId);
+            DebugLog.d("workFormGroupName = " + workFormGroupName);
+            DebugLog.d("scheduleId = " + scheduleId);
+
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+                wargaId 			= bundle.getString(Constants.KEY_WARGAID) != null ? bundle.getString(Constants.KEY_WARGAID) : Constants.EMPTY;
+                barangId			= bundle.getString(Constants.KEY_BARANGID) != null ? bundle.getString(Constants.KEY_BARANGID) : Constants.EMPTY;
+                DebugLog.d("wargaId = " + wargaId);
+                DebugLog.d("barangId = " + barangId);
+            }
 		}
 
 		if (indexes == null)

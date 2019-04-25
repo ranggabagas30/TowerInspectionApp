@@ -117,6 +117,10 @@ public class APIHelper {
 	    getJsonFromUrl(context, handler, APIList.formImbasPetirUrl() + "?access_token=" + getAccessToken(context));
     }
 
+    public static void getCheckApproval(Context context, Handler handler, String scheduleId) {
+		getJsonFromUrl(context, handler, APIList.checkApprove(scheduleId) + "?access_token=" + getAccessToken(context));
+	}
+
 	public static String getAccessToken(Context context){
 		SharedPreferences mpref =  PreferenceManager.getDefaultSharedPreferences(context);
 		return mpref.getString(context.getString(R.string.user_authToken), "");

@@ -1,9 +1,13 @@
 package com.sap.inspection.views.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Debug;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.rindang.zconfig.APIList;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.CheckInActivity;
@@ -21,6 +27,7 @@ import com.sap.inspection.FormActivityWarga;
 import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
@@ -336,6 +343,7 @@ public class NavigationAdapter extends MyBaseAdapter {
                 positionAncestry = position;
                 DebugLog.d("positionAncestry : " + positionAncestry);
             }
+
 			if (getItem(position).text.equalsIgnoreCase("others form")){
 				Intent intent = new Intent(context, FormFillActivity.class);
 				intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
@@ -343,8 +351,8 @@ public class NavigationAdapter extends MyBaseAdapter {
 				intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
                 intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, shown.get(positionAncestry).text);
 				DebugLog.d("----ini others form lho----- "+scheduleId);
-			}
-			else if (getItem(position).hasForm){
+
+			} else if (getItem(position).hasForm){
 
                 DebugLog.d("----schedule id----- "+scheduleId);
 
@@ -352,52 +360,56 @@ public class NavigationAdapter extends MyBaseAdapter {
                 Intent intent;
 
                 // if the navigation item is "Warga Ke-"
-				if (getItem(position).text.contains(Constants.regexWargaId) && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(Constants.regexIMBASPETIR)) {
 
-					int parentId = getItem(position).id;
+                    if (getItem(position).text.contains(Constants.regexWargaId)) {
 
-					intent = new Intent(context, FormActivityWarga.class);
-					intent.putExtra(Constants.KEY_DATAINDEX, dataIndex);
-					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-					intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
-					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
-					intent.putExtra(Constants.KEY_WORKFORMGROUPID, String.valueOf(getItem(position).work_form_group_id));
-					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
+                        int parentId = getItem(position).id;
 
-					ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
+                        intent = new Intent(context, FormActivityWarga.class);
+                        intent.putExtra(Constants.KEY_DATAINDEX, dataIndex);
+                        intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+                        intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
+                        intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
+                        intent.putExtra(Constants.KEY_WORKFORMGROUPID, String.valueOf(getItem(position).work_form_group_id));
+                        intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
 
-					if (wargas != null && !wargas.isEmpty()) {
+                        ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
 
-						String wargaIdFromLabel = StringUtil.getWargaIdFromLabel(getItem(position).text);
+                        if (wargas != null && !wargas.isEmpty()) {
 
-						Warga warga = FormImbasPetirConfig.getWarga(wargas, wargaIdFromLabel);
+                            String wargaIdFromLabel = StringUtil.getWargaIdFromLabel(getItem(position).text);
+                            Warga warga = FormImbasPetirConfig.getWarga(wargas, wargaIdFromLabel);
+                            String message = "warga is null";
 
-						String message = "warga is null";
+                            if (warga != null) {
 
-						if (warga != null) {
+                                message = "warga is not null";
+                                String wargaId = warga.getWargaid();
+                                intent.putExtra(Constants.KEY_WARGAID, wargaId);
+                                context.startActivity(intent);
+                            }
+                            DebugLog.e(message);
+                        }
 
-							message = "warga is not null";
-							String wargaId = warga.getWargaid();
-							intent.putExtra(Constants.KEY_WARGAID, wargaId);
-							context.startActivity(intent);
-						}
+                    } else if (getItem(position).text.contains(Constants.regexBeritaAcaraClosing) ||
+                               getItem(position).text.contains(Constants.regexBeritaAcaraPenghancuran)) {
 
-						DebugLog.e(message);
-					}
+                        CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, getItem(position).id, getItem(position).work_form_group_id);
+                        APIHelper.getFormImbasPetir(context, checkApprovalHandler);
 
-				} else {
+                    }
+                } else {
 					intent = new Intent(context, FormFillActivity.class);
 					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
 					intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
 					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
 					context.startActivity(intent);
 				}
 			} else {
 
-				if (getItem(position).id == -1) { // action tambah warga
+				if (getItem(position).text.contains(Constants.regexTambah)) { // action tambah warga
 
 					((FormActivity) context).showInputAmountWargaDialog(dataIndex);
 
@@ -428,6 +440,103 @@ public class NavigationAdapter extends MyBaseAdapter {
 			MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
 		}
 	};
+
+	private static class CheckApprovalHandler extends Handler {
+
+	    private Context context;
+        private String scheduleId;
+        private String workFormGroupName;
+        private int rowId;
+        private int workFormGroupId;
+
+	    public CheckApprovalHandler(Context context, String scheduleId, String workFormGroupName, int rowId, int workFormGroupId) {
+	        this.context = context;
+	        this.scheduleId = scheduleId;
+	        this.workFormGroupName = workFormGroupName;
+	        this.rowId = rowId;
+	        this.workFormGroupId = workFormGroupId;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            Bundle bundle = msg.getData();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+
+                    Intent intent = new Intent(context, FormFillActivity.class);
+                    intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+                    intent.putExtra(Constants.KEY_ROWID, rowId);
+                    intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+                    intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+                    context.startActivity(intent);
+
+                } else {
+                    MyApplication.getInstance().toast("Gagal mengecek approval", Toast.LENGTH_LONG);
+                }
+            } else {
+
+                DebugLog.d("response not ok");
+            }
+        }
+    }
+
+	@SuppressLint("HandlerLeak")
+    Handler checkApprovalHandler = new Handler() {
+
+	    private String scheduleId;
+	    private String workFormGroupName;
+	    private int rowId;
+	    private int workFormGroupId;
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            Bundle bundle = msg.getData();
+            Gson gson = new Gson();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+
+                    Intent intent = new Intent(context, FormFillActivity.class);
+                    intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+                    intent.putExtra(Constants.KEY_ROWID, rowId);
+                    intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+                    intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+                    context.startActivity(intent);
+
+                } else {
+                    MyApplication.getInstance().toast("Gagal mengecek approval", Toast.LENGTH_LONG);
+                }
+            } else {
+
+                DebugLog.d("response not ok");
+            }
+        }
+
+        public void setScheduleId(String scheduleId) {
+            this.scheduleId = scheduleId;
+        }
+
+        public void setWorkFormGroupName(String workFormGroupName) {
+            this.workFormGroupName = workFormGroupName;
+        }
+
+        public void setRowId(int rowId) {
+            this.rowId = rowId;
+        }
+
+        public void setWorkFormGroupId(int workFormGroupId) {
+            this.workFormGroupId = workFormGroupId;
+        }
+    };
 
 	private void toggleExpand(int position){
 		if (getItem(position).isOpen){

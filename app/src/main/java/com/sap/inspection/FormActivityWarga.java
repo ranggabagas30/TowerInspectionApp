@@ -468,15 +468,14 @@ public class FormActivityWarga extends BaseActivity {
 
             public void removeBarangId(RowModel removedChildItem) {
 
-                DebugLog.d("remove barang with id " + removedChildItem.id + " and label " + removedChildItem.text);
 
                 wargaId  = getWargaId();
                 barangId = getBarangId(StringUtil.getBarangIdFromLabel(removedChildItem.text));
+                DebugLog.d("remove barang with (id, label, wargaid, barangid) : (" + removedChildItem.id + ", " + removedChildItem.text + ", " + wargaId + ", " + barangId + ")");
 
                 ItemValueModel.deleteAllBy(scheduleId, wargaId, barangId);
 
                 boolean isSuccessful = FormImbasPetirConfig.removeBarang(scheduleId, wargaId, barangId);
-
                 if (isSuccessful) {
 
                     DebugLog.d("remove barangid berhasil");

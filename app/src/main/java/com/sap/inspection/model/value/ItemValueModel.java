@@ -105,6 +105,7 @@ public class ItemValueModel extends BaseModel {
 	public static void delete(String scheduleId, int itemId, int operatorId){
 
 		delete(scheduleId, itemId, operatorId, null, null);
+
 	}
 
 	public static void delete(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {

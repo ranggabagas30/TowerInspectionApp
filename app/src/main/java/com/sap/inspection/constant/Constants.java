@@ -1,5 +1,8 @@
 package com.sap.inspection.constant;
 
+import com.sap.inspection.MyApplication;
+import com.sap.inspection.R;
+
 public class Constants {
 	
 	public static final String[] DAYS 		= {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
@@ -105,8 +108,6 @@ public class Constants {
 	public static final String regexCHECKLIST = "(.*)CHECKLIST(.*)";
 	public static final String regexSITEINFORMATION = "(.*)SITE INFORMATION(.*)";
 	public static final String regexPREVENTIVE = "(.*)PREVENTIVE(.*)";
-	public static final String regexWargaId	= "Warga Id-";
-	public static final String regexBarangId = "Barang Id-";
 
 	/**
 	 * ============================= REQUEST CODE =================================================
@@ -135,4 +136,17 @@ public class Constants {
 	public static final String OK = "OK";
 	public static final String NOK = "NOK";
 	public static final String NA = "NA";
+
+	/**
+	 * ============================= FORM IMBAS PETIR =================================================
+	 * */
+
+	public static final String regexIMBASPETIR = "(.*)IMBAS PETIR(.*)";
+	public static final String regexTambah = "Tambah";
+	public static final String regexWargaId	= "Warga Id-";
+	public static final String regexBarangId = "Barang Id-";
+	public static final String regexBeritaAcaraClosing = "Berita Acara Closing";
+	public static final String regexBeritaAcaraPenghancuran = "Berita Acara Penghancuran";
+	public static final String regexKwitansi = "Kwitansi";
+	public static final String regexPhotoPenghancuran = "Photo Penghancuran";
 } 
