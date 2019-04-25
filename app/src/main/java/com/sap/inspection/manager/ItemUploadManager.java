@@ -7,7 +7,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Debug;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,6 +30,7 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.ItemDefaultResponseModel;
 import com.sap.inspection.model.responsemodel.ItemWargaResponseModel;
@@ -111,36 +114,51 @@ public class ItemUploadManager {
     }
 
     public void addItemValues(Collection<ItemValueModel> itemvalues) {
-        DebugLog.d("itemvalues="+itemvalues.size());
-        this.itemValues.clear();
-        this.itemValuesFailed.clear();
-        for (ItemValueModel item : itemvalues) {
-            if (!item.disable) {
-                this.itemValues.add(item);
+        if (itemvalues == null)
+            MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
+        else {
+
+            if (itemvalues.isEmpty()) {
+                MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+                return;
             }
-        }
-        if (!running) {
-            uploadTask = null;
-            uploadTask = new UploadValue();
-            uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            //"There is upload process, please wait until finish"
-            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+
+            DebugLog.d("itemvalues="+itemvalues.size());
+            this.itemValues.clear();
+            this.itemValuesFailed.clear();
+            for (ItemValueModel item : itemvalues) {
+                if (!item.disable) {
+                    this.itemValues.add(item);
+                }
+            }
+            if (!running) {
+                uploadTask = null;
+                uploadTask = new UploadValue();
+                uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                //"There is upload process, please wait until finish"
+                MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+            }
         }
     }
 
-    public void addItemValue(ItemValueModel itemvalue) {
-        if (itemvalue.disable) return;
-        this.itemValues.clear();
-        this.itemValuesFailed.clear();
-        this.itemValues.add(itemvalue);
-        if (!running) {
-            uploadTask = null;
-            uploadTask = new UploadValue();
-            uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    public void addItemValue(boolean isMandatory, ItemValueModel itemvalue) {
+
+        if (isMandatory && itemvalue.photoStatus.equalsIgnoreCase(Constants.NOK) && TextUtils.isEmpty(itemvalue.remark)) {
+            MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi", Toast.LENGTH_LONG);
         } else {
-            //There is upload process, please wait until finish
-            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+            if (itemvalue.disable) return;
+            this.itemValues.clear();
+            this.itemValuesFailed.clear();
+            this.itemValues.add(itemvalue);
+            if (!running) {
+                uploadTask = null;
+                uploadTask = new UploadValue();
+                uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                //There is upload process, please wait until finish
+                MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+            }
         }
     }
 
@@ -172,7 +190,12 @@ public class ItemUploadManager {
         private Gson gson = new Gson();
         private String scheduleId;
 
-        public UploadValue() {
+        private Handler responseObserver;
+
+        public UploadValue() {}
+
+        public UploadValue(Handler responseObserver) {
+            this.responseObserver = responseObserver;
         }
 
         @Override
@@ -219,7 +242,8 @@ public class ItemUploadManager {
                     processUploadResponse();
 
                 } else {
-                    // stop upload progress
+
+                    // stop upload
                     break;
                 }
             }
@@ -356,23 +380,6 @@ public class ItemUploadManager {
                     simpleResponseMessage = " with statuscode : " + responseUploadItemModel.status + "\n" + responseUploadItemModel.messages;
                 }
                 itemValuesFailed.add(itemValues.remove(0));
-            }
-        }
-
-        private void uploadInformasiDiri() {
-
-            ItemWargaResponseModel responseUploadItemModel = gson.fromJson(response, ItemWargaResponseModel.class);
-
-            DebugLog.d("status code : " + responseUploadItemModel.status);
-            if (responseUploadItemModel.status == 201 || responseUploadItemModel.status == 200) {
-
-                ItemValueModel item = itemValues.remove(0);
-                item.uploadStatus = ItemValueModel.UPLOAD_DONE;
-                itemValueSuccessCount++;
-
-                DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
-                DebugLog.d("upload status : " + item.uploadStatus);
-                item.save();
             }
         }
 

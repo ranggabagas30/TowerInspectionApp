@@ -200,8 +200,7 @@
         android:layout_height="10dp"
         android:id="@+id/upload"
         android:src="@drawable/ic_upload"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
 
     <ProgressBar
         android:id="@+id/progress"

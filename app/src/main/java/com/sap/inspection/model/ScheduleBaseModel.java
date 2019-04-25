@@ -452,7 +452,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	protected ScheduleBaseModel getScheduleFromCursor(Cursor c, boolean fromInnerJoin) {
-		ScheduleBaseModel scheduleBase= newObject();
+		ScheduleBaseModel scheduleBase = newObject();
 
 		if (null == c)
 			return scheduleBase;

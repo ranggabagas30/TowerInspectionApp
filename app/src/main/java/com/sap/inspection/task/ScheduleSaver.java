@@ -17,17 +17,6 @@ import de.greenrobot.event.EventBus;
 
 public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 
-	private MainActivity mainActivity;
-	private Activity activity;
-	
-	public void setMainActivity(MainActivity mainActivity) {
-		this.mainActivity = mainActivity;
-	}
-	
-	public void setActivity(Activity activity){
-		this.activity = activity;
-	}
-
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
@@ -49,43 +38,12 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 		super.onProgressUpdate(values);
 		DebugLog.d( "saving schedule "+values[0]+" %...");
 		EventBus.getDefault().post(new ScheduleProgressEvent(values[0]));
-
-		if (activity != null) {
-
-			if (activity instanceof BaseActivity) ((BaseActivity) activity).showMessageDialog("saving schedule "+values[0]+" %...");
-		}
-
-		/*if (mainActivity != null)
-		    mainActivity.showMessageDialog("saving schedule "+values[0]+" %...");*/
 	}
 
 	@Override
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
 		DebugLog.d( "on post db...");
-
 		EventBus.getDefault().post(new ScheduleProgressEvent(100,true));
-
-		if (activity != null) {
-			if (activity instanceof MainActivity) {
-				((MainActivity) activity).hideDialog();
-				((MainActivity) activity).setFlagScheduleSaved(true);
-
-			} else if (activity instanceof SettingActivity) {
-				((SettingActivity) activity).hideDialog();
-			}
-		}
-		/*if (mainActivity != null) {
-			mainActivity.setFlagScheduleSaved(true);
-		if (activity != null)
-			try {
-				if (activity instanceof SettingActivity)
-					((SettingActivity)activity).hideDialog();
-				else
-					((MainActivity)activity).hideDialog();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}*/
 	}
 }

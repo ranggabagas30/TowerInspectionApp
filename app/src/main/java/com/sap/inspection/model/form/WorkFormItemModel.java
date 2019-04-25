@@ -17,6 +17,8 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class WorkFormItemModel extends BaseModel {
@@ -301,7 +303,55 @@ public class WorkFormItemModel extends BaseModel {
 		DbRepository.getInstance().close();
 		return result;
 	}
-	
+
+	public static ArrayList<WorkFormItemModel> getWorkFormItems(int work_form_group_id, String excl_field_type) {
+
+		String table = DbManager.mWorkFormItem;
+		String[] columns = null;
+		String whereworkformgroupid = work_form_group_id > 0 ? DbManager.colWorkFormGroupId + "=?" : "";
+		String wherefieldtype	    = excl_field_type != null ? " AND " + DbManager.colFieldType + "!=?" : "";
+		String where = whereworkformgroupid + wherefieldtype;
+
+		DebugLog.d("Get work form item(s) by : " + where);
+
+		List<String> argsList = new ArrayList<>();
+
+		if (work_form_group_id > 0)
+			argsList.add(String.valueOf(work_form_group_id));
+		if (excl_field_type != null)
+			argsList.add(excl_field_type);
+
+		String[] args = new String[argsList.size()];
+		args = argsList.toArray(args);
+
+		String order = DbManager.colID + " DESC";
+		Cursor cursor;
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
+
+		if (!cursor.moveToFirst()) {
+			cursor.close();
+			DbRepository.getInstance().close();
+			return null;
+		}
+
+		ArrayList<WorkFormItemModel> result = new ArrayList<>();
+
+		do {
+
+			WorkFormItemModel model = getItemFromCursor(cursor);
+			model.options = getWorkFormOptionsModels(model.id);
+
+			result.add(model);
+
+		} while (cursor.moveToNext());
+
+		cursor.close();
+		DbRepository.getInstance().close();
+		return result;
+	}
+
 	private static Vector<WorkFormOptionsModel> getWorkFormOptionsModels(int workFormItemId){
 
 		return WorkFormOptionsModel.getAllItemByWorkFormItemId(workFormItemId);

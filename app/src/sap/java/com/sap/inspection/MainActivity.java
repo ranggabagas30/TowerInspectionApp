@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
@@ -210,7 +211,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			ScheduleResponseModel scheduleResponseModel = gson.fromJson(bufferString, ScheduleResponseModel.class);
 			if (scheduleResponseModel.status == 200){
 				ScheduleSaver scheduleSaver = new ScheduleSaver();
-				scheduleSaver.setActivity(activity);
 				scheduleSaver.execute(scheduleResponseModel.data.toArray());
 			}
 		}
@@ -259,7 +259,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		initForm(bufferString);
 	}
 
-	private void initForm(String json){
+	public void initForm(String json){
 		Gson gson = new Gson();
 		FormResponseModel formResponseModel = gson.fromJson(json,FormResponseModel.class);
 		if (formResponseModel.status == 200){
@@ -300,6 +300,13 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		}
 	}
 
+	public void onEvent(ScheduleProgressEvent event) {
+		if (!event.done)
+			showMessageDialog("Menyimpan jadwal " + event.progress + " %...");
+		else
+			hideDialog();
+	}
+
 	/**
 	 * ===== list all handlers ======
 	 *
@@ -319,7 +326,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
 					if (scheduleResponseModel.status == 200){
 						ScheduleSaver scheduleSaver = new ScheduleSaver();
-						scheduleSaver.setActivity(activity);
 						scheduleSaver.execute(scheduleResponseModel.data.toArray());
 					}
 				} else{

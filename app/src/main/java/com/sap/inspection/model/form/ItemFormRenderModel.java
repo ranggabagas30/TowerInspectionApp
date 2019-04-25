@@ -225,6 +225,7 @@ public class ItemFormRenderModel extends BaseModel {
                 DebugLog.d("field type : file");
                 DebugLog.d("scope type : " + workItemModel.scope_type);
                 DebugLog.d("isExpand type : " + workItemModel.expand);
+                DebugLog.d("isMandatory : " + workItemModel.mandatory);
             }
             ItemFormRenderModel child = new ItemFormRenderModel();
             child.type = TYPE_HEADER_DIVIDER;
@@ -350,7 +351,6 @@ public class ItemFormRenderModel extends BaseModel {
 
         DebugLog.d(schedule.id + " | " + workItemModel.id + " | " + operatorId + " | " + rowId);
         ItemFormRenderModel child = new ItemFormRenderModel();
-        child.workItemModel = workItemModel;
 
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
             String wargaId  = getWargaId();
@@ -364,6 +364,8 @@ public class ItemFormRenderModel extends BaseModel {
         child.rowId = rowId;
         child.operatorId = operatorId;
         child.schedule = schedule;
+        child.workItemModel = workItemModel;
+
         if (workItemModel.field_type.equalsIgnoreCase("label") && workItemModel.expand) {
             hasInput = true;
             child.type = TYPE_EXPAND;
@@ -396,18 +398,15 @@ public class ItemFormRenderModel extends BaseModel {
         } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
             hasInput = true;
             child.type = TYPE_PICTURE_RADIO;
-            DebugLog.d("fieldType : file");
-            DebugLog.d("workFormGroupName : " + workFormGroupName);
-            if ("Photograph".equalsIgnoreCase(workFormGroupName) && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+            /*if ("Photograph".equalsIgnoreCase(workFormGroupName) && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
                 child.workItemModel.mandatory = true;
                 child.workItemModel.save();
-            }
+            }*/
             this.addFillableTask();
             child.parent = this;
             if (this.children.get(this.children.size() - 1).type == TYPE_OPERATOR)
                 child.operator = this.children.remove(this.children.size() - 1).operator;
             add(child);
-            return;
         }
         return;
     }

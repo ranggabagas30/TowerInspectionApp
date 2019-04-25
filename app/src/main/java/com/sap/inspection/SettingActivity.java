@@ -74,6 +74,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     Button setlinespace;
     Button update;
     Button updateForm;
+    Button updateFormImbasPetir;
     Button upload;
     Button reupload;
     Button delete;
@@ -114,7 +115,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         try {
             version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-            TextView title = (TextView) findViewById(R.id.versioninfo);
+            TextView title = findViewById(R.id.versioninfo);
             title.setVisibility(View.VISIBLE);
             title.setText("Version "+version+" Build "+versionCode);
         } catch (NameNotFoundException e) {
@@ -124,17 +125,17 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         DebugLog.d("version Name = " + version + " versionCode = " + versionCode);
 
 
-        TextView title = (TextView) findViewById(R.id.header_title);
+        TextView title = findViewById(R.id.header_title);
         //pengaturan
         title.setText(getString(R.string.pengaturan));
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         file_url = prefs.getString(this.getString(R.string.url_update), "");
 
         // watermark configuration
-        inputtextmarksizepotrait = (FormInputText) findViewById(R.id.textmarksizepotrait);
-        inputtextmarksizelandscape = (FormInputText) findViewById(R.id.textmarksizelandscape);
-        inputlinespacepotrait = (FormInputText) findViewById(R.id.linespacepotrait);
-        inputlinespacelandscape = (FormInputText) findViewById(R.id.linespacelandscape);
+        inputtextmarksizepotrait = findViewById(R.id.textmarksizepotrait);
+        inputtextmarksizelandscape = findViewById(R.id.textmarksizelandscape);
+        inputlinespacepotrait = findViewById(R.id.linespacepotrait);
+        inputlinespacelandscape = findViewById(R.id.linespacelandscape);
 
         int textSizePotrait = PrefUtil.getIntPref(R.string.textmarksizepotrait, Constants.TEXT_SIZE_POTRAIT);
         int textSizeLandscape = PrefUtil.getIntPref(R.string.textmarksizelandscape, Constants.TEXT_SIZE_LANDSCAPE);
@@ -146,16 +147,17 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         inputlinespacepotrait.setText(String.valueOf(linespacePotrait));
         inputlinespacelandscape.setText(String.valueOf(linespaceLandscape));
 
-        settextmark = (Button) findViewById(R.id.btntextmarksize);
+        settextmark = findViewById(R.id.btntextmarksize);
         settextmark.setOnClickListener(setTextMarkClickListener);
 
-        setlinespace = (Button) findViewById(R.id.btnlinespace);
+        setlinespace = findViewById(R.id.btnlinespace);
         setlinespace.setOnClickListener(setLinespaceClickListener);
 
         // show progress bar button
-        update = (Button) findViewById(R.id.update);
-        updateForm = (Button) findViewById(R.id.update_form);
-        updateStatus = (TextView) findViewById(R.id.updateStatus);
+        update = findViewById(R.id.update);
+        updateForm = findViewById(R.id.update_form);
+        updateFormImbasPetir = findViewById(R.id.update_form_imbas_petir);
+        updateStatus = findViewById(R.id.updateStatus);
         CommonUtil.fixVersion(getApplicationContext());
         DebugLog.d("latest_version" + prefs.getString(this.getString(R.string.latest_version), ""));
         DebugLog.d("url_update" + prefs.getString(this.getString(R.string.url_update), ""));
@@ -176,8 +178,8 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             isUpdateAvailable = true;
         }
 
-        upload = (Button) findViewById(R.id.uploadData);
-        uploadInfo = (TextView) findViewById(R.id.uploadInfo);
+        upload = findViewById(R.id.uploadData);
+        uploadInfo = findViewById(R.id.uploadInfo);
         if (ItemUploadManager.getInstance().getLatestStatus() != null) {
             if (!ItemUploadManager.getInstance().getLatestStatus().equals(ItemUploadManager.getInstance().syncDone) && !ItemUploadManager.getInstance().getLatestStatus().equals(ItemUploadManager.getInstance().syncFail))
                 uploadInfo.setText(ItemUploadManager.getInstance().getLatestStatus());
@@ -188,9 +190,9 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         //waiting to uplaod
             uploadInfo.setText(getString(R.string.waitingUpload));
 
-        delete = (Button) findViewById(R.id.deleteData);
+        delete = findViewById(R.id.deleteData);
         delete.setOnClickListener(deleteClickListener);
-        deleteSchedule = (Button) findViewById(R.id.deleteSchedule);
+        deleteSchedule = findViewById(R.id.deleteSchedule);
         deleteSchedule.setOnClickListener(deleteScheduleClickListener);
 
         if (CommonUtil.isExternalStorageAvailable()) {
@@ -208,13 +210,13 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
         update.setOnClickListener(updateClickListener);
         updateForm.setOnClickListener(updateFormClickListener);
-
+        updateFormImbasPetir.setOnClickListener(updateFormImbasPetirClickListener);
         upload.setOnClickListener(uploadClickListener);
 
-        reupload = (Button) findViewById(R.id.reuploadData);
+        reupload = findViewById(R.id.reuploadData);
         reupload.setOnClickListener(reuploadClickListener);
 
-        refreshSchedule = (Button) findViewById(R.id.updateSchedule);
+        refreshSchedule = findViewById(R.id.updateSchedule);
         refreshSchedule.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -229,20 +231,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         trackThisPage("Setting");
     }
 
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == Constants.RC_INSTALL_APK) {
-
-            if (resultCode == RESULT_OK) {
-
-                DebugLog.d("installation is successful");
-            } else {
-                DebugLog.d("installation is failed");
-                new DownloadFileFromURL().execute(file_url);
-            }
-        }
-    }*/
 
     @Override
     public void onBackPressed() {
@@ -257,6 +245,13 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                 Toast.makeText(this, "Silahkan klik tombol \"Memasang\" untuk menginstall aplikasi terbaru", Toast.LENGTH_LONG).show();
         }
     }
+
+
+    /**
+     *
+     * EVENT CLICK LISTENERS
+     *
+     * */
 
     OnClickListener setTextMarkClickListener = new OnClickListener() {
         @Override
@@ -320,159 +315,125 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         @Override
         public void onClick(View v) {
             trackEvent("user_update_apk");
-            //Chek if the file already downloaded before
-            //			if(!tempFile.exists()){
-
-            //new DownloadFileFromURL().execute(file_url);
-
             requestStoragePermission(); // check storage permission first
-            /*
-            if (CommonUtil.getNewAPKpath(SettingActivity.this) == null)
-                requestStoragePermission(); // check storage permission first
-            else {
-                CommonUtil.installAPK(activity, SettingActivity.this);
-            }*/
-
-            /*DownloadFileFromURL downloadFileFromURL = new DownloadFileFromURL(SettingActivity.this.activity, SettingActivity.this);
-            downloadFileFromURL.execute(file_url);*/
-
-            //			}
-            //			else{
-            //				Intent intent = new Intent(Intent.ACTION_VIEW)
-            //				.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
-            //				intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
-            //				startActivity(intent);
-            //			}
         }
     };
 
-    OnClickListener updateFormClickListener = new OnClickListener() {
+    OnClickListener updateFormClickListener = v -> {
+        trackEvent("user_update_form");
+        checkFormVersion();
+    };
+
+    OnClickListener updateFormImbasPetirClickListener = v -> {
+        trackEvent("user_update_form_imbas_petir");
+        downloadNewFormImbasPetir();
+    };
+
+    OnClickListener uploadClickListener = new OnClickListener() {
+
         @Override
         public void onClick(View v) {
-            trackEvent("user_update_form");
-            checkFormVersion();
+            trackEvent("user_upload");
+            CorrectiveValueModel correctiveValueModel = new CorrectiveValueModel();
+
+            showMessageDialog(getString(R.string.preparingItemForUpload));
+
+            ArrayList<ItemValueModel> itemValueModels = ItemValueModel.getItemValuesForUpload();
+
+            itemValueModels.addAll(correctiveValueModel.getItemValuesForUpload());
+            if (itemValueModels.size() == 0) {
+
+                hideDialog();
+
+                //there is not any items to be uploaded
+                Toast.makeText(activity, getString(R.string.noItemNewToUpload), Toast.LENGTH_LONG).show();
+                uploadInfo.setText(getString(R.string.noItemNewToUpload));
+                return;
+            }
+            int i = 0;
+            for (ItemValueModel model : itemValueModels) {
+                i++;
+                //preparing
+                showMessageDialog("persiapan " + (100 * i / itemValueModels.size()) + "%");
+                model.uploadStatus = ItemValueModel.UPLOAD_ONGOING;
+                model.save();
+            }
+
+            ItemUploadManager.getInstance().addItemValues(itemValueModels);
+            hideDialog();
+
+            //String progress upload
+            Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_LONG).show();
         }
     };
+
+    OnClickListener reuploadClickListener = new OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+            // set title
+            //String reupload all data
+            alertDialogBuilder.setTitle(getString(R.string.reuploadAllData));
+            // set dialog message
+            alertDialogBuilder
+                    //String Are you sure want to re-upload all data
+                    .setMessage(getString(R.string.areyousurereuploaddata))
+                    .setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                            //String Resetting upload
+                            uploadInfo.setText(getString(R.string.reSettingUpload));
+                            ItemValueModel.resetAllUploadStatus();
+                            CorrectiveValueModel.resetAllUploadStatus();
+                            trackEvent("user_reupload");
+                            upload.performClick();
+                        }
+                    })
+                    .setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialogBuilder.create().show();
+        }
+    };
+
+    OnClickListener logoutClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            new LovelyStandardDialog(SettingActivity.this,R.style.CheckBoxTintTheme)
+                    .setTopColor(color(R.color.theme_color))
+                    .setButtonsColor(color(R.color.theme_color))
+                    .setIcon(R.drawable.logo_app)
+                    .setTitle("Konfirmasi")
+                    .setMessage("Apa anda yakin ingin keluar?")
+                    .setPositiveButton(android.R.string.yes, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            trackEvent("user_logout");
+                            writePreference(R.string.keep_login,false);
+                            gotoLogin();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+        }
+    };
+
     //test
     private static String formVersion;
 
     private void checkFormVersion() {
-        pDialog = new ProgressDialog(activity);
-        pDialog.setMessage(getString(R.string.checkfromversion));
-        pDialog.setCancelable(false);
-        pDialog.show();
+        showMessageDialog(getString(R.string.checkfromversion));
         APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
     }
 
-    /*private Handler formVersionHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            if (msg.getData() != null && msg.getData().getString("json") != null) {
-                VersionModel model = new Gson().fromJson(msg.getData().getString("json"), VersionModel.class);
-                formVersion = model.version;
-                DebugLog.d("check version : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form));
-                DebugLog.d("check version value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), "no value"));
-                DebugLog.d("check version value from web: " + formVersion);
-                if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), "no value"))) {
-                    //string get new from server
-                    pDialog.setMessage(getString(R.string.getNewfromServer));
-                    APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
-                } else {
-                    //string get schedule from server
-                    pDialog.setMessage(getString(R.string.getScheduleFromServer));
-                    APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
-                }
-            } else {
-                pDialog.dismiss();
-                //string form update failed
-                Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-            }
-        }
+    private void downloadNewFormImbasPetir() {
 
-        ;
-    };*/
-
-    @SuppressLint("HandlerLeak")
-    private Handler formVersionHandler = new Handler(){
-        public void handleMessage(android.os.Message msg) {
-
-            hideDialog();
-
-            Bundle bundle = msg.getData();
-            Gson gson = new Gson();
-
-            boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-            if (isResponseOK) {
-
-                if (bundle.getString("json") != null){
-                    VersionModel model = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
-                    formVersion = model.version;
-                    DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
-                    DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
-                    DebugLog.d("check version value from web: "+formVersion);
-
-                    if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
-
-                        DebugLog.d("form needs update");
-                        pDialog.setMessage(getString(R.string.getNewfromServer));
-                        APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
-
-                    }else{
-
-                        pDialog.setMessage(getString(R.string.getScheduleFromServer));
-                        APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
-                    }
-
-                }else{
-
-                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-                }
-
-            } else {
-
-                DebugLog.d("response is not OK");
-            }
-        }
-    };
-
-   /* private Handler formSaverHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            if (msg.getData() != null && msg.getData().getString("json") != null) {
-                initForm(msg.getData().getString("json"));
-            } else {
-                pDialog.dismiss();
-                //String form update failed
-                Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-            }
-        }
-
-        ;
-    };*/
-
-    @SuppressLint("HandlerLeak")
-    private Handler formSaverHandler = new Handler(){
-        public void handleMessage(android.os.Message msg) {
-
-            hideDialog();
-
-            Bundle bundle = msg.getData();
-
-            boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-            if (isResponseOK) {
-
-                if (bundle.getString("json") != null){
-                    initForm(bundle.getString("json"));
-                }else{
-                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-                }
-
-            } else {
-
-                DebugLog.d("response is not OK");
-            }
-        }
-    };
+        showMessageDialog("Downloading new form imbas petir");
+        APIHelper.getFormImbasPetir(activity, formImbasPetirSaverHandler);
+    }
 
     private void initForm(String json) {
         Gson gson = new Gson();
@@ -483,12 +444,20 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         }
     }
 
+    private void initFormImbasPetir(String json) {
+        Gson gson = new Gson();
+        FormResponseModel formResponseModel = gson.fromJson(json, FormResponseModel.class);
+        if (formResponseModel.status == 200) {
+            new FormImbasPetirSaver().execute(formResponseModel.data.toArray());
+        }
+    }
+
     private class FormSaver extends AsyncTask<Object, Integer, Void> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             //prepare for saving
-            pDialog.setMessage("Persiapan Menyimpan");
+            showMessageDialog("Persiapan Menyimpan forms");
             DbRepository.getInstance().open(MyApplication.getInstance());
             DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
             DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
@@ -550,90 +519,81 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
             DebugLog.d("saving forms " + values[0] + " %...");
-            //saving forms
-            pDialog.setMessage("menyimpan forms " + values[0] + " %...");
+            showMessageDialog("menyimpan forms " + values[0] + " %...");
         }
 
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            //			setFlagFormSaved(true);
-            pDialog.setMessage(getString(R.string.getScheduleFromServer));
-            APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
-//			DbRepository.getInstance().close();
+            showMessageDialog("saving forms complete");
+            APIHelper.getFormImbasPetir(activity, formImbasPetirSaverHandler);
         }
     }
 
-    OnClickListener uploadClickListener = new OnClickListener() {
+    private class FormImbasPetirSaver extends AsyncTask<Object, Integer, Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showMessageDialog("Persiapan menyimpan form imbas petir");
+        }
 
         @Override
-        public void onClick(View v) {
-            trackEvent("user_upload");
-            CorrectiveValueModel correctiveValueModel = new CorrectiveValueModel();
-
-            ProgressDialog progressDialog = new ProgressDialog(activity);
-
-            //string preparing item for upload
-            progressDialog.setMessage(getString(R.string.preparingItemForUpload));
-            progressDialog.show();
-            ItemValueModel itemValueModel = new ItemValueModel();
-            ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload();
-
-            itemValueModels.addAll(correctiveValueModel.getItemValuesForUpload());
-            if (itemValueModels.size() == 0) {
-                progressDialog.dismiss();
-                //there is no new to upload
-                Toast.makeText(activity, getString(R.string.noItemNewToUpload), Toast.LENGTH_LONG).show();
-                uploadInfo.setText(getString(R.string.noItemNewToUpload));
-                return;
+        protected Void doInBackground(Object... params) {
+            int sum = 0;
+            for (int i = 0; i < params.length; i++) {
+                if (((WorkFormModel)params[i]).groups != null)
+                    for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
+                        if (group.table == null){
+                            continue;
+                        }
+                        DebugLog.d("group name : "+group.name);
+                        DebugLog.d("group table : "+group.table.toString());
+                        DebugLog.d("group table header : "+group.table.headers.toString());
+                        sum += group.table.headers.size();
+                        sum += group.table.rows.size();
+                    }
             }
-            int i = 0;
-            for (ItemValueModel model : itemValueModels) {
-                i++;
-                //preparing
-                progressDialog.setMessage("persiapan " + (100 * i / itemValueModels.size()) + "%");
-                model.uploadStatus = ItemValueModel.UPLOAD_ONGOING;
-                model.save();
+
+            int curr = 0;
+            for (int i = 0; i < params.length; i++) {
+                ((WorkFormModel)params[i]).save();
+                if (((WorkFormModel)params[i]).groups != null)
+                    for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
+                        if (group.table == null){
+                            continue;
+                        }
+                        for (ColumnModel columnModel : group.table.headers) {
+                            curr ++;
+                            publishProgress(curr*100/sum);
+                            columnModel.save();
+                        }
+
+                        for (RowModel rowModel : group.table.rows) {
+                            curr ++;
+                            publishProgress(curr*100/sum);
+                            rowModel.save();
+                        }
+                    }
             }
-            ItemUploadManager.getInstance().addItemValues(itemValueModels);
-            progressDialog.dismiss();
-            //String progress upload
-            Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_LONG).show();
-            //DbRepositoryValue.getInstance().close();
+
+            return null;
         }
-    };
-
-    OnClickListener reuploadClickListener = new OnClickListener() {
 
         @Override
-        public void onClick(View v) {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-            // set title
-            //String reupload all data
-            alertDialogBuilder.setTitle(getString(R.string.reuploadAllData));
-            // set dialog message
-            alertDialogBuilder
-                    //String Are you sure want to re-upload all data
-                    .setMessage(getString(R.string.areyousurereuploaddata))
-                    .setPositiveButton("Upload", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            //String Resetting upload
-                            uploadInfo.setText(getString(R.string.reSettingUpload));
-                            ItemValueModel.resetAllUploadStatus();
-                            CorrectiveValueModel.resetAllUploadStatus();
-                            trackEvent("user_reupload");
-                            upload.performClick();
-                        }
-                    })
-                    .setNegativeButton("Batal", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialogBuilder.create().show();
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            DebugLog.d("saving forms "+values[0]+" %...");
+            showMessageDialog("saving forms "+values[0]+" %...");
         }
-    };
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            showMessageDialog("saving form imbas petir is complete");
+            showMessageDialog(getString(R.string.getScheduleFromServer));
+            APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -650,13 +610,13 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         if (tempFile.exists())
             update.setText(getString(R.string.install));
 
-        EventBus.getDefault().register(this);
+        //EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        EventBus.getDefault().unregister(this);
+        //EventBus.getDefault().unregister(this);
     }
 
     /**
@@ -812,23 +772,114 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     }
 
     private void getScheduleTemp() {
-        //DbRepository.getInstance().open(activity);
-        pDialog = new ProgressDialog(activity);
-        pDialog.setMessage(getString(R.string.getScheduleFromServer));
-        pDialog.setCancelable(false);
-        pDialog.show();
+
+        showMessageDialog(getString(R.string.getScheduleFromServer));
         APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
     }
 
     private void getSchedule() {
-        //DbRepository.getInstance().open(activity);
-        pDialog = new ProgressDialog(activity);
-        //get schedule from server
-        pDialog.setMessage(getString(R.string.getScheduleFromServer));
-        pDialog.setCancelable(false);
-        pDialog.show();
+
+        showMessageDialog(getString(R.string.getScheduleFromServer));
         APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
     }
+
+    /**
+     *
+     * HANDLERS
+     *
+     * */
+    @SuppressLint("HandlerLeak")
+    private Handler formVersionHandler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+
+            Bundle bundle = msg.getData();
+            Gson gson = new Gson();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+                    VersionModel model = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
+                    formVersion = model.version;
+                    DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
+                    DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
+                    DebugLog.d("check version value from web: "+formVersion);
+
+                    if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
+
+                        DebugLog.d("form needs update");
+                        showMessageDialog(getString(R.string.getNewfromServer));
+                        APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
+
+                    }else{
+
+                        showMessageDialog(getString(R.string.getScheduleFromServer));
+                        APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+                    }
+
+                }else{
+
+                    hideDialog();
+                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
+                }
+
+            } else {
+
+                hideDialog();
+                DebugLog.d("response is not OK");
+            }
+        }
+    };
+
+    @SuppressLint("HandlerLeak")
+    private Handler formSaverHandler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+
+            Bundle bundle = msg.getData();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+                    initForm(bundle.getString("json"));
+                }else{
+
+                    hideDialog();
+                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
+                }
+
+            } else {
+
+                hideDialog();
+                DebugLog.d("response is not OK");
+            }
+        }
+    };
+
+    @SuppressLint("HandlerLeak")
+    private Handler formImbasPetirSaverHandler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+
+            Bundle bundle = msg.getData();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+            if (isResponseOK) {
+                if (bundle.getString("json") != null){
+                    initFormImbasPetir(bundle.getString("json"));
+                }else{
+                    hideDialog();
+                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
+                }
+            } else {
+
+                hideDialog();
+                DebugLog.d("repsonse not ok");
+            }
+        }
+    };
 
     @SuppressLint("HandlerLeak")
     Handler scheduleHandler = new Handler() {
@@ -839,17 +890,17 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                 ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
                 if (scheduleResponseModel.status == 200) {
                     ScheduleSaver scheduleSaver = new ScheduleSaver();
-                    scheduleSaver.setActivity(activity);
                     scheduleSaver.execute(scheduleResponseModel.data.toArray());
                 }
             } else {
-                pDialog.dismiss();
+
+                hideDialog();
+
                 //String cant get schedule fast internet
                 Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
             }
         }
 
-        ;
     };
 
     @SuppressLint("HandlerLeak")
@@ -865,50 +916,29 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                     EventBus.getDefault().post(deleteAllScheduleEvent);
                 }
             } else {
-                pDialog.dismiss();
+                hideDialog();
                 Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
             }
         }
 
-        ;
     };
 
     public void onEvent(ScheduleProgressEvent event) {
-        if (event.done) {
-            /*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
-                DbRepository.getInstance().close();*/
-        } else
-            showDialog("Menyimpan jadwal " + event.progress + " %...", true);
+        if (!event.done)
+            showMessageDialog("Menyimpan jadwal " + event.progress + " %...");
+        else
+            hideDialog();
     }
 
     public void onEvent(ScheduleTempProgressEvent event) {
-        if (event.done) {
-            /*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen())
-                DbRepository.getInstance().close();*/
-        } else
-            showDialog("Menyimpan jadwal " + event.progress + " %...", true);
-    }
-
-    private void showDialog(String msg, boolean blockable) {
-        if (pDialog == null)
-            pDialog = new ProgressDialog(this);
-        pDialog.setCancelable(!blockable);
-        pDialog.show();
-        pDialog.setMessage(msg);
-    }
-
-    public void hideDialog() {
-        if (pDialog == null || !pDialog.isShowing())
-            return;
-        pDialog.dismiss();
+        if (!event.done)
+            showMessageDialog("Menyimpan jadwal " + event.progress + " %...");
+        else
+            hideDialog();
     }
 
     public void onEvent(UploadProgressEvent event) {
-        DebugLog.d("====================================================");
-        DebugLog.d("====================================================");
         DebugLog.d(event.progressString);
-        DebugLog.d("====================================================");
-        DebugLog.d("====================================================");
         uploadInfo.setText(event.progressString);
     }
 
@@ -918,7 +948,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             Toast.makeText(activity, event.progressString, Toast.LENGTH_SHORT).show();
             gotoLogin();
         } else {
-            showDialog(event.progressString, true);
+            showMessageDialog(event.progressString);
         }
     }
 
@@ -932,27 +962,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         scheduleSaver.execute(event.scheduleResponseModel.data.toArray());
     }
 
-    OnClickListener logoutClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            new LovelyStandardDialog(SettingActivity.this,R.style.CheckBoxTintTheme)
-                    .setTopColor(color(R.color.theme_color))
-                    .setButtonsColor(color(R.color.theme_color))
-                    .setIcon(R.drawable.logo_app)
-                    .setTitle("Konfirmasi")
-                    .setMessage("Apa anda yakin ingin keluar?")
-                    .setPositiveButton(android.R.string.yes, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            trackEvent("user_logout");
-                            writePreference(R.string.keep_login,false);
-                            gotoLogin();
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, null)
-                    .show();
-        }
-    };
 
     private void gotoLogin() {
         Intent i = new Intent(SettingActivity.this, LoginActivity.class);
@@ -973,8 +982,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             // Already has permission
             DebugLog.d("Already have permission, do the thing");
             updateAPK();
-            /*// just install the new APK
-            CommonUtil.installAPK(activity, this);*/
+
 
         } else {
 
@@ -1020,9 +1028,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         if (isAccessStorageAllowed) {
 
             updateAPK();
-
-            /*// just install the new APK
-            CommonUtil.installAPK(activity, this);*/
 
         } else {
 

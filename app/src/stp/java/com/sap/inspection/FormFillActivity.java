@@ -385,13 +385,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	protected void onPause() {
 		super.onPause();
-		EventBus.getDefault().unregister(this);
+		//EventBus.getDefault().unregister(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		EventBus.getDefault().register(this);
+		//EventBus.getDefault().register(this);
 	}
 
 	@Override

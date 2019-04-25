@@ -161,13 +161,13 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		EventBus.getDefault().register(this);
+		//EventBus.getDefault().register(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		EventBus.getDefault().unregister(this);
+		//EventBus.getDefault().unregister(this);
 	}
 
 	@Override

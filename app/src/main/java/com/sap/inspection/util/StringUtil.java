@@ -1,6 +1,7 @@
 package com.sap.inspection.util;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.constant.Constants;
@@ -97,9 +98,12 @@ public class StringUtil {
         return null;
     }
 
-    public static boolean isNotRegistered(String label) {
-
-        return label != null && label.contains("new") && !label.equalsIgnoreCase(Constants.EMPTY); // i.e. wargaid = "new1", then it's considered as not registered yet
-
+    public static boolean isNotNullAndEmpty(String id) {
+        return (!TextUtils.isEmpty(id) && !id.equalsIgnoreCase(Constants.EMPTY));
     }
+
+    public static boolean isNotRegistered(String id) {
+        return id.contains("new") && isNotNullAndEmpty(id);
+    }
+
 }

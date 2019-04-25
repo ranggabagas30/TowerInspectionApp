@@ -92,6 +92,10 @@ public class FormActivityWarga extends BaseActivity {
         generateNavigationItems(true);
     }
 
+    public String getScheduleId() {
+        return scheduleId;
+    }
+
     public String getWargaId() {
 
         if (StringUtil.isNotRegistered(wargaId)) {
@@ -175,7 +179,7 @@ public class FormActivityWarga extends BaseActivity {
         DebugLog.d("==== remove item with label : " + removeItem.text);
 
         for (RowModel navigationItem : mNavigationItemsParentOnly) {
-            if (navigationItem.isOpen && hasChild(removeItem)) {
+            if (navigationItem.isOpen && hasChild(navigationItem)) {
                 DebugLog.d("success removing ? " + navigationItem.children.remove(removeItem));
             }
         }
@@ -211,8 +215,7 @@ public class FormActivityWarga extends BaseActivity {
 
         barangId = null;
         if (rowModel.text.contains(Constants.regexBarangId)) {
-            barangId = StringUtil.getBarangIdFromLabel(rowModel.text);
-            barangId = getBarangId(barangId);
+            barangId = getBarangId(StringUtil.getBarangIdFromLabel(rowModel.text));
         }
 
         intent.putExtra(Constants.KEY_BARANGID, barangId);
@@ -304,11 +307,6 @@ public class FormActivityWarga extends BaseActivity {
             return navigationItems;
         }
 
-        public void removeItem(RowModel removeItem) {
-            getItems().remove(removeItem);
-            notifyDataSetChanged();
-        }
-
         public class ParentViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
             private ImageView expandCollapse;
@@ -341,10 +339,13 @@ public class FormActivityWarga extends BaseActivity {
 
                 int id = v.getId();
 
+                RowModel itemClick = (RowModel) v.getTag();
+
                 switch (id) {
 
                     case R.id.workformgroup_upload :
                         //MyApplication.getInstance().toast("Upload data", Toast.LENGTH_SHORT);
+                        uploadPerWargaSubNavigationMenu(itemClick);
                         break;
                     case R.id.expandCollapse :
                         //MyApplication.getInstance().toast("expand", Toast.LENGTH_SHORT);
@@ -364,6 +365,17 @@ public class FormActivityWarga extends BaseActivity {
                         }
                         break;
                 }
+            }
+
+            private void uploadPerWargaSubNavigationMenu(RowModel parentNavItem) {
+
+                String scheduleId   = getScheduleId();
+                String wargaId      = getWargaId();
+                int workFormGroupId = parentNavItem.work_form_group_id;
+
+                DebugLog.d("parent item click. upload items by (scheduleid, wargaid, workformgroupid) : (" + scheduleId + ", " + workFormGroupName + ", " + wargaId + ")");
+                ArrayList<ItemValueModel> itemUploads = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, wargaId, null);
+                ItemUploadManager.getInstance().addItemValues(itemUploads);
             }
         }
 
@@ -420,24 +432,22 @@ public class FormActivityWarga extends BaseActivity {
                     case R.id.title :
 
                         if (labelMenu.equalsIgnoreCase("Tambah barang")) {
-
                             showInputAmountBarangDialog();
-
                         } else if (labelMenu.contains(Constants.regexBarangId)) {
-
                             navigateToFormFillActivity(itemClick);
                         }
                         break;
                     case R.id.removesubmenu :
 
                         if (labelMenu.contains(Constants.regexBarangId)) {
-
                             removeBarangId(itemClick);
-
                         }
                         break;
                     case R.id.workformgroup_upload :
-                        uploadItemsByBarangId(itemClick);
+
+                        if (labelMenu.contains(Constants.regexBarangId)) {
+                            uploadItemsByBarangId(itemClick);
+                        }
                         break;
 
                 }
@@ -458,27 +468,29 @@ public class FormActivityWarga extends BaseActivity {
 
             public void removeBarangId(RowModel removedChildItem) {
 
-                barangId = StringUtil.getBarangIdFromLabel(removedChildItem.text);
-                barangId = getBarangId(barangId);
-
                 DebugLog.d("remove barang with id " + removedChildItem.id + " and label " + removedChildItem.text);
+
+                wargaId  = getWargaId();
+                barangId = getBarangId(StringUtil.getBarangIdFromLabel(removedChildItem.text));
+
+                ItemValueModel.deleteAllBy(scheduleId, wargaId, barangId);
 
                 boolean isSuccessful = FormImbasPetirConfig.removeBarang(scheduleId, wargaId, barangId);
 
                 if (isSuccessful) {
 
                     DebugLog.d("remove barangid berhasil");
-                    //removeItem(removedChildItem);
                     removeNavigationItem(removedChildItem);
                 }
             }
 
             public void uploadItemsByBarangId(RowModel uploadChildItem) {
 
-                barangId = StringUtil.getBarangIdFromLabel(uploadChildItem.text);
-                barangId = getBarangId(barangId);
+                String scheduleId = getScheduleId();
+                int workFormGroupId = uploadChildItem.work_form_group_id;
+                barangId = getBarangId(StringUtil.getBarangIdFromLabel(uploadChildItem.text));
 
-                ArrayList<ItemValueModel> uploadItemsByBarangId = ItemValueModel.getItemValuesForUpload(scheduleId, wargaId, barangId);
+                ArrayList<ItemValueModel> uploadItemsByBarangId = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, wargaId, barangId);
                 ItemUploadManager.getInstance().addItemValues(uploadItemsByBarangId);
             }
         }

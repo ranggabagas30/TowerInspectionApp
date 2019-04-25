@@ -127,4 +127,12 @@ public class Constants {
 	public static final String APPLICATION_STP = "stp";
 
 	public static final String EMPTY = "EMPTY";
+
+	/**
+	 * ============================= PHOTO STATUS =================================================
+	 * */
+
+	public static final String OK = "OK";
+	public static final String NOK = "NOK";
+	public static final String NA = "NA";
 } 

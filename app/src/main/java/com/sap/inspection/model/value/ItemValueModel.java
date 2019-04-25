@@ -8,12 +8,21 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Debug;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.widget.Toast;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.OperatorModel;
+import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.tools.DebugLog;
 
 import java.text.SimpleDateFormat;
@@ -27,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -86,6 +96,12 @@ public class ItemValueModel extends BaseModel {
 
 	}
 
+	public static void deleteAllBy(String scheduleId, String wargaId, String barangId) {
+
+		delete(scheduleId, UNSPECIFIED, UNSPECIFIED, wargaId, barangId);
+
+	}
+
 	public static void delete(String scheduleId, int itemId, int operatorId){
 
 		delete(scheduleId, itemId, operatorId, null, null);
@@ -93,29 +109,20 @@ public class ItemValueModel extends BaseModel {
 
 	public static void delete(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {
 
-		DebugLog.d("(scheduleId, itemid, operatorid, wargaid, barangid) = (" + scheduleId + ", " + itemId + ", " + operatorId + ", " + wargaId + ", " + barangId + ")");
+		String whereScheduleId = scheduleId != null ? DbManagerValue.colScheduleId + "=" + scheduleId : "";
 		String whereItemId = itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=" + itemId : "";				// if itemid is unspecified
 		String whereOperatorId = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=" + operatorId : ""; // if operatorid is unspecified
 		String whereWarga = wargaId != null ? " AND " + DbManagerValue.colWargaId + "= '" + wargaId + "'" : "";
 		String whereBarang = barangId != null ? " AND " + DbManagerValue.colBarangId + "= '" + barangId + "'" : "";
 
-		DebugLog.d("delete item(s) with scheduleid = " + scheduleId + whereWarga + whereBarang + whereItemId + whereOperatorId);
+		DebugLog.d("delete item(s) with scheduleid = " + scheduleId + whereItemId + whereOperatorId + whereWarga + whereBarang);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		String sql = "DELETE FROM " + DbManagerValue.mFormValue + " WHERE " + DbManagerValue.colScheduleId + "=" + scheduleId + whereItemId + whereOperatorId + whereWarga + whereBarang;
+		String sql = "DELETE FROM " + DbManagerValue.mFormValue + " WHERE " + whereScheduleId + whereItemId + whereOperatorId + whereWarga + whereBarang;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
 		DbRepositoryValue.getInstance().close();
-	}
-
-	public ArrayList<ItemValueModel> getAllItemValueByScheduleId (Context context, String scheduleId) {
-
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		ArrayList<ItemValueModel> listModel = null;
-		listModel = getAllItemValueByScheduleId(scheduleId);
-		DbRepositoryValue.getInstance().close();
-		return listModel;
 	}
 
 	public static ArrayList<ItemValueModel> getAllItemValueByScheduleId (String scheduleId) {
@@ -165,8 +172,8 @@ public class ItemValueModel extends BaseModel {
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
 		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
-		String whereitemid   	= itemId > 0 ? " AND " + DbManagerValue.colItemId + "=?" : "";
-		String whereoperatorid  = operatorId > 0 ? " AND " + DbManagerValue.colOperatorId + "=?" : "";
+		String whereitemid   	= itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=?" : "";
+		String whereoperatorid  = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=?" : "";
 		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
 		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
@@ -177,9 +184,9 @@ public class ItemValueModel extends BaseModel {
 
 		if (scheduleId != null)
 			argsList.add(scheduleId);
-		if (itemId > 0)
+		if (itemId != UNSPECIFIED)
 			argsList.add(String.valueOf(itemId));
-		if (operatorId > 0)
+		if (operatorId != UNSPECIFIED)
 			argsList.add(String.valueOf(operatorId));
 		if (wargaId != null)
 			argsList.add(wargaId);
@@ -206,7 +213,58 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
-	public ArrayList<ItemValueModel> getItemValuesForUpload() {
+	public static ArrayList<ItemValueModel> getItemValues(String scheduleId, int itemId, String wargaId, String barangId) {
+
+		String table = DbManagerValue.mFormValue;
+		String[] columns = null;
+		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
+		String whereitemid   	= itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=?" : "";
+		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String order 			= DbManagerValue.colItemId + " ASC";
+
+		String where = wherescheduleid + whereitemid + wherewargaid + wherebarangid;
+		DebugLog.d("Get item(s) by (" + scheduleId + "," + itemId + "," + wargaId + "," + barangId +")");
+
+		List<String> argsList = new ArrayList<>();
+
+		if (scheduleId != null)
+			argsList.add(scheduleId);
+		if (itemId != UNSPECIFIED)
+			argsList.add(String.valueOf(itemId));
+		if (wargaId != null)
+			argsList.add(wargaId);
+		if (barangId != null)
+			argsList.add(barangId);
+
+		String[] args = new String[argsList.size()];
+		args = argsList.toArray(args);
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);;
+
+		if (!cursor.moveToFirst()) {
+
+			cursor.close();
+			DbRepositoryValue.getInstance().close();
+			return null;
+		}
+
+		ArrayList<ItemValueModel> results = new ArrayList<>();
+
+		do {
+
+			ItemValueModel model = getSiteFromCursor(cursor);
+			results.add(model);
+
+		} while (cursor.moveToNext());
+
+		cursor.close();
+		DbRepositoryValue.getInstance().close();
+		return results;
+	}
+
+	public static ArrayList<ItemValueModel> getItemValuesForUpload() {
 
 
 		ArrayList<ItemValueModel> model = new ArrayList<ItemValueModel>();
@@ -247,6 +305,7 @@ public class ItemValueModel extends BaseModel {
 		return getItemValuesForUpload(scheduleId, null, null);
 	}
 
+
 	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
 
 		String table = DbManagerValue.mFormValue;
@@ -256,7 +315,7 @@ public class ItemValueModel extends BaseModel {
 		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
 		String where = wherescheduleid + wherewargaid + wherebarangid;
-		DebugLog.d("Get item(s) by (" + scheduleId + "," + wargaId + "," + barangId +")");
+		DebugLog.d("Get item(s) by (" + scheduleId + ", " + wargaId + ", " + barangId +")");
 
 		List<String> argsList = new ArrayList<>();
 
@@ -292,6 +351,101 @@ public class ItemValueModel extends BaseModel {
 		DbRepositoryValue.getInstance().close();
 
 		return model;
+	}
+
+	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
+
+		ArrayList<ItemValueModel> results = new ArrayList<>();
+
+		ArrayList<WorkFormItemModel> workFormItems = WorkFormItemModel.getWorkFormItems(work_form_group_id, "label");
+
+		if (workFormItems != null) {
+
+			for (WorkFormItemModel workFormItem : workFormItems) {
+
+				boolean isMandatory = workFormItem.mandatory;
+
+				if (workFormItem.scope_type.equalsIgnoreCase("all")) {
+
+					ArrayList<ItemValueModel> itemValues = getItemValues(scheduleId, workFormItem.id, wargaId, barangId);
+
+					DebugLog.d("(scopetype, itemid, itemlabel, ismandatory, isnull) : (all, " + workFormItem.id + ", " + workFormItem.label + ", " + workFormItem.mandatory + ", " + (itemValues == null ? "tidak terisi" : "terisi") + ")");
+
+					if (itemValues == null && isMandatory) // mandatory item is not filled
+						return null;
+					else if (itemValues != null) { // there are some filled items
+
+						// validation only take one item, because it already represents the others
+						ItemValueModel filledItem = itemValues.get(0);
+
+						// if the filled items are mandatory, then apply strict rules
+						if (isMandatory) {
+
+							// for non-TYPE_PICTURE_RADIO
+							if (TextUtils.isEmpty(filledItem.value)) {
+
+								if (workFormItem.field_type.equalsIgnoreCase("file"))
+									MyApplication.getInstance().toast("Foto item " + workFormItem.label + " tidak ada. Silahkan ambil foto terlebih dahulu", Toast.LENGTH_LONG);
+								else
+									MyApplication.getInstance().toast("value item " + workFormItem.label + " tidak terisi", Toast.LENGTH_LONG);
+
+								return null;
+							} else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem)) {
+								return null;
+							}
+
+						} else {
+
+							if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
+								return null;
+						}
+
+
+						// otherwise just add all the items
+						results.addAll(itemValues);
+					}
+
+				} else {
+
+					ScheduleBaseModel schedule = new ScheduleGeneral();
+					schedule = schedule.getScheduleById(scheduleId);
+
+					for (OperatorModel operator : schedule.operators) {
+
+						int operatorid = operator.id;
+						ItemValueModel itemValue = getItemValue(scheduleId, workFormItem.id, operatorid, wargaId, barangId);
+
+						DebugLog.d("(scopetype, itemid, operatorid, itemlabel, ismandatory, isnull) : (operator, " + workFormItem.id + ", " + operatorid + ", " + workFormItem.label + ", " + workFormItem.mandatory + ", " + (itemValue == null ? "tidak terisi" : "terisi") + ")");
+
+						//
+					}
+				}
+			}
+
+		} else return null;
+
+		return results;
+	}
+
+	private static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+			// checking for form's item type picture radio with mandatory applied only on "NOK" option
+			if (TextUtils.isEmpty(filledItem.photoStatus)) {
+				MyApplication.getInstance().toast("photo status item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+				return false;
+			}
+
+			if (!TextUtils.isEmpty(filledItem.photoStatus) &&
+					filledItem.photoStatus.equalsIgnoreCase(Constants.NOK) &&
+					TextUtils.isEmpty(filledItem.remark)) {
+				MyApplication.getInstance().toast("remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public void save(Context context){
@@ -677,7 +831,7 @@ public class ItemValueModel extends BaseModel {
 						+ DbManagerValue.colWargaId + " varchar, "
 						+ DbManagerValue.colBarangId + " varchar,"
 						+ "PRIMARY KEY (" + DbManagerValue.colScheduleId + ","+ DbManagerValue.colItemId + ","+ DbManagerValue.colOperatorId
-						//+ "," + DbManagerValue.colWargaId + "," + DbManagerValue.colBarangId
+						+ "," + DbManagerValue.colWargaId + "," + DbManagerValue.colBarangId
 						+ "))";
 				break;
 			}
@@ -714,6 +868,7 @@ public class ItemValueModel extends BaseModel {
 		DbRepositoryValue.getInstance().getDB().update(DbManagerValue.mFormValue, cv, where, args);
 		DbRepositoryValue.getInstance().close();
 	}
+
 
 	@Override
 	public String toString() {

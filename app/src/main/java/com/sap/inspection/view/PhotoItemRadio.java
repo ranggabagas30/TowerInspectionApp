@@ -32,6 +32,7 @@ import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.StringUtil;
 
 import java.io.File;
 
@@ -132,6 +133,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		longitude = (TextView) root.findViewById(R.id.longitude);
 		mandatory = (TextView) root.findViewById(R.id.mandatory);
 		mandatory.setTag(this);
+
 		accuracy = (TextView) root.findViewById(R.id.accuracy);
 		photodate = (TextView) root.findViewById(R.id.photodate);
 		uploadstatus = (TextView) root.findViewById(R.id.uploadstatus);
@@ -170,6 +172,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	public void setValue(ItemValueModel value) {
+
 		this.value = value;
 		DebugLog.d("value : " + this.value);
 		imageView.setImageResource(R.drawable.logo_app);
@@ -178,7 +181,10 @@ public class PhotoItemRadio extends RelativeLayout {
 		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
 			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
 
-		if (value != null){
+		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+			mandatory.setVisibility(VISIBLE);
+
+		if (value != null) {
 			//rangga
 			if (this.value.remark != null) {
 				if (this.value.remark.isEmpty()) {
@@ -197,38 +203,55 @@ public class PhotoItemRadio extends RelativeLayout {
 
 			DebugLog.d("value.photoStatus : " + value.photoStatus );
 			if (value.photoStatus != null){
-				if (value.photoStatus.equalsIgnoreCase("ok")){
+				if (value.photoStatus.equalsIgnoreCase(Constants.OK)){
 
 					button.setVisibility(View.VISIBLE);
 					ok.setChecked(true);
-					setPhotoRootVisiblity("OK");
+					setPhotoRootVisiblity(Constants.OK);
 
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-						mandatory.setVisibility(View.GONE);
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+						// if this form's item is not part of imbas petir form, then hide "mandatory" remark
+						// else keep it shown
+						if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+							mandatory.setVisibility(View.GONE);
+						}
+					}
 				}
-				else if (value.photoStatus.equalsIgnoreCase("nok")){
+				else if (value.photoStatus.equalsIgnoreCase(Constants.NOK)){
 
 					button.setVisibility(View.VISIBLE);
 					nok.setChecked(true);
 					setPhotoRootVisiblity("NOK");
 
 					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-						if(remark.getText().toString().equalsIgnoreCase("") || value.remark.equalsIgnoreCase("")){
-							mandatory.setVisibility(View.VISIBLE);
-						} else {
-							mandatory.setVisibility(View.GONE);
+
+						// if this form's item is not part of imbas petir form
+						if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+
+							if(TextUtils.isEmpty(remark.getText().toString()) || TextUtils.isEmpty(value.remark)){
+								mandatory.setVisibility(View.VISIBLE);
+							} else {
+								mandatory.setVisibility(View.GONE);
+							}
 						}
 					}
 				}
-				else if (value.photoStatus.equalsIgnoreCase("na")){
+				else if (value.photoStatus.equalsIgnoreCase(Constants.NA)){
 
 					button.setVisibility(View.GONE);
 					photoRoot.setVisibility(View.GONE);
 					na.setChecked(true);
-					value.photoStatus="NA";
+					value.photoStatus=Constants.NA;
 
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-						mandatory.setVisibility(View.GONE);
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+						// if this form's item is not part of imbas petir form, then hide "mandatory" remark
+						// else keep it shown
+						if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+							mandatory.setVisibility(View.GONE);
+						}
+					}
 				}
 			}
 			else{
@@ -310,11 +333,14 @@ public class PhotoItemRadio extends RelativeLayout {
 				value.remark = s.toString();
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-					if (s.toString().equalsIgnoreCase("")) {
-						if ((nok.isChecked() || value.photoStatus.equalsIgnoreCase("nok")) && !TextUtils.isEmpty(value.photoStatus))
-							mandatory.setVisibility(View.VISIBLE);
-					} else {
-						mandatory.setVisibility(View.GONE);
+					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+
+						if (s.toString().equalsIgnoreCase("")) {
+							if ((nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) && !TextUtils.isEmpty(value.photoStatus))
+								mandatory.setVisibility(View.VISIBLE);
+						} else {
+							mandatory.setVisibility(View.GONE);
+						}
 					}
 				}
 				DebugLog.d("remark value : " + s.toString());
@@ -331,36 +357,62 @@ public class PhotoItemRadio extends RelativeLayout {
 			switch (checkedId) {
 			case R.id.radioOK:
 				button.setVisibility(View.VISIBLE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-					mandatory.setVisibility(View.GONE);
-				setPhotoRootVisiblity("OK");
+
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+					// if this form's item is not part of imbas petir form, then hide "mandatory" remark
+					// else keep it shown
+					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+						mandatory.setVisibility(View.GONE);
+					}
+				}
+
+				setPhotoRootVisiblity(Constants.OK);
 				break;
 
 			case R.id.radioNOK:
 				button.setVisibility(View.VISIBLE);
+
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-					if(remark.getText().toString().equalsIgnoreCase("") || value.remark.equalsIgnoreCase("")){
-						mandatory.setVisibility(View.VISIBLE);
-					} else {
-						mandatory.setVisibility(View.GONE);
+					// if this form's item is not part of imbas petir form
+					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+
+						if(TextUtils.isEmpty(remark.getText().toString()) || TextUtils.isEmpty(value.remark)){
+							mandatory.setVisibility(View.VISIBLE);
+						} else {
+							mandatory.setVisibility(View.GONE);
+						}
 					}
 				}
+
 				setPhotoRootVisiblity("NOK");
 				break;
 
 			case R.id.radioNA:
 				button.setVisibility(View.GONE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-					mandatory.setVisibility(View.GONE);
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+					// if this form's item is not part of imbas petir form, then hide "mandatory" remark
+					// else keep it shown
+					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+						mandatory.setVisibility(View.GONE);
+					}
+				}
 				photoRoot.setVisibility(View.GONE);
 				if (value!=null)
-					value.photoStatus = "NA";
+					value.photoStatus = Constants.NA;
 				break;
 
 			default:
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-					mandatory.setVisibility(View.GONE);
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+					// if this form's item is not part of imbas petir form, then hide "mandatory" remark
+					// else keep it shown
+					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+						mandatory.setVisibility(View.GONE);
+					}
+				}
 				break;
 			}
 

@@ -361,13 +361,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	protected void onPause() {
 		super.onPause();
-		EventBus.getDefault().unregister(this);
+		//EventBus.getDefault().unregister(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		EventBus.getDefault().register(this);
+		//EventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -450,12 +450,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				//item is disable
 				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
 			}
-			//else if (itemFormRenderModel.itemValue!=null && itemFormRenderModel.itemValue.value!=null) {
 			else if (itemFormRenderModel.itemValue!=null) {
-				DebugLog.d("itemId=" + itemFormRenderModel.itemValue.itemId+" pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture +
-						" value=" + itemFormRenderModel.itemValue.value + " picture=" +
-						itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
-				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.itemValue);
+
+				ItemValueModel itemUpload = itemFormRenderModel.itemValue;
+				boolean isMandatory		  = itemFormRenderModel.workItemModel.mandatory;
+				ItemUploadManager.getInstance().addItemValue(isMandatory, itemUpload);
+
+				DebugLog.d("isMandatory= " + isMandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
 			} else {
 				Toast.makeText(activity, "Tidak ada foto", Toast.LENGTH_LONG).show();
 			}
@@ -841,8 +842,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			boolean ada = false;
 			DebugLog.d("total formModels items : " + formModels.size());
 			for (ItemFormRenderModel item : formModels) {
-				DebugLog.d("search="+item.workItemModel.search);
 				if (item.workItemModel!=null&&!item.workItemModel.search) {
+					DebugLog.d("search="+item.workItemModel.search);
 					ada = true;
 					break;
 				}
@@ -960,17 +961,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
 							DebugLog.d("remark : " + item.itemValue.remark);
 							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
-								if (!TextUtils.isEmpty(item.itemValue.photoStatus) && item.itemValue.photoStatus.equalsIgnoreCase("nok")) {
-									if (item.itemValue.remark == null) {
+								if (!TextUtils.isEmpty(item.itemValue.photoStatus) && item.itemValue.photoStatus.equalsIgnoreCase(Constants.NOK)) {
+									if (TextUtils.isEmpty(item.itemValue.remark)) {
 										mandatoryLabel = item.workItemModel.label;
 										mandatoryFound = true;
 										break;
-									} else {
-										if (item.itemValue.remark.isEmpty()) {
-											mandatoryLabel = item.workItemModel.label;
-											mandatoryFound = true;
-											break;
-										}
 									}
 								}
 							}
@@ -981,7 +976,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							DebugLog.d("isian data : " + item.itemValue.value);
 
 							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
-								if (item.itemValue.value == null || item.itemValue.value.isEmpty()) {
+								if (TextUtils.isEmpty(item.itemValue.value)) {
 									mandatoryLabel = item.workItemModel.label;
 									mandatoryFound = true;
 									break;
@@ -991,7 +986,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 
 					if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
-						if (item.itemValue == null || item.itemValue.value == null || item.itemValue.value.isEmpty()) {
+						if (item.itemValue == null || TextUtils.isEmpty(item.itemValue.value)) {
 							if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
 								mandatoryLabel = item.workItemModel.label;
 								mandatoryFound = true;

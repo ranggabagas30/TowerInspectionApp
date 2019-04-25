@@ -3,6 +3,7 @@ package com.sap.inspection.views.adapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -331,7 +332,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.label.setText(getItem(position).workItemModel.label);
 				DebugLog.d("checkbox itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
 				reviseCheckBox(holder.checkBox, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[,]"), getItem(position).rowId, getItem(position).operatorId);
-				setMandatory(holder,getItem(position));
+				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_RADIO:
 				DebugLog.d("TYPE_RADIO");
@@ -340,7 +341,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				check(position);
 				holder.label.setText(getItem(position).workItemModel.label);
 				reviseRadio(holder.radio, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
-				setMandatory(holder,getItem(position));
+				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_HEADER:
 				DebugLog.d("TYPE HEADER");
@@ -398,13 +399,14 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.photoRadio.setItemFormRenderModel(getItem(position));
 				holder.photoRadio.setValue(getItem(position).itemValue,true);
 				holder.upload.setTag(position);
+				setUploadButtonVisibility(holder);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
 				DebugLog.d("TYPE_PICTURE");
 				holder.photo.setItemFormRenderModel(getItem(position));
 				holder.photo.setValue(getItem(position).itemValue,true);
-				setMandatory(holder,getItem(position));
 				holder.upload.setTag(position);
+				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_TEXT_INPUT:
 				DebugLog.d("TYPE_TEXT_INPUT");
@@ -440,7 +442,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.input.setTextChange(formTextChange);
 				holder.input.setEnabled(!getItem(position).workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm());
 				check(position);
-				setMandatory(holder,getItem(position));
+				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_EXPAND:
 				DebugLog.d("TYPE_EXPAND");
@@ -468,13 +470,25 @@ public class FormFillAdapter extends MyBaseAdapter {
 		return convertView;
 	}
 
-	private void setMandatory(ViewHolder viewHolder, ItemFormRenderModel itemFormRenderModel) {
+	private void setMandatoryVisibility(ViewHolder viewHolder, ItemFormRenderModel itemFormRenderModel) {
 		if (itemFormRenderModel.workItemModel.mandatory) {
 			viewHolder.mandatory.setVisibility(View.VISIBLE);
 		} else {
 			viewHolder.mandatory.setVisibility(View.GONE);
 		}
 	}
+
+	private void setUploadButtonVisibility(ViewHolder holder) {
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			if (StringUtil.isNotNullAndEmpty(wargaId) || StringUtil.isNotNullAndEmpty(barangId)) {
+				holder.upload.setVisibility(View.INVISIBLE);
+			} else
+				holder.upload.setVisibility(View.VISIBLE);
+		}
+
+	}
+
 	private void check(int position){
 //		log("============== aaaaaa ============================");
 //		log("============== aaaaaa ============================");

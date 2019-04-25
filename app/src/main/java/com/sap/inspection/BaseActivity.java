@@ -14,13 +14,17 @@ import android.widget.Toast;
 /*import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;*/
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
+
+import de.greenrobot.event.EventBus;
 
 //import com.sap.inspection.gcm.GCMService;
 
@@ -81,12 +85,14 @@ public abstract class BaseActivity extends FragmentActivity{
 	@Override
 	protected void onResume() {
 		super.onResume();
+		EventBus.getDefault().register(this);
 //		GCMService.baseActivity = this;
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -105,6 +111,14 @@ public abstract class BaseActivity extends FragmentActivity{
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		instanceStateSaved = true;
+	}
+
+	public void onEvent(UploadProgressEvent event) {
+		DebugLog.d("event="+new Gson().toJson(event));
+		if (!event.done)
+			showMessageDialog(event.progressString);
+		else
+			hideDialog();
 	}
 
 	public void writePreference(int key, String value) {
@@ -175,13 +189,6 @@ public abstract class BaseActivity extends FragmentActivity{
 		mFirebaseAnalytics.logEvent("track_event", bundle);
 	}
 
-	public void showDialog() {
-
-		if (progressDialog != null && !progressDialog.isShowing())
-			progressDialog.show();
-
-	}
-
 	public void hideDialog() {
 
 		if (progressDialog != null && progressDialog.isShowing())
@@ -193,7 +200,9 @@ public abstract class BaseActivity extends FragmentActivity{
 
 		if (progressDialog != null) {
 			progressDialog.setMessage(message);
-			showDialog();
+
+			if (!progressDialog.isShowing())
+				progressDialog.show();
 		}
 	}
 }

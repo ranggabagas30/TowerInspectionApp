@@ -17,7 +17,7 @@ import com.sap.inspection.tools.DebugLog;
 
 public class CorrectiveValueModel extends ItemValueModel {
 
-	private final int ALL_OP_ID = -1; 
+	private static final int ALL_OP_ID = -1;
 
 	@Override
 	public int describeContents() {
@@ -125,7 +125,7 @@ public class CorrectiveValueModel extends ItemValueModel {
 		return model;
 	}
 
-	public ArrayList<ItemValueModel> getItemValuesForUpload() {
+	public static ArrayList<ItemValueModel> getItemValuesForUpload() {
 		ArrayList<ItemValueModel> model = new ArrayList<ItemValueModel>();
 		String table = DbManagerValue.mCorrectiveValue;
 		String[] columns = null;

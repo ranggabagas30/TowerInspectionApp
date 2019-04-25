@@ -225,6 +225,7 @@
                     android:text="Update"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
+
                 <Button
                     android:id="@+id/update_form"
                     android:layout_width="match_parent"
@@ -232,6 +233,16 @@
                     android:layout_marginTop="@dimen/padding_medium"
                     android:background="@drawable/selector_button_green_small_padding"
                     android:text="Update Form"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/update_form_imbas_petir"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding_medium"
+                    android:background="@drawable/selector_button_green_small_padding"
+                    android:text="Update Form Imbas Petir"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
             </LinearLayout>

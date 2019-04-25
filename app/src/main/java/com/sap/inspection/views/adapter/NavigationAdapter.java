@@ -210,6 +210,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 				DebugLog.d("============== get default view : "+getItemViewType(position));
 				break;
 			}
+
 			holder.expandCollapse = (ImageView) view.findViewById(R.id.expandCollapse);
 			holder.expandCollapse.setOnClickListener(expandCollapseListener);
 			holder.uploadWorkFormGroup = (ImageView) view.findViewById(R.id.workformgroup_upload);
@@ -278,17 +279,21 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 				if (!ItemUploadManager.getInstance().isRunning()) {
 
-					//if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(context.getString(R.string.foto_imbas_petir))) {
-					if (false) { // debug only
-						// upload method for imbas petir
+                    int position = (int) v.getTag();
+
+                    RowModel rowModel = getItem(position);
+                    DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
+
+                    String scheduleId = getScheduleId();
+                    int workFormGroupId = rowModel.work_form_group_id;
+
+                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+					//if (false) { // debug only
+
+                        ArrayList<ItemValueModel> uploadItems = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY);
+                        ItemUploadManager.getInstance().addItemValues(uploadItems);
 
 					} else {
-
-						String scheduleId = getScheduleId();
-						int position = (int) v.getTag();
-
-						RowModel rowModel = getItem(position);
-						DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
 
 						ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
 						ArrayList<ItemValueModel> listItemValue = ItemValueModel.getItemValuesForUpload(scheduleId);
@@ -311,11 +316,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 							DebugLog.d("\n\n");
 						}
 
-						if (listItemUploadByWorkFormGroupId.size()!= 0) {
-							ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
-						} else {
-							MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
-						}
+                        ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
 
 					}
 

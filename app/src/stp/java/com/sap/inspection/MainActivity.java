@@ -135,13 +135,13 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		if (lastClicked != -1){
 			scheduleFragment.setScheduleBy(lastClicked);
 		}
-		EventBus.getDefault().register(this);
+		//EventBus.getDefault().register(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		EventBus.getDefault().unregister(this);
+		//EventBus.getDefault().unregister(this);
 	}
 
 	private void offlineSchedule(){
