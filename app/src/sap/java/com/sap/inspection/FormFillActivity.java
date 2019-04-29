@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.media.ExifInterface;
@@ -18,6 +19,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -80,6 +82,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -505,46 +508,53 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	}
 
 	public boolean takePicture(int itemId){
-		//		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-		//		startActivityForResult(intent,CAMERA);
 
-		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-		try
-		{
-			// place where to store camera taken picture
-			photo = this.createTemporaryFile("picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-", ".jpg");
-			mImageUri = Uri.fromFile(photo);
-			photo.delete();
-			DebugLog.d("photo url : "+photo.getName());
-			DebugLog.d("mimage url : "+mImageUri.getPath());
-		}
-		catch(Exception e)
-		{
-			Crashlytics.logException(e);
-			DebugLog.d(e.getMessage());
-			DebugLog.d("Can't create file to take picture!");
-//			Toast.makeText(activity, "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT).show();
-			return false;
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+		if (intent.resolveActivity(this.getPackageManager()) != null) {
+
+			photo = null;
+			try
+			{
+				// place where to store camera taken picture
+				photo = createTemporaryFile("picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-", ".jpg");
+
+			}
+			catch(Exception e)
+			{
+				Crashlytics.logException(e);
+				DebugLog.d(e.getMessage());
+				DebugLog.d("Can't create file to take picture!");
+				return false;
+			}
+
+			if (photo != null) {
+				mImageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileProvider", photo);
+				DebugLog.d("photo url : " + photo.getName());
+				DebugLog.d("mimage url : " + mImageUri.getPath());
+
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+				//        intent.putExtra("crop", "true");
+				intent.putExtra("outputX", 480);
+				intent.putExtra("outputY", 480);
+				intent.putExtra("aspectX", 1);
+				intent.putExtra("aspectY", 1);
+				intent.putExtra("scale", true);
+				intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
+				intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+				activity.startActivityForResult(intent, MenuShootImage);
+
+				return true;
+			}
 		}
 
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-		//        intent.putExtra("crop", "true");
-		intent.putExtra("outputX", 480);
-		intent.putExtra("outputY", 480);
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
-		intent.putExtra("scale", true);
-		intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
-		//start camera intent
-		//	    activity.startActivityForResult(this, intent, MenuShootImage);
-		activity.startActivityForResult(intent, MenuShootImage);
-		return true;
+		return false;
 	}
 
 	private File createTemporaryFile(String part, String ext) throws Exception
 	{
 		File tempDir;
-		String createDirectory;
 		boolean createDirStatus;
 
 		if (CommonUtil.isExternalStorageReadOnly()) {
@@ -560,48 +570,29 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (CommonUtil.isExternalStorageAvailable()) {
 
 				DebugLog.d("external storage available");
-				//tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
 
-				/*if (!tempDir.exists()) {
-					DebugLog.d("using legacy path");
-					tempDir = new File( "/storage/emulated/legacy/" + Environment.DIRECTORY_DCIM + "/Camera/");
-				}*/
-
-				//createDirectory = tempDir.getAbsolutePath() + "/TowerInspection";
-                //createDirectory = new File(tempDir, "TowerInspection").toString();
+				tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
 				tempDir = new File(tempDir, "TowerInspection"); // create temp folder
+				tempDir = new File(tempDir, schedule.id); // create schedule folder
 
 				if (!tempDir.exists()) {
 					createDirStatus = tempDir.mkdir();
 					if (!createDirStatus) {
 						createDirStatus = tempDir.mkdirs();
 						if (!createDirStatus) {
-							DebugLog.e("failed to create dir : " + tempDir.toString());
-							Crashlytics.log("failed to create dir : " + tempDir.toString());
+							DebugLog.e("failed to create dir : " + tempDir.getPath());
+							Crashlytics.log("failed to create dir : " + tempDir.getPath());
 						} else {
-							DebugLog.d("create dir success");
+							DebugLog.d("success create dir : " + tempDir.getPath());
 						}
 					}
 				}
 
-				createDirectory = tempDir.getAbsolutePath() + "/" + schedule.id + "/";
-				tempDir = new File(createDirectory); // create schedule folder
+				DebugLog.d("tempDir path : " + tempDir.getPath());
+				DebugLog.d("tempDir absolute path : " + tempDir.getAbsolutePath());
+				DebugLog.d("tempDir canonical path : " + tempDir.getCanonicalPath());
+				DebugLog.d("tempDir string path : " + tempDir.toString());
 
-				if (!tempDir.exists()) {
-					createDirStatus = tempDir.mkdir();
-					if (!createDirStatus) {
-						createDirStatus = tempDir.mkdirs();
-						if (!createDirStatus) {
-							DebugLog.e("failed to create dir : " + createDirectory);
-							Crashlytics.log("failed to create dir : " + createDirectory);
-						} else {
-							DebugLog.d("create dir success");
-						}
-					}
-				}
-
-				DebugLog.d("tempDir path : " + tempDir.getAbsolutePath());
 				return File.createTempFile(part, ext, tempDir);
 
 			} else {
