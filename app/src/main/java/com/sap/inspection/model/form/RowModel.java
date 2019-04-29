@@ -409,7 +409,7 @@ public class RowModel extends BaseModel {
 				parentItem.text = getRowLabel(parentItem.id);
 				parentItem.hasForm = true;
 
-				if (parentItem.text != null && parentItem.text.equalsIgnoreCase(Constants.regexBarangId)) {
+				if (parentItem.text != null && parentItem.text.equalsIgnoreCase(Constants.regexId)) {
 
 				    int dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
 

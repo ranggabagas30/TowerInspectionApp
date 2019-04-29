@@ -742,6 +742,5 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			Crashlytics.log("ACCESS TOKEN is empty, unable to send FCM TOKEN to server");
 
 		}
-
 	}
 }

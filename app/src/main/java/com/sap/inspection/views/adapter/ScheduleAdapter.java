@@ -79,6 +79,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		View view = convertView;
 		final ViewHolder holder;
+
+		ScheduleBaseModel itemModel = getItem(position);
+
 		if (convertView == null) {
 			holder = new ViewHolder();
 			switch (getItemViewType(position)) {
@@ -97,7 +100,11 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				holder.task = (TextView) view.findViewById(R.id.item_schedule_task);
 				holder.place = (TextView) view.findViewById(R.id.item_schedule_place);
 				holder.upload = view.findViewById(R.id.item_schedule_upload);
-                holder.upload.setOnClickListener(upload);
+				holder.upload.setOnClickListener(upload);
+				holder.upload.setVisibility(View.VISIBLE);
+				if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR))
+					holder.upload.setVisibility(View.INVISIBLE);
+
 				break;
 			default:
 				break;
@@ -108,22 +115,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 
 		switch (getItemViewType(position)) {
 		case 0:
-//			Calendar calendar = null;
-//			try {
-//				calendar = DateTools.toCalendar(getItem(position).work_date);
-//			} catch (ParseException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			if (calendar == null)
-//				holder.title.setText(getItem(position).work_date);
-//			else
-//				holder.title.setText(Constants.MONTHS[calendar.get(Calendar.MONTH)] +" "+ calendar.get(Calendar.DATE) +","+ calendar.get(Calendar.YEAR));
-			
 			String[] date = getItem(position).day_date.split("[-]",3);
 			
 			holder.title.setText(Constants.MONTHS[Integer.parseInt(date[1]) - 1 ] +" "+ date[2] +","+ date[0]);
-
 			break;
 
 		case 1:
@@ -136,7 +130,6 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.place.setText(getItem(position).getPlace());
             holder.upload.setTag(getItem(position).id);
 			break;
-
 
 		default:
 			break;

@@ -78,6 +78,15 @@ public class StringUtil {
         return Integer.valueOf(wargaKeText);
     }
 
+    public static String getIdFromLabel(String label) {
+
+        String pattern = Constants.regexId;
+        label = label.replace(pattern, "");
+        DebugLog.d("Id : " + label);
+
+        return label;
+    }
+
     public static String getWargaIdFromLabel(String label) {
 
         String pattern = Constants.regexWargaId;

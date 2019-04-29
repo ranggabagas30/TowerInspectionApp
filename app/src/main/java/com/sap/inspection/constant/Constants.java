@@ -113,6 +113,7 @@ public class Constants {
 	 * ============================= REQUEST CODE =================================================
 	 * */
 
+	public static final int RC_ALL_PERMISSION = 0;
 	public static final int RC_STORAGE_PERMISSION = 1;
 	public static final int RC_READ_PHONE_STATE = 2;
 	public static final int RC_LOCATION_PERMISSION = 3;
@@ -143,6 +144,7 @@ public class Constants {
 
 	public static final String regexIMBASPETIR = "(.*)IMBAS PETIR(.*)";
 	public static final String regexTambah = "Tambah";
+	public static final String regexId = "Id-";
 	public static final String regexWargaId	= "Warga Id-";
 	public static final String regexBarangId = "Barang Id-";
 	public static final String regexBeritaAcaraClosing = "Berita Acara Closing";

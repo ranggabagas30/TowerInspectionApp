@@ -57,10 +57,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 	// SAP only
 	private String wargaId;
 	private String barangId;
+	private boolean isScheduleApproved;
 
 	private OnClickListener photoListener;
-    private OnClickListener uploadListener;
-    private boolean isChecklistOrSiteInformation;
+	private OnClickListener uploadListener;
+	private boolean isChecklistOrSiteInformation;
 	//	private List<ItemFormRenderModel> shownX = new ArrayList<>();
 	private SparseArray<List<ItemFormRenderModel>> sparseArray = new SparseArray<>();
 
@@ -396,6 +397,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 			case ItemFormRenderModel.TYPE_PICTURE_RADIO:
 				DebugLog.d("TYPE_PICTURE_RADIO");
 				DebugLog.d("picture radio wargaid : " + wargaId);
+				holder.photoRadio.setScheduleId(scheduleId);
 				holder.photoRadio.setItemFormRenderModel(getItem(position));
 				holder.photoRadio.setValue(getItem(position).itemValue,true);
 				holder.upload.setTag(position);
@@ -848,22 +850,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 			}
 			updateView();
-		}
-	}
-
-	private void toggleEditable(ViewHolder holder) {
-		if (MyApplication.getInstance().isInCheckHasilPm()) {
-			DebugLog.d("input is disabled");
-			if (holder.radio != null) holder.radio.setEnabled(false);
-			if (holder.input != null) holder.input.setEnabled(false);
-			if (holder.checkBox != null) holder.checkBox.setEnabled(false);
-			if (holder.photoRadio!= null) holder.photoRadio.setEnabled(false);
-		} else {
-			DebugLog.d("input is enabled");
-			if (holder.radio != null) holder.radio.setEnabled(true);
-			if (holder.input != null) holder.input.setEnabled(true);
-			if (holder.checkBox != null) holder.checkBox.setEnabled(true);
-			if (holder.photoRadio!= null) holder.photoRadio.setEnabled(true);
 		}
 	}
 }

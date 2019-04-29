@@ -64,6 +64,27 @@ public class FormImbasPetirConfig
             return null;
     }
 
+    public static boolean isScheduleApproved(String scheduleId) {
+
+        ImbasPetirData imbasPetirData = getDataBySchedule(scheduleId);
+
+        if (imbasPetirData != null)
+            return imbasPetirData.isApproved();
+
+        return false;
+    }
+
+    public static void setScheduleApproval(String scheduleId, boolean isApproved) {
+
+        ImbasPetirData imbasPetirData = getDataBySchedule(scheduleId);
+
+        if (imbasPetirData != null) {
+            imbasPetirData.setApproved(isApproved);
+
+            updateData(scheduleId, imbasPetirData);
+        }
+    }
+
     public static String getRegisteredWargaId(String scheduleId, String wargaId) {
 
         int dataindex = getDataIndex(scheduleId);
@@ -203,6 +224,7 @@ public class FormImbasPetirConfig
 
                 Warga warga = wargas.get(wargaindex);
                 warga.setWargaid(newWargaId);
+                warga.setRegistered(true);
 
                 wargas.set(wargaindex, warga);
 
@@ -485,6 +507,23 @@ public class FormImbasPetirConfig
         return isRemoved;
     }
 
+    public static ImbasPetirData getDataBySchedule(String scheduleId) {
+
+        FormImbasPetirConfig formImbasPetirConfig = getImbasPetirConfig();
+
+        if (formImbasPetirConfig != null) {
+
+            for (ImbasPetirData data : formImbasPetirConfig.getData()) {
+
+                if (data.getScheduleid().equalsIgnoreCase(scheduleId)) {
+
+                    return data;
+                }
+            }
+        }
+        return null;
+    }
+
     public static int getDataIndex(String scheduleId) {
 
         int indexFound = -1;
@@ -527,13 +566,33 @@ public class FormImbasPetirConfig
 
             data.setScheduleid(scheduleId);
             data.setWarga(new ArrayList<>());
-
+            data.setApproved(false);
             dataList.add(data);
 
             formImbasPetirConfig.setData(dataList);
 
             ConfigModel.save(ConfigModel.CONFIG_ENUM.IMBAS_PETIR_CONFIG.name(), new Gson().toJson(formImbasPetirConfig));
 
+        }
+    }
+
+    public static void updateData(String scheduleId, ImbasPetirData imbasPetirData) {
+
+        int dataIndex = getDataIndex(scheduleId);
+
+        if (dataIndex != -1) {
+
+            FormImbasPetirConfig formImbasPetirConfig = getImbasPetirConfig();
+
+            if (formImbasPetirConfig != null) {
+
+                // update imbas petir data
+                DebugLog.d("update imbas petir data");
+                DebugLog.d("imbas petir data update : " + imbasPetirData.toString());
+                formImbasPetirConfig.getData().set(dataIndex, imbasPetirData);
+
+                ConfigModel.save(ConfigModel.CONFIG_ENUM.IMBAS_PETIR_CONFIG.name(), new Gson().toJson(formImbasPetirConfig));
+            }
         }
     }
 }

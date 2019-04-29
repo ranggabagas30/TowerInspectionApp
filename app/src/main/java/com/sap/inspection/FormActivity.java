@@ -85,11 +85,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 		fm = getSupportFragmentManager();
 
-		// set dialog
-		dialog = new ProgressDialog(activity);
-		dialog.setCancelable(false);
-		dialog.setMessage(getString(R.string.generatingInspectionForm));
-		dialog.show();
+		showMessageDialog(getString(R.string.generatingInspectionForm));
 
 		inputJumlahWargaDialog = new LovelyTextInputDialog(this, R.style.CheckBoxTintTheme)
 				.setTopColorRes(R.color.item_drill_red)
@@ -148,7 +144,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			}
 		}
 
-		dialog.dismiss();
+		hideDialog();
 
 		trackThisPage("Form");
 	}
@@ -256,7 +252,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 			// found data by that scheduleid
 			// check amount of warga
-
 			generateImbasPetirChildModel(dataIndex);
 
 		} else {

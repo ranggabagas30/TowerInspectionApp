@@ -35,22 +35,22 @@ public abstract class BaseActivity extends FragmentActivity{
 
 	public static ImageLoader imageLoader = ImageLoader.getInstance();
 	public static DisplayImageOptions  avatarOptions = new DisplayImageOptions.Builder()
-	.showStubImage(R.drawable.logo_app)
-	.cacheInMemory()
-	.cacheOnDisc()
-//	.resetViewBeforeLoading()
-//	.delayBeforeLoading(300)
-//	.displayer(new RoundedBitmapDisplayer(30))
-	.build();
+															.showStubImage(R.drawable.logo_app)
+															.cacheInMemory()
+															.cacheOnDisc()
+														//	.resetViewBeforeLoading()
+														//	.delayBeforeLoading(300)
+														//	.displayer(new RoundedBitmapDisplayer(30))
+															.build();
 	
 	public static DisplayImageOptions  itemOptions = new DisplayImageOptions.Builder()
-//	.showStubImage(R.drawable.ic_launcher)
-	.cacheInMemory()
-	.cacheOnDisc()
-//	.resetViewBeforeLoading()
-//	.delayBeforeLoading(300)
-//	.displayer(new RoundedBitmapDisplayer(30))
-	.build();
+														//	.showStubImage(R.drawable.ic_launcher)
+															.cacheInMemory()
+															.cacheOnDisc()
+														//	.resetViewBeforeLoading()
+														//	.delayBeforeLoading(300)
+														//	.displayer(new RoundedBitmapDisplayer(30))
+															.build();
 
 	private boolean instanceStateSaved;
 
@@ -64,12 +64,9 @@ public abstract class BaseActivity extends FragmentActivity{
 		progressDialog.setCancelable(false);
 
 		activity = this;
-//        int x = 0;
-//        int y = 1/x;
 		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-//		 getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-		// WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -158,13 +155,6 @@ public abstract class BaseActivity extends FragmentActivity{
 	}
 
 	protected void trackThisPage(String name) {
-// Obtain the shared Tracker instance.
-		/*MyApplication application = (MyApplication) getApplication();
-		Tracker mTracker = application.getDefaultTracker();
-		DebugLog.d("Track screen name: " + name);
-		mTracker.setScreenName(name);
-		mTracker.send(new HitBuilders.ScreenViewBuilder().build());*/
-
 		Bundle bundle = new Bundle();
 		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
 		MyApplication myApplication = (MyApplication) getApplication();
@@ -173,15 +163,6 @@ public abstract class BaseActivity extends FragmentActivity{
 	}
 
 	protected void trackEvent(String name) {
-// Obtain the shared Tracker instance.
-		/*MyApplication application = (MyApplication) getApplication();
-		Tracker mTracker = application.getDefaultTracker();
-		DebugLog.d("Track event name: " + name);
-		mTracker.send(new HitBuilders.EventBuilder()
-				.setCategory("Event")
-				.setAction(name)
-				.build());*/
-
 		Bundle bundle = new Bundle();
 		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
 		MyApplication myApplication = (MyApplication) getApplication();

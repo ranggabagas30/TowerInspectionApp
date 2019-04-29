@@ -7,6 +7,7 @@ public class ImbasPetirData
     private String scheduleid;
     private ArrayList<Warga> warga;
     private int countaddwarga = 0;
+    private boolean isApproved;
 
     public ArrayList<Warga> getWarga ()
     {
@@ -36,9 +37,11 @@ public class ImbasPetirData
         return countaddwarga;
     }
 
-    @Override
-    public String toString()
-    {
-        return "ClassPojo [warga = "+warga+", scheduleid = "+scheduleid+"]";
+    public void setApproved(boolean approved) {
+        isApproved = approved;
+    }
+
+    public boolean isApproved() {
+        return isApproved;
     }
 }

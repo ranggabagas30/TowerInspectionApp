@@ -105,6 +105,7 @@
     <string name="newUpdateAvail">Update terbaru</string>
     <string name="noNewUpdateAvail">Tidak ada pembaharuan</string>
     <string name="pengaturan">Pengaturan</string>
+    <string name="rationale_allpermissions">Mohon berikan izin agar bisa menggunakan aplikasi</string>
     <string name="rationale_readphonestate">Mohon berikan izin agar bisa meregister device ke server</string>
     <string name="rationale_externalstorage">Mohon berikan izin agar bisa mengakses direktori</string>
     <string name="rationale_requestlocation">Mohon berikn izin agar bisa mengakses lokasi</string>

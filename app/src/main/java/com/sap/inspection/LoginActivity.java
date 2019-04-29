@@ -1,5 +1,6 @@
 package com.sap.inspection;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -46,6 +48,7 @@ import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.PermissionUtil;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -61,17 +64,21 @@ import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
-public class LoginActivity extends BaseActivity {
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class LoginActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
 
 	//skipper
 	private Class jumto = MainActivity.class;
 	private boolean isJump = false;
-	ProgressDialog progressDialog;
 	AlertDialogManager alert = new AlertDialogManager();
 
 	private ImageView imagelogo;
-	private Button submit;
+	private Button login;
 	private Button copy;
 	private EditText username;
 	private EditText password;
@@ -268,7 +275,6 @@ public class LoginActivity extends BaseActivity {
 		networkPermissionDialog();
 		getLoginSessionFromPreference();
 
-		progressDialog = new ProgressDialog(activity);
 		developmentLayout = findViewById(R.id.devLayout);
 		developmentLayout.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
 
@@ -297,8 +303,8 @@ public class LoginActivity extends BaseActivity {
 		}
 		
 		writePreference("cook", "value");
-		submit = (Button) findViewById(R.id.submit);
-		submit.setOnClickListener(onClickListener);
+		login = findViewById(R.id.login);
+		login.setOnClickListener(onClickListener);
 		username = (EditText) findViewById(R.id.username);
 		password = (EditText) findViewById(R.id.password);
 		version =  (TextView) findViewById(R.id.app_version);
@@ -322,29 +328,22 @@ public class LoginActivity extends BaseActivity {
 		tempFile= Environment.getExternalStorageDirectory();
 		tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(LoginActivity.this.getString(R.string.latest_version), "")+".apk");
 
-		update.setOnClickListener(new View.OnClickListener() {
+		update.setOnClickListener(v -> {
 
-			@Override
-			public void onClick(View v) {
-
-				//Check if the file already downloaded before
-				trackEvent("user_update_apk");
-				if(!tempFile.exists()){
-					trackEvent("user_download_apk");
-					new DownloadFileFromURL().execute(file_url);
-				}
-				else{
-					trackEvent("user_install_apk");
-					Intent intent = new Intent(Intent.ACTION_VIEW)
-							.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
-					intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
-					startActivity(intent);
-				}
+			//Check if the file already downloaded before
+			trackEvent("user_update_apk");
+			if(!tempFile.exists()){
+				trackEvent("user_download_apk");
+				new DownloadFileFromURL().execute(file_url);
+			}
+			else{
+				trackEvent("user_install_apk");
+				Intent intent = new Intent(Intent.ACTION_VIEW)
+						.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
+				intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
 			}
 		});
-
-//test crash for crashlytics
-//		throw new RuntimeException("This is a crash");
 	}
 
 	private void initForm(){
@@ -367,9 +366,9 @@ public class LoginActivity extends BaseActivity {
 			e.printStackTrace();
 		}
 		String bufferString = new String(buffer);
-		progressDialog.setMessage("initialize default form template");
-		progressDialog.setCancelable(false);
-		progressDialog.show();
+
+		showMessageDialog("initialize default form template");
+
 		Gson gson = new Gson();
 		FormResponseModel formResponseModel = gson.fromJson(bufferString,FormResponseModel.class);
 		if (formResponseModel.status == 200){
@@ -382,40 +381,14 @@ public class LoginActivity extends BaseActivity {
 		this.fileName = fileName;
 	}
 
-	private OnClickListener onClickListener = new OnClickListener() {
+	private OnClickListener onClickListener = v -> {
 
-		@Override
-		public void onClick(View v) {
-			trackEvent("user_login");
-			UserModel userModel = new UserModel();
-			userModel.username = username.getText().toString();
-			userModel.password = password.getText().toString();
-
-			//adding data for login log model
-			if (loginLogModel == null)
-				loginLogModel = new LoginLogModel();
-			loginLogModel.id = String.valueOf(System.currentTimeMillis());
-			loginLogModel.userName = username.getText().toString();
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			loginLogModel.time = simpleDateFormat.format(new Date());
-			loginLogModel.fileName = loginLogModel.time + " " + loginLogModel.userName;
-			setFileName(loginLogModel.fileName);
-			switch (v.getId()) {
-			case R.id.submit:
-				if (isNetworkAvailable()){
-					onlineLogin(userModel);
-					DebugLog.d("any network");
-				}else{
-					if (progressDialog != null && progressDialog.isShowing())
-						progressDialog.dismiss();
-					Toast.makeText(activity, R.string.network_connection_problem, Toast.LENGTH_SHORT).show();
-					DebugLog.d("no network");
-				}
-				break;
-
-			default:
-				break;
-			}
+		switch (v.getId()) {
+		case R.id.login:
+			requestAllPermissions();
+			break;
+		default:
+			break;
 		}
 	};
 
@@ -450,12 +423,19 @@ public class LoginActivity extends BaseActivity {
 	};
 
 	@SuppressLint("HandlerLeak")
-	Handler handler = new Handler(){
+	Handler loginHandler = new Handler(){
+
 		public void handleMessage(android.os.Message msg) {
+
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
+
 			if (bundle.getString("json") != null){
+
+				hideDialog();
+
 				UserResponseModel userResponseModel = gson.fromJson(bundle.getString("json"), UserResponseModel.class);
+
 				if (userResponseModel.status == 201){
 					writePreference(R.string.user_name, username.getText().toString());
 					writePreference(R.string.password, password.getText().toString());
@@ -463,16 +443,15 @@ public class LoginActivity extends BaseActivity {
 					writePreference(R.string.user_id, userResponseModel.data.id);
 					writePreference(R.string.user_authToken, userResponseModel.data.persistence_token);
 					writePreference(R.string.keep_login,cbKeep.isChecked());
-					if (progressDialog != null && progressDialog.isShowing())
-						progressDialog.dismiss();
 					checkLoginState(true);
 				}
 				else
 					checkLoginState(false);
+
 				DebugLog.d("userReponseModel.status = " + userResponseModel.status);
 			}else{
-				if (progressDialog != null && progressDialog.isShowing())
-					progressDialog.dismiss();
+
+				hideDialog();
 				Toast.makeText(activity, R.string.network_connection_problem, Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -488,7 +467,6 @@ public class LoginActivity extends BaseActivity {
 		else{
 			loginLogModel.statusLogin = "failed";
 			Toast.makeText(LoginActivity.this, R.string.pasword_doesnt_match, Toast.LENGTH_SHORT).show();
-			progressDialog.dismiss();
 		}
 	}
 
@@ -500,21 +478,10 @@ public class LoginActivity extends BaseActivity {
 	}
 
 	private void onlineLogin(UserModel userModel){
-		progressDialog.setMessage("Masuk ke server, silakan tunggu");
-		progressDialog.show();
-		APIHelper.login(activity, handler, userModel.username, userModel.password);
-	}
 
-	//	private void takePicture(String fileName){
-	//		if (preview.camera != null){
-	//			if (loginLogModel == null)
-	//				loginLogModel = new LoginLogModel();
-	//			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	//			String currentDateandTime = simpleDateFormat.format(new Date());
-	//			setFileName(fileName + " " +currentDateandTime);
-	//			preview.camera.takePicture(shutterCallback, rawCallback,jpegCallback);
-	//		}
-	//	}
+		showMessageDialog("Masuk ke server, silahkan tunggu");
+		APIHelper.login(activity, loginHandler, userModel.username, userModel.password);
+	}
 
 	private class FormSaver extends AsyncTask<Object, Integer, Void>{
 		@Override
@@ -552,14 +519,14 @@ public class LoginActivity extends BaseActivity {
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
-			progressDialog.setMessage("menyimpan forms "+values[0]+" %...");
+			showMessageDialog("menyimpan forms "+values[0]+" %...");
+
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			//DbRepository.getInstance().close();
-			progressDialog.dismiss();
+			hideDialog();
 		}
 	}
 
@@ -684,5 +651,98 @@ public class LoginActivity extends BaseActivity {
 			e.printStackTrace();
 		}
 		return version;
+	}
+
+	/**
+	 * Permission
+	 *
+	 * */
+
+	@AfterPermissionGranted(Constants.RC_ALL_PERMISSION)
+	private void requestAllPermissions() {
+
+		if (PermissionUtil.hasAllPermissions(this)) {
+
+			// login directly
+			doLogin();
+		} else {
+
+			// Do not have permissions, request them now
+			DebugLog.d("Do not have permissions, request them now");
+			PermissionUtil.requestAllPermissions(this, getString(R.string.rationale_allpermissions), Constants.RC_ALL_PERMISSION);
+
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		DebugLog.d("request permission result");
+
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+		if (requestCode == Constants.RC_ALL_PERMISSION) {
+
+			if (PermissionUtil.hasAllPermissions(this)) {
+
+				// proceed login
+				DebugLog.d("all permissions are allowed, proceed login");
+				doLogin();
+
+			} else requestAllPermissions(); // ask permission again
+		}
+
+	}
+
+	@Override
+	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+
+		boolean hasAllPermissionsGranted = true;
+		DebugLog.d("permission granted");
+
+	}
+
+	@Override
+	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+
+		DebugLog.d("onPermissionsDenied:" + requestCode + ":" + perms.size());
+
+		// (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
+		// This will display a dialog directing them to enable the permission in app settings.
+		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+			new AppSettingsDialog.Builder(this).build().show();
+		}
+
+	}
+
+	private void doLogin() {
+
+		trackEvent("user_login");
+		UserModel userModel = new UserModel();
+		userModel.username = username.getText().toString();
+		userModel.password = password.getText().toString();
+
+		//adding data for login log model
+		if (loginLogModel == null)
+			loginLogModel = new LoginLogModel();
+
+		loginLogModel.id = String.valueOf(System.currentTimeMillis());
+		loginLogModel.userName = username.getText().toString();
+
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+		loginLogModel.time = simpleDateFormat.format(new Date());
+		loginLogModel.fileName = loginLogModel.time + " " + loginLogModel.userName;
+
+		setFileName(loginLogModel.fileName);
+
+		if (isNetworkAvailable()){
+			DebugLog.d("any network");
+			onlineLogin(userModel);
+		}else{
+			DebugLog.d("no network");
+			hideDialog();
+			Toast.makeText(activity, R.string.network_connection_problem, Toast.LENGTH_SHORT).show();
+		}
 	}
 }

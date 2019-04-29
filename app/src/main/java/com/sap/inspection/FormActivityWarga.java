@@ -79,8 +79,6 @@ public class FormActivityWarga extends BaseActivity {
                 .setTopTitleColor(R.color.lightgray)
                 .setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
 
-        wargaId = getWargaId();
-
         mHeaderTitle.setText("Warga ID " + wargaId);
         mHeaderSubtitle.setText("Schedule ID " + scheduleId);
 
@@ -96,17 +94,25 @@ public class FormActivityWarga extends BaseActivity {
         return scheduleId;
     }
 
+    public void setWargaId(String wargaId) {
+        this.wargaId = wargaId;
+    }
+
     public String getWargaId() {
 
         if (StringUtil.isNotRegistered(wargaId)) {
             String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
-            DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," +realwargaId +")");
+            DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," + realwargaId +")");
             return realwargaId;
         }
         return wargaId;
     }
 
-    public String getBarangId(String barangId) {
+    public void setBarangId(String barangId) {
+        this.barangId = barangId;
+    }
+
+    public String getBarangId() {
 
         if (StringUtil.isNotRegistered(barangId)) {
             String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(scheduleId, wargaId, barangId);
@@ -209,20 +215,29 @@ public class FormActivityWarga extends BaseActivity {
 
     private void navigateToFormFillActivity(RowModel rowModel) {
 
-        Intent intent = new Intent(this, FormFillActivity.class);
-        intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-        intent.putExtra(Constants.KEY_WARGAID, wargaId);
+        String wargaId = getWargaId();
 
-        barangId = null;
-        if (rowModel.text.contains(Constants.regexBarangId)) {
-            barangId = getBarangId(StringUtil.getBarangIdFromLabel(rowModel.text));
+        String barangId = Constants.EMPTY;
+        if (rowModel.text.contains(Constants.regexId)) {
+            setBarangId(StringUtil.getIdFromLabel(rowModel.text));
+            barangId = getBarangId();
         }
 
-        intent.putExtra(Constants.KEY_BARANGID, barangId);
-        intent.putExtra(Constants.KEY_ROWID, rowModel.id);
-        intent.putExtra(Constants.KEY_WORKFORMGROUPID, rowModel.work_form_group_id);
-        intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-        startActivity(intent);
+        if (StringUtil.isNotRegistered(wargaId) && !rowModel.text.equalsIgnoreCase("Informasi Diri")) {
+
+            MyApplication.getInstance().toast("Tidak bisa melanjutkan membuka form. Silahkan upload data 'Informasi Diri' terlebih dahulu", Toast.LENGTH_LONG);
+
+        } else {
+
+            Intent intent = new Intent(this, FormFillActivity.class);
+            intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+            intent.putExtra(Constants.KEY_WARGAID, getWargaId());
+            intent.putExtra(Constants.KEY_BARANGID, barangId);
+            intent.putExtra(Constants.KEY_ROWID, rowModel.id);
+            intent.putExtra(Constants.KEY_WORKFORMGROUPID, rowModel.work_form_group_id);
+            intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+            startActivity(intent);
+        }
 
     }
 
@@ -327,6 +342,9 @@ public class FormActivityWarga extends BaseActivity {
             public void bindLayout(RowModel parentNavigationItem) {
                 title.setText(parentNavigationItem.text);
                 uploadItems.setVisibility(View.VISIBLE);
+
+                if (parentNavigationItem.text.equalsIgnoreCase("Informasi Barang"))
+                    uploadItems.setVisibility(View.INVISIBLE);
             }
 
             public void bindAdapter(RowModel parentNavigationItem) {
@@ -404,7 +422,7 @@ public class FormActivityWarga extends BaseActivity {
                 removeSubMenu.setVisibility(View.INVISIBLE);
                 uploadItems.setVisibility(View.INVISIBLE);
 
-                if (childNavigationItem.text.contains(Constants.regexBarangId)) {
+                if (childNavigationItem.text.contains(Constants.regexId)) {
                     removeSubMenu.setVisibility(View.VISIBLE);
                     uploadItems.setVisibility(View.VISIBLE);
                 }
@@ -433,19 +451,19 @@ public class FormActivityWarga extends BaseActivity {
 
                         if (labelMenu.equalsIgnoreCase("Tambah barang")) {
                             showInputAmountBarangDialog();
-                        } else if (labelMenu.contains(Constants.regexBarangId)) {
+                        } else if (labelMenu.contains(Constants.regexId)) {
                             navigateToFormFillActivity(itemClick);
                         }
                         break;
                     case R.id.removesubmenu :
 
-                        if (labelMenu.contains(Constants.regexBarangId)) {
+                        if (labelMenu.contains(Constants.regexId)) {
                             removeBarangId(itemClick);
                         }
                         break;
                     case R.id.workformgroup_upload :
 
-                        if (labelMenu.contains(Constants.regexBarangId)) {
+                        if (labelMenu.contains(Constants.regexId)) {
                             uploadItemsByBarangId(itemClick);
                         }
                         break;
@@ -468,9 +486,11 @@ public class FormActivityWarga extends BaseActivity {
 
             public void removeBarangId(RowModel removedChildItem) {
 
+                String wargaId  = getWargaId();
 
-                wargaId  = getWargaId();
-                barangId = getBarangId(StringUtil.getBarangIdFromLabel(removedChildItem.text));
+                setBarangId(StringUtil.getIdFromLabel(removedChildItem.text));
+                String barangId = getBarangId();
+
                 DebugLog.d("remove barang with (id, label, wargaid, barangid) : (" + removedChildItem.id + ", " + removedChildItem.text + ", " + wargaId + ", " + barangId + ")");
 
                 ItemValueModel.deleteAllBy(scheduleId, wargaId, barangId);
@@ -487,7 +507,9 @@ public class FormActivityWarga extends BaseActivity {
 
                 String scheduleId = getScheduleId();
                 int workFormGroupId = uploadChildItem.work_form_group_id;
-                barangId = getBarangId(StringUtil.getBarangIdFromLabel(uploadChildItem.text));
+
+                setBarangId(StringUtil.getIdFromLabel(uploadChildItem.text));
+                String barangId = getBarangId();
 
                 ArrayList<ItemValueModel> uploadItemsByBarangId = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, wargaId, barangId);
                 ItemUploadManager.getInstance().addItemValues(uploadItemsByBarangId);

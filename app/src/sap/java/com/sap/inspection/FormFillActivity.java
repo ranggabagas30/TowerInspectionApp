@@ -560,22 +560,25 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (CommonUtil.isExternalStorageAvailable()) {
 
 				DebugLog.d("external storage available");
-				tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-				if (!tempDir.exists()) {
+				//tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
+
+				/*if (!tempDir.exists()) {
 					DebugLog.d("using legacy path");
 					tempDir = new File( "/storage/emulated/legacy/" + Environment.DIRECTORY_DCIM + "/Camera/");
-				}
+				}*/
 
-				createDirectory = tempDir.getAbsolutePath() + "/TowerInspection";
-				tempDir = new File(createDirectory); // create temp folder
+				//createDirectory = tempDir.getAbsolutePath() + "/TowerInspection";
+                //createDirectory = new File(tempDir, "TowerInspection").toString();
+				tempDir = new File(tempDir, "TowerInspection"); // create temp folder
 
 				if (!tempDir.exists()) {
 					createDirStatus = tempDir.mkdir();
 					if (!createDirStatus) {
 						createDirStatus = tempDir.mkdirs();
 						if (!createDirStatus) {
-							DebugLog.e("failed to create dir : " + createDirectory);
-							Crashlytics.log("fail to create dir : " + createDirectory);
+							DebugLog.e("failed to create dir : " + tempDir.toString());
+							Crashlytics.log("failed to create dir : " + tempDir.toString());
 						} else {
 							DebugLog.d("create dir success");
 						}
@@ -887,7 +890,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if (rowModel.row_columns.size() > 0 && rowModel.row_columns.get(0).items.size() > 0)
 			pageTitle = rowModel.row_columns.get(0).items.get(0).label;
 
-		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && pageTitle.contains(Constants.regexBarangId)) {
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && pageTitle.contains(Constants.regexId)) {
 			pageTitle += barangId;
 		}
 	}

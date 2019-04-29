@@ -2,8 +2,12 @@ package com.sap.inspection.view;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -18,16 +22,22 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.OperatorModel;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.ItemFormRenderModel;
+import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
@@ -181,8 +191,32 @@ public class PhotoItemRadio extends RelativeLayout {
 		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
 			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
 
-		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-			mandatory.setVisibility(VISIBLE);
+		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+            mandatory.setVisibility(VISIBLE);
+
+            if (itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 1") ||
+                itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 2")) {
+
+				disable();
+
+				DebugLog.d("proceed approval checking ... ");
+				CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
+				APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+                /*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
+
+					disable();
+
+                    DebugLog.d("proceed approval checking ... ");
+                    CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
+                    APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+                } else {
+                    enable();
+                }*/
+            }
+        }
 
 		if (value != null) {
 			//rangga
@@ -583,21 +617,77 @@ public class PhotoItemRadio extends RelativeLayout {
 	private void toggleEditable() {
 		if (MyApplication.getInstance().isInCheckHasilPm()) {
 			DebugLog.d("input is disabled");
-			if (remark!=null) remark.setEnabled(false);
-			if (material_request!=null) material_request.setEnabled(false);
-			if (radioGroup!=null) radioGroup.setEnabled(false);
-			if (ok!=null) ok.setEnabled(false);
-			if (nok!=null) nok.setEnabled(false);
-			if (na!=null) na.setEnabled(false);
-			if (button!=null) button.setEnabled(false);
+			disable();
 		} else {
-			if (remark!=null) remark.setEnabled(true);
-			if (material_request!=null) material_request.setEnabled(true);
-			if (radioGroup!=null) radioGroup.setEnabled(true);
-			if (ok!=null) ok.setEnabled(true);
-			if (nok!=null) nok.setEnabled(true);
-			if (na!=null) na.setEnabled(true);
-			if (button!=null) button.setEnabled(true);
+			enable();
 		}
 	}
+
+	private void enable() {
+        if (remark!=null) remark.setEnabled(true);
+        if (material_request!=null) material_request.setEnabled(true);
+        if (radioGroup!=null) radioGroup.setEnabled(true);
+        if (ok!=null) ok.setEnabled(true);
+        if (nok!=null) nok.setEnabled(true);
+        if (na!=null) na.setEnabled(true);
+        if (button!=null) button.setEnabled(true);
+    }
+
+    private void disable() {
+        if (remark!=null) remark.setEnabled(false);
+        if (material_request!=null) material_request.setEnabled(false);
+        if (radioGroup!=null) radioGroup.setEnabled(false);
+        if (ok!=null) ok.setEnabled(false);
+        if (nok!=null) nok.setEnabled(false);
+        if (na!=null) na.setEnabled(false);
+        if (button!=null) button.setEnabled(false);
+    }
+
+    private class CheckApprovalHandler extends Handler {
+
+        private String scheduleId;
+
+        public CheckApprovalHandler(String scheduleId) {
+            this.scheduleId = scheduleId;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            Bundle bundle = msg.getData();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+            Gson gson = new Gson();
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+
+                    CheckApprovalResponseModel checkApprovalResponseModel = gson.fromJson(bundle.getString("json"), CheckApprovalResponseModel.class);
+                    checkApprovalResponseModel.toString();
+
+                    if (!checkApprovalResponseModel.status_code.equalsIgnoreCase("failed")) {
+
+                        DebugLog.d("check approval success");
+
+                        FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
+                        enable();
+                        return;
+                    }
+
+                    DebugLog.d("belum ada approval dari STP");
+                    MyApplication.getInstance().toast("Photo penghancuran menunggu approval dari STP", Toast.LENGTH_LONG);
+
+                } else {
+
+                    MyApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
+
+                }
+            } else {
+
+                MyApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
+                DebugLog.d("response not ok");
+            }
+        }
+    }
 }

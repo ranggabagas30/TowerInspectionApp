@@ -39,6 +39,7 @@ import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
@@ -225,10 +226,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 			holder.title = (TextView) view.findViewById(R.id.title);
 			holder.title.setOnClickListener(ItemClickListener);
 
-			if (getItemViewType(position) == 0){
-				holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
-			}
-
 			view.setTag(holder);
 
 		} else
@@ -241,6 +238,11 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 		switch (getItemViewType(position)) {
 		case 0:
+			holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
+
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR) && getItem(position).text.equalsIgnoreCase("Warga"))
+				holder.uploadWorkFormGroup.setVisibility(View.INVISIBLE);
+
 			holder.expandCollapse.setImageResource(getItem(position).isOpen ? R.drawable.ic_collapse : R.drawable.ic_expand);
 			break;
 		case 1:
@@ -253,7 +255,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 			holder.removeSubMenu.setVisibility(View.INVISIBLE);
 
-			if (rowModel.text.contains(Constants.regexWargaId)) {
+			if (rowModel.text.contains(Constants.regexId)) {
 
 				DebugLog.d("remove submenu visibility is VISIBLE");
 
@@ -360,10 +362,11 @@ public class NavigationAdapter extends MyBaseAdapter {
                 Intent intent;
 
                 // if the navigation item is "Warga Ke-"
-                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(Constants.regexIMBASPETIR)) {
+                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR)) {
 
-                    if (getItem(position).text.contains(Constants.regexWargaId)) {
+                    if (getItem(position).text.contains(Constants.regexId)) {
 
+						DebugLog.d("click warga id");
                         int parentId = getItem(position).id;
 
                         intent = new Intent(context, FormActivityWarga.class);
@@ -378,7 +381,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 
                         if (wargas != null && !wargas.isEmpty()) {
 
-                            String wargaIdFromLabel = StringUtil.getWargaIdFromLabel(getItem(position).text);
+                            String wargaIdFromLabel = StringUtil.getIdFromLabel(getItem(position).text);
                             Warga warga = FormImbasPetirConfig.getWarga(wargas, wargaIdFromLabel);
                             String message = "warga is null";
 
@@ -395,11 +398,20 @@ public class NavigationAdapter extends MyBaseAdapter {
                     } else if (getItem(position).text.contains(Constants.regexBeritaAcaraClosing) ||
                                getItem(position).text.contains(Constants.regexBeritaAcaraPenghancuran)) {
 
-                        CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, getItem(position).id, getItem(position).work_form_group_id);
-                        APIHelper.getFormImbasPetir(context, checkApprovalHandler);
+                       proceedApprovalCheckingFirst(scheduleId, workFormGroupName, getItem(position).id, getItem(position).work_form_group_id);
 
-                    }
+                    } else {
+
+						intent = new Intent(context, FormFillActivity.class);
+						intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+						intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
+						intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
+						intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+						context.startActivity(intent);
+
+					}
                 } else {
+
 					intent = new Intent(context, FormFillActivity.class);
 					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
@@ -426,7 +438,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 		DebugLog.d("remove item with id " + removeRowModel.id + " and label " + removeRowModel.text);
 
 		String scheduleDeleteId = scheduleId;
-		String wargaDeleteId = StringUtil.getWargaIdFromLabel(removeRowModel.text);
+		String wargaDeleteId = StringUtil.getIdFromLabel(removeRowModel.text);
 
 		boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
 
@@ -440,6 +452,44 @@ public class NavigationAdapter extends MyBaseAdapter {
 			MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
 		}
 	};
+
+	private void toggleExpand(int position){
+		if (getItem(position).isOpen){
+			getItem(position).isOpen = false;
+			DebugLog.d("closed");
+		}
+		else if (getItem(position).children != null && getItem(position).children.size() > 0){
+			getItem(position).isOpen = true;
+			DebugLog.d("open");
+		}else{
+			DebugLog.d("not open");
+		}
+		notifyDataSetChanged();
+	}
+
+	private void proceedApprovalCheckingFirst(String scheduleId, String workFormGroupName, int rowId, int workFormGroupId) {
+
+		DebugLog.d("proceed approval checking ... ");
+
+		CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, rowId, workFormGroupId);
+		APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+		/*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
+
+			CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, rowId, workFormGroupId);
+			APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+		} else {
+
+			Intent intent = new Intent(context, FormFillActivity.class);
+			intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+			intent.putExtra(Constants.KEY_ROWID, rowId);
+			intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+			intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+			context.startActivity(intent);
+		}*/
+
+	}
 
 	private static class CheckApprovalHandler extends Handler {
 
@@ -463,94 +513,45 @@ public class NavigationAdapter extends MyBaseAdapter {
             Bundle bundle = msg.getData();
 
             boolean isResponseOK = bundle.getBoolean("isresponseok");
+			Gson gson = new Gson();
 
             if (isResponseOK) {
 
                 if (bundle.getString("json") != null){
 
-                    Intent intent = new Intent(context, FormFillActivity.class);
-                    intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-                    intent.putExtra(Constants.KEY_ROWID, rowId);
-                    intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
-                    intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-                    context.startActivity(intent);
+					CheckApprovalResponseModel checkApprovalResponseModel = gson.fromJson(bundle.getString("json"), CheckApprovalResponseModel.class);
+					checkApprovalResponseModel.toString();
+
+					if (!checkApprovalResponseModel.status_code.equalsIgnoreCase("failed")) {
+
+						DebugLog.d("check approval success");
+
+						FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
+
+						Intent intent = new Intent(context, FormFillActivity.class);
+						intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+						intent.putExtra(Constants.KEY_ROWID, rowId);
+						intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+						intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+						context.startActivity(intent);
+						return;
+					}
+
+					DebugLog.d("belum ada approval dari STP");
+					MyApplication.getInstance().toast("Schedule menunggu approval dari STP", Toast.LENGTH_LONG);
 
                 } else {
-                    MyApplication.getInstance().toast("Gagal mengecek approval", Toast.LENGTH_LONG);
+
+                    MyApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
+
                 }
             } else {
 
+            	MyApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
                 DebugLog.d("response not ok");
             }
         }
     }
-
-	@SuppressLint("HandlerLeak")
-    Handler checkApprovalHandler = new Handler() {
-
-	    private String scheduleId;
-	    private String workFormGroupName;
-	    private int rowId;
-	    private int workFormGroupId;
-
-        @Override
-        public void handleMessage(Message msg) {
-
-            Bundle bundle = msg.getData();
-            Gson gson = new Gson();
-
-            boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-            if (isResponseOK) {
-
-                if (bundle.getString("json") != null){
-
-                    Intent intent = new Intent(context, FormFillActivity.class);
-                    intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-                    intent.putExtra(Constants.KEY_ROWID, rowId);
-                    intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
-                    intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-                    context.startActivity(intent);
-
-                } else {
-                    MyApplication.getInstance().toast("Gagal mengecek approval", Toast.LENGTH_LONG);
-                }
-            } else {
-
-                DebugLog.d("response not ok");
-            }
-        }
-
-        public void setScheduleId(String scheduleId) {
-            this.scheduleId = scheduleId;
-        }
-
-        public void setWorkFormGroupName(String workFormGroupName) {
-            this.workFormGroupName = workFormGroupName;
-        }
-
-        public void setRowId(int rowId) {
-            this.rowId = rowId;
-        }
-
-        public void setWorkFormGroupId(int workFormGroupId) {
-            this.workFormGroupId = workFormGroupId;
-        }
-    };
-
-	private void toggleExpand(int position){
-		if (getItem(position).isOpen){
-			getItem(position).isOpen = false;
-			DebugLog.d("closed");
-		}
-		else if (getItem(position).children != null && getItem(position).children.size() > 0){
-			getItem(position).isOpen = true;
-			DebugLog.d("open");
-		}else{
-			DebugLog.d("not open");
-		}
-		notifyDataSetChanged();
-	}
 
 	private class ViewHolder {
 		ImageView expandCollapse;
