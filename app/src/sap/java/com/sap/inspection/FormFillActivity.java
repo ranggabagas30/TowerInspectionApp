@@ -613,6 +613,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		String siteLatitude = String.valueOf(currentGeoPoint.latitude);;
 		String siteLongitude = String.valueOf(currentGeoPoint.longitude);
 		Pair<String, String> photoLocation;
+
 		if(requestCode==MenuShootImage && resultCode==RESULT_OK)
 		{
 			if (photoItem != null && mImageUri != null){
@@ -659,7 +660,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					DebugLog.d( latitude+" || "+longitude);
 					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
 						photoItem.setPhotoDate();
-						photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+						//photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+						photoItem.setImage(photo, latitude, longitude, accuracy);
 					} else {
 						MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
 					}

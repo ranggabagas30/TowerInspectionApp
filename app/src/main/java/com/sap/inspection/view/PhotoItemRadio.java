@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -79,6 +81,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	private ItemFormRenderModel itemFormRenderModel;
 	private boolean onInit = false;
 	private boolean isAudit = false;
+    private Uri imageUri;
 
 	public void setItemFormRenderModel(ItemFormRenderModel itemFormRenderModel) {
 		this.itemFormRenderModel = itemFormRenderModel;
@@ -464,7 +467,9 @@ public class PhotoItemRadio extends RelativeLayout {
 
 			if (value.value != null){
 				photoRoot.setVisibility(View.VISIBLE);
-				setImage(value.value, value.latitude, value.longitude, value.gpsAccuracy);
+
+				File photoFile = new File(value.value);
+				setImage(photoFile, value.latitude, value.longitude, value.gpsAccuracy);
 			}
 			else
 				photoRoot.setVisibility(View.GONE);
@@ -507,11 +512,12 @@ public class PhotoItemRadio extends RelativeLayout {
 		this.uploadstatus.setText(uploadstatus);
 	}
 
-	public void setImage(String uri,String latitude, String longitude,int accuracy){
+	public void setImage(File photoPath,String latitude, String longitude,int accuracy){
 		if (value != null){
 
 			// updating item value
-			value.value = uri;
+            imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", photoPath);
+			value.value = photoPath.getPath();
 			value.latitude = latitude;
 			value.longitude = longitude;
 			value.gpsAccuracy = accuracy;
@@ -531,7 +537,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		//		imageView.setMaxWidth(i.getWidth());
 		//		imageView.setMaxHeight(i.getHeight());
 
-		BaseActivity.imageLoader.displayImage(uri,imageView,new ImageLoadingListener() {
+		BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView,new ImageLoadingListener() {
 
 			@Override
 			public void onLoadingStarted(String arg0, View arg1) {
