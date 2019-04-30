@@ -75,7 +75,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		DebugLog.d("");
 		setContentView(R.layout.activity_main);
 
 		progressDialog = new ProgressDialog(this);
