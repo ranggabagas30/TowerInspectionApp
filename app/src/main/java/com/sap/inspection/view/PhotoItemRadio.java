@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -39,6 +40,7 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.ItemFormRenderModel;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
@@ -66,7 +68,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	protected EditText remark;
 	protected EditText material_request;
 	protected RadioGroup radioGroup;
-	protected ImageButtonForList button;
+	protected ImageButtonForList btnTakePicture;
 	protected RadioButton ok;
 	protected RadioButton nok;
 	protected RadioButton na;
@@ -80,39 +82,8 @@ public class PhotoItemRadio extends RelativeLayout {
 	protected String labelText;
 	private ItemFormRenderModel itemFormRenderModel;
 	private boolean onInit = false;
-	private boolean isAudit = false;
+	private boolean isAudit;
     private Uri imageUri;
-
-	public void setItemFormRenderModel(ItemFormRenderModel itemFormRenderModel) {
-		this.itemFormRenderModel = itemFormRenderModel;
-		DebugLog.d("itemFormRenderModel.wargaId = " + itemFormRenderModel.getWargaId());
-		DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
-	}
-
-	public void setLabel(String label) {
-		this.labelText = label;
-	}
-
-	// no usages
-	public void setScheduleId(String scheduleId) {
-		this.scheduleId = scheduleId;
-		if (value != null)
-			value.scheduleId = scheduleId;
-	}
-
-	// no usages
-	public void setItemId(int itemId) {
-		this.itemId = itemId;
-		if (value != null)
-			value.itemId = itemId;
-	}
-
-	// no usages
-	public void setOperatorId(int operatorId) {
-		this.operatorId = operatorId;
-		if (value != null)
-			value.operatorId = operatorId;
-	}
 
 	public PhotoItemRadio(Context context) {
 		super(context);
@@ -135,8 +106,8 @@ public class PhotoItemRadio extends RelativeLayout {
 
 		root = LayoutInflater.from(context).inflate(R.layout.photo_layout, this, true);
 		photoRoot = root.findViewById(R.id.photolayout);
-		button = (ImageButtonForList) root.findViewById(R.id.button);
-		button.setTag(this);
+		btnTakePicture = (ImageButtonForList) root.findViewById(R.id.btnTakePicture);
+		btnTakePicture.setTag(this);
         upload = root.findViewById(R.id.upload);
         upload.setTag(this);
 		noPicture =  root.findViewById(R.id.no_picture);
@@ -164,15 +135,60 @@ public class PhotoItemRadio extends RelativeLayout {
 		toggleEditable();
 	}
 
-	public void setButtonClickListener(OnClickListener buttonClickListener){
-		button.setOnClickListener(buttonClickListener);
+	public void setButtonTakePictureListener(OnClickListener buttonClickListener){
+		btnTakePicture.setOnClickListener(buttonClickListener);
 	}
 
-    public void setUploadClickListener(OnClickListener uploadClickListener){
-        upload.setOnClickListener(uploadClickListener);
-    }
+	public void setScheduleId(String scheduleId) {
+		this.scheduleId = scheduleId;
+		if (value != null)
+			value.scheduleId = scheduleId;
+	}
+
+	public void setItemFormRenderModel(ItemFormRenderModel argsItemFormRenderModel) {
+		this.itemFormRenderModel = argsItemFormRenderModel;
+
+		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
+			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
+		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
+			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
+
+		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory)
+			mandatory.setVisibility(VISIBLE);
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
+				(itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 1") ||
+						itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 2"))) {
+
+			// ignore mandatory when did not get any approval yet
+			itemFormRenderModel.workItemModel.mandatory = false;
+			itemFormRenderModel.workItemModel.save();
+			disable();
+
+			DebugLog.d("proceed approval checking ... ");
+			CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
+			APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+			/*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
+
+				disable();
+
+				DebugLog.d("proceed approval checking ... ");
+				CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
+				APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+			} else {
+				enable();
+			}*/
+		}
+		DebugLog.d("itemFormRenderModel.wargaId = " + itemFormRenderModel.getWargaId());
+		DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
+	}
 
 	public void setValue(ItemValueModel value, boolean initValue) {
+
+		imageView.setImageResource(R.drawable.logo_app);
+
 		if (initValue){
 			radioGroup.setOnCheckedChangeListener(null);
 			onInit = true;
@@ -184,65 +200,76 @@ public class PhotoItemRadio extends RelativeLayout {
 		}
 	}
 
-	public void setValue(ItemValueModel value) {
+	public void setValue(ItemValueModel itemValue) {
 
-		this.value = value;
-		DebugLog.d("value : " + this.value);
-		imageView.setImageResource(R.drawable.logo_app);
-		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
-			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
-		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
-			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
-
-		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-            mandatory.setVisibility(VISIBLE);
-
-            if (itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 1") ||
-                itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 2")) {
-
-				disable();
-
-				DebugLog.d("proceed approval checking ... ");
-				CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
-				APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
-
-                /*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
-
-					disable();
-
-                    DebugLog.d("proceed approval checking ... ");
-                    CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
-                    APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
-
-                } else {
-                    enable();
-                }*/
-            }
-        }
+		this.value = itemValue;
 
 		if (value != null) {
-			//rangga
-			if (this.value.remark != null) {
-				if (this.value.remark.isEmpty()) {
-					remark.setText("");
-				} else {
-					DebugLog.d("value remark : " + this.value.remark);
-					remark.setText(this.value.remark);
-				}
-			} else {
-				remark.setText("");
+
+			remark.setText("");
+			if (!TextUtils.isEmpty(value.remark)) {
+				remark.setText(value.remark);
 			}
 
 			// if no picture then show no picture icon
 			if (value.value == null)
 				noPicture.setVisibility(View.VISIBLE);
 
-			DebugLog.d("value.photoStatus : " + value.photoStatus );
-			if (value.photoStatus != null){
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) ||
+				BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_STP)) {
+
+				btnTakePicture.setVisibility(VISIBLE);
+				mandatory.setVisibility(VISIBLE);
+
+				if (!TextUtils.isEmpty(value.photoStatus)) {
+
+					switch (value.photoStatus) {
+
+						case Constants.OK :
+							ok.setChecked(true);
+							break;
+						case Constants.NOK :
+							nok.setChecked(true);
+							break;
+						case Constants.NA :
+							na.setChecked(true);
+							break;
+					}
+				}
+				if (!itemFormRenderModel.workItemModel.mandatory) {
+
+					mandatory.setVisibility(GONE);
+
+					if (!TextUtils.isEmpty(value.photoStatus)) {
+
+						if (nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) {
+
+							if (TextUtils.isEmpty(value.remark))
+								mandatory.setVisibility(VISIBLE);
+
+						}
+
+					} else {
+
+						if (!TextUtils.isEmpty(value.remark)) {
+
+							mandatory.setVisibility(VISIBLE);
+							MyApplication.getInstance().toast("Centang tidak boleh kosong", Toast.LENGTH_LONG);
+						}
+
+					}
+				}
+
+				if (na.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NA))
+					btnTakePicture.setVisibility(GONE);
+
+			}
+
+			/*if (!TextUtils.isEmpty(value.photoStatus)){
+
 				if (value.photoStatus.equalsIgnoreCase(Constants.OK)){
 
-					button.setVisibility(View.VISIBLE);
+					btnTakePicture.setVisibility(View.VISIBLE);
 					ok.setChecked(true);
 					setPhotoRootVisiblity(Constants.OK);
 
@@ -250,21 +277,34 @@ public class PhotoItemRadio extends RelativeLayout {
 
 						// if this form's item is not part of imbas petir form, then hide "mandatory" remark
 						// else keep it shown
-						if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+						*//*if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+							mandatory.setVisibility(View.GONE);
+						}*//*
+
+						if (!itemFormRenderModel.workItemModel.mandatory) {
 							mandatory.setVisibility(View.GONE);
 						}
 					}
 				}
 				else if (value.photoStatus.equalsIgnoreCase(Constants.NOK)){
 
-					button.setVisibility(View.VISIBLE);
+					btnTakePicture.setVisibility(View.VISIBLE);
 					nok.setChecked(true);
 					setPhotoRootVisiblity("NOK");
 
 					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
 						// if this form's item is not part of imbas petir form
-						if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+						*//*if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+
+							if(TextUtils.isEmpty(remark.getText().toString()) || TextUtils.isEmpty(value.remark)){
+								mandatory.setVisibility(View.VISIBLE);
+							} else {
+								mandatory.setVisibility(View.GONE);
+							}
+						}*//*
+
+						if (!itemFormRenderModel.workItemModel.mandatory) {
 
 							if(TextUtils.isEmpty(remark.getText().toString()) || TextUtils.isEmpty(value.remark)){
 								mandatory.setVisibility(View.VISIBLE);
@@ -276,7 +316,7 @@ public class PhotoItemRadio extends RelativeLayout {
 				}
 				else if (value.photoStatus.equalsIgnoreCase(Constants.NA)){
 
-					button.setVisibility(View.GONE);
+					btnTakePicture.setVisibility(View.GONE);
 					photoRoot.setVisibility(View.GONE);
 					na.setChecked(true);
 					value.photoStatus=Constants.NA;
@@ -285,21 +325,19 @@ public class PhotoItemRadio extends RelativeLayout {
 
 						// if this form's item is not part of imbas petir form, then hide "mandatory" remark
 						// else keep it shown
-						if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+						*//*if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+							mandatory.setVisibility(View.GONE);
+						}*//*
+						if (!itemFormRenderModel.workItemModel.mandatory) {
 							mandatory.setVisibility(View.GONE);
 						}
 					}
 				}
 			}
 			else{
-				button.setVisibility(View.VISIBLE);
+				btnTakePicture.setVisibility(View.VISIBLE);
 				photoRoot.setVisibility(View.GONE);
-				/*if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-					radioGroup.check(R.id.radioNOK);
-					setPhotoRootVisiblity("NOK");
-					mandatory.setVisibility(View.VISIBLE);
-				}*/
-			}
+			}*/
 		}else {
 			DebugLog.d("value = null, reset");
 			reset();
@@ -307,6 +345,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	private void setItemFormRenderedValue(){
+
 		if (itemFormRenderModel.itemValue == null){
 			DebugLog.d("itemFormRenderModel.itemValue == null");
 			if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
@@ -368,15 +407,32 @@ public class PhotoItemRadio extends RelativeLayout {
 			initValue();
 			if (value != null){
 				value.remark = s.toString();
+
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
+					mandatory.setVisibility(VISIBLE);
 
-						if (s.toString().equalsIgnoreCase("")) {
-							if ((nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) && !TextUtils.isEmpty(value.photoStatus))
-								mandatory.setVisibility(View.VISIBLE);
+					if (!itemFormRenderModel.workItemModel.mandatory) {
+
+						mandatory.setVisibility(GONE);
+
+						if (!TextUtils.isEmpty(value.photoStatus)) {
+
+							if (nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) {
+
+								if (TextUtils.isEmpty(value.remark))
+									mandatory.setVisibility(VISIBLE);
+
+							}
+
 						} else {
-							mandatory.setVisibility(View.GONE);
+
+							if (!TextUtils.isEmpty(value.remark)) {
+
+								mandatory.setVisibility(VISIBLE);
+								MyApplication.getInstance().toast("Centang tidak boleh kosong", Toast.LENGTH_LONG);
+							}
+
 						}
 					}
 				}
@@ -393,7 +449,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			initValue();
 			switch (checkedId) {
 			case R.id.radioOK:
-				button.setVisibility(View.VISIBLE);
+				btnTakePicture.setVisibility(View.VISIBLE);
 
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
@@ -408,7 +464,7 @@ public class PhotoItemRadio extends RelativeLayout {
 				break;
 
 			case R.id.radioNOK:
-				button.setVisibility(View.VISIBLE);
+				btnTakePicture.setVisibility(View.VISIBLE);
 
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
@@ -427,7 +483,7 @@ public class PhotoItemRadio extends RelativeLayout {
 				break;
 
 			case R.id.radioNA:
-				button.setVisibility(View.GONE);
+				btnTakePicture.setVisibility(View.GONE);
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
 					// if this form's item is not part of imbas petir form, then hide "mandatory" remark
@@ -636,17 +692,18 @@ public class PhotoItemRadio extends RelativeLayout {
         if (ok!=null) ok.setEnabled(true);
         if (nok!=null) nok.setEnabled(true);
         if (na!=null) na.setEnabled(true);
-        if (button!=null) button.setEnabled(true);
+        if (btnTakePicture!=null) btnTakePicture.setEnabled(true);
     }
 
     private void disable() {
+		DebugLog.d("label disable : " + itemFormRenderModel.workItemModel.label);
         if (remark!=null) remark.setEnabled(false);
         if (material_request!=null) material_request.setEnabled(false);
         if (radioGroup!=null) radioGroup.setEnabled(false);
         if (ok!=null) ok.setEnabled(false);
         if (nok!=null) nok.setEnabled(false);
         if (na!=null) na.setEnabled(false);
-        if (button!=null) button.setEnabled(false);
+        if (btnTakePicture!=null) btnTakePicture.setEnabled(false);
     }
 
     private class CheckApprovalHandler extends Handler {
@@ -676,6 +733,8 @@ public class PhotoItemRadio extends RelativeLayout {
 
                         DebugLog.d("check approval success");
 
+						itemFormRenderModel.workItemModel.mandatory = true;
+						itemFormRenderModel.workItemModel.save();
                         FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
                         enable();
                         return;

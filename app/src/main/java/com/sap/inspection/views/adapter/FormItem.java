@@ -347,7 +347,7 @@ package com.sap.inspection.views.adapter;
 //		}else if (item.field_type.equalsIgnoreCase("file")){
 //			hasInput = true;
 //			PhotoItem photo = new PhotoItem(context);
-//			photo.setButtonClickListener(photoListener);
+//			photo.setButtonTakePictureListener(photoListener);
 //			if (initValue == null){
 //				initValue = new ItemValueModel();
 //				initValue.itemId = item.id;
@@ -476,7 +476,7 @@ package com.sap.inspection.views.adapter;
 //		}else if (item.field_type.equalsIgnoreCase("file")){
 //			hasInput = true;
 //			PhotoItem photo = new PhotoItem(context);
-//			photo.setButtonClickListener(photoListener);
+//			photo.setButtonTakePictureListener(photoListener);
 //			if (initValue == null){
 //				initValue = new ItemValueModel();
 //				initValue.itemId = item.id;

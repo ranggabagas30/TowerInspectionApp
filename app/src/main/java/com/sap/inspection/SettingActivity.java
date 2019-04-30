@@ -424,10 +424,10 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     //test
     private static String formVersion;
 
-    private void checkFormVersion() {
+   /* private void checkFormVersion() {
         showMessageDialog(getString(R.string.checkfromversion));
         APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
-    }
+    }*/
 
     private void downloadNewFormImbasPetir() {
 

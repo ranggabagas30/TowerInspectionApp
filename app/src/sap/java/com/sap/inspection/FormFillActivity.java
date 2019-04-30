@@ -931,6 +931,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		list.add(ItemFormRenderModel.TYPE_PICTURE);
 		list.add(ItemFormRenderModel.TYPE_EXPAND);
 		adapter.notifyDataSetChanged();
+
 		if (adapter!=null && !adapter.isEmpty()) {
 			String mandatoryLabel = "";
 			boolean mandatoryFound = false;
@@ -940,23 +941,22 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				ItemFormRenderModel item = adapter.getItem(i);
 
-				DebugLog.d("count "+i);
+				DebugLog.d("count "+ i);
 				if (item.workItemModel!=null) {
-					DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+
-							" disable="+item.workItemModel.disable);
+					DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+ " disable="+item.workItemModel.disable);
 				}
 
 				if (!MyApplication.getInstance().isInCheckHasilPm()) {
 
-					if (item.itemValue!=null) {
-						DebugLog.d("is in hasil pm : " + MyApplication.getInstance().isInCheckHasilPm());
-						DebugLog.d("item label : " + item.workItemModel.label);
-						DebugLog.d("itemValue.value="+item.itemValue.value); // belum ada foto
-						DebugLog.d("scheduleId=" + item.itemValue.scheduleId);
-						DebugLog.d("workFormGroupName : " + workFormGroupName);
+					if (item.itemValue != null) {
 
+						DebugLog.d("is in hasil pm = " + MyApplication.getInstance().isInCheckHasilPm());
+						DebugLog.d("item label = " + item.workItemModel.label);
+						DebugLog.d("itemValue.value = "+item.itemValue.value); // belum ada foto
+						DebugLog.d("scheduleId = " + item.itemValue.scheduleId);
+						DebugLog.d("workFormGroupName = " + workFormGroupName);
 
-						if (workFormGroupName.equalsIgnoreCase("Photograph") && item.type == 2) {
+						if (workFormGroupName.equalsIgnoreCase("Photograph") && item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO) {
 							DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
 							DebugLog.d("remark : " + item.itemValue.remark);
 							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
@@ -971,8 +971,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						}
 
 						if (workFormGroupName.equalsIgnoreCase("Equipment Checklist")) {
-
-							DebugLog.d("isian data : " + item.itemValue.value);
 
 							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
 								if (TextUtils.isEmpty(item.itemValue.value)) {
@@ -999,7 +997,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 			DebugLog.d("mandatoryFound="+mandatoryFound);
 
-			if (!BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
+			//if (!BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
+			if (true) { // debug only
 
 				if (!mandatoryFound)
 					super.onBackPressed();

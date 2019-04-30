@@ -234,7 +234,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		return groupRow;
 	}
 
-	public void onEvent(UploadProgressEvent event){
+	/*public void onEvent(UploadProgressEvent event){
 		if (dialog.isShowing()){
 			dialog.setMessage(event.progressString);
 			if (event.done) dialog.dismiss();
@@ -242,7 +242,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			dialog.show();
 			dialog.setMessage(event.progressString);
 		}
-	}
+	}*/
 
 	private void checkDataWarga() {
 

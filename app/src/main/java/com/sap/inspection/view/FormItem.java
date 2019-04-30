@@ -346,7 +346,7 @@ public class FormItem extends RelativeLayout {
 		}else if (item.field_type.equalsIgnoreCase("file")){
 			hasInput = true;
 			PhotoItemRadio photo = new PhotoItemRadio(context);
-			photo.setButtonClickListener(photoListener);
+			photo.setButtonTakePictureListener(photoListener);
 			if (initValue == null){
 				initValue = new ItemValueModel();
 				initValue.itemId = item.id;
@@ -475,7 +475,7 @@ public class FormItem extends RelativeLayout {
 		}else if (item.field_type.equalsIgnoreCase("file")){
 			hasInput = true;
 			PhotoItemRadio photo = new PhotoItemRadio(context);
-			photo.setButtonClickListener(photoListener);
+			photo.setButtonTakePictureListener(photoListener);
 			if (initValue == null){
 				initValue = new ItemValueModel();
 				initValue.itemId = item.id;

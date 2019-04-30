@@ -386,9 +386,9 @@ public class ItemValueModel extends BaseModel {
 							if (TextUtils.isEmpty(filledItem.value)) {
 
 								if (workFormItem.field_type.equalsIgnoreCase("file"))
-									MyApplication.getInstance().toast("Foto item " + workFormItem.label + " tidak ada. Silahkan ambil foto terlebih dahulu", Toast.LENGTH_LONG);
+									MyApplication.getInstance().toast("Foto item " + workFormItem.label + " Tidak ada. Silahkan ambil foto terlebih dahulu", Toast.LENGTH_LONG);
 								else
-									MyApplication.getInstance().toast("value item " + workFormItem.label + " tidak terisi", Toast.LENGTH_LONG);
+									MyApplication.getInstance().toast("value item " + workFormItem.label + " Tidak terisi", Toast.LENGTH_LONG);
 
 								return null;
 							} else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem)) {
@@ -418,7 +418,36 @@ public class ItemValueModel extends BaseModel {
 
 						DebugLog.d("(scopetype, itemid, operatorid, itemlabel, ismandatory, isnull) : (operator, " + workFormItem.id + ", " + operatorid + ", " + workFormItem.label + ", " + workFormItem.mandatory + ", " + (itemValue == null ? "tidak terisi" : "terisi") + ")");
 
-						//
+						if (itemValue == null && isMandatory)
+							return null;
+						else if (itemValue != null) {
+
+							ItemValueModel filledItem = itemValue;
+
+							// if the filled items are mandatory, then apply strict rules
+							if (isMandatory) {
+
+								// for non-TYPE_PICTURE_RADIO
+								if (TextUtils.isEmpty(filledItem.value)) {
+
+									if (workFormItem.field_type.equalsIgnoreCase("file"))
+										MyApplication.getInstance().toast("Foto item " + workFormItem.label + " Tidak ada. Silahkan ambil foto terlebih dahulu", Toast.LENGTH_LONG);
+									else
+										MyApplication.getInstance().toast("value item " + workFormItem.label + " Tidak terisi", Toast.LENGTH_LONG);
+
+									return null;
+								} else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem)) {
+									return null;
+								}
+
+							} else {
+
+								if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
+									return null;
+							}
+						}
+
+						results.add(itemValue);
 					}
 				}
 			}

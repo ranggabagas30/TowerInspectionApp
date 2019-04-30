@@ -117,7 +117,6 @@ public class ItemUploadManager {
         if (itemvalues == null)
             MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
         else {
-
             if (itemvalues.isEmpty()) {
                 MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
                 return;

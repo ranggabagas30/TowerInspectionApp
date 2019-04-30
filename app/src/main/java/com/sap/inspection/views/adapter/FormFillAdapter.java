@@ -252,7 +252,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.photoRadio = (PhotoItemRadio) convertView.findViewById(R.id.item_form_photo);
 				holder.upload = (ImageView) convertView.findViewById(R.id.item_form_upload);
 				holder.photoRadio.setAudit(isAudit());
-				holder.photoRadio.setButtonClickListener(photoListener);
+				holder.photoRadio.setButtonTakePictureListener(photoListener);
 				holder.upload.setOnClickListener(uploadListener);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
@@ -261,7 +261,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.photo = (PhotoItem) convertView.findViewById(R.id.item_form_photo);
 				holder.upload = (ImageView) convertView.findViewById(R.id.item_form_upload);
 				holder.photo.setAudit(isAudit());
-				holder.photo.setButtonClickListener(photoListener);
+				holder.photo.setButtonTakePictureListener(photoListener);
                 holder.upload.setOnClickListener(uploadListener);
 				holder.photo.setSavingRule(savingRule);
 				break;

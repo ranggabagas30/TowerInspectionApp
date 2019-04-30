@@ -274,19 +274,19 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		}
 	}
 
-	private void checkAPKVersion(){
+	/*private void checkAPKVersion(){
 		DebugLog.d("check apk version");
 		showMessageDialog(getString(R.string.checkversionapplication));
 		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
-	}
+	}*/
 
-	private void checkFormVersion(){
+	/*private void checkFormVersion(){
 		DebugLog.d("check form version");
 		showMessageDialog(getString(R.string.checkfromversion));
 		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
-	}
+	}*/
 
-	private void checkFormVersionOffline(){
+	/*private void checkFormVersionOffline(){
 		DebugLog.d("check form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
 		DebugLog.d("check form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
 		if (getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null) != null){
@@ -297,7 +297,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			showMessageDialog("Generate offline form");
 			initFormOffline();
 		}
-	}
+	}*/
 
 	public void onEvent(ScheduleProgressEvent event) {
 		if (!event.done)
@@ -651,7 +651,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 	 * Permission
 	 *
 	 **/
-	@AfterPermissionGranted(Constants.RC_READ_PHONE_STATE)
+	/*@AfterPermissionGranted(Constants.RC_READ_PHONE_STATE)
 	private void requestReadPhoneStatePermission() {
 
 		DebugLog.d("request read phone state permisson");
@@ -667,7 +667,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			DebugLog.d("Do not have permissions, request them now");
 			PermissionUtil.requestPermission(this, getString(R.string.rationale_readphonestate), Constants.RC_READ_PHONE_STATE, PermissionUtil.READ_PHONE_STATE_PERMISSION);
 		}
-	}
+	}*/
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
