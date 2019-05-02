@@ -125,11 +125,6 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-	}
-
 	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
 		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();

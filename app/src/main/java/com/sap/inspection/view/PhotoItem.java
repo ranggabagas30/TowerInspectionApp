@@ -139,18 +139,18 @@ public class PhotoItem extends RelativeLayout {
 		//		imageView.setOnClickListener(buttonClickListener);
 	}
 
-	public void setValue(ItemValueModel value, boolean initValue) {
+	public void setItemValue(ItemValueModel value, boolean initValue) {
 		if (initValue){
 			onInit = true;
 		}
-		setValue(value);
+		notifyDataChanged(value);
 		setPhotoRootVisiblity(value.photoStatus);
 		if (initValue){
 			onInit = false;
 		}
 	}
 
-	public void setValue(ItemValueModel value) {
+	public void notifyDataChanged(ItemValueModel value) {
 		this.value = value;
 		imageView.setImageResource(R.drawable.logo_app);
 		if (itemFormRenderModel.label != null)

@@ -185,7 +185,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
 	}
 
-	public void setValue(ItemValueModel value, boolean initValue) {
+	public void setItemValue(ItemValueModel value, boolean initValue) {
 
 		imageView.setImageResource(R.drawable.logo_app);
 
@@ -194,15 +194,40 @@ public class PhotoItemRadio extends RelativeLayout {
 			onInit = true;
 		}
 		setValue(value);
+		notifyDataChanged();
 		if (initValue){
 			radioGroup.setOnCheckedChangeListener(changeListener);
 			onInit = false;
 		}
 	}
 
-	public void setValue(ItemValueModel itemValue) {
+	public void setValue(ItemValueModel value) {
+		this.value = value;
+	}
 
-		this.value = itemValue;
+	public ItemValueModel getValue() {
+		return value;
+	}
+
+	public void initValue(){
+		if (value == null){
+			value = new ItemValueModel();
+			if (itemFormRenderModel != null){
+				value.itemId = itemFormRenderModel.workItemModel.id;
+				value.scheduleId = itemFormRenderModel.schedule.id;
+				value.operatorId = itemFormRenderModel.operatorId;
+
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+					value.wargaId  = itemFormRenderModel.getWargaId();
+					value.barangId = itemFormRenderModel.getBarangId();
+
+				}
+			}
+		}
+	}
+
+	public void notifyDataChanged() {
 
 		if (value != null) {
 
@@ -211,135 +236,65 @@ public class PhotoItemRadio extends RelativeLayout {
 				remark.setText(value.remark);
 			}
 
-			// if no picture then show no picture icon
-			if (value.value == null)
-				noPicture.setVisibility(View.VISIBLE);
+            // if no picture then show no picture icon
+            noPicture.setVisibility(View.VISIBLE);
+            if (!TextUtils.isEmpty(value.value)) {
+                noPicture.setVisibility(View.GONE);
+                photoRoot.setVisibility(VISIBLE);
 
-			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) ||
-				BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_STP)) {
+                File photoFile = new File(value.value);
+                setImage(photoFile, value.latitude, value.longitude, value.gpsAccuracy);
+            }
 
-				btnTakePicture.setVisibility(VISIBLE);
-				mandatory.setVisibility(VISIBLE);
+            if (!TextUtils.isEmpty(value.photoStatus)) {
 
-				if (!TextUtils.isEmpty(value.photoStatus)) {
+                switch (value.photoStatus) {
 
-					switch (value.photoStatus) {
+                    case Constants.OK :
+                        ok.setChecked(true);
+                        break;
+                    case Constants.NOK :
+                        nok.setChecked(true);
+                        break;
+                    case Constants.NA :
+                        na.setChecked(true);
+                        break;
+                }
+            }
 
-						case Constants.OK :
-							ok.setChecked(true);
-							break;
-						case Constants.NOK :
-							nok.setChecked(true);
-							break;
-						case Constants.NA :
-							na.setChecked(true);
-							break;
-					}
-				}
-				if (!itemFormRenderModel.workItemModel.mandatory) {
+            btnTakePicture.setVisibility(VISIBLE);
+            mandatory.setVisibility(VISIBLE);
 
-					mandatory.setVisibility(GONE);
+            if (!itemFormRenderModel.workItemModel.mandatory) {
 
-					if (!TextUtils.isEmpty(value.photoStatus)) {
+                mandatory.setVisibility(GONE);
 
-						if (nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) {
+                if (!TextUtils.isEmpty(value.photoStatus)) {
 
-							if (TextUtils.isEmpty(value.remark))
-								mandatory.setVisibility(VISIBLE);
+                    if (nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) {
 
-						}
+                        if (TextUtils.isEmpty(value.remark))
+                            mandatory.setVisibility(VISIBLE);
 
-					} else {
+                    }
 
-						if (!TextUtils.isEmpty(value.remark)) {
+                } else {
 
-							mandatory.setVisibility(VISIBLE);
-							MyApplication.getInstance().toast("Centang tidak boleh kosong", Toast.LENGTH_LONG);
-						}
+                    if (!TextUtils.isEmpty(value.remark)) {
 
-					}
-				}
+                        mandatory.setVisibility(VISIBLE);
+                        MyApplication.getInstance().toast("Centang tidak boleh kosong", Toast.LENGTH_LONG);
+                    }
+                }
+            }
 
-				if (na.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NA))
-					btnTakePicture.setVisibility(GONE);
+            if (na.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NA))
+                btnTakePicture.setVisibility(GONE);
 
-			}
+            save();
 
-			/*if (!TextUtils.isEmpty(value.photoStatus)){
-
-				if (value.photoStatus.equalsIgnoreCase(Constants.OK)){
-
-					btnTakePicture.setVisibility(View.VISIBLE);
-					ok.setChecked(true);
-					setPhotoRootVisiblity(Constants.OK);
-
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-						// if this form's item is not part of imbas petir form, then hide "mandatory" remark
-						// else keep it shown
-						*//*if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
-							mandatory.setVisibility(View.GONE);
-						}*//*
-
-						if (!itemFormRenderModel.workItemModel.mandatory) {
-							mandatory.setVisibility(View.GONE);
-						}
-					}
-				}
-				else if (value.photoStatus.equalsIgnoreCase(Constants.NOK)){
-
-					btnTakePicture.setVisibility(View.VISIBLE);
-					nok.setChecked(true);
-					setPhotoRootVisiblity("NOK");
-
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-						// if this form's item is not part of imbas petir form
-						*//*if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
-
-							if(TextUtils.isEmpty(remark.getText().toString()) || TextUtils.isEmpty(value.remark)){
-								mandatory.setVisibility(View.VISIBLE);
-							} else {
-								mandatory.setVisibility(View.GONE);
-							}
-						}*//*
-
-						if (!itemFormRenderModel.workItemModel.mandatory) {
-
-							if(TextUtils.isEmpty(remark.getText().toString()) || TextUtils.isEmpty(value.remark)){
-								mandatory.setVisibility(View.VISIBLE);
-							} else {
-								mandatory.setVisibility(View.GONE);
-							}
-						}
-					}
-				}
-				else if (value.photoStatus.equalsIgnoreCase(Constants.NA)){
-
-					btnTakePicture.setVisibility(View.GONE);
-					photoRoot.setVisibility(View.GONE);
-					na.setChecked(true);
-					value.photoStatus=Constants.NA;
-
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-						// if this form's item is not part of imbas petir form, then hide "mandatory" remark
-						// else keep it shown
-						*//*if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
-							mandatory.setVisibility(View.GONE);
-						}*//*
-						if (!itemFormRenderModel.workItemModel.mandatory) {
-							mandatory.setVisibility(View.GONE);
-						}
-					}
-				}
-			}
-			else{
-				btnTakePicture.setVisibility(View.VISIBLE);
-				photoRoot.setVisibility(View.GONE);
-			}*/
-		}else {
-			DebugLog.d("value = null, reset");
+        }else {
+			initValue();
 			reset();
 		}
 	}
@@ -361,16 +316,10 @@ public class PhotoItemRadio extends RelativeLayout {
 		}
 	}
 
-	// no usages
-	public void save(Context context){
-		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
-		value.save(context);
-	}
-
 	public void save(){
 		setItemFormRenderedValue();
 		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+ value.value+ " | " + value.wargaId + " | " + value.barangId + " | " + value.createdAt );
-		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
+		if(itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")){
 			DebugLog.d("scopeType : All");
 			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
 				value.operatorId = operatorModel.id;
@@ -401,44 +350,13 @@ public class PhotoItemRadio extends RelativeLayout {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			DebugLog.d("remark photo radio: " + s.toString());
+			DebugLog.d("remark photo : " + s.toString());
+
 			if (onInit)
 				return;
-			initValue();
-			if (value != null){
-				value.remark = s.toString();
 
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-					mandatory.setVisibility(VISIBLE);
-
-					if (!itemFormRenderModel.workItemModel.mandatory) {
-
-						mandatory.setVisibility(GONE);
-
-						if (!TextUtils.isEmpty(value.photoStatus)) {
-
-							if (nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) {
-
-								if (TextUtils.isEmpty(value.remark))
-									mandatory.setVisibility(VISIBLE);
-
-							}
-
-						} else {
-
-							if (!TextUtils.isEmpty(value.remark)) {
-
-								mandatory.setVisibility(VISIBLE);
-								MyApplication.getInstance().toast("Centang tidak boleh kosong", Toast.LENGTH_LONG);
-							}
-
-						}
-					}
-				}
-				DebugLog.d("remark value : " + s.toString());
-				save();
-			}
+            value.remark = s.toString();
+            notifyDataChanged();
 		}
 	};
 
@@ -446,122 +364,54 @@ public class PhotoItemRadio extends RelativeLayout {
 
 		@Override
 		public void onCheckedChanged(RadioGroup group, int checkedId) {
-			initValue();
+
+			//initValue();
 			switch (checkedId) {
 			case R.id.radioOK:
-				btnTakePicture.setVisibility(View.VISIBLE);
 
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-					// if this form's item is not part of imbas petir form, then hide "mandatory" remark
-					// else keep it shown
-					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
-						mandatory.setVisibility(View.GONE);
-					}
-				}
-
-				setPhotoRootVisiblity(Constants.OK);
+				value.photoStatus = Constants.OK;
+				notifyDataChanged();
 				break;
 
 			case R.id.radioNOK:
-				btnTakePicture.setVisibility(View.VISIBLE);
 
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-					// if this form's item is not part of imbas petir form
-					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
-
-						if(TextUtils.isEmpty(remark.getText().toString()) || TextUtils.isEmpty(value.remark)){
-							mandatory.setVisibility(View.VISIBLE);
-						} else {
-							mandatory.setVisibility(View.GONE);
-						}
-					}
-				}
-
-				setPhotoRootVisiblity("NOK");
+			    value.photoStatus = Constants.NOK;
+			    notifyDataChanged();
 				break;
 
 			case R.id.radioNA:
-				btnTakePicture.setVisibility(View.GONE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-					// if this form's item is not part of imbas petir form, then hide "mandatory" remark
-					// else keep it shown
-					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
-						mandatory.setVisibility(View.GONE);
-					}
-				}
-				photoRoot.setVisibility(View.GONE);
-				if (value!=null)
-					value.photoStatus = Constants.NA;
-				break;
-
-			default:
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-					// if this form's item is not part of imbas petir form, then hide "mandatory" remark
-					// else keep it shown
-					if (!(StringUtil.isNotNullAndEmpty(value.wargaId) || StringUtil.isNotNullAndEmpty(value.barangId))) {
-						mandatory.setVisibility(View.GONE);
-					}
-				}
+			    value.photoStatus = Constants.NA;
+			    notifyDataChanged();
 				break;
 			}
-
-			if (value!=null)
-				save();
 		}
 	};
 
-	private void setPhotoRootVisiblity(String photoStatus){
-		if (value!=null){
-			value.photoStatus = photoStatus;
-			DebugLog.d("value.photoStatus now : " + value.photoStatus);
-			DebugLog.d("value.wargaid now : " + value.wargaId);
-			DebugLog.d("value.barangid now : " + value.barangId);
-
-			if (value.value != null){
-				photoRoot.setVisibility(View.VISIBLE);
-
-				File photoFile = new File(value.value);
-				setImage(photoFile, value.latitude, value.longitude, value.gpsAccuracy);
-			}
-			else
-				photoRoot.setVisibility(View.GONE);
-		}else
-			photoRoot.setVisibility(View.GONE);
-	}
-
-	public ItemValueModel getValue() {
-		return value;
-	}
-
 	public void deletePhoto(){
 
-		DebugLog.d( "into deleted");
-		if (value != null && value.value != null){
-			DebugLog.d( "deleted value not null");
-			File fileTemp=new File(value.value.replaceFirst("^file\\:\\/\\/", ""));
-			if (fileTemp.exists())
-				try{
-					fileTemp.delete();
-					DebugLog.d( "file deleted : "+value.value);
-				}catch(Exception e){
-					DebugLog.d( "file not deleted");
-					e.printStackTrace();
-				}
+		DebugLog.d( "delete photo");
+		File fileTemp=new File(value.value.replaceFirst("^file\\:\\/\\/", ""));
+		if (fileTemp.exists()) {
+
+			try{
+				fileTemp.delete();
+				DebugLog.d( "file deleted : "+value.value);
+			}catch(Exception e){
+				DebugLog.d( "file not deleted");
+				e.printStackTrace();
+			}
+			value.value = "";
 			value.uploadStatus = ItemValueModel.UPLOAD_NONE;
-			DebugLog.d("==> delete photo, reset uploadStatus to " + value.uploadStatus);
-			save();
+			notifyDataChanged();
+			return;
 		}
+		DebugLog.e("Gagal menghapus foto. Tidak ditemukan file foto di direktori : " + value.value);
+		MyApplication.getInstance().toast("Gagal menghapus foto. Tidak ditemukan file foto di direktori : " + value.value, Toast.LENGTH_LONG);
 	}
 
-	public String setPhotoDate() {
-
-		// updating item value for photo date
-		value.photoDate = value.createdAt = DateTools.getCurrentDate();
-		return value.photoDate;
+	public void setPhotoDate(String date) {
+		value.photoDate = value.createdAt = date;
 	}
 
 	public void setUploadstatus(String uploadstatus) {
@@ -569,29 +419,26 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	public void setImage(File photoPath,String latitude, String longitude,int accuracy){
-		if (value != null){
 
-			// updating item value
-            imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", photoPath);
-			value.value = photoPath.getPath();
-			value.latitude = latitude;
-			value.longitude = longitude;
-			value.gpsAccuracy = accuracy;
-		}
-		else{
-			DebugLog.d("value = null, reset ! ");
+		if (value == null) {
 			reset();
 			return;
 		}
-		save();
+
+		DebugLog.d("image path : " + photoPath.toString());
+
+		// updating item value
+		imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", photoPath);
+		value.value = photoPath.getPath();
+		value.latitude = latitude;
+		value.longitude = longitude;
+		value.gpsAccuracy = accuracy;
+		notifyDataChanged();
 
 		this.latitude.setText("Lat. : "+ latitude);
 		this.longitude.setText("Long. : "+ longitude);
 		this.accuracy.setText("Accurate up to : "+accuracy+" meters");
         this.photodate.setText("photo date : " + value.photoDate + "");
-		//		ImageSize i = ImageSizeUtils.defineTargetSizeForView(imageView, 480, 360);
-		//		imageView.setMaxWidth(i.getWidth());
-		//		imageView.setMaxHeight(i.getHeight());
 
 		BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView,new ImageLoadingListener() {
 
@@ -633,38 +480,11 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	private void reset(){
+		DebugLog.d("value = null, reset ! ");
 		progress.setVisibility(View.GONE);
 		photoRoot.setVisibility(View.GONE);
-		//		failed.setVisibility(View.GONE);
 		remark.setText("");
-//		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 		noPicture.setVisibility(View.VISIBLE);
-		radioGroup.clearCheck();
-	}
-
-	public void initValue(){
-		if (value == null){
-			value = new ItemValueModel();
-			if (itemFormRenderModel != null){
-				value.itemId = itemFormRenderModel.workItemModel.id;
-				value.scheduleId = itemFormRenderModel.schedule.id;
-				value.operatorId = itemFormRenderModel.operatorId;
-
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-					value.wargaId  = itemFormRenderModel.getWargaId();
-					value.barangId = itemFormRenderModel.getBarangId();
-
-				}
-			}
-		}
-	}
-
-	private void resetVisibility(){
-		progress.setVisibility(View.GONE);
-		photoRoot.setVisibility(View.GONE);
-		//		failed.setVisibility(View.GONE);
-//		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
 		radioGroup.clearCheck();
 	}
 

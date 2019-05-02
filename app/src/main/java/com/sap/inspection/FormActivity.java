@@ -203,12 +203,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		mSlidingLayer.openLayer(true);
 	}
 
-	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
-		FragmentTransaction ft = fm.beginTransaction();
-		ft.add(viewContainerResId, fragment, fragment.getClass().getSimpleName());
-		ft.commit();
-	}
-
 	private Fragment getCurrentFragment(String tag) {
 
 		if (fm != null) {
@@ -233,16 +227,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		groupRow.level = 1;
 		return groupRow;
 	}
-
-	/*public void onEvent(UploadProgressEvent event){
-		if (dialog.isShowing()){
-			dialog.setMessage(event.progressString);
-			if (event.done) dialog.dismiss();
-		}else if (!event.done) {
-			dialog.show();
-			dialog.setMessage(event.progressString);
-		}
-	}*/
 
 	private void checkDataWarga() {
 
@@ -345,7 +329,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	private void updateItems() {
 
 		currentFragment = getCurrentFragment(NavigationFragment.class.getSimpleName());
-
 		if (currentFragment instanceof NavigationFragment) {
 
 			((NavigationFragment) currentFragment).setItems(rowModel);

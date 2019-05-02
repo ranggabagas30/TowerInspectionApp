@@ -457,23 +457,20 @@ public class ItemValueModel extends BaseModel {
 		return results;
 	}
 
-	private static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
+	public static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
 
-		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+        // checking for form's item type picture radio with mandatory applied only on "NOK" option
+        if (TextUtils.isEmpty(filledItem.photoStatus)) {
+            MyApplication.getInstance().toast("Photo status item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+            return false;
+        }
 
-			// checking for form's item type picture radio with mandatory applied only on "NOK" option
-			if (TextUtils.isEmpty(filledItem.photoStatus)) {
-				MyApplication.getInstance().toast("photo status item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
-				return false;
-			}
-
-			if (!TextUtils.isEmpty(filledItem.photoStatus) &&
-					filledItem.photoStatus.equalsIgnoreCase(Constants.NOK) &&
-					TextUtils.isEmpty(filledItem.remark)) {
-				MyApplication.getInstance().toast("remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
-				return false;
-			}
-		}
+        if (!TextUtils.isEmpty(filledItem.photoStatus) &&
+                filledItem.photoStatus.equalsIgnoreCase(Constants.NOK) &&
+                TextUtils.isEmpty(filledItem.remark)) {
+            MyApplication.getInstance().toast("Remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+            return false;
+        }
 
 		return true;
 	}

@@ -356,7 +356,7 @@ package com.sap.inspection.views.adapter;
 //				initValue.typePhoto = true;
 //				initValue.operatorId = operatorId;
 //			}
-//			photo.setValue(initValue);
+//			photo.notifyDataChanged(initValue);
 //			return photo;
 //			//		}else if (item.field_type.equalsIgnoreCase("checkbox")){
 //			//			LinearLayout linearLayout = new LinearLayout(context);
@@ -485,7 +485,7 @@ package com.sap.inspection.views.adapter;
 //				initValue.typePhoto = true;
 //				initValue.operatorId = operatorId;
 //			}
-//				photo.setValue(initValue);
+//				photo.notifyDataChanged(initValue);
 //			return photo;
 //			//		}else if (item.field_type.equalsIgnoreCase("checkbox")){
 //			//			LinearLayout linearLayout = new LinearLayout(context);

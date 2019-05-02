@@ -64,6 +64,7 @@ import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.model.value.Pair;
+import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ExifUtil;
 import com.sap.inspection.util.ImageUtil;
@@ -617,7 +618,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if(requestCode==MenuShootImage && resultCode==RESULT_OK)
 		{
 			if (photoItem != null && mImageUri != null){
-				photoItem.initValue();
+				//photoItem.initValue();
 				photoItem.deletePhoto();
 
 				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
@@ -631,7 +632,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				}
 
 				String[] textMarks = new String[3];
-				String photoDate = photoItem.setPhotoDate();
+				//String photoDate = photoItem.getPhotoDate();
+				String photoDate = DateTools.getCurrentDate();
 				String latitude = siteLatitude;
 				String longitude = siteLongitude;
 
@@ -657,17 +659,22 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						}
 					}
 
-					DebugLog.d( latitude+" || "+longitude);
 					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
-						photoItem.setPhotoDate();
-						//photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
+
+						photoItem.setPhotoDate(photoDate);
 						photoItem.setImage(photo, latitude, longitude, accuracy);
+
 					} else {
+
+						DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
 						MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
 					}
-				} else {
-					MyApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
+
+					return;
 				}
+
+				DebugLog.e("file = null. Pengambilan foto gagal. Silahkan ulangi kembali");
+				MyApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -703,7 +710,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		return false;
 	}
-
 
 	public void setCurrentGeoPoint(LatLng currentGeoPoint) {
 		this.currentGeoPoint = currentGeoPoint;
@@ -932,48 +938,44 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		list.add(ItemFormRenderModel.TYPE_EXPAND);
 		adapter.notifyDataSetChanged();
 
-		if (adapter!=null && !adapter.isEmpty()) {
+		if (adapter!=null && !adapter.isEmpty() && !MyApplication.getInstance().isInCheckHasilPm()) {
+
+			DebugLog.d("\n\n ==== ON BACK PRESSED ====");
+			DebugLog.d("scheduleId = " + scheduleId);
+			DebugLog.d("workFormGroupName = " + workFormGroupName);
+			DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().isInCheckHasilPm());
+			DebugLog.d("Jumlah item adapter : " + adapter.getCount());
+
 			String mandatoryLabel = "";
 			boolean mandatoryFound = false;
-			DebugLog.d("adapter size "+adapter.getCount());
 
 			for (int i = 0; i < adapter.getCount(); i++) {
 
 				ItemFormRenderModel item = adapter.getItem(i);
 
-				DebugLog.d("count "+ i);
+				DebugLog.d("no. "+ i);
+				DebugLog.d("\titem type = " + item.type);
+				DebugLog.d("\titem value = " +item.itemValue.value);
 				if (item.workItemModel!=null) {
-					DebugLog.d("type="+item.type+" mandatory="+item.workItemModel.mandatory+ " disable="+item.workItemModel.disable);
+					DebugLog.d("\titem label = " + item.workItemModel.label);
+					DebugLog.d("\titem isMandatory = " + item.workItemModel.mandatory);
+					DebugLog.d("\titem isDisabled = " + item.workItemModel.disable);
+				} else
+					DebugLog.d("\titem workitemmodel = null");
+
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+					DebugLog.d("\titem wargaId = " + item.getWargaId());
+					DebugLog.d("\titem barangId = " + item.getBarangId());
 				}
 
-				if (!MyApplication.getInstance().isInCheckHasilPm()) {
+				/*if (item.itemValue != null) {
 
-					if (item.itemValue != null) {
-
-						DebugLog.d("is in hasil pm = " + MyApplication.getInstance().isInCheckHasilPm());
-						DebugLog.d("item label = " + item.workItemModel.label);
-						DebugLog.d("itemValue.value = "+item.itemValue.value); // belum ada foto
-						DebugLog.d("scheduleId = " + item.itemValue.scheduleId);
-						DebugLog.d("workFormGroupName = " + workFormGroupName);
-
-						if (workFormGroupName.equalsIgnoreCase("Photograph") && item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO) {
-							DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
-							DebugLog.d("remark : " + item.itemValue.remark);
-							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
-								if (!TextUtils.isEmpty(item.itemValue.photoStatus) && item.itemValue.photoStatus.equalsIgnoreCase(Constants.NOK)) {
-									if (TextUtils.isEmpty(item.itemValue.remark)) {
-										mandatoryLabel = item.workItemModel.label;
-										mandatoryFound = true;
-										break;
-									}
-								}
-							}
-						}
-
-						if (workFormGroupName.equalsIgnoreCase("Equipment Checklist")) {
-
-							if (item.workItemModel.mandatory && !item.workItemModel.disable) {
-								if (TextUtils.isEmpty(item.itemValue.value)) {
+					if (workFormGroupName.equalsIgnoreCase("Photograph") && item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO) {
+						DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
+						DebugLog.d("remark : " + item.itemValue.remark);
+						if (item.workItemModel.mandatory && !item.workItemModel.disable) {
+							if (!TextUtils.isEmpty(item.itemValue.photoStatus) && item.itemValue.photoStatus.equalsIgnoreCase(Constants.NOK)) {
+								if (TextUtils.isEmpty(item.itemValue.remark)) {
 									mandatoryLabel = item.workItemModel.label;
 									mandatoryFound = true;
 									break;
@@ -982,9 +984,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						}
 					}
 
-					if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
-						if (item.itemValue == null || TextUtils.isEmpty(item.itemValue.value)) {
-							if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
+					if (workFormGroupName.equalsIgnoreCase("Equipment Checklist")) {
+
+						if (item.workItemModel.mandatory && !item.workItemModel.disable) {
+							if (TextUtils.isEmpty(item.itemValue.value)) {
 								mandatoryLabel = item.workItemModel.label;
 								mandatoryFound = true;
 								break;
@@ -993,24 +996,63 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 				}
 
-			}
+				if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
+					if (item.itemValue == null || TextUtils.isEmpty(item.itemValue.value)) {
+						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
+							mandatoryLabel = item.workItemModel.label;
+							mandatoryFound = true;
+							break;
+						}
+					}
+				}*/
 
-			DebugLog.d("mandatoryFound="+mandatoryFound);
+				boolean isMandatory = item.workItemModel.mandatory;
+				if (list.contains(item.type)) {
+					if (item.itemValue == null && isMandatory) {
+						mandatoryLabel = item.workItemModel.label;
+						mandatoryFound = true;
+						break;
+					} else if (item.itemValue != null) {
+
+						ItemValueModel filledItem = item.itemValue;
+
+						if (isMandatory) {
+
+							if (TextUtils.isEmpty(filledItem.value)) {
+
+								// no photo file and photo status not equal "NA"
+								if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !TextUtils.isEmpty(item.itemValue.photoStatus) && !item.itemValue.photoStatus.equalsIgnoreCase(Constants.NA)) {
+									mandatoryLabel = item.workItemModel.label;
+									mandatoryFound = true;
+									MyApplication.getInstance().toast("Photo " + mandatoryLabel + " tidak ada", Toast.LENGTH_SHORT);
+									break;
+								} else if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
+									mandatoryLabel = item.workItemModel.label;
+									mandatoryFound = true;
+									break;
+								}
+							}
+						} else {
+
+							if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
+								mandatoryLabel = item.workItemModel.label;
+								mandatoryFound = true;
+								break;
+							}
+						}
+					}
+				}
+			}
 
 			//if (!BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
-			if (true) { // debug only
-
-				if (!mandatoryFound)
-					super.onBackPressed();
-				else {
-					Toast.makeText(activity, mandatoryLabel + " wajib diisi", Toast.LENGTH_SHORT).show();
-				}
-
-			} else {
-				super.onBackPressed();
+			if (mandatoryFound) {
+				DebugLog.e("mandatoryFound with label : " + mandatoryLabel);
+				Toast.makeText(activity, mandatoryLabel + " wajib diisi", Toast.LENGTH_SHORT).show();
+				return;
 			}
-		} else
-			super.onBackPressed();
+		}
+
+		super.onBackPressed();
 	}
 
 	private AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener() {

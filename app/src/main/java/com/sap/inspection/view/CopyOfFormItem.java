@@ -354,7 +354,7 @@ public class CopyOfFormItem extends RelativeLayout {
 				initValue.typePhoto = true;
 				initValue.operatorId = operatorId;
 			}
-			photo.setValue(initValue);
+			//photo.notifyDataChanged(initValue);
 			return photo;
 			//		}else if (item.field_type.equalsIgnoreCase("checkbox")){
 			//			LinearLayout linearLayout = new LinearLayout(context);
@@ -483,7 +483,7 @@ public class CopyOfFormItem extends RelativeLayout {
 				initValue.typePhoto = true;
 				initValue.operatorId = operatorId;
 			}
-				photo.setValue(initValue);
+				//photo.notifyDataChanged(initValue);
 			return photo;
 			//		}else if (item.field_type.equalsIgnoreCase("checkbox")){
 			//			LinearLayout linearLayout = new LinearLayout(context);

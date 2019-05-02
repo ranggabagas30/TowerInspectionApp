@@ -554,7 +554,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				}
 
 				String[] textMarks = new String[3];
-				String photoDate = photoItem.setPhotoDate();
+				String photoDate = photoItem.getPhotoDate();
 				String latitude = siteLatitude;
 				String longitude = siteLongitude;
 
@@ -582,7 +582,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 					DebugLog.d( latitude+" || "+longitude);
 					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
-						photoItem.setPhotoDate();
+						photoItem.getPhotoDate();
 						photoItem.setImage(mImageUri.toString(),latitude,longitude,accuracy);
 					} else {
 						MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
