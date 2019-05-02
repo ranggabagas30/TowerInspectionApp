@@ -414,13 +414,28 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 	/**
      *  navigation
      * */
+	protected void addFragment(BaseFragment fragment, int viewContainerResId) {
+		FragmentManager fm = getSupportFragmentManager();
+		addFragment(fm, fragment, viewContainerResId);
+	}
+
+	protected void addFragment(FragmentManager fragmentManager, BaseFragment fragment, int viewContainerResId) {
+		FragmentTransaction ft = fragmentManager.beginTransaction();
+		ft.add(viewContainerResId, fragment, fragment.getClass().getSimpleName());
+		ft.commit();
+	}
+
     protected void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(viewContainerResId, fragment);
-        ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
+		FragmentManager fm = getSupportFragmentManager();
+		navigateToFragment(fm, fragment, viewContainerResId);
     }
+
+	protected void navigateToFragment(FragmentManager fragmentManager, BaseFragment fragment, int viewContainerResId) {
+		FragmentTransaction ft = fragmentManager.beginTransaction();
+		ft.replace(viewContainerResId, fragment);
+		ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		ft.commit();
+	}
 
 	protected void navigateToLoginActivity() {
 		Intent i = new Intent(BaseActivity.this, LoginActivity.class);

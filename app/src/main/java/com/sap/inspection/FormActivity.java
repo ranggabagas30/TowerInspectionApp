@@ -123,7 +123,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		navigationFragment.setSchedule(scheduleBaseModels);
 		navigationFragment.setNavigationModel(rowModel);
 		navigationFragment.setWorkTypeName(workTypeName);
-		navigateToFragment(navigationFragment, R.id.fragment_behind);
+		addFragment(fm, navigationFragment, R.id.fragment_behind);
 
 		if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
 
@@ -251,7 +251,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 			// insert new data warga as many as amount inputted
 			MyApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
-
 			FormImbasPetirConfig.insertDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
 			generateImbasPetirChildModel(dataIndex);
 			updateItems();
@@ -331,6 +330,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		currentFragment = getCurrentFragment(NavigationFragment.class.getSimpleName());
 		if (currentFragment instanceof NavigationFragment) {
 
+			DebugLog.d("current fragment = navigation fragment");
 			((NavigationFragment) currentFragment).setItems(rowModel);
 
 		}

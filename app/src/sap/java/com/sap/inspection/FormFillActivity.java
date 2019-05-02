@@ -618,8 +618,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if(requestCode==MenuShootImage && resultCode==RESULT_OK)
 		{
 			if (photoItem != null && mImageUri != null){
-				//photoItem.initValue();
-				photoItem.deletePhoto();
 
 				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
 					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
@@ -660,7 +658,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 
 					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
-
+						photoItem.deletePhoto();
 						photoItem.setPhotoDate(photoDate);
 						photoItem.setImage(photo, latitude, longitude, accuracy);
 
@@ -955,7 +953,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				DebugLog.d("no. "+ i);
 				DebugLog.d("\titem type = " + item.type);
-				DebugLog.d("\titem value = " +item.itemValue.value);
 				if (item.workItemModel!=null) {
 					DebugLog.d("\titem label = " + item.workItemModel.label);
 					DebugLog.d("\titem isMandatory = " + item.workItemModel.mandatory);
@@ -968,6 +965,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					DebugLog.d("\titem barangId = " + item.getBarangId());
 				}
 
+				if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value)) DebugLog.d("\titem value = " +item.itemValue.value);
 				/*if (item.itemValue != null) {
 
 					if (workFormGroupName.equalsIgnoreCase("Photograph") && item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO) {
@@ -1006,8 +1004,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					}
 				}*/
 
-				boolean isMandatory = item.workItemModel.mandatory;
-				if (list.contains(item.type)) {
+				if (list.contains(item.type) && item.workItemModel != null) {
+					boolean isMandatory = item.workItemModel.mandatory;
 					if (item.itemValue == null && isMandatory) {
 						mandatoryLabel = item.workItemModel.label;
 						mandatoryFound = true;
