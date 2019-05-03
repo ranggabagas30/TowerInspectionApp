@@ -142,19 +142,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			workFormGroupId 	= bundle.getInt(Constants.KEY_WORKFORMGROUPID);
 			workFormGroupName 	= bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
 			scheduleId 			= bundle.getString(Constants.KEY_SCHEDULEID);
-
+            wargaId 			= bundle.getString(Constants.KEY_WARGAID) != null ? bundle.getString(Constants.KEY_WARGAID) : Constants.EMPTY;
+            barangId			= bundle.getString(Constants.KEY_BARANGID) != null ? bundle.getString(Constants.KEY_BARANGID) : Constants.EMPTY;
             DebugLog.d("received bundle : ");
             DebugLog.d("rowId = " + rowId);
             DebugLog.d("workFormGroupId = " + workFormGroupId);
             DebugLog.d("workFormGroupName = " + workFormGroupName);
             DebugLog.d("scheduleId = " + scheduleId);
+            DebugLog.d("wargaId = " + wargaId);
+            DebugLog.d("barangId = " + barangId);
 
-			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-                wargaId 			= bundle.getString(Constants.KEY_WARGAID) != null ? bundle.getString(Constants.KEY_WARGAID) : Constants.EMPTY;
-                barangId			= bundle.getString(Constants.KEY_BARANGID) != null ? bundle.getString(Constants.KEY_BARANGID) : Constants.EMPTY;
-                DebugLog.d("wargaId = " + wargaId);
-                DebugLog.d("barangId = " + barangId);
-            }
 		}
 
 		if (indexes == null)
@@ -460,10 +457,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			else if (itemFormRenderModel.itemValue!=null) {
 
 				ItemValueModel itemUpload = itemFormRenderModel.itemValue;
-				boolean isMandatory		  = itemFormRenderModel.workItemModel.mandatory;
-				ItemUploadManager.getInstance().addItemValue(isMandatory, itemUpload);
+				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.workItemModel, itemFormRenderModel.itemValue);
 
-				DebugLog.d("isMandatory= " + isMandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
+				DebugLog.d("isMandatory= " + itemFormRenderModel.workItemModel.mandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
 			} else {
 				Toast.makeText(activity, "Tidak ada foto", Toast.LENGTH_LONG).show();
 			}
@@ -553,8 +549,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		return false;
 	}
 
-	private File createTemporaryFile(String part, String ext) throws Exception
-	{
+	private File createTemporaryFile(String part, String ext) throws Exception {
 		File tempDir;
 		boolean createDirStatus;
 
@@ -730,7 +725,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		protected Void doInBackground(Void... params) {
 			rowModel = new RowModel(FormFillActivity.this);
 			rowModel = rowModel.getItemById(workFormGroupId, rowId);
-
 			column = ColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
 
 			ItemFormRenderModel form;
@@ -833,7 +827,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
-			//progressDialog.setMessage("Generating form "+values[0]+" % complete");
 			showMessageDialog("Generating form "+values[0]+" % complete");
 		}
 
@@ -966,46 +959,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				}
 
 				if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value)) DebugLog.d("\titem value = " +item.itemValue.value);
-				/*if (item.itemValue != null) {
-
-					if (workFormGroupName.equalsIgnoreCase("Photograph") && item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO) {
-						DebugLog.d("photoStatus : " + item.itemValue.photoStatus);
-						DebugLog.d("remark : " + item.itemValue.remark);
-						if (item.workItemModel.mandatory && !item.workItemModel.disable) {
-							if (!TextUtils.isEmpty(item.itemValue.photoStatus) && item.itemValue.photoStatus.equalsIgnoreCase(Constants.NOK)) {
-								if (TextUtils.isEmpty(item.itemValue.remark)) {
-									mandatoryLabel = item.workItemModel.label;
-									mandatoryFound = true;
-									break;
-								}
-							}
-						}
-					}
-
-					if (workFormGroupName.equalsIgnoreCase("Equipment Checklist")) {
-
-						if (item.workItemModel.mandatory && !item.workItemModel.disable) {
-							if (TextUtils.isEmpty(item.itemValue.value)) {
-								mandatoryLabel = item.workItemModel.label;
-								mandatoryFound = true;
-								break;
-							}
-						}
-					}
-				}
-
-				if (list.contains(item.type) && !workFormGroupName.equalsIgnoreCase("Photograph")) {
-					if (item.itemValue == null || TextUtils.isEmpty(item.itemValue.value)) {
-						if (item.workItemModel != null && item.workItemModel.mandatory && !item.workItemModel.disable) {
-							mandatoryLabel = item.workItemModel.label;
-							mandatoryFound = true;
-							break;
-						}
-					}
-				}*/
 
 				if (list.contains(item.type) && item.workItemModel != null) {
-					boolean isMandatory = item.workItemModel.mandatory;
+
+					if (!ItemValueModel.isItemValueValidated(item.workItemModel, item.itemValue)) {
+						mandatoryLabel = item.workItemModel.label;
+						mandatoryFound = true;
+						break;
+					}
+
+					/*boolean isMandatory = item.workItemModel.mandatory;
 					if (item.itemValue == null && isMandatory) {
 						mandatoryLabel = item.workItemModel.label;
 						mandatoryFound = true;
@@ -1038,14 +1001,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 								break;
 							}
 						}
-					}
+					}*/
 				}
 			}
 
 			//if (!BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
 			if (mandatoryFound) {
 				DebugLog.e("mandatoryFound with label : " + mandatoryLabel);
-				Toast.makeText(activity, mandatoryLabel + " wajib diisi", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(activity, mandatoryLabel + " wajib diisi", Toast.LENGTH_SHORT).show();
 				return;
 			}
 		}

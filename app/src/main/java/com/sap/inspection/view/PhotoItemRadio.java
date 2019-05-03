@@ -195,6 +195,14 @@ public class PhotoItemRadio extends RelativeLayout {
 		}
 		setValue(value);
 		notifyDataChanged();
+
+		if (value != null) {
+			if (!TextUtils.isEmpty(value.remark)) {
+				remark.setText(value.remark);
+				remark.setSelection(remark.getText().length());
+			}
+		}
+
 		if (initValue){
 			radioGroup.setOnCheckedChangeListener(changeListener);
 			onInit = false;
@@ -232,12 +240,12 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (value != null) {
 
 			// notify textview remark
-			remark.removeTextChangedListener(textWatcher);
+			/*remark.removeTextChangedListener(textWatcher);
 			if (!TextUtils.isEmpty(value.remark)) {
 				remark.setText(value.remark);
 				remark.setSelection(remark.getText().length());
 			}
-			remark.addTextChangedListener(textWatcher);
+			remark.addTextChangedListener(textWatcher);*/
 
 			// notify imageview photo
 			// if no picture then show no picture icon
@@ -246,7 +254,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			noPicture.setVisibility(VISIBLE);
 			if (!TextUtils.isEmpty(value.value)) {
 				photoRoot.setVisibility(VISIBLE);
-				noPicture.setVisibility(GONE);
+				noPicture.setVisibility(INVISIBLE);
 				imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", new File(value.value));
 				BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView,new ImageLoadingListener() {
 
@@ -254,14 +262,14 @@ public class PhotoItemRadio extends RelativeLayout {
 					public void onLoadingStarted(String arg0, View arg1) {
 						progress.setVisibility(View.VISIBLE);
 						photoRoot.setVisibility(View.VISIBLE);
-						//noPicture.setVisibility(View.GONE);
+						noPicture.setVisibility(View.INVISIBLE);
 					}
 
 					@Override
 					public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
 						progress.setVisibility(View.GONE);
 						photoRoot.setVisibility(View.GONE);
-						//noPicture.setVisibility(View.VISIBLE);
+						noPicture.setVisibility(View.VISIBLE);
 					}
 
 					@Override
@@ -270,7 +278,7 @@ public class PhotoItemRadio extends RelativeLayout {
 						photoRoot.setVisibility(View.VISIBLE);
 						if (value != null){
 							if (value.value == null)
-								//noPicture.setVisibility(View.VISIBLE);
+								noPicture.setVisibility(View.VISIBLE);
 							if (value.photoStatus == null){
 								radioGroup.check(R.id.radioOK);
 							}
@@ -281,7 +289,7 @@ public class PhotoItemRadio extends RelativeLayout {
 					public void onLoadingCancelled(String arg0, View arg1) {
 						progress.setVisibility(View.GONE);
 						photoRoot.setVisibility(View.VISIBLE);
-						//noPicture.setVisibility(View.GONE);
+						noPicture.setVisibility(View.INVISIBLE);
 					}
 
 				});
@@ -305,7 +313,7 @@ public class PhotoItemRadio extends RelativeLayout {
                         na.setChecked(true);
                         imageView.setVisibility(GONE);
                         photoRoot.setVisibility(GONE);
-                        noPicture.setVisibility(GONE);
+                        noPicture.setVisibility(INVISIBLE);
                         btnTakePicture.setVisibility(GONE);
                         break;
                 }
@@ -316,7 +324,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			mandatory.setVisibility(VISIBLE);
             if (!itemFormRenderModel.workItemModel.mandatory) {
 
-            	mandatory.setVisibility(INVISIBLE);
+            	mandatory.setVisibility(GONE);
 
                 if (!TextUtils.isEmpty(value.photoStatus)) {
 
@@ -330,16 +338,28 @@ public class PhotoItemRadio extends RelativeLayout {
                 } else {
 
                     if (!TextUtils.isEmpty(value.remark)) {
-
                         mandatory.setVisibility(VISIBLE);
-                        MyApplication.getInstance().toast("Centang tidak boleh kosong", Toast.LENGTH_LONG);
                     }
                 }
             }
 
-            save();
+			if (TextUtils.isEmpty(value.remark)) {
 
-        }else {
+				if (itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")) {
+
+					DebugLog.d("delete all items for all operators by scheduleid");
+					ItemValueModel.deleteAllBy(value.scheduleId, value.itemId);
+
+				} else {
+
+					DebugLog.d("delete item for operatorid : " + value.operatorId + " by scheduleid");
+					ItemValueModel.delete(value.scheduleId, value.itemId, value.operatorId);
+
+				}
+			} else
+            	save();
+
+        } else {
 			initValue();
 			reset();
 		}
@@ -389,9 +409,6 @@ public class PhotoItemRadio extends RelativeLayout {
 		public void onTextChanged(CharSequence s, int start, int before, int count) {
 
 			DebugLog.d("remark photo : " + s.toString());
-			if (onInit)
-				return;
-
 			value.remark = s.toString();
 			notifyDataChanged();
 

@@ -73,6 +73,8 @@ import java.util.LinkedList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.sap.inspection.model.value.ItemValueModel.isPictureRadioItemValidated;
+
 //import android.util.Log;
 
 public class ItemUploadManager {
@@ -117,48 +119,70 @@ public class ItemUploadManager {
         if (itemvalues == null)
             MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
         else {
-            if (itemvalues.isEmpty()) {
-                MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
-                return;
-            }
-
-            DebugLog.d("itemvalues="+itemvalues.size());
-            this.itemValues.clear();
-            this.itemValuesFailed.clear();
-            for (ItemValueModel item : itemvalues) {
-                if (!item.disable) {
-                    this.itemValues.add(item);
+                if (itemvalues.isEmpty()) {
+                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+                    return;
                 }
-            }
-            if (!running) {
-                uploadTask = null;
-                uploadTask = new UploadValue();
-                uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } else {
-                //"There is upload process, please wait until finish"
-                MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
-            }
+
+                DebugLog.d("itemvalues="+itemvalues.size());
+                this.itemValues.clear();
+                this.itemValuesFailed.clear();
+                for (ItemValueModel item : itemvalues) {
+                    if (item != null && !item.disable) {
+                        this.itemValues.add(item);
+                    }
+                }
+                if (!running) {
+                    uploadTask = null;
+                    uploadTask = new UploadValue();
+                    uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
+                /*else {
+                    //"There is upload process, please wait until finish"
+                    MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+                }*/
         }
     }
 
-    public void addItemValue(boolean isMandatory, ItemValueModel itemvalue) {
+    public void addItemValue(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
 
-        if (isMandatory && itemvalue.photoStatus.equalsIgnoreCase(Constants.NOK) && TextUtils.isEmpty(itemvalue.remark)) {
-            MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi", Toast.LENGTH_LONG);
-        } else {
-            if (itemvalue.disable) return;
-            this.itemValues.clear();
-            this.itemValuesFailed.clear();
-            this.itemValues.add(itemvalue);
-            if (!running) {
-                uploadTask = null;
-                uploadTask = new UploadValue();
-                uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } else {
-                //There is upload process, please wait until finish
-                MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+        // if the filled items are mandatory, then apply strict rules
+        if (workFormItem.mandatory) {
+
+            // for non-TYPE_PICTURE_RADIO
+            if (TextUtils.isEmpty(filledItem.value)) {
+
+                if (workFormItem.field_type.equalsIgnoreCase("file") && !TextUtils.isEmpty(filledItem.photoStatus) && !filledItem.photoStatus.equalsIgnoreCase(Constants.NA))
+                    MyApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
+                else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
+                    DebugLog.d("item file picture radio not validated");
+
+                return;
+
+            } else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem)) {
+                return;
             }
+
+        } else {
+
+            if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
+                return;
         }
+
+        if (filledItem.disable) return;
+
+        this.itemValues.clear();
+        this.itemValuesFailed.clear();
+        this.itemValues.add(filledItem);
+        if (!running) {
+            uploadTask = null;
+            uploadTask = new UploadValue();
+            uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            //There is upload process, please wait until finish
+            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+        }
+
     }
 
     private void showMessageDialog(String message) {
@@ -201,7 +225,7 @@ public class ItemUploadManager {
         protected void onPreExecute() {
             super.onPreExecute();
             running = true;
-            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
+            //MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
             showMessageDialog(MyApplication.getContext().getResources().getString(R.string.progressUpload));
         }
 

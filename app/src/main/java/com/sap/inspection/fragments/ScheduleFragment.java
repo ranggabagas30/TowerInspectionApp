@@ -302,7 +302,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		}
 
 		if (workTypeName.matches(Constants.regexPREVENTIVE) && !MyApplication.getInstance().isInCheckHasilPm()) {
-			MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
+		    MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
 			intent = new Intent(activity, CheckInActivity.class);
 		} else {
 			intent = new Intent(activity, FormActivity.class);

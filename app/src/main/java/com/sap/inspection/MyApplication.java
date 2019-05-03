@@ -1,5 +1,6 @@
 package com.sap.inspection;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -98,6 +99,7 @@ public class MyApplication extends Application {
 		handler.sendMessage(msg);
 	}
 
+	@SuppressLint("HandlerLeak")
 	Handler handler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			Toast.makeText(instance, msg.getData().getString("message"), msg.getData().getInt("duration")).show();

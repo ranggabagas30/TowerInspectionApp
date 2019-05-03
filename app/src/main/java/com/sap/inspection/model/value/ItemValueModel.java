@@ -96,9 +96,27 @@ public class ItemValueModel extends BaseModel {
 
 	}
 
+	public static void deleteAllBy(String scheduleId) {
+
+		deleteAllBy(scheduleId, null, null);
+
+	}
+
 	public static void deleteAllBy(String scheduleId, String wargaId, String barangId) {
 
 		delete(scheduleId, UNSPECIFIED, UNSPECIFIED, wargaId, barangId);
+
+	}
+
+	public static void deleteAllBy(String scheduleId, int itemId) {
+
+		deleteAllBy(scheduleId, itemId, null, null);
+
+	}
+
+	public static void deleteAllBy(String scheduleId, int itemId, String wargaId, String barangId) {
+
+		delete(scheduleId, itemId, UNSPECIFIED, wargaId, barangId);
 
 	}
 
@@ -370,37 +388,16 @@ public class ItemValueModel extends BaseModel {
 
 					ArrayList<ItemValueModel> itemValues = getItemValues(scheduleId, workFormItem.id, wargaId, barangId);
 
-					DebugLog.d("(scopetype, itemid, itemlabel, ismandatory, isnull) : (all, " + workFormItem.id + ", " + workFormItem.label + ", " + workFormItem.mandatory + ", " + (itemValues == null ? "tidak terisi" : "terisi") + ")");
+					if (itemValues == null && isMandatory) {
 
-					if (itemValues == null && isMandatory) // mandatory item is not filled
+						// mandatory item is not filled
+						DebugLog.e("Item label " + workFormItem.label + " kosong, cancel upload");
 						return null;
+					}
 					else if (itemValues != null) { // there are some filled items
 
-						// validation only take one item, because it already represents the others
-						ItemValueModel filledItem = itemValues.get(0);
-
-						// if the filled items are mandatory, then apply strict rules
-						if (isMandatory) {
-
-							// for non-TYPE_PICTURE_RADIO
-							if (TextUtils.isEmpty(filledItem.value)) {
-
-								if (workFormItem.field_type.equalsIgnoreCase("file"))
-									MyApplication.getInstance().toast("Foto item " + workFormItem.label + " Tidak ada. Silahkan ambil foto terlebih dahulu", Toast.LENGTH_LONG);
-								else
-									MyApplication.getInstance().toast("value item " + workFormItem.label + " Tidak terisi", Toast.LENGTH_LONG);
-
-								return null;
-							} else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem)) {
-								return null;
-							}
-
-						} else {
-
-							if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
-								return null;
-						}
-
+                        if (!isItemValueValidated(workFormItem, itemValues.get(0)))
+                            return null;
 
 						// otherwise just add all the items
 						results.addAll(itemValues);
@@ -416,43 +413,25 @@ public class ItemValueModel extends BaseModel {
 						int operatorid = operator.id;
 						ItemValueModel itemValue = getItemValue(scheduleId, workFormItem.id, operatorid, wargaId, barangId);
 
-						DebugLog.d("(scopetype, itemid, operatorid, itemlabel, ismandatory, isnull) : (operator, " + workFormItem.id + ", " + operatorid + ", " + workFormItem.label + ", " + workFormItem.mandatory + ", " + (itemValue == null ? "tidak terisi" : "terisi") + ")");
+						if (workFormItem.mandatory) {
 
-						if (itemValue == null && isMandatory)
-							return null;
-						else if (itemValue != null) {
+							if (!isItemValueValidated(workFormItem, itemValue))
+								return null;
 
-							ItemValueModel filledItem = itemValue;
+						} else {
 
-							// if the filled items are mandatory, then apply strict rules
-							if (isMandatory) {
+							if (itemValue != null)
+								results.add(itemValue);
 
-								// for non-TYPE_PICTURE_RADIO
-								if (TextUtils.isEmpty(filledItem.value)) {
-
-									if (workFormItem.field_type.equalsIgnoreCase("file"))
-										MyApplication.getInstance().toast("Foto item " + workFormItem.label + " Tidak ada. Silahkan ambil foto terlebih dahulu", Toast.LENGTH_LONG);
-									else
-										MyApplication.getInstance().toast("value item " + workFormItem.label + " Tidak terisi", Toast.LENGTH_LONG);
-
-									return null;
-								} else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem)) {
-									return null;
-								}
-
-							} else {
-
-								if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
-									return null;
-							}
 						}
-
-						results.add(itemValue);
-					}
+                    }
 				}
 			}
 
-		} else return null;
+		} else {
+		    DebugLog.e("workitems is null");
+		    return null;
+        }
 
 		return results;
 	}
@@ -461,6 +440,7 @@ public class ItemValueModel extends BaseModel {
 
         // checking for form's item type picture radio with mandatory applied only on "NOK" option
         if (TextUtils.isEmpty(filledItem.photoStatus)) {
+        	DebugLog.e("Photo status item " + workFormItem.label + " harus diisi");
             MyApplication.getInstance().toast("Photo status item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
             return false;
         }
@@ -468,12 +448,58 @@ public class ItemValueModel extends BaseModel {
         if (!TextUtils.isEmpty(filledItem.photoStatus) &&
                 filledItem.photoStatus.equalsIgnoreCase(Constants.NOK) &&
                 TextUtils.isEmpty(filledItem.remark)) {
-            MyApplication.getInstance().toast("Remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+        		DebugLog.e("Remark item " + workFormItem.label + " harus diisi");
+                MyApplication.getInstance().toast("Remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
             return false;
         }
 
 		return true;
 	}
+
+	public static boolean isItemValueValidated(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
+
+        if (filledItem == null && workFormItem.mandatory) {
+
+            // mandatory item is not filled
+            DebugLog.e("Item label " + workFormItem.label + " harus diisi");
+            MyApplication.getInstance().toast("Item label " + workFormItem.label + " harus diisi", Toast.LENGTH_SHORT);
+            return false;
+
+        } else if (filledItem != null) {
+
+            // if the filled items are mandatory, then apply strict rules
+            if (workFormItem.mandatory) {
+
+                // if the value is empty
+                if (TextUtils.isEmpty(filledItem.value)) {
+
+                    // if the item type is file "photoitem"
+                    if (workFormItem.field_type.equalsIgnoreCase("file")) {
+
+                        // and photo status is not null or empty and photo status not equal "NA"
+                        if (!TextUtils.isEmpty(filledItem.photoStatus) && !filledItem.photoStatus.equalsIgnoreCase(Constants.NA)) {
+                            DebugLog.e("Photo item" + workFormItem.label + " harus ada");
+                            MyApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
+                            return false;
+                        }
+
+                    } else {
+
+						DebugLog.e("Item label " + workFormItem.label + " kosong, cancel upload");
+						MyApplication.getInstance().toast("Item label " + workFormItem.label + " harus diisi", Toast.LENGTH_SHORT);
+                        return false; // and not photo item radio, then return null
+                    }
+
+                }
+
+            }
+
+            return !workFormItem.field_type.equalsIgnoreCase("file") || ItemValueModel.isPictureRadioItemValidated(workFormItem, filledItem);
+        }
+
+        return true;
+    }
+
 
 	public void save(Context context){
 

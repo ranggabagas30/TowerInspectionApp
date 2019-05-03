@@ -316,7 +316,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             hideDialog();
 
             //String progress upload
-            Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_SHORT).show();
         }
     };
 

@@ -570,77 +570,50 @@ public class FormFillAdapter extends MyBaseAdapter {
 		boolean isHorizontal = true;
 		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
 
-
-		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
-		DebugLog.d("radioGroup child count after addview : " + radioGroup.getChildCount());
-
-		/*for (int i = 0; i< radioGroup.getChildCount(); i++){
+		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
 			radioButton.setOnCheckedChangeListener(null);
 			radioButton.setEnabled(isEnabled);
-			DebugLog.d("radioButton enabled ? " + isEnabled);
-		}*/
-
+		}
 		radioGroup.clearCheck();
-
-		Vector<WorkFormOptionsModel> options = item.workItemModel.options;
-		int optionSize = options.size();
-
 		isHorizontal = 3 >= item.workItemModel.options.size();
-
 		DebugLog.d("isHorizontal : " + isHorizontal);
-		DebugLog.d("radioGroup child count before addview : " + radioGroup.getChildCount());
-
-		for (int i = 0; i < radioGroup.getChildCount(); i++){
-
+		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			//binding checkbox
-			if (i < optionSize){
-
+			if (i < item.workItemModel.options.size()){
 				RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
 				radioButton.setVisibility(View.VISIBLE);
-				radioButton.setText(options.get(i).label);
-
-				isHorizontal = options.get(i).label.length() < 4;
-
+				radioButton.setText(item.workItemModel.options.get(i).label);
+				isHorizontal = item.workItemModel.options.get(i).label.length() < 4;
 				//				radioButton.setTag(rowId+"|"+item.workItemModel.id+"|"+operatorId+"|"+item.workItemModel.options.get(i).value+"|0");
 				radioButton.setTag(item);
-
 				if (split != null)
 					for(int j = 0; j < split.length; j++){
-
-						if (options.get(i).value.equalsIgnoreCase(split[j])) {
+						if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j]))
 							radioGroup.check(radioButton.getId());
-							DebugLog.d("split[" + j + "] = " + split[j]);
-						}
-
 					}
-                DebugLog.d("checkedChangeListener ... ");
+				DebugLog.d("checkedChangeListener ... ");
 				radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
 			}
-
 			//remove unused checkbox
 			else radioGroup.getChildAt(i).setVisibility(View.GONE);
 		}
 
 		//adding and binding if some checkbox is missing
-		for(int i = radioGroup.getChildCount(); i < optionSize; i++){
-
+		for(int i = radioGroup.getChildCount(); i < item.workItemModel.options.size(); i++){
 			RadioButton radioButton = new RadioButton(context);
-			radioButton.setText(options.get(i).label);
-			isHorizontal = options.get(i).label.length() < 4;
+			radioButton.setText(item.workItemModel.options.get(i).label);
+			isHorizontal = item.workItemModel.options.get(i).label.length() < 4;
 			//			radioButton.setTag(rowId+"|"+item.workItemModel.id+"|"+operatorId+"|"+item.workItemModel.options.get(i).value+"|0");
 			radioButton.setTag(item);
-
 			radioGroup.addView(radioButton);
-
 			if (split != null)
 				for(int j = 0; j < split.length; j++){
-					if (options.get(i).value.equalsIgnoreCase(split[j])) {
+					if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j]))
 						radioGroup.check(radioButton.getId());
-					}
 				}
 			radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
-			radioButton.setEnabled(isEnabled);
+
 		}
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 	}
@@ -670,7 +643,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				value = option.value;
 				break;
 			}
-		DebugLog.d( "-=-=-=- value : "+value);
+		DebugLog.d( "-=-=-=- value : " + value);
 		saveValue(item, isChecked, true, value);
 	};
 
@@ -690,6 +663,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 			itemFormRenderModel.itemValue.itemId = itemFormRenderModel.workItemModel.id;
 			itemFormRenderModel.itemValue.scheduleId = itemFormRenderModel.schedule.id;
 			itemFormRenderModel.itemValue.rowId = itemFormRenderModel.rowId;
+			itemFormRenderModel.itemValue.value = value;
 		}
 
 		// SAP only
@@ -698,29 +672,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 			itemFormRenderModel.itemValue.barangId = barangId;
 		}
 
-		DebugLog.d("=== ITEM UPDATES ===");
-		DebugLog.d("isAdding="+isAdding+", isCompundButton="+isCompundButton+", value="+value);
-		DebugLog.d("item scheduleid : " + itemFormRenderModel.itemValue.scheduleId);
-		DebugLog.d("item operatorid : " + itemFormRenderModel.itemValue.operatorId);
-		DebugLog.d("item itemid : " + itemFormRenderModel.itemValue.itemId);
-		DebugLog.d("item siteid : " + itemFormRenderModel.itemValue.siteId);
-		DebugLog.d("item gpsaccur : " + itemFormRenderModel.itemValue.gpsAccuracy);
-		DebugLog.d("item rowid : " + itemFormRenderModel.itemValue.rowId);
-		DebugLog.d("item remark : " + itemFormRenderModel.itemValue.remark);
-		DebugLog.d("item photostatus : " + itemFormRenderModel.itemValue.photoStatus);
-		DebugLog.d("item latitude : " + itemFormRenderModel.itemValue.latitude);
-		DebugLog.d("item longitude : " + itemFormRenderModel.itemValue.longitude);
-		DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
-		DebugLog.d("item uploadstatus : " + itemFormRenderModel.itemValue.uploadStatus);
-		DebugLog.d("item photodate : " + itemFormRenderModel.itemValue.photoDate);
-		DebugLog.d("item wargaid : " + itemFormRenderModel.itemValue.wargaId);
-		DebugLog.d("item barangid : " + itemFormRenderModel.itemValue.barangId);
-
 		if (isCompundButton){
 			if (isAdding){ //adding value on check box
 				DebugLog.d("goto adding");
 				// value still null or blank
-				if (itemFormRenderModel.itemValue.value == null  || itemFormRenderModel.itemValue.value.equalsIgnoreCase("")){
+				if (TextUtils.isEmpty(itemFormRenderModel.itemValue.value)){
 					itemFormRenderModel.itemValue.value = value;
 					itemFormRenderModel.schedule.sumTaskDone ++;
 				}
@@ -734,13 +690,36 @@ public class FormFillAdapter extends MyBaseAdapter {
 							itemFormRenderModel.itemValue.value += ","+value;
 					}
 				}
+
 				itemFormRenderModel.itemValue.uploadStatus = ItemValueModel.UPLOAD_NONE;
 				saveAfterCheck(itemFormRenderModel);
+
+				DebugLog.d("=== ITEM UPDATES ===");
+				DebugLog.d("isAdding="+isAdding+", isCompundButton="+isCompundButton+", value="+value);
+				DebugLog.d("item scheduleid : " + itemFormRenderModel.itemValue.scheduleId);
+				DebugLog.d("item operatorid : " + itemFormRenderModel.itemValue.operatorId);
+				DebugLog.d("item itemid : " + itemFormRenderModel.itemValue.itemId);
+				DebugLog.d("item siteid : " + itemFormRenderModel.itemValue.siteId);
+				DebugLog.d("item gpsaccur : " + itemFormRenderModel.itemValue.gpsAccuracy);
+				DebugLog.d("item rowid : " + itemFormRenderModel.itemValue.rowId);
+				DebugLog.d("item remark : " + itemFormRenderModel.itemValue.remark);
+				DebugLog.d("item photostatus : " + itemFormRenderModel.itemValue.photoStatus);
+				DebugLog.d("item latitude : " + itemFormRenderModel.itemValue.latitude);
+				DebugLog.d("item longitude : " + itemFormRenderModel.itemValue.longitude);
+				DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+				DebugLog.d("item uploadstatus : " + itemFormRenderModel.itemValue.uploadStatus);
+				DebugLog.d("item photodate : " + itemFormRenderModel.itemValue.photoDate);
+				DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+				DebugLog.d("item wargaid : " + itemFormRenderModel.itemValue.wargaId);
+				DebugLog.d("item barangid : " + itemFormRenderModel.itemValue.barangId);
+				DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
+
 			}else{ // deleting on checkbox
+
 				DebugLog.d("goto deleting");
 				String[] chkBoxValue = itemFormRenderModel.itemValue.value.split("[,]");
 				itemFormRenderModel.itemValue.value = "";
-				//removing unchecked checkbox value
+
 				for(int i = 0; i < chkBoxValue.length; i++){ 
 					if (!chkBoxValue[i].equalsIgnoreCase(value))
 						if (i == chkBoxValue.length - 1 || chkBoxValue[chkBoxValue.length - 1].equalsIgnoreCase(value))
@@ -771,18 +750,36 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 				itemFormRenderModel.itemValue = null;
 				itemFormRenderModel.schedule.sumTaskDone--;
-			}
-			else{
+			} else{
 				DebugLog.d("goto adding");
 				if (itemFormRenderModel.itemValue.value == null)
 					itemFormRenderModel.schedule.sumTaskDone++;
 				itemFormRenderModel.itemValue.value = value;
 				itemFormRenderModel.itemValue.uploadStatus = ItemValueModel.UPLOAD_NONE;
 				itemFormRenderModel.itemValue.save();
+
+				DebugLog.d("=== ITEM UPDATES ===");
+				DebugLog.d("isAdding="+isAdding+", isCompundButton="+isCompundButton+", value="+value);
+				DebugLog.d("item scheduleid : " + itemFormRenderModel.itemValue.scheduleId);
+				DebugLog.d("item operatorid : " + itemFormRenderModel.itemValue.operatorId);
+				DebugLog.d("item itemid : " + itemFormRenderModel.itemValue.itemId);
+				DebugLog.d("item siteid : " + itemFormRenderModel.itemValue.siteId);
+				DebugLog.d("item gpsaccur : " + itemFormRenderModel.itemValue.gpsAccuracy);
+				DebugLog.d("item rowid : " + itemFormRenderModel.itemValue.rowId);
+				DebugLog.d("item remark : " + itemFormRenderModel.itemValue.remark);
+				DebugLog.d("item photostatus : " + itemFormRenderModel.itemValue.photoStatus);
+				DebugLog.d("item latitude : " + itemFormRenderModel.itemValue.latitude);
+				DebugLog.d("item longitude : " + itemFormRenderModel.itemValue.longitude);
+				DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+				DebugLog.d("item uploadstatus : " + itemFormRenderModel.itemValue.uploadStatus);
+				DebugLog.d("item photodate : " + itemFormRenderModel.itemValue.photoDate);
+				DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+				DebugLog.d("item wargaid : " + itemFormRenderModel.itemValue.wargaId);
+				DebugLog.d("item barangid : " + itemFormRenderModel.itemValue.barangId);
+				DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
 			}
 		}
 		itemFormRenderModel.schedule.save();
-		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
 	}
 	
 	private void saveAfterCheck(ItemFormRenderModel itemFormRenderModel){
@@ -796,13 +793,21 @@ public class FormFillAdapter extends MyBaseAdapter {
 	}
 	
 	private void deleteAfterCheck(ItemFormRenderModel itemFormRenderModel){
-		if (itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")){
-			for (OperatorModel operator : itemFormRenderModel.schedule.operators){
-				itemFormRenderModel.itemValue.operatorId = operator.id;
-				itemFormRenderModel.itemValue.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
-			}
-		}else
-			itemFormRenderModel.itemValue.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
+
+		if (itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")) {
+
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+				ItemValueModel.deleteAllBy(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.wargaId, itemFormRenderModel.itemValue.barangId);
+			} else
+				ItemValueModel.deleteAllBy(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId);
+
+		} else {
+
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+				ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId, itemFormRenderModel.itemValue.wargaId, itemFormRenderModel.itemValue.barangId);
+			else
+				ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
+		}
 	}
 
 	private boolean isAudit() {

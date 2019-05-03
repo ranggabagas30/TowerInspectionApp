@@ -125,14 +125,6 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
-	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = fm.beginTransaction();
-		ft.replace(viewContainerResId, fragment);
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-		ft.commit();
-	}
-
 	@Override
 	public void onBackPressed() {
 		if (mSlidingLayer.isOpened())
