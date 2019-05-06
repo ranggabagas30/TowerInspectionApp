@@ -8,6 +8,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
@@ -49,6 +51,7 @@ public class FormActivityWarga extends BaseActivity {
 
     // bundle extras
     private int dataIndex;
+    private int rowId;
     private String scheduleId;
     private String wargaId;
     private String barangId;
@@ -63,6 +66,7 @@ public class FormActivityWarga extends BaseActivity {
 
         DebugLog.d("received bundles : ");
         dataIndex           = getIntent().getIntExtra(Constants.KEY_DATAINDEX, -1);
+        rowId               = getIntent().getIntExtra(Constants.KEY_ROWID, -1);
         scheduleId          = getIntent().getStringExtra(Constants.KEY_SCHEDULEID); DebugLog.d("scheduleId = " + scheduleId);
         wargaId             = getIntent().getStringExtra(Constants.KEY_WARGAID);    DebugLog.d("wargaId = " + wargaId);
         workFormGroupId     = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPID); DebugLog.d("workFormGroupId = " + workFormGroupId);
@@ -79,15 +83,21 @@ public class FormActivityWarga extends BaseActivity {
                 .setTopTitleColor(R.color.lightgray)
                 .setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
 
-        mHeaderTitle.setText("Warga ID " + wargaId);
-        mHeaderSubtitle.setText("Schedule ID " + scheduleId);
-
         mNavigationAdapter = new RecyclerNavigationAdapter();
         mNavigationMenu.setAdapter(mNavigationAdapter);
         mNavigationMenu.setItemAnimator(new DefaultItemAnimator());
         mNavigationMenu.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
+        mHeaderTitle.setText("Warga ID " + StringUtil.getWargaId(scheduleId, wargaId));
+        mHeaderSubtitle.setText("Schedule ID " + scheduleId);
         generateNavigationItems(true);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int work_form_group_id = Integer.valueOf(workFormGroupId);
+        mHeaderTitle.setText("Warga ID " + StringUtil.getWargaId(scheduleId, wargaId) + " (" + StringUtil.getWargaName(scheduleId, wargaId, work_form_group_id, "Nama") + ")");
     }
 
     public String getScheduleId() {

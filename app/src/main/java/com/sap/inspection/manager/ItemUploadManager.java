@@ -88,7 +88,6 @@ public class ItemUploadManager {
     public String syncFail = "Sinkronisasi gagal";
     private String latestStatus;
     private UploadValue uploadTask;
-    private Activity activity;
 
     public boolean isRunning() {
         return running;
@@ -108,11 +107,6 @@ public class ItemUploadManager {
 
     public String getLatestStatus() {
         return latestStatus;
-    }
-
-    public ItemUploadManager setActivity(Activity activity) {
-        this.activity = activity;
-        return this;
     }
 
     public void addItemValues(Collection<ItemValueModel> itemvalues) {
@@ -137,10 +131,6 @@ public class ItemUploadManager {
                     uploadTask = new UploadValue();
                     uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
-                /*else {
-                    //"There is upload process, please wait until finish"
-                    MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
-                }*/
         }
     }
 
@@ -185,16 +175,6 @@ public class ItemUploadManager {
 
     }
 
-    private void showMessageDialog(String message) {
-        if (activity instanceof BaseActivity)
-            ((BaseActivity) activity).showMessageDialog(message);
-    }
-
-    private void hideDialog() {
-        if (activity instanceof BaseActivity)
-            ((BaseActivity) activity).hideDialog();
-    }
-
     private class UploadValue extends AsyncTask<Void, String, Void> {
 
         // private Activity activity;
@@ -225,13 +205,11 @@ public class ItemUploadManager {
         protected void onPreExecute() {
             super.onPreExecute();
             running = true;
-            //MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
-            showMessageDialog(MyApplication.getContext().getResources().getString(R.string.progressUpload));
+            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
         }
 
         private void publish(String msg) {
             publishProgress(msg);
-            showMessageDialog(msg);
         }
 
         @Override
@@ -720,14 +698,12 @@ public class ItemUploadManager {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            hideDialog();
             running = false;
         }
 
         @Override
         protected void onCancelled() {
             super.onCancelled();
-            hideDialog();
             running = false;
         }
 

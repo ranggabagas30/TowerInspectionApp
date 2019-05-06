@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
@@ -163,16 +164,18 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			if (!GlobalVar.getInstance().anyNetwork(MyApplication.getContext())) {
 				MyApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
 			} else {
-				String id = (String) v.getTag();
+				String scheduleId = (String) v.getTag();
 
-				ItemValueModel itemValueModel = new ItemValueModel();
-				ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(id);
+				/*ItemValueModel itemValueModel = new ItemValueModel();
+				ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(scheduleId);
 				if (itemValueModels.size() != 0) {
 					ItemUploadManager.getInstance().addItemValues(itemValueModels);
 				} else {
 					MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
-				}
+				}*/
 
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+					new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, Constants.EMPTY, Constants.EMPTY).execute();
 			}
         }
     };

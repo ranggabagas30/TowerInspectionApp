@@ -1,10 +1,13 @@
 package com.sap.inspection.model.value;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.os.AsyncTask;
 import android.os.Debug;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
@@ -14,6 +17,7 @@ import android.widget.Toast;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
@@ -21,7 +25,9 @@ import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.tools.DebugLog;
 
@@ -37,6 +43,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+
+import de.greenrobot.event.EventBus;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -185,7 +193,6 @@ public class ItemValueModel extends BaseModel {
 		return getItemValue(scheduleId, itemId, operatorId, null, null);
 
 	}
-
 	public static ItemValueModel getItemValue(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {
 
 		String table = DbManagerValue.mFormValue;
@@ -283,6 +290,49 @@ public class ItemValueModel extends BaseModel {
 		return results;
 	}
 
+	public static ItemValueModel getItemValue(String scheduleId, int rowId, String wargaId, String barangId) {
+
+		String table = DbManagerValue.mFormValue;
+		String[] columns = null;
+		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
+		String whererowid   	= rowId != UNSPECIFIED ? " AND " + DbManagerValue.colRowId + "=?" : "";
+		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+
+		String where = wherescheduleid + whererowid + wherewargaid + wherebarangid;
+		DebugLog.d("Get item(s) by (" + scheduleId + "," + rowId + "," + wargaId + "," + barangId +")");
+
+		List<String> argsList = new ArrayList<>();
+
+		if (scheduleId != null)
+			argsList.add(scheduleId);
+		if (rowId != UNSPECIFIED)
+			argsList.add(String.valueOf(rowId));
+		if (wargaId != null)
+			argsList.add(wargaId);
+		if (barangId != null)
+			argsList.add(barangId);
+
+		String[] args = new String[argsList.size()];
+		args = argsList.toArray(args);
+
+		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);;
+
+		if (!cursor.moveToFirst()) {
+
+			cursor.close();
+			DbRepositoryValue.getInstance().close();
+			return null;
+		}
+
+		ItemValueModel model = getSiteFromCursor(cursor);
+
+		cursor.close();
+		DbRepositoryValue.getInstance().close();
+		return model;
+	}
+
 	public static ArrayList<ItemValueModel> getItemValuesForUpload() {
 
 
@@ -319,10 +369,10 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
-	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
+	/*public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
 
 		return getItemValuesForUpload(scheduleId, null, null);
-	}
+	}*/
 
 
 	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
@@ -372,8 +422,33 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
+	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
+
+        DebugLog.d("upload items by scheduleId = " + scheduleId);
+	    ArrayList<ItemValueModel> uploadItems = new ArrayList<>();
+
+	    ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
+	    scheduleBaseModel.getScheduleById(scheduleId);
+
+        WorkFormModel workFormModel = new WorkFormModel();
+        workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModel.work_type.id);
+
+        WorkFormGroupModel groupModel = new WorkFormGroupModel();
+        Vector<WorkFormGroupModel> workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
+
+        for (WorkFormGroupModel perGroup : workFormGroupModels) {
+
+            uploadItems.addAll(getItemValuesForUpload(scheduleId, perGroup.id, Constants.EMPTY, Constants.EMPTY));
+
+        }
+
+        return uploadItems;
+    }
+
+
 	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
 
+        DebugLog.d("upload items by scheduleid = " + scheduleId + " workFormGroupId = " + work_form_group_id);
 		ArrayList<ItemValueModel> results = new ArrayList<>();
 
 		ArrayList<WorkFormItemModel> workFormItems = WorkFormItemModel.getWorkFormItems(work_form_group_id, "label");
@@ -383,48 +458,55 @@ public class ItemValueModel extends BaseModel {
 			for (WorkFormItemModel workFormItem : workFormItems) {
 
 				boolean isMandatory = workFormItem.mandatory;
+				boolean isDisabled  = workFormItem.disable;
 
-				if (workFormItem.scope_type.equalsIgnoreCase("all")) {
+				if (!isDisabled) {
 
-					ArrayList<ItemValueModel> itemValues = getItemValues(scheduleId, workFormItem.id, wargaId, barangId);
+					if (workFormItem.scope_type.equalsIgnoreCase("all")) {
 
-					if (itemValues == null && isMandatory) {
+						ArrayList<ItemValueModel> itemValues = getItemValues(scheduleId, workFormItem.id, wargaId, barangId);
 
-						// mandatory item is not filled
-						DebugLog.e("Item label " + workFormItem.label + " kosong, cancel upload");
-						return null;
-					}
-					else if (itemValues != null) { // there are some filled items
+						if (itemValues == null && isMandatory) {
 
-                        if (!isItemValueValidated(workFormItem, itemValues.get(0)))
-                            return null;
+							// mandatory item is not filled
+							DebugLog.e("Item label " + workFormItem.label + " kosong, cancel upload");
+							return null;
+						}
+						else if (itemValues != null) { // there are some filled items
 
-						// otherwise just add all the items
-						results.addAll(itemValues);
-					}
-
-				} else {
-
-					ScheduleBaseModel schedule = new ScheduleGeneral();
-					schedule = schedule.getScheduleById(scheduleId);
-
-					for (OperatorModel operator : schedule.operators) {
-
-						int operatorid = operator.id;
-						ItemValueModel itemValue = getItemValue(scheduleId, workFormItem.id, operatorid, wargaId, barangId);
-
-						if (workFormItem.mandatory) {
-
-							if (!isItemValueValidated(workFormItem, itemValue))
+							if (!isItemValueValidated(workFormItem, itemValues.get(0)))
 								return null;
 
-						} else {
+							// otherwise just add all the items
+							DebugLog.d("-> added");
+							results.addAll(itemValues);
+						}
 
-							if (itemValue != null)
+					} else {
+
+						ScheduleBaseModel schedule = new ScheduleGeneral();
+						schedule = schedule.getScheduleById(scheduleId);
+
+						for (OperatorModel operator : schedule.operators) {
+
+							int operatorid = operator.id;
+							ItemValueModel itemValue = getItemValue(scheduleId, workFormItem.id, operatorid, wargaId, barangId);
+
+							if (workFormItem.mandatory) {
+
+								if (!isItemValueValidated(workFormItem, itemValue))
+									return null;
+
 								results.add(itemValue);
 
+							} else {
+
+								if (itemValue != null)
+									results.add(itemValue);
+
+							}
 						}
-                    }
+					}
 				}
 			}
 
@@ -434,6 +516,62 @@ public class ItemValueModel extends BaseModel {
         }
 
 		return results;
+	}
+
+	public static class AsyncCollectItemValuesForUpload extends AsyncTask<Void, String, ArrayList<ItemValueModel>> {
+
+		private final String DONEPREPARINGITEMS = "DONEPREPARINGITEMS";
+		private String scheduleId;
+		private String wargaId;
+		private String barangId;
+		private int workFormGroupId;
+
+		public AsyncCollectItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
+		    new AsyncCollectItemValuesForUpload(scheduleId, UNSPECIFIED, wargaId, barangId);
+        }
+
+		public AsyncCollectItemValuesForUpload(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
+			this.scheduleId = scheduleId;
+			this.workFormGroupId = work_form_group_id;
+			this.wargaId = wargaId;
+			this.barangId = barangId;
+		}
+
+		private void publish(String msg) {
+			publishProgress(msg);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			publish("Menyiapkan item untuk diupload");
+		}
+
+		@Override
+		protected ArrayList<ItemValueModel> doInBackground(Void... voids) {
+
+		    if (workFormGroupId == UNSPECIFIED)
+		        return getItemValuesForUpload(scheduleId);
+             else
+			    return getItemValuesForUpload(scheduleId, workFormGroupId, wargaId, barangId);
+
+		}
+
+		@Override
+		protected void onProgressUpdate(String... values) {
+			super.onProgressUpdate(values);
+			UploadProgressEvent event = new UploadProgressEvent(values[0]);
+			event.done = values[0].equalsIgnoreCase(DONEPREPARINGITEMS);
+			EventBus.getDefault().post(event);
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<ItemValueModel> uploadItems) {
+			super.onPostExecute(uploadItems);
+			publish(DONEPREPARINGITEMS);
+			ItemUploadManager.getInstance().addItemValues(uploadItems);
+
+		}
 	}
 
 	public static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
@@ -458,43 +596,46 @@ public class ItemValueModel extends BaseModel {
 
 	public static boolean isItemValueValidated(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
 
-        if (filledItem == null && workFormItem.mandatory) {
+	    if (!workFormItem.disable) {
 
-            // mandatory item is not filled
-            DebugLog.e("Item label " + workFormItem.label + " harus diisi");
-            MyApplication.getInstance().toast("Item label " + workFormItem.label + " harus diisi", Toast.LENGTH_SHORT);
-            return false;
+            if (filledItem == null && workFormItem.mandatory) {
 
-        } else if (filledItem != null) {
+                // mandatory item is not filled
+                DebugLog.e("Item label " + workFormItem.label + " harus diisi");
+                MyApplication.getInstance().toast("Item label " + workFormItem.label + " harus diisi", Toast.LENGTH_SHORT);
+                return false;
 
-            // if the filled items are mandatory, then apply strict rules
-            if (workFormItem.mandatory) {
+            } else if (filledItem != null) {
 
-                // if the value is empty
-                if (TextUtils.isEmpty(filledItem.value)) {
+                // if the filled items are mandatory, then apply strict rules
+                if (workFormItem.mandatory) {
 
-                    // if the item type is file "photoitem"
-                    if (workFormItem.field_type.equalsIgnoreCase("file")) {
+                    // if the value is empty
+                    if (TextUtils.isEmpty(filledItem.value)) {
 
-                        // and photo status is not null or empty and photo status not equal "NA"
-                        if (!TextUtils.isEmpty(filledItem.photoStatus) && !filledItem.photoStatus.equalsIgnoreCase(Constants.NA)) {
-                            DebugLog.e("Photo item" + workFormItem.label + " harus ada");
-                            MyApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
-                            return false;
+                        // if the item type is file "photoitem"
+                        if (workFormItem.field_type.equalsIgnoreCase("file")) {
+
+                            // and photo status is not null or empty and photo status not equal "NA"
+                            if (!TextUtils.isEmpty(filledItem.photoStatus) && !filledItem.photoStatus.equalsIgnoreCase(Constants.NA)) {
+                                DebugLog.e("Photo item" + workFormItem.label + " harus ada");
+                                MyApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
+                                return false;
+                            }
+
+                        } else {
+
+                            DebugLog.e("Item label " + workFormItem.label + " kosong, cancel upload");
+                            MyApplication.getInstance().toast("Item label " + workFormItem.label + " harus diisi", Toast.LENGTH_SHORT);
+                            return false; // and not photo item radio, then return null
                         }
 
-                    } else {
-
-						DebugLog.e("Item label " + workFormItem.label + " kosong, cancel upload");
-						MyApplication.getInstance().toast("Item label " + workFormItem.label + " harus diisi", Toast.LENGTH_SHORT);
-                        return false; // and not photo item radio, then return null
                     }
 
                 }
 
+                return !workFormItem.field_type.equalsIgnoreCase("file") || ItemValueModel.isPictureRadioItemValidated(workFormItem, filledItem);
             }
-
-            return !workFormItem.field_type.equalsIgnoreCase("file") || ItemValueModel.isPictureRadioItemValidated(workFormItem, filledItem);
         }
 
         return true;

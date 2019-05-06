@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -31,6 +32,7 @@ import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 import com.slidinglayer.SlidingLayer;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
@@ -286,7 +288,16 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 						RowModel wargaKeModel = rowModel.getAllItemByWorkFormGroupId(model.id).get(0);
 
-						StringBuilder wargaLabel = new StringBuilder(wargaKeModel.text).append(wargas.get(i).getWargaid());
+						int workFormGroupId = model.id;
+
+						String wargakelabel = wargaKeModel.text;
+						String wargaId = wargas.get(i).getWargaid();
+						String warganame = StringUtil.getWargaName(scheduleId, wargaId, workFormGroupId, "Nama");
+
+						StringBuilder wargaLabel = new StringBuilder(wargakelabel).append(wargaId);
+
+						if (!TextUtils.isEmpty(warganame))
+							wargaLabel.append(" (").append(warganame).append(")");
 
 						wargaKeModel.text = new String(wargaLabel);
 

@@ -143,6 +143,7 @@ public class Constants {
 	 * */
 
 	public static final String regexIMBASPETIR = "(.*)IMBAS PETIR(.*)";
+	public static final String regexWarga = "Warga";
 	public static final String regexTambah = "Tambah";
 	public static final String regexId = "Id-";
 	public static final String regexWargaId	= "Warga Id-";

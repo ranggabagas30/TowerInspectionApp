@@ -7,12 +7,17 @@ import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
+import com.sap.inspection.model.form.RowColumnModel;
+import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Vector;
 
 public class StringUtil {
 
@@ -80,8 +85,12 @@ public class StringUtil {
 
     public static String getIdFromLabel(String label) {
 
-        String pattern = Constants.regexId;
-        label = label.replace(pattern, "");
+        String patternId = Constants.regexId;
+        String patternName = "\\s*\\([A-Za-z]+\\)";
+
+        String[] wargaLabel = label.split("\\s+");
+
+        label = wargaLabel[0].replace(patternId, "");
         DebugLog.d("Id : " + label);
 
         return label;
@@ -106,6 +115,38 @@ public class StringUtil {
         }
         return null;
     }
+
+    public static String getWargaId(String scheduleId, String wargaId) {
+
+        if (StringUtil.isNotRegistered(wargaId)) {
+            String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
+            DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," + realwargaId +")");
+            return realwargaId;
+        }
+        return wargaId;
+    }
+
+    public static String getWargaName(String scheduleId, String wargaId, int workFormGroupId, String lable) {
+
+        // on sap database get rowcol model using inner join
+        RowColumnModel rowColumnWarga = RowColumnModel.getRowColumnItem(workFormGroupId, lable);
+
+        if (rowColumnWarga != null) {
+
+            // on value database
+            ItemValueModel itemInformasiDiri = ItemValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, getWargaId(scheduleId, wargaId), Constants.EMPTY);
+
+            if (itemInformasiDiri != null) {
+
+                DebugLog.d("full name : " + itemInformasiDiri.value);
+                String[] names = itemInformasiDiri.value.split("\\s+");
+                return names[0];
+            }
+        }
+
+        return "";
+    }
+
 
     public static boolean isNotNullAndEmpty(String id) {
         return (!TextUtils.isEmpty(id) && !id.equalsIgnoreCase(Constants.EMPTY));

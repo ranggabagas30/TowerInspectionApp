@@ -299,8 +299,10 @@ public class NavigationAdapter extends MyBaseAdapter {
                     if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 					//if (false) { // debug only
 
-                        ArrayList<ItemValueModel> uploadItems = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY);
-                        ItemUploadManager.getInstance().addItemValues(uploadItems);
+                        /*ArrayList<ItemValueModel> uploadItems = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY);
+                        ItemUploadManager.getInstance().addItemValues(uploadItems);*/
+
+                        new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY).execute();
 
 					} else {
 

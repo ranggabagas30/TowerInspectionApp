@@ -9,6 +9,7 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.tools.DebugLog;
 
 import java.util.Vector;
 
@@ -95,7 +96,7 @@ public class RowColumnModel extends BaseModel {
 
 		Cursor cursor;
 
-		String query = "SELECT t1."+DbManager.colID+",t1."+DbManager.colRowId+",t1."+DbManager.colColId+",t1."+DbManager.colWorkFormGroupId+",t1."+DbManager.colCreatedAt+",t1."+DbManager.colUpdatedAt+" FROM " + DbManager.mWorkFormRowCol + " t1 INNER JOIN " + DbManager.mWorkFormColumn + " t2 ON t1." + DbManager.colColId + "=t2." + DbManager.colID + " WHERE t1." + DbManager.colRowId + "=? ORDER BY t2." + DbManager.colPosition + " ASC";
+		String query = "SELECT t1."+DbManager.colID + ", t1."+DbManager.colRowId + ", t1."+DbManager.colColId+",t1."+DbManager.colWorkFormGroupId+",t1."+DbManager.colCreatedAt+",t1."+DbManager.colUpdatedAt+" FROM " + DbManager.mWorkFormRowCol + " t1 INNER JOIN " + DbManager.mWorkFormColumn + " t2 ON t1." + DbManager.colColId + "=t2." + DbManager.colID + " WHERE t1." + DbManager.colRowId + "=? ORDER BY t2." + DbManager.colPosition + " ASC";
 		String[] args = new String[] {String.valueOf(workFormRowId)};
 
 		DbRepository.getInstance().open(MyApplication.getInstance());
@@ -122,7 +123,45 @@ public class RowColumnModel extends BaseModel {
 		return WorkFormItemModel.getAllItemByWorkFormRowColumnId(rowColumnId);
 
 	}
-	
+
+	public static RowColumnModel getRowColumnItem(int work_form_group_id, String lable) {
+
+		String table1 = DbManager.mWorkFormRowCol;
+		String table2 = DbManager.mWorkFormItem;
+		String colTable1ID = table1 + "." + DbManager.colID;
+		String colTable2WorkFormGroupId = table2 + "." + DbManager.colWorkFormGroupId;
+		String colTable2Lable = table2 + "." + DbManager.colLable;
+		String colTable2WorkFormRowColId = table2 + "." + DbManager.colWorkFormRowColumnId;
+
+		String query = "SELECT " + table1 + ".* FROM " + table1 + " INNER JOIN " + table2 + " ON " + colTable1ID + " = " + colTable2WorkFormRowColId + " WHERE " + colTable2WorkFormGroupId + "=? AND " + colTable2Lable + "=?";
+		String[] args = new String[] {String.valueOf(work_form_group_id), lable};
+
+		DebugLog.d("Get row col model : " + query);
+		DebugLog.d("by : " + DbManager.colWorkFormGroupId + " = " + work_form_group_id + " AND " + DbManager.colLable + " = " + lable);
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		Cursor cursor = DbRepository.getInstance().getDB().rawQuery(query, args);
+
+		if (!cursor.moveToFirst()) {
+			cursor.close();
+			DbRepository.getInstance().close();
+			return null;
+		}
+
+		RowColumnModel result = getRowColumnFromCursor(cursor);
+
+		if (result != null) {
+			DebugLog.d("id : " + result.id);
+			DebugLog.d("rowid : " + result.row_id);
+			DebugLog.d("columnid : " + result.column_id);
+			DebugLog.d("workFormGroupid : " + result.work_form_group_id);
+		}
+
+		cursor.close();
+		DbRepository.getInstance().close();
+		return result;
+	}
+
 	private static RowColumnModel getRowColumnFromCursor(Cursor c) {
 		RowColumnModel item= new RowColumnModel();
 
