@@ -97,7 +97,7 @@ public class FormActivityWarga extends BaseActivity {
     protected void onResume() {
         super.onResume();
         int work_form_group_id = Integer.valueOf(workFormGroupId);
-        mHeaderTitle.setText("Warga ID " + StringUtil.getWargaId(scheduleId, wargaId) + " (" + StringUtil.getName(scheduleId, wargaId, Constants.EMPTY, work_form_group_id, "Nama") + ")");
+        mHeaderTitle.setText("Warga ID " + StringUtil.getWargaId(scheduleId, wargaId) + " (" + StringUtil.getWargaName(scheduleId, wargaId, work_form_group_id, "Nama") + ")");
     }
 
     public String getScheduleId() {
