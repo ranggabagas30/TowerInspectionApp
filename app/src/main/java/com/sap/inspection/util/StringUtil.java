@@ -126,7 +126,17 @@ public class StringUtil {
         return wargaId;
     }
 
-    public static String getWargaName(String scheduleId, String wargaId, int workFormGroupId, String lable) {
+    public static String getBarangId(String scheduleId, String wargaId, String barangId) {
+
+        if (StringUtil.isNotRegistered(barangId)) {
+            String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(scheduleId, wargaId, barangId);
+            DebugLog.d("(barangid, realbarangid) : (" + barangId + "," + realbarangid +")");
+            return realbarangid;
+        }
+        return barangId;
+    }
+
+    public static String getName(String scheduleId, String wargaId, String barangId, int workFormGroupId, String lable) {
 
         // on sap database get rowcol model using inner join
         RowColumnModel rowColumnWarga = RowColumnModel.getRowColumnItem(workFormGroupId, lable);
@@ -134,7 +144,7 @@ public class StringUtil {
         if (rowColumnWarga != null) {
 
             // on value database
-            ItemValueModel itemInformasiDiri = ItemValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, getWargaId(scheduleId, wargaId), Constants.EMPTY);
+            ItemValueModel itemInformasiDiri = ItemValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, getWargaId(scheduleId, wargaId), getBarangId(scheduleId, wargaId, barangId));
 
             if (itemInformasiDiri != null) {
 

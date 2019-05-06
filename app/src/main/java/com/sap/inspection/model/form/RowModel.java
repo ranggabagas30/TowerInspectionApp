@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Debug;
 import android.os.Parcel;
+import android.text.TextUtils;
 
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.constant.Constants;
@@ -15,6 +16,7 @@ import com.sap.inspection.model.config.formimbaspetir.Barang;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -426,7 +428,12 @@ public class RowModel extends BaseModel {
 
                         for (int barangke = 0; barangke < barangSize; barangke++) {
 
-                            StringBuilder barangLabelBuilder = new StringBuilder(barangLabel).append(barangs.get(barangke).getBarangid());
+                        	String barangID = barangs.get(barangke).getBarangid();
+                        	String barangName = StringUtil.getName(scheduleId, wargaId, barangID, parentItem.work_form_group_id, "Nama");
+                            StringBuilder barangLabelBuilder = new StringBuilder(barangLabel).append(barangID);
+
+                            if (!TextUtils.isEmpty(barangName))
+                            	barangLabelBuilder.append(" (").append(barangName).append(")");
 
                             DebugLog.d("baranglabelbuilder = " + barangLabelBuilder);
 

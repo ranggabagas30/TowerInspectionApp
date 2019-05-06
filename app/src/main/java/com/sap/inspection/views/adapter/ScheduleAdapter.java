@@ -103,8 +103,6 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				holder.upload = view.findViewById(R.id.item_schedule_upload);
 				holder.upload.setOnClickListener(upload);
 				holder.upload.setVisibility(View.VISIBLE);
-				if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR))
-					holder.upload.setVisibility(View.INVISIBLE);
 
 				break;
 			default:
@@ -130,6 +128,8 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.task.setTextColor(Color.parseColor(getItem(position).getTaskColor()));
 			holder.place.setText(getItem(position).getPlace());
             holder.upload.setTag(getItem(position).id);
+			if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR))
+				holder.upload.setVisibility(View.INVISIBLE);
 			break;
 
 		default:

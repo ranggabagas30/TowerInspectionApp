@@ -69,6 +69,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ExifUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
@@ -881,7 +882,17 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			pageTitle = rowModel.row_columns.get(0).items.get(0).label;
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && pageTitle.contains(Constants.regexId)) {
-			pageTitle += barangId;
+
+			String barangLabel = pageTitle;
+			String barangID = barangId;
+			String barangName = StringUtil.getName(scheduleId, wargaId, barangId, workFormGroupId, "Nama");
+
+			StringBuilder barangLabelBuilder = new StringBuilder(barangLabel).append(barangID);
+
+			if (!TextUtils.isEmpty(barangName))
+				barangLabelBuilder.append(" (").append(barangName).append(")");
+
+			pageTitle = new String(barangLabelBuilder);
 		}
 	}
 

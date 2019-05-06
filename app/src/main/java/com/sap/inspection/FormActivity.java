@@ -292,7 +292,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 						String wargakelabel = wargaKeModel.text;
 						String wargaId = wargas.get(i).getWargaid();
-						String warganame = StringUtil.getWargaName(scheduleId, wargaId, workFormGroupId, "Nama");
+						String warganame = StringUtil.getName(scheduleId, wargaId, Constants.EMPTY, workFormGroupId, "Nama");
 
 						StringBuilder wargaLabel = new StringBuilder(wargakelabel).append(wargaId);
 
