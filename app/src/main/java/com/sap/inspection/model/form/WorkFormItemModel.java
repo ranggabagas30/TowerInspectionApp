@@ -15,6 +15,7 @@ import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.PictureModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
+import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
 
@@ -280,7 +281,6 @@ public class WorkFormItemModel extends BaseModel {
 
 	public static WorkFormItemModel getItemById(int id, int workFormGroupId) {
 
-		WorkFormItemModel result = new WorkFormItemModel();
 
 		String table = DbManager.mWorkFormItem;
 		String[] columns = null;
@@ -295,8 +295,11 @@ public class WorkFormItemModel extends BaseModel {
 		if (!cursor.moveToFirst()) {
 			cursor.close();
 			DbRepository.getInstance().close();
-			return result;
+			return null;
 		}
+
+        WorkFormItemModel result;
+
 		result = getItemFromCursor(cursor);
 		result.options = getWorkFormOptionsModels(result.id);
 
@@ -305,15 +308,54 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 
+	public static WorkFormItemModel getItemByLable(int work_form_group_id, String lable) {
+
+        String table = DbManager.mWorkFormItem;
+        String[] columns = null;
+        String whereworkformgroupid = work_form_group_id > 0 ? DbManager.colWorkFormGroupId + "=?" : "";
+        String wherelable	        = lable != null ? " AND " + DbManager.colLable + "=?" : "";
+        String where = whereworkformgroupid + wherelable;
+
+        DebugLog.d("Get work form item(s) by : " + where);
+
+        List<String> argsList = new ArrayList<>();
+
+        if (work_form_group_id > 0)
+            argsList.add(String.valueOf(work_form_group_id));
+        if (lable != null)
+            argsList.add(lable);
+
+        String[] args = new String[argsList.size()];
+        args = argsList.toArray(args);
+
+        Cursor cursor;
+
+        DbRepository.getInstance().open(MyApplication.getInstance());
+        cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, null, null);
+
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            DbRepository.getInstance().close();
+            return null;
+        }
+
+        WorkFormItemModel result = getItemFromCursor(cursor);
+        result.options = getWorkFormOptionsModels(result.id);
+
+        cursor.close();
+        DbRepository.getInstance().close();
+        return result;
+    }
+
 	public static ArrayList<WorkFormItemModel> getWorkFormItems(int work_form_group_id, String excl_field_type) {
 
 		String table = DbManager.mWorkFormItem;
 		String[] columns = null;
-		String whereworkformgroupid = work_form_group_id > 0 ? DbManager.colWorkFormGroupId + "=?" : "";
-		String wherefieldtype	    = excl_field_type != null ? " AND " + DbManager.colFieldType + "!=?" : "";
+		String whereworkformgroupid = work_form_group_id != ItemValueModel.UNSPECIFIED ? DbManager.colWorkFormGroupId + "=? AND " : "";
+		String wherefieldtype	    = excl_field_type != null ? DbManager.colFieldType + "!=?" : "";
 		String where = whereworkformgroupid + wherefieldtype;
 
-		DebugLog.d("Get work form item(s) by : " + where);
+		DebugLog.d("Get work form item(s) by workFormGroupId = " + work_form_group_id + " AND field type != " + excl_field_type);
 
 		List<String> argsList = new ArrayList<>();
 
