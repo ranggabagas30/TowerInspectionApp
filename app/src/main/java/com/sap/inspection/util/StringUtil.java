@@ -116,24 +116,34 @@ public class StringUtil {
         return null;
     }
 
-    public static String getWargaId(String scheduleId, String wargaId) {
+    public static String getRegisteredWargaId(String scheduleId, String wargaId) {
 
-        if (StringUtil.isNotRegistered(wargaId)) {
-            String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
-            DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," + realwargaId +")");
-            return realwargaId;
+        if (!TextUtils.isEmpty(wargaId)) {
+
+            if (StringUtil.isNotRegistered(wargaId)) {
+                String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
+                DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," + realwargaId +")");
+                return realwargaId;
+            }
+            return wargaId;
         }
-        return wargaId;
+
+        return null;
     }
 
-    public static String getBarangId(String scheduleId, String wargaId, String barangId) {
+    public static String getRegisteredBarangId(String scheduleId, String wargaId, String barangId) {
 
-        if (StringUtil.isNotRegistered(barangId)) {
-            String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(scheduleId, wargaId, barangId);
-            DebugLog.d("(barangid, realbarangid) : (" + barangId + "," + realbarangid +")");
-            return realbarangid;
+        if (!TextUtils.isEmpty(barangId) && !TextUtils.isEmpty(wargaId)) {
+
+            if (StringUtil.isNotRegistered(barangId)) {
+                String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(scheduleId, wargaId, barangId);
+                DebugLog.d("(barangid, realbarangid) : (" + barangId + "," + realbarangid +")");
+                return realbarangid;
+            }
+            return barangId;
         }
-        return barangId;
+
+        return null;
     }
 
     public static String getName(String scheduleId, String wargaId, String barangId, int workFormGroupId, String lable) {
@@ -144,13 +154,18 @@ public class StringUtil {
         if (rowColumnWarga != null) {
 
             // on value database
-            ItemValueModel itemInformasiDiri = ItemValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, getWargaId(scheduleId, wargaId), getBarangId(scheduleId, wargaId, barangId));
+            String realWargaId = getRegisteredWargaId(scheduleId, wargaId);
+            String realBarangId = getRegisteredBarangId(scheduleId, wargaId, barangId);
 
-            if (itemInformasiDiri != null) {
+            if (!TextUtils.isEmpty(realWargaId) && !TextUtils.isEmpty(realBarangId)) {
 
-                DebugLog.d("full name : " + itemInformasiDiri.value);
-                String[] names = itemInformasiDiri.value.split("\\s+");
-                return names[0];
+                ItemValueModel itemInformasiDiri = ItemValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, realWargaId, realBarangId);
+                if (itemInformasiDiri != null) {
+
+                    DebugLog.d("full name : " + itemInformasiDiri.value);
+                    String[] names = itemInformasiDiri.value.split("\\s+");
+                    return names[0];
+                }
             }
         }
 
@@ -159,11 +174,17 @@ public class StringUtil {
 
 
     public static boolean isNotNullAndEmpty(String id) {
-        return (!TextUtils.isEmpty(id) && !id.equalsIgnoreCase(Constants.EMPTY));
+
+        if (!TextUtils.isEmpty(id))
+            return !id.equalsIgnoreCase(Constants.EMPTY);
+
+        return false;
     }
 
+
     public static boolean isNotRegistered(String id) {
-        return id.contains("new") && isNotNullAndEmpty(id);
+        return id.contains("new") && !id.equalsIgnoreCase(Constants.EMPTY);
     }
+
 
 }

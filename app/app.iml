@@ -244,5 +244,6 @@
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-tasks:16.0.1@aar" level="project" />
     <orderEntry type="module" module-name="baseassets" />
     <orderEntry type="library" name="Gradle: org.apache.http.legacy-android-27" level="project" />
+    <orderEntry type="module" module-name="baseassets" />
   </component>
 </module>

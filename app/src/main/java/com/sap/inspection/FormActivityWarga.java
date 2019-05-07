@@ -1,6 +1,9 @@
 package com.sap.inspection;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,17 +19,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.sap.inspection.BaseActivity;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.MyTextView;
+import com.sap.inspection.views.adapter.NavigationAdapter;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
 import java.util.ArrayList;
@@ -88,7 +95,18 @@ public class FormActivityWarga extends BaseActivity {
         mNavigationMenu.setItemAnimator(new DefaultItemAnimator());
         mNavigationMenu.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-        mHeaderTitle.setText("Warga ID " + StringUtil.getWargaId(scheduleId, wargaId));
+        int work_form_group_id = Integer.valueOf(workFormGroupId);
+        String wargaLable = "Warga ID ";
+        String wargaID = StringUtil.getRegisteredWargaId(scheduleId, wargaId);
+        String wargaName = StringUtil.getName(scheduleId, wargaId, Constants.EMPTY, work_form_group_id, "Nama");
+
+        StringBuilder wargaLableBuilder = new StringBuilder(wargaLable).append(wargaID);
+
+        if (!TextUtils.isEmpty(wargaName))
+            wargaLableBuilder.append( "(").append(wargaName).append(")");
+
+        mHeaderTitle.setText(new String(wargaLableBuilder));
+
         mHeaderSubtitle.setText("Schedule ID " + scheduleId);
         generateNavigationItems(true);
     }
@@ -96,8 +114,6 @@ public class FormActivityWarga extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        int work_form_group_id = Integer.valueOf(workFormGroupId);
-        mHeaderTitle.setText("Warga ID " + StringUtil.getWargaId(scheduleId, wargaId) + " (" + StringUtil.getWargaName(scheduleId, wargaId, work_form_group_id, "Nama") + ")");
     }
 
     public String getScheduleId() {
@@ -109,12 +125,6 @@ public class FormActivityWarga extends BaseActivity {
     }
 
     public String getWargaId() {
-
-        if (StringUtil.isNotRegistered(wargaId)) {
-            String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
-            DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," + realwargaId +")");
-            return realwargaId;
-        }
         return wargaId;
     }
 
@@ -123,12 +133,6 @@ public class FormActivityWarga extends BaseActivity {
     }
 
     public String getBarangId() {
-
-        if (StringUtil.isNotRegistered(barangId)) {
-            String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(scheduleId, wargaId, barangId);
-            DebugLog.d("(barangid, realbarangid) : (" + barangId + "," + realbarangid +")");
-            return realbarangid;
-        }
         return barangId;
     }
 
@@ -225,30 +229,114 @@ public class FormActivityWarga extends BaseActivity {
 
     private void navigateToFormFillActivity(RowModel rowModel) {
 
-        String wargaId = getWargaId();
+        String realWargaId = StringUtil.getRegisteredWargaId(scheduleId, getWargaId());
 
-        String barangId = Constants.EMPTY;
+        setBarangId(Constants.EMPTY);
         if (rowModel.text.contains(Constants.regexId)) {
             setBarangId(StringUtil.getIdFromLabel(rowModel.text));
-            barangId = getBarangId();
         }
 
-        if (StringUtil.isNotRegistered(wargaId) && !rowModel.text.equalsIgnoreCase("Informasi Diri")) {
+        String realBarangId = getBarangId();
 
-            MyApplication.getInstance().toast("Tidak bisa melanjutkan membuka form. Silahkan upload data 'Informasi Diri' terlebih dahulu", Toast.LENGTH_LONG);
+        if (realWargaId != null) {
+            if (StringUtil.isNotRegistered(realWargaId) && !rowModel.text.equalsIgnoreCase("Informasi Diri")) {
 
-        } else {
+                MyApplication.getInstance().toast("Tidak bisa melanjutkan membuka form. Silahkan upload data 'Informasi Diri' terlebih dahulu", Toast.LENGTH_LONG);
 
-            Intent intent = new Intent(this, FormFillActivity.class);
-            intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-            intent.putExtra(Constants.KEY_WARGAID, getWargaId());
-            intent.putExtra(Constants.KEY_BARANGID, barangId);
-            intent.putExtra(Constants.KEY_ROWID, rowModel.id);
-            intent.putExtra(Constants.KEY_WORKFORMGROUPID, rowModel.work_form_group_id);
-            intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-            startActivity(intent);
+            } else if (rowModel.text.equalsIgnoreCase("Kwitansi")) {
+
+                proceedApprovalCheckingFirst(scheduleId, workFormGroupName, rowId, Integer.valueOf(workFormGroupId), realWargaId, realBarangId);
+
+            } else{
+
+                Intent intent = new Intent(this, FormFillActivity.class);
+                intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+                intent.putExtra(Constants.KEY_WARGAID, getWargaId());
+                intent.putExtra(Constants.KEY_BARANGID, realBarangId);
+                intent.putExtra(Constants.KEY_ROWID, rowModel.id);
+                intent.putExtra(Constants.KEY_WORKFORMGROUPID, rowModel.work_form_group_id);
+                intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+                startActivity(intent);
+            }
         }
 
+    }
+
+    private void proceedApprovalCheckingFirst(String scheduleId, String workFormGroupName, int rowId, int workFormGroupId, String wargaId, String barangId) {
+
+        DebugLog.d("proceed approval checking ... ");
+        CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(this, scheduleId, workFormGroupName, rowId, workFormGroupId, wargaId, barangId);
+        APIHelper.getCheckApproval(this, checkApprovalHandler, scheduleId);
+
+    }
+
+    private class CheckApprovalHandler extends Handler {
+
+        private Context context;
+        private String scheduleId;
+        private String workFormGroupName;
+        private String wargaId;
+        private String barangId;
+        private int rowId;
+        private int workFormGroupId;
+
+        public CheckApprovalHandler(Context context, String scheduleId, String workFormGroupName, int rowId, int workFormGroupId, String wargaId, String barangId) {
+            this.context = context;
+            this.scheduleId = scheduleId;
+            this.workFormGroupName = workFormGroupName;
+            this.rowId = rowId;
+            this.workFormGroupId = workFormGroupId;
+            this.wargaId = wargaId;
+            this.barangId = barangId;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            Bundle bundle = msg.getData();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+            Gson gson = new Gson();
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+
+                    CheckApprovalResponseModel checkApprovalResponseModel = gson.fromJson(bundle.getString("json"), CheckApprovalResponseModel.class);
+                    checkApprovalResponseModel.toString();
+
+                    if (!checkApprovalResponseModel.status_code.equalsIgnoreCase("failed")) {
+
+                        DebugLog.d("check approval success");
+
+                        FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
+
+
+                        Intent intent = new Intent(context, FormFillActivity.class);
+                        intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+                        intent.putExtra(Constants.KEY_WARGAID, wargaId);
+                        intent.putExtra(Constants.KEY_BARANGID, barangId);
+                        intent.putExtra(Constants.KEY_ROWID, rowId);
+                        intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+                        intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+                        context.startActivity(intent);
+                        return;
+                    }
+
+                    DebugLog.d("belum ada approval dari STP");
+                    MyApplication.getInstance().toast("Schedule menunggu approval dari STP", Toast.LENGTH_LONG);
+
+                } else {
+
+                    MyApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
+
+                }
+            } else {
+
+                MyApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
+                DebugLog.d("response not ok");
+            }
+        }
     }
 
     private class RecyclerNavigationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -299,8 +387,7 @@ public class FormActivityWarga extends BaseActivity {
         @Override
         public int getItemCount() {
 
-            int size = getItems().size();
-            return size;
+            return getItems().size();
         }
 
         @Override
@@ -398,12 +485,14 @@ public class FormActivityWarga extends BaseActivity {
             private void uploadPerWargaSubNavigationMenu(RowModel parentNavItem) {
 
                 String scheduleId   = getScheduleId();
-                String wargaId      = getWargaId();
+                String realWargaId  = StringUtil.getRegisteredWargaId(scheduleId, getWargaId());
                 int workFormGroupId = parentNavItem.work_form_group_id;
 
-                DebugLog.d("parent item click. upload items by (scheduleid, wargaid, workformgroupid) : (" + scheduleId + ", " + workFormGroupName + ", " + wargaId + ")");
-                ArrayList<ItemValueModel> itemUploads = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, wargaId, null);
-                ItemUploadManager.getInstance().addItemValues(itemUploads);
+                DebugLog.d("parent item click. upload items by (scheduleid, wargaid, workformgroupid) : (" + scheduleId + ", " + workFormGroupName + ", " + realWargaId + ")");
+                /*ArrayList<ItemValueModel> itemUploads = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, null);
+                ItemUploadManager.getInstance().addItemValues(itemUploads);*/
+
+                new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, null).execute();
             }
         }
 
@@ -488,7 +577,8 @@ public class FormActivityWarga extends BaseActivity {
                     // insert new data warga as many as amount inputted
                     MyApplication.getInstance().toast("Tambahan jumlah barang : " + amountOfBarang, Toast.LENGTH_LONG);
 
-                    FormImbasPetirConfig.insertDataBarang(dataIndex, wargaId, Integer.valueOf(amountOfBarang));
+                    String realWargaId  = StringUtil.getRegisteredWargaId(scheduleId, getWargaId());
+                    FormImbasPetirConfig.insertDataBarang(dataIndex, realWargaId, Integer.valueOf(amountOfBarang));
                     generateNavigationItems(true);
 
                 }).show();
@@ -496,16 +586,16 @@ public class FormActivityWarga extends BaseActivity {
 
             public void removeBarangId(RowModel removedChildItem) {
 
-                String wargaId  = getWargaId();
+                String realWargaId  = StringUtil.getRegisteredWargaId(scheduleId, getWargaId());
 
                 setBarangId(StringUtil.getIdFromLabel(removedChildItem.text));
-                String barangId = getBarangId();
+                String realBarangId = StringUtil.getRegisteredBarangId(scheduleId, realWargaId, getBarangId());
 
-                DebugLog.d("remove barang with (id, label, wargaid, barangid) : (" + removedChildItem.id + ", " + removedChildItem.text + ", " + wargaId + ", " + barangId + ")");
+                DebugLog.d("remove barang with (id, label, wargaid, barangid) : (" + removedChildItem.id + ", " + removedChildItem.text + ", " + realWargaId + ", " + realBarangId + ")");
 
-                ItemValueModel.deleteAllBy(scheduleId, wargaId, barangId);
+                ItemValueModel.deleteAllBy(scheduleId, realWargaId, realBarangId);
 
-                boolean isSuccessful = FormImbasPetirConfig.removeBarang(scheduleId, wargaId, barangId);
+                boolean isSuccessful = FormImbasPetirConfig.removeBarang(scheduleId, realWargaId, realBarangId);
                 if (isSuccessful) {
 
                     DebugLog.d("remove barangid berhasil");
@@ -518,11 +608,16 @@ public class FormActivityWarga extends BaseActivity {
                 String scheduleId = getScheduleId();
                 int workFormGroupId = uploadChildItem.work_form_group_id;
 
-                setBarangId(StringUtil.getIdFromLabel(uploadChildItem.text));
-                String barangId = getBarangId();
+                String realWargaId  = StringUtil.getRegisteredWargaId(scheduleId, getWargaId());
 
-                ArrayList<ItemValueModel> uploadItemsByBarangId = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, wargaId, barangId);
-                ItemUploadManager.getInstance().addItemValues(uploadItemsByBarangId);
+                setBarangId(StringUtil.getIdFromLabel(uploadChildItem.text));
+                String realBarangId = StringUtil.getRegisteredBarangId(scheduleId, realWargaId, getBarangId());
+
+                DebugLog.d("(real wargaid, real barangid) : (" + realWargaId + ", " + realBarangId + ")");
+                /*ArrayList<ItemValueModel> uploadItemsByBarangId = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, realBarangId);
+                ItemUploadManager.getInstance().addItemValues(uploadItemsByBarangId);*/
+
+                new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, realBarangId).execute();
             }
         }
     }

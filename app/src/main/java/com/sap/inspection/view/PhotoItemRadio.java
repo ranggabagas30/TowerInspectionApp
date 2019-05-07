@@ -504,6 +504,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	public void setPhotoDate(String date) {
+	    value.createdAt = "";
 		value.photoDate = value.createdAt = date;
 	}
 
@@ -528,6 +529,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		value.longitude = longitude;
 		value.gpsAccuracy = accuracy;
 		value.photoStatus = Constants.OK;
+		value.photoDate = DateTools.getCurrentDate();
 
 		this.latitude.setText("Lat. : "+ latitude);
 		this.longitude.setText("Long. : "+ longitude);

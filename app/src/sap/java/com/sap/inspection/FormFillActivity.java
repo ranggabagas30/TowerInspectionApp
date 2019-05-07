@@ -655,7 +655,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
 						photoItem.deletePhoto();
-						photoItem.setPhotoDate(photoDate);
+						//photoItem.setPhotoDate(photoDate);
 						photoItem.setImage(photo, latitude, longitude, accuracy);
 
 					} else {
