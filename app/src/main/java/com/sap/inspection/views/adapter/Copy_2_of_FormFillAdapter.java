@@ -165,7 +165,7 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 			holder.plain.setText(getItem(position).getWhen());
 			break;
 		case ItemFormRenderModel.TYPE_PICTURE_RADIO:
-			holder.photo.setValue(getItem(position).itemValue);
+			holder.photo.setItemValue(getItem(position).itemValue, true);
 			break;
 		case ItemFormRenderModel.TYPE_TEXT_INPUT:
 			holder.label.setText(getItem(position).workItemModel.label);

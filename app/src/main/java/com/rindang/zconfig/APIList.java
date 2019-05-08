@@ -47,6 +47,10 @@ public class APIList {
 	    return AppConfig.getInstance().getV1() + "/form_imbas_petir";
     }
 
+    public static String checkApprove(String scheduleId) {
+		return AppConfig.getInstance().getV1() + "/check_approve/" + scheduleId;
+	}
+
 	//FormGroup
 	public static String formGroupUrl(){
 		return AppConfig.getInstance().getV1()+"/work_form_groups";

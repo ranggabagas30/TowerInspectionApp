@@ -144,7 +144,7 @@
                 android:layout_marginLeft="10dp"/>
 
             <Button
-                android:id="@id/submit"
+                android:id="@+id/login"
                 style="@style/list_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -2,8 +2,15 @@ package com.sap.inspection.view;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -18,20 +25,28 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.OperatorModel;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.ItemFormRenderModel;
+import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.StringUtil;
 
 import java.io.File;
 
@@ -53,7 +68,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	protected EditText remark;
 	protected EditText material_request;
 	protected RadioGroup radioGroup;
-	protected ImageButtonForList button;
+	protected ImageButtonForList btnTakePicture;
 	protected RadioButton ok;
 	protected RadioButton nok;
 	protected RadioButton na;
@@ -67,33 +82,8 @@ public class PhotoItemRadio extends RelativeLayout {
 	protected String labelText;
 	private ItemFormRenderModel itemFormRenderModel;
 	private boolean onInit = false;
-	private boolean isAudit = false;
-
-	public void setItemFormRenderModel(ItemFormRenderModel itemFormRenderModel) {
-		this.itemFormRenderModel = itemFormRenderModel;
-	}
-
-	public void setLabel(String label) {
-		this.labelText = label;
-	}
-
-	public void setScheduleId(String scheduleId) {
-		this.scheduleId = scheduleId;
-		if (value != null)
-			value.scheduleId = scheduleId;
-	}
-
-	public void setItemId(int itemId) {
-		this.itemId = itemId;
-		if (value != null)
-			value.itemId = itemId;
-	}
-
-	public void setOperatorId(int operatorId) {
-		this.operatorId = operatorId;
-		if (value != null)
-			value.operatorId = operatorId;
-	}
+	private boolean isAudit;
+    private Uri imageUri;
 
 	public PhotoItemRadio(Context context) {
 		super(context);
@@ -116,8 +106,8 @@ public class PhotoItemRadio extends RelativeLayout {
 
 		root = LayoutInflater.from(context).inflate(R.layout.photo_layout, this, true);
 		photoRoot = root.findViewById(R.id.photolayout);
-		button = (ImageButtonForList) root.findViewById(R.id.button);
-		button.setTag(this);
+		btnTakePicture = (ImageButtonForList) root.findViewById(R.id.btnTakePicture);
+		btnTakePicture.setTag(this);
         upload = root.findViewById(R.id.upload);
         upload.setTag(this);
 		noPicture =  root.findViewById(R.id.no_picture);
@@ -127,6 +117,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		longitude = (TextView) root.findViewById(R.id.longitude);
 		mandatory = (TextView) root.findViewById(R.id.mandatory);
 		mandatory.setTag(this);
+
 		accuracy = (TextView) root.findViewById(R.id.accuracy);
 		photodate = (TextView) root.findViewById(R.id.photodate);
 		uploadstatus = (TextView) root.findViewById(R.id.uploadstatus);
@@ -139,25 +130,90 @@ public class PhotoItemRadio extends RelativeLayout {
 		nok = (RadioButton) root.findViewById(R.id.radioNOK);
 		na = (RadioButton) root.findViewById(R.id.radioNA);
 		radioGroup.setOnCheckedChangeListener(changeListener);
-		value = new ItemValueModel();
 
 		toggleEditable();
 	}
 
-	public void setButtonClickListener(OnClickListener buttonClickListener){
-		button.setOnClickListener(buttonClickListener);
+	public void setButtonTakePictureListener(OnClickListener buttonClickListener){
+		btnTakePicture.setOnClickListener(buttonClickListener);
 	}
 
-    public void setUploadClickListener(OnClickListener uploadClickListener){
-        upload.setOnClickListener(uploadClickListener);
-    }
+	public void setScheduleId(String scheduleId) {
+		this.scheduleId = scheduleId;
+		if (value != null)
+			value.scheduleId = scheduleId;
+	}
 
-	public void setValue(ItemValueModel value, boolean initValue) {
+	public void setItemFormRenderModel(ItemFormRenderModel argsItemFormRenderModel) {
+		this.itemFormRenderModel = argsItemFormRenderModel;
+
+		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
+			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
+		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
+			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
+
+		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory)
+			mandatory.setVisibility(VISIBLE);
+
+		enable();
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
+				(itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 1") ||
+						itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 2"))) {
+
+			// ignore mandatory when did not get any approval yet
+			itemFormRenderModel.workItemModel.disable = true;
+			itemFormRenderModel.workItemModel.save();
+			disable();
+
+			DebugLog.d("proceed approval checking ... ");
+			CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
+			APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+			/*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
+
+				disable();
+
+				DebugLog.d("proceed approval checking ... ");
+				CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
+				APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+			} else {
+				enable();
+			}*/
+		}
+		DebugLog.d("itemFormRenderModel.wargaId = " + itemFormRenderModel.getWargaId());
+		DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
+	}
+
+	public void setItemValue(ItemValueModel value, boolean initValue) {
+
+		DebugLog.d("itemid : " + itemFormRenderModel.workItemModel.id);
+		DebugLog.d("label : " + itemFormRenderModel.workItemModel.label);
+		DebugLog.d("value : " + (itemFormRenderModel.itemValue == null ? "null" : itemFormRenderModel.itemValue.remark));
+		DebugLog.d("photo status : " + (itemFormRenderModel.itemValue == null ? "null" : itemFormRenderModel.itemValue.photoStatus));
+		DebugLog.d("radio check : " + (radioGroup.getCheckedRadioButtonId() == -1 ? "no check" : radioGroup.getCheckedRadioButtonId()));
+
+		imageView.setImageResource(R.drawable.logo_app);
+
 		if (initValue){
 			radioGroup.setOnCheckedChangeListener(null);
 			onInit = true;
 		}
+
 		setValue(value);
+
+		if (value != null) {
+
+			if (!TextUtils.isEmpty(value.remark)) {
+				remark.setText(value.remark);
+			} else {
+				remark.setText("");
+			}
+
+			if (value.photoStatus == null)
+				radioGroup.clearCheck();
+		}
+
 		if (initValue){
 			radioGroup.setOnCheckedChangeListener(changeListener);
 			onInit = false;
@@ -166,121 +222,184 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	public void setValue(ItemValueModel value) {
 		this.value = value;
-		DebugLog.d("value : " + this.value);
-		imageView.setImageResource(R.drawable.logo_app);
-		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
-			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", "")
-					);
-		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
-			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
+		notifyDataChanged();
 
-		if (value != null){
-			//rangga
-			if (this.value.remark != null) {
-				if (this.value.remark.isEmpty()) {
-					remark.setText("");
-				} else {
-					DebugLog.d("value remark : " + this.value.remark);
-					remark.setText(this.value.remark);
+	}
+
+	public ItemValueModel getValue() {
+		return value;
+	}
+
+	public void initValue(){
+		if (value == null){
+			value = new ItemValueModel();
+			if (itemFormRenderModel != null){
+				value.itemId = itemFormRenderModel.workItemModel.id;
+				value.scheduleId = itemFormRenderModel.schedule.id;
+				value.operatorId = itemFormRenderModel.operatorId;
+
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+					value.wargaId  = itemFormRenderModel.getWargaId();
+					value.barangId = itemFormRenderModel.getBarangId();
+
 				}
-			} else {
-				remark.setText("");
 			}
+		}
+	}
 
-			// if no picture then show no picture icon
-			if (value.value == null)
-				noPicture.setVisibility(View.VISIBLE);
+	public void notifyDataChanged() {
 
-			DebugLog.d("value.photoStatus : " + value.photoStatus );
-			if (value.photoStatus != null){
-				if (value.photoStatus.equalsIgnoreCase("ok")){
+		if (value != null) {
 
-					button.setVisibility(View.VISIBLE);
-					ok.setChecked(true);
-					setPhotoRootVisiblity("OK");
+			photoRoot.setVisibility(GONE);
+			noPicture.setVisibility(VISIBLE);
+			if (!TextUtils.isEmpty(value.value)) {
+				photoRoot.setVisibility(VISIBLE);
+				noPicture.setVisibility(GONE);
+				imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", new File(value.value));
+				BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView,new ImageLoadingListener() {
 
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-						mandatory.setVisibility(View.GONE);
-				}
-				else if (value.photoStatus.equalsIgnoreCase("nok")){
+					@Override
+					public void onLoadingStarted(String arg0, View arg1) {
+						progress.setVisibility(View.VISIBLE);
+						photoRoot.setVisibility(View.VISIBLE);
+						noPicture.setVisibility(View.GONE);
+					}
 
-					button.setVisibility(View.VISIBLE);
-					nok.setChecked(true);
-					setPhotoRootVisiblity("NOK");
+					@Override
+					public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+						progress.setVisibility(View.GONE);
+						photoRoot.setVisibility(View.GONE);
+						noPicture.setVisibility(View.VISIBLE);
+					}
 
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-						if(remark.getText().toString().equalsIgnoreCase("") || value.remark.equalsIgnoreCase("")){
-							mandatory.setVisibility(View.VISIBLE);
-						} else {
-							mandatory.setVisibility(View.GONE);
+					@Override
+					public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
+						progress.setVisibility(View.GONE);
+						photoRoot.setVisibility(View.VISIBLE);
+						if (value != null){
+							if (value.value == null)
+								noPicture.setVisibility(View.VISIBLE);
+							if (value.photoStatus == null){
+								radioGroup.check(R.id.radioOK);
+							}
 						}
 					}
-				}
-				else if (value.photoStatus.equalsIgnoreCase("na")){
 
-					button.setVisibility(View.GONE);
-					photoRoot.setVisibility(View.GONE);
-					na.setChecked(true);
-					value.photoStatus="NA";
+					@Override
+					public void onLoadingCancelled(String arg0, View arg1) {
+						progress.setVisibility(View.GONE);
+						photoRoot.setVisibility(View.VISIBLE);
+						noPicture.setVisibility(View.GONE);
+					}
 
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-						mandatory.setVisibility(View.GONE);
+				});
+			}
+
+			//notify radiobuttons
+			imageView.setVisibility(VISIBLE);
+			btnTakePicture.setVisibility(VISIBLE);
+            if (!TextUtils.isEmpty(value.photoStatus)) {
+/*
+            	imageView.setVisibility(VISIBLE);
+            	btnTakePicture.setVisibility(VISIBLE);*/
+
+                switch (value.photoStatus) {
+
+                    case Constants.OK :
+                    	DebugLog.d("check OK");
+                        ok.setChecked(true);
+                        break;
+                    case Constants.NOK :
+                    	DebugLog.d("check NOK");
+                        nok.setChecked(true);
+                        break;
+                    case Constants.NA :
+                    	DebugLog.d("check NA");
+                        na.setChecked(true);
+                        imageView.setVisibility(GONE);
+                        photoRoot.setVisibility(GONE);
+                        noPicture.setVisibility(GONE);
+                        btnTakePicture.setVisibility(GONE);
+                        break;
+                }
+            } else radioGroup.clearCheck();
+
+            // notify button take picture and textview mandatory
+
+			mandatory.setVisibility(VISIBLE);
+            if (!itemFormRenderModel.workItemModel.mandatory) {
+
+            	mandatory.setVisibility(GONE);
+
+                if (!TextUtils.isEmpty(value.photoStatus)) {
+
+                    if (nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) {
+
+                        if (TextUtils.isEmpty(value.remark))
+                            mandatory.setVisibility(VISIBLE);
+
+                    }
+
+                } else {
+
+                    if (!TextUtils.isEmpty(value.remark)) {
+                        mandatory.setVisibility(VISIBLE);
+                    }
+                }
+            }
+
+            //save();
+            /*
+			if (TextUtils.isEmpty(value.remark)) {
+
+				if (itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")) {
+
+					DebugLog.d("delete all items for all operators by scheduleid");
+					ItemValueModel.deleteAllBy(value.scheduleId, value.itemId);
+
+				} else {
+
+					DebugLog.d("delete item for operatorid : " + value.operatorId + " by scheduleid");
+					ItemValueModel.delete(value.scheduleId, value.itemId, value.operatorId);
+
 				}
-			}
-			else{
-				button.setVisibility(View.VISIBLE);
-				photoRoot.setVisibility(View.GONE);
-				/*if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-					radioGroup.check(R.id.radioNOK);
-					setPhotoRootVisiblity("NOK");
-					mandatory.setVisibility(View.VISIBLE);
-				}*/
-			}
-		}else {
-			DebugLog.d("value = null, reset");
+			}*/
+
+        } else {
 			reset();
 		}
 	}
 
 	private void setItemFormRenderedValue(){
+
 		if (itemFormRenderModel.itemValue == null){
+			DebugLog.d("itemFormRenderModel.itemValue == null");
 			if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
 				itemFormRenderModel.schedule.sumTaskDone+=itemFormRenderModel.schedule.operators.size();
 			else
 				itemFormRenderModel.schedule.sumTaskDone++;
 			itemFormRenderModel.schedule.save();
 		}
-		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
+		DebugLog.d("task done : " + itemFormRenderModel.schedule.sumTaskDone);
 		if (itemFormRenderModel != null){
+			DebugLog.d("itemFormRenderModel != null");
 			itemFormRenderModel.itemValue = value;
 		}
 	}
 
-	public void save(Context context){
-		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
-		value.save(context);
-	}
-
 	public void save(){
-		/*if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(context);
-		if (!DbRepositoryValue.getInstance().getDB().isOpen())
-			DbRepositoryValue.getInstance().open(context);*/
 		setItemFormRenderedValue();
-		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value+ " | " +value.createdAt);
-		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
-			DebugLog.d("scopeType : operator");
+		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+ value.value+ " | " + value.wargaId + " | " + value.barangId + " | " + value.createdAt );
+		if(itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")){
+			DebugLog.d("scopeType : All");
 			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
 				value.operatorId = operatorModel.id;
-				/*if (itemFormRenderModel.workItemModel.work_form_group_id == 3 && itemFormRenderModel.workItemModel.field_type.equalsIgnoreCase("file")) {
-					itemFormRenderModel.workItemModel.mandatory = true;
-					itemFormRenderModel.workItemModel.save();
-				}*/
 				value.save();
-				DebugLog.d("== operator id : " + value.operatorId);
 			}
-		}else{
-			DebugLog.d("scopeType : All");
+		} else {
+			DebugLog.d("scopeType : operator");
 			value.save();
 		}
 	}
@@ -298,131 +417,76 @@ public class PhotoItemRadio extends RelativeLayout {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			DebugLog.d("remark photo radio: " + s.toString());
+
+            DebugLog.d("text change listening...");
+
 			if (onInit)
 				return;
-			initValue();
-			if (value != null){
-				value.remark = s.toString();
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-					if (s.toString().equalsIgnoreCase("")) {
-						if ((nok.isChecked() || value.photoStatus.equalsIgnoreCase("nok")) && !TextUtils.isEmpty(value.photoStatus))
-							mandatory.setVisibility(View.VISIBLE);
-					} else {
-						mandatory.setVisibility(View.GONE);
-					}
-				}
-				DebugLog.d("remark value : " + s.toString());
-				save();
-			}
+            initValue();
+            if (value != null) {
+                DebugLog.d("remark photo : " + s.toString());
+                value.remark = s.toString();
+                save();
+                notifyDataChanged();
+            }
 		}
 	};
-
-	//penambahan override method irwan
-//	TextWatcher textWatcher2 = new TextWatcher() {
-//
-//		@Override
-//		public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//		}
-//
-//		@Override
-//		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//		}
-//
-//		@Override
-//		public void afterTextChanged(Editable s) {
-//			DebugLog.d("material photo radio: " + s.toString());
-//			if (onInit)
-//				return;
-//			initValue();
-//			if (value != null){
-//				value.material_request = s.toString();
-//				save();
-//			}
-//		}
-//	};
 
 	OnCheckedChangeListener changeListener = new OnCheckedChangeListener() {
 
 		@Override
 		public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+			if (onInit)
+				return;
+
 			initValue();
-			switch (checkedId) {
-			case R.id.radioOK:
-				button.setVisibility(View.VISIBLE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-					mandatory.setVisibility(View.GONE);
-				//remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
-				setPhotoRootVisiblity("OK");
-				break;
+		    if (value != null) {
 
-			case R.id.radioNOK:
-				button.setVisibility(View.VISIBLE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+		    	DebugLog.d("value not null, set check");
+                switch (checkedId) {
+                    case R.id.radioOK:
 
-					if(remark.getText().toString().equalsIgnoreCase("") || value.remark.equalsIgnoreCase("")){
-						mandatory.setVisibility(View.VISIBLE);
-					} else {
-						mandatory.setVisibility(View.GONE);
-					}
-				}
-				//remark.setVisibility(View.VISIBLE);
-				setPhotoRootVisiblity("NOK");
-				break;
+                    	DebugLog.d("check OK");
+                        value.photoStatus = Constants.OK;
+                        notifyDataChanged();
+                        break;
 
-			case R.id.radioNA:
-				button.setVisibility(View.GONE);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-					mandatory.setVisibility(View.GONE);
-				//remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
-				photoRoot.setVisibility(View.GONE);
-				if (value!=null)
-					value.photoStatus = "NA";
-				break;
+                    case R.id.radioNOK:
 
-			default:
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-					mandatory.setVisibility(View.GONE);
-				break;
-			}
-			if (value!=null)
-				save();
+                    	DebugLog.d("check NOK");
+                        value.photoStatus = Constants.NOK;
+                        notifyDataChanged();
+                        break;
+
+                    case R.id.radioNA:
+
+                    	DebugLog.d("check NA");
+                        value.photoStatus = Constants.NA;
+                        notifyDataChanged();
+                        break;
+                }
+
+                DebugLog.d("save");
+                save();
+
+                return;
+            }
+
+            DebugLog.d("no check any radio");
 		}
 	};
 
-	private void setPhotoRootVisiblity(String photoStatus){
-		if (value!=null){
-			value.photoStatus=photoStatus;
-			DebugLog.d("value.photoStatus now : " + photoStatus);
-			if (value.value != null){
-				photoRoot.setVisibility(View.VISIBLE);
-				setImage(value.value, value.latitude, value.longitude, value.gpsAccuracy);
-			}
-			else
-				photoRoot.setVisibility(View.GONE);
-		}else
-			photoRoot.setVisibility(View.GONE);
-
-	}
-
-	public ItemValueModel getValue() {
-		return value;
-	}
-
-	//	public void showPhotoAtribute(){
-	//		photoRoot.setVisibility(View.VISIBLE);
-	//		noPicture.setVisibility(View.GONE);
-	//	}
-
 	public void deletePhoto(){
-		DebugLog.d( "into deleted");
-		if (value != null && value.value != null){
-			DebugLog.d( "deleted value not null");
+
+		DebugLog.d( "delete photo");
+
+		if (value != null && !TextUtils.isEmpty(value.value)) {
+
 			File fileTemp=new File(value.value.replaceFirst("^file\\:\\/\\/", ""));
-			if (fileTemp.exists())
+			if (fileTemp.exists()) {
+
 				try{
 					fileTemp.delete();
 					DebugLog.d( "file deleted : "+value.value);
@@ -430,112 +494,58 @@ public class PhotoItemRadio extends RelativeLayout {
 					DebugLog.d( "file not deleted");
 					e.printStackTrace();
 				}
-			value.uploadStatus = ItemValueModel.UPLOAD_NONE;
-			DebugLog.d("==> delete photo, reset uploadStatus to " + value.uploadStatus);
-			save();
+				value.value = "";
+				value.uploadStatus = ItemValueModel.UPLOAD_NONE;
+				save();
+				notifyDataChanged();
+				return;
+			}
 		}
 	}
 
-	public String setPhotoDate() {
-		value.photoDate = value.createdAt = DateTools.getCurrentDate();
-		return value.photoDate;
+	public void setPhotoDate(String date) {
+	    value.createdAt = "";
+		value.photoDate = value.createdAt = date;
 	}
 
 	public void setUploadstatus(String uploadstatus) {
 		this.uploadstatus.setText(uploadstatus);
 	}
-	public void setImage(String uri,String latitude, String longitude,int accuracy){
-		if (value != null){
 
-			value.value = uri;
-			value.latitude = latitude;
-			value.longitude = longitude;
-			value.gpsAccuracy = accuracy;
-			/*value.uploadStatus = ItemValueModel.UPLOAD_NONE;
-			DebugLog.d("save => uploadStatus : " + value.uploadStatus);*/
-		}
-		else{
-			DebugLog.d("value = null, reset ! ");
+	public void setImage(File photoPath, String latitude, String longitude,int accuracy){
+
+		initValue();
+
+		if (value == null) {
 			reset();
 			return;
 		}
-		save();
 
-//		this.latitude.setText("Lat. : "+ Float.parseFloat(latitude)/1000000);
-//		this.longitude.setText("Long. : "+Float.parseFloat(longitude)/1000000);
+		DebugLog.d("image path : " + photoPath.toString());
+
+		// updating item value
+		value.value = photoPath.getPath();
+		value.latitude = latitude;
+		value.longitude = longitude;
+		value.gpsAccuracy = accuracy;
+		value.photoStatus = Constants.OK;
+		value.photoDate = DateTools.getCurrentDate();
+
 		this.latitude.setText("Lat. : "+ latitude);
 		this.longitude.setText("Long. : "+ longitude);
 		this.accuracy.setText("Accurate up to : "+accuracy+" meters");
-        this.photodate.setText("photo date : " + value.photoDate + "");
-		//		ImageSize i = ImageSizeUtils.defineTargetSizeForView(imageView, 480, 360);
-		//		imageView.setMaxWidth(i.getWidth());
-		//		imageView.setMaxHeight(i.getHeight());
+		this.photodate.setText("photo date : " + value.photoDate + "");
 
-		BaseActivity.imageLoader.displayImage(uri,imageView,new ImageLoadingListener() {
-
-			@Override
-			public void onLoadingStarted(String arg0, View arg1) {
-				progress.setVisibility(View.VISIBLE);
-				photoRoot.setVisibility(View.VISIBLE);
-				noPicture.setVisibility(View.GONE);
-			}
-
-			@Override
-			public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
-				progress.setVisibility(View.GONE);
-				photoRoot.setVisibility(View.GONE);
-				noPicture.setVisibility(View.VISIBLE);
-			}
-
-			@Override
-			public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
-				progress.setVisibility(View.GONE);
-				photoRoot.setVisibility(View.VISIBLE);
-				if (value != null){
-					if (value.value == null)
-						noPicture.setVisibility(View.VISIBLE);
-					if (value.photoStatus == null){
-						radioGroup.check(R.id.radioOK);
-					}
-				}
-			}
-
-			@Override
-			public void onLoadingCancelled(String arg0, View arg1) {
-				progress.setVisibility(View.GONE);
-				photoRoot.setVisibility(View.VISIBLE);
-				noPicture.setVisibility(View.GONE);
-			}
-
-		});
+		save();
+		notifyDataChanged();
 	}
 
 	private void reset(){
+		DebugLog.d("value = null, reset ! ");
 		progress.setVisibility(View.GONE);
 		photoRoot.setVisibility(View.GONE);
-		//		failed.setVisibility(View.GONE);
 		remark.setText("");
-//		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
-		noPicture.setVisibility(View.VISIBLE);
-		radioGroup.clearCheck();
-	}
-
-	public void initValue(){
-		if (value == null){
-			value = new ItemValueModel();
-			if (itemFormRenderModel != null){
-				value.itemId = itemFormRenderModel.workItemModel.id;
-				value.scheduleId = itemFormRenderModel.schedule.id;
-				value.operatorId = itemFormRenderModel.operatorId;
-			}
-		}
-	}
-
-	private void resetVisibility(){
-		progress.setVisibility(View.GONE);
-		photoRoot.setVisibility(View.GONE);
-		//		failed.setVisibility(View.GONE);
-//		remark.setVisibility(isAudit ? View.VISIBLE : View.GONE);
+		//noPicture.setVisibility(View.VISIBLE);
 		radioGroup.clearCheck();
 	}
 
@@ -547,46 +557,84 @@ public class PhotoItemRadio extends RelativeLayout {
 		return itemFormRenderModel.workItemModel.id;
 	}
 
-	private File createTemporaryFile(String part, String ext) throws Exception
-	{
-		File tempDir;
-		ContextWrapper contextWrapper = new ContextWrapper(context);
-		if (CommonUtil.isExternalStorageAvailable()) {
-			DebugLog.d("external storage available");
-			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-		} else {
-			DebugLog.d("external storage not available");
-			tempDir = new File(contextWrapper.getFilesDir()+"/Camera/");
-		}
-		tempDir = new File(tempDir.getAbsolutePath() + "/TowerInspection"); // create temp folder
-		if (!tempDir.exists()) {
-			tempDir.mkdir();
-		}
-		tempDir = new File(tempDir.getAbsolutePath() + "/" + value.scheduleId+ "/"); // create schedule folder
-		if (!tempDir.exists()) {
-			tempDir.mkdir();
-		}
-		return File.createTempFile(part, ext, tempDir);
-	}
-
 	private void toggleEditable() {
 		if (MyApplication.getInstance().isInCheckHasilPm()) {
 			DebugLog.d("input is disabled");
-			if (remark!=null) remark.setEnabled(false);
-			if (material_request!=null) material_request.setEnabled(false);
-			if (radioGroup!=null) radioGroup.setEnabled(false);
-			if (ok!=null) ok.setEnabled(false);
-			if (nok!=null) nok.setEnabled(false);
-			if (na!=null) na.setEnabled(false);
-			if (button!=null) button.setEnabled(false);
+			disable();
 		} else {
-			if (remark!=null) remark.setEnabled(true);
-			if (material_request!=null) material_request.setEnabled(true);
-			if (radioGroup!=null) radioGroup.setEnabled(true);
-			if (ok!=null) ok.setEnabled(true);
-			if (nok!=null) nok.setEnabled(true);
-			if (na!=null) na.setEnabled(true);
-			if (button!=null) button.setEnabled(true);
+			enable();
 		}
 	}
+
+	private void enable() {
+        if (remark!=null) remark.setEnabled(true);
+        if (material_request!=null) material_request.setEnabled(true);
+        if (radioGroup!=null) radioGroup.setEnabled(true);
+        if (ok!=null) ok.setEnabled(true);
+        if (nok!=null) nok.setEnabled(true);
+        if (na!=null) na.setEnabled(true);
+        if (btnTakePicture!=null) btnTakePicture.setEnabled(true);
+    }
+
+    private void disable() {
+		DebugLog.d("label disable : " + itemFormRenderModel.workItemModel.label);
+        if (remark!=null) remark.setEnabled(false);
+        if (material_request!=null) material_request.setEnabled(false);
+        if (radioGroup!=null) radioGroup.setEnabled(false);
+        if (ok!=null) ok.setEnabled(false);
+        if (nok!=null) nok.setEnabled(false);
+        if (na!=null) na.setEnabled(false);
+        if (btnTakePicture!=null) btnTakePicture.setEnabled(false);
+    }
+
+    private class CheckApprovalHandler extends Handler {
+
+        private String scheduleId;
+
+        public CheckApprovalHandler(String scheduleId) {
+            this.scheduleId = scheduleId;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            Bundle bundle = msg.getData();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+            Gson gson = new Gson();
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+
+                    CheckApprovalResponseModel checkApprovalResponseModel = gson.fromJson(bundle.getString("json"), CheckApprovalResponseModel.class);
+                    checkApprovalResponseModel.toString();
+
+                    if (!checkApprovalResponseModel.status_code.equalsIgnoreCase("failed")) {
+
+                        DebugLog.d("check approval success");
+
+						itemFormRenderModel.workItemModel.disable = false;
+						itemFormRenderModel.workItemModel.save();
+
+                        FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
+                        enable();
+                        return;
+                    }
+
+                    DebugLog.d("belum ada approval dari STP");
+                    MyApplication.getInstance().toast("Photo penghancuran menunggu approval dari STP", Toast.LENGTH_LONG);
+
+                } else {
+
+                    MyApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
+
+                }
+            } else {
+
+                MyApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
+                DebugLog.d("response not ok");
+            }
+        }
+    }
 }

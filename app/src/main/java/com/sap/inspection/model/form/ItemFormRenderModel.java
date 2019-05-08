@@ -12,9 +12,11 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -61,6 +63,10 @@ public class ItemFormRenderModel extends BaseModel {
     private int fillableTask = 0;
     private int filledTask = 0;
 
+    // SAP only
+    private String wargaId;
+    private String barangId;
+
     public void setColumn(ArrayList<ColumnModel> column) {
         this.columns = column;
     }
@@ -73,12 +79,6 @@ public class ItemFormRenderModel extends BaseModel {
         return percent == 0 ? "" : percent + "%";
     }
 
-    /*public void setPercent() {
-        ItemValueModel model = new ItemValueModel();
-        filledTask = model.countTaskDone(schedule.id, rowId);
-        countPercent();
-    }
-*/
     public void addFillableTask() {
         fillableTask++;
     }
@@ -89,6 +89,24 @@ public class ItemFormRenderModel extends BaseModel {
 
     public void setWorkFormGroupName(String workFormGroupName) {
         this.workFormGroupName = workFormGroupName;
+    }
+
+    public void setWargaid(String wargaId) {
+        this.wargaId = wargaId;
+        DebugLog.d("wargaid : " + wargaId);
+    }
+
+    public String getWargaId() {
+        return wargaId;
+    }
+
+    public void setBarangid(String barangId) {
+        this.barangId = barangId;
+        DebugLog.d("barangid : " + barangId);
+    }
+
+    public String getBarangId() {
+        return barangId;
     }
 
     public void addFilled() {
@@ -120,6 +138,13 @@ public class ItemFormRenderModel extends BaseModel {
         if (children == null)
             children = new ArrayList<>();
         child.setParent(this);
+
+        if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+            child.setSchedule(schedule);
+            child.setWargaid(getWargaId());
+            child.setBarangid(getBarangId());
+        }
+
         children.add(child);
     }
 
@@ -200,6 +225,7 @@ public class ItemFormRenderModel extends BaseModel {
                 DebugLog.d("field type : file");
                 DebugLog.d("scope type : " + workItemModel.scope_type);
                 DebugLog.d("isExpand type : " + workItemModel.expand);
+                DebugLog.d("isMandatory : " + workItemModel.mandatory);
             }
             ItemFormRenderModel child = new ItemFormRenderModel();
             child.type = TYPE_HEADER_DIVIDER;
@@ -324,15 +350,22 @@ public class ItemFormRenderModel extends BaseModel {
         }
 
         DebugLog.d(schedule.id + " | " + workItemModel.id + " | " + operatorId + " | " + rowId);
-        ItemValueModel initValue = new ItemValueModel();
         ItemFormRenderModel child = new ItemFormRenderModel();
-        child.workItemModel = workItemModel;
-        child.itemValue = initValue.getItemValue(schedule.id, workItemModel.id, operatorId);
+
+        if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+            String wargaId  = getWargaId();
+            String barangId = getBarangId();
+            child.itemValue = ItemValueModel.getItemValue(schedule.id, workItemModel.id, operatorId, wargaId, barangId);
+        } else {
+            child.itemValue = ItemValueModel.getItemValue(schedule.id, workItemModel.id, operatorId);
+
+        }
+
         child.rowId = rowId;
         child.operatorId = operatorId;
         child.schedule = schedule;
-        DebugLog.d("value : " + initValue.value);
-        DebugLog.d("uploadstatus : " + initValue.uploadStatus);
+        child.workItemModel = workItemModel;
+
         if (workItemModel.field_type.equalsIgnoreCase("label") && workItemModel.expand) {
             hasInput = true;
             child.type = TYPE_EXPAND;
@@ -365,18 +398,15 @@ public class ItemFormRenderModel extends BaseModel {
         } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
             hasInput = true;
             child.type = TYPE_PICTURE_RADIO;
-            DebugLog.d("fieldType : file");
-            DebugLog.d("workFormGroupName : " + workFormGroupName);
-            if ("Photograph".equalsIgnoreCase(workFormGroupName) && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+            /*if ("Photograph".equalsIgnoreCase(workFormGroupName) && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
                 child.workItemModel.mandatory = true;
                 child.workItemModel.save();
-            }
+            }*/
             this.addFillableTask();
             child.parent = this;
             if (this.children.get(this.children.size() - 1).type == TYPE_OPERATOR)
                 child.operator = this.children.remove(this.children.size() - 1).operator;
             add(child);
-            return;
         }
         return;
     }

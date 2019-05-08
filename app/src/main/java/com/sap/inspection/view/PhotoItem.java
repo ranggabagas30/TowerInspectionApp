@@ -42,7 +42,7 @@ public class PhotoItem extends RelativeLayout {
 	protected TextView accuracy;
 	protected EditText remark;
 	protected EditText material_request;
-	protected ImageButtonForList button;
+	protected ImageButtonForList btnTakePicture;
 	protected View noPicture;
 	protected ImageView imageView;
 	protected ProgressBar progress;
@@ -112,8 +112,8 @@ public class PhotoItem extends RelativeLayout {
 		root = LayoutInflater.from(context).inflate(R.layout.photo_layout, this, true);
 		//		photoRoot = root.findViewById(R.id.layout_helper1);
 		photoRoot = root.findViewById(R.id.photolayout);
-		button = (ImageButtonForList) root.findViewById(R.id.button);
-		button.setTag(this);
+		btnTakePicture = (ImageButtonForList) root.findViewById(R.id.btnTakePicture);
+		btnTakePicture.setTag(this);
 		noPicture =  root.findViewById(R.id.no_picture);
 		imageView = (ImageView) root.findViewById(R.id.photo);
 		imageView.setTag(this);
@@ -134,23 +134,23 @@ public class PhotoItem extends RelativeLayout {
 		value = new ItemValueModel();
 	}
 
-	public void setButtonClickListener(OnClickListener buttonClickListener){
-		button.setOnClickListener(buttonClickListener);
+	public void setButtonTakePictureListener(OnClickListener buttonClickListener){
+		btnTakePicture.setOnClickListener(buttonClickListener);
 		//		imageView.setOnClickListener(buttonClickListener);
 	}
 
-	public void setValue(ItemValueModel value, boolean initValue) {
+	public void setItemValue(ItemValueModel value, boolean initValue) {
 		if (initValue){
 			onInit = true;
 		}
-		setValue(value);
+		notifyDataChanged(value);
 		setPhotoRootVisiblity(value.photoStatus);
 		if (initValue){
 			onInit = false;
 		}
 	}
 
-	public void setValue(ItemValueModel value) {
+	public void notifyDataChanged(ItemValueModel value) {
 		this.value = value;
 		imageView.setImageResource(R.drawable.logo_app);
 		if (itemFormRenderModel.label != null)

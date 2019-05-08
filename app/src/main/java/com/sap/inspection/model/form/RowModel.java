@@ -5,15 +5,23 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Debug;
 import android.os.Parcel;
+import android.text.TextUtils;
 
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.config.formimbaspetir.Barang;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.Vector;
+
+import static com.crashlytics.android.Crashlytics.log;
 
 public class RowModel extends BaseModel {
 
@@ -268,7 +276,7 @@ public class RowModel extends BaseModel {
 		return result;
 	}
 	
-	public Vector<RowModel> getAllItemByWorkFormGroupIdAndLikeAncestry(int workFormGroupId,String ancestry) {
+	public Vector<RowModel> getAllItemByWorkFormGroupIdAndLikeAncestry(int workFormGroupId, String ancestry) {
 
 		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
 		Vector<RowModel> result = new Vector<RowModel>();
@@ -277,15 +285,14 @@ public class RowModel extends BaseModel {
 		String where = null;
 		String[] args = null;
 		if (ancestry != null){
-			where =DbManager.colWorkFormGroupId + "=? AND "+DbManager.colAncestry+" LIKE '"+ancestry+"%'";
+			where =DbManager.colWorkFormGroupId + "=? AND " + DbManager.colAncestry +" LIKE '"+ancestry+"%'";
 			args = new String[] {String.valueOf(workFormGroupId)};
 		}
 		
 		else{
-			where =DbManager.colWorkFormGroupId + "=? AND "+DbManager.colAncestry+" IS NULL";
+			where =DbManager.colWorkFormGroupId + "=? AND " + DbManager.colAncestry +" IS NULL";
 			args = new String[] {String.valueOf(workFormGroupId)};
 		}
-//		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
 		String order = DbManager.colPosition+" ASC";
 
 
@@ -303,9 +310,7 @@ public class RowModel extends BaseModel {
 			RowModel model = getRowFromCursor(cursor); 
 			model.row_columns = getRowColumnModels(model.id);
 			for (RowColumnModel row_col : model.row_columns) {
-//				log("== row_col "+row_col.id);
 				for (WorkFormItemModel item : row_col.items) {
-//					log("== item "+item.label);
 					if (item.label != null){
 						model.text = item.label;
 						break;
@@ -314,7 +319,7 @@ public class RowModel extends BaseModel {
 				if (model.text != null)
 					break;
 			}
-//			log("===== level : "+model.level+"  text : "+model.text+"  id : "+model.id+"   position : "+model.position+"   ancestry : "+model.ancestry+" row_col size : "+model.row_columns.size());
+		    DebugLog.d("===== level : "+model.level+"  text : "+model.text+"  id : "+model.id+"   position : "+model.position+"   ancestry : "+model.ancestry+" row_col size : "+model.row_columns.size());
 			result.add(model);
 		} while(cursor.moveToNext());
 
@@ -378,7 +383,7 @@ public class RowModel extends BaseModel {
 		return result;
 	}
 
-	public static Vector<RowModel> getWargaKeNavigationItemsRowModel(String parentId) {
+	public static Vector<RowModel> getWargaKeNavigationItemsRowModel(String parentId, String scheduleId, String wargaId) {
 
 	    DebugLog.d("get wargaKe navigation menu items ");
 
@@ -398,27 +403,98 @@ public class RowModel extends BaseModel {
 
         do {
 
-            RowModel result = getRowFromCursor(cursor);
-			result.text = getRowLabel(result.id);
-			result.hasForm = true;
+            RowModel parentItem = getRowFromCursor(cursor);
 
-			DebugLog.d("== result navigation items ==");
-			DebugLog.d("id : " + result.id);
-			DebugLog.d("name : " + result.text);
-			DebugLog.d("parentid : " + result.parent_id);
-			DebugLog.d("ancestry : " + result.ancestry);
-			DebugLog.d("level : " + result.level);
-			DebugLog.d("hasForm : " + result.hasForm);
-			DebugLog.d("workFormGroupId : " + result.work_form_group_id);
+            DebugLog.d("acuan parent id = " + parentId);
+			if (parentItem.parent_id == Integer.valueOf(parentId)) {
 
-            navigationItemRowModels.add(result);
+				parentItem.text = getRowLabel(parentItem.id);
+				parentItem.hasForm = true;
 
-            if (result.level == 1) {
+				if (parentItem.text != null && parentItem.text.equalsIgnoreCase(Constants.regexId)) {
 
-				DebugLog.d("==== get children navigation ===");
-				result.children = getWargaKeNavigationItemsRowModel(String.valueOf(result.id));
+				    int dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
 
-            }
+				    if (dataIndex != -1) {
+
+                        // get list data of barang
+                        ArrayList<Barang> barangs = FormImbasPetirConfig.getDataBarang(dataIndex, wargaId);
+                        int barangSize = barangs == null ? 0 : barangs.size();
+
+                        DebugLog.d("barangsize = " + barangSize);
+
+                        // adding barangid menu to the list
+						String barangLabel = parentItem.text;
+
+                        for (int barangke = 0; barangke < barangSize; barangke++) {
+
+                        	String barangID = barangs.get(barangke).getBarangid();
+                        	String barangName = StringUtil.getName(scheduleId, wargaId, barangID, parentItem.work_form_group_id, "Nama");
+                            StringBuilder barangLabelBuilder = new StringBuilder(barangLabel).append(barangID);
+
+                            if (!TextUtils.isEmpty(barangName))
+                            	barangLabelBuilder.append(" (").append(barangName).append(")");
+
+                            DebugLog.d("baranglabelbuilder = " + barangLabelBuilder);
+
+                            RowModel barangMenuModel = new RowModel();
+                            barangMenuModel.id   = parentItem.id;
+                            barangMenuModel.parent_id = parentItem.parent_id;
+							barangMenuModel.ancestry = parentItem.ancestry;
+							barangMenuModel.level = parentItem.level;
+							barangMenuModel.hasForm = parentItem.hasForm;
+							barangMenuModel.work_form_group_id = parentItem.work_form_group_id;
+							barangMenuModel.text = new String(barangLabelBuilder);
+
+                            DebugLog.d("== result navigation items ==");
+                            DebugLog.d("id : " + barangMenuModel.id);
+                            DebugLog.d("name : " + barangMenuModel.text);
+                            DebugLog.d("parentid : " + barangMenuModel.parent_id);
+                            DebugLog.d("ancestry : " + barangMenuModel.ancestry);
+                            DebugLog.d("level : " + barangMenuModel.level);
+                            DebugLog.d("hasForm : " + barangMenuModel.hasForm);
+                            DebugLog.d("workFormGroupId : " + barangMenuModel.work_form_group_id);
+
+                            navigationItemRowModels.add(barangMenuModel);
+                        }
+
+                        // row model for "tambah barang" submenu action
+                        RowModel addBarangKeModel = new RowModel();
+                        addBarangKeModel.id = -1;
+                        addBarangKeModel.work_form_group_id = parentItem.work_form_group_id;
+                        addBarangKeModel.hasForm = false;
+                        addBarangKeModel.text = "Tambah barang";
+                        addBarangKeModel.level = 2;
+                        addBarangKeModel.ancestry = null;
+                        addBarangKeModel.parent_id = 0;
+
+                        navigationItemRowModels.add(addBarangKeModel);
+                    }
+
+                } else {
+
+                    DebugLog.d("== result navigation items ==");
+                    DebugLog.d("id : " + parentItem.id);
+                    DebugLog.d("name : " + parentItem.text);
+                    DebugLog.d("parentid : " + parentItem.parent_id);
+                    DebugLog.d("ancestry : " + parentItem.ancestry);
+                    DebugLog.d("level : " + parentItem.level);
+                    DebugLog.d("hasForm : " + parentItem.hasForm);
+                    DebugLog.d("workFormGroupId : " + parentItem.work_form_group_id);
+
+                    navigationItemRowModels.add(parentItem);
+                }
+
+				if (parentItem.level == 1) {
+
+					DebugLog.d("==== get children navigation ===");
+					Vector<RowModel> childItems = getWargaKeNavigationItemsRowModel(String.valueOf(parentItem.id), scheduleId, wargaId);
+
+					if (childItems != null && !childItems.isEmpty()) {
+						parentItem.children = childItems;
+					}
+				}
+			}
 
         } while (cursor.moveToNext());
 

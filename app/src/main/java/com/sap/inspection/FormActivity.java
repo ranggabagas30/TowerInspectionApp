@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -31,6 +32,7 @@ import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 import com.slidinglayer.SlidingLayer;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
@@ -65,36 +67,33 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+        // get data bundle from ScheduleFragment
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+
+            scheduleId 	 = bundle.getString(Constants.KEY_SCHEDULEID);
+            siteId		 = bundle.getInt(Constants.KEY_SITEID);
+            workTypeId	 = bundle.getInt(Constants.KEY_WORKTYPEID);
+            workTypeName = bundle.getString(Constants.KEY_WORKTYPENAME);
+            dayDate 	 = bundle.getString(Constants.KEY_DAYDATE);
+        }
+
+        DebugLog.d("received bundles : ");
+        DebugLog.d("scheduleId=" + scheduleId);
+        DebugLog.d("siteId=" + siteId);
+        DebugLog.d("workTypeId=" + workTypeId);
+        DebugLog.d("workTypeName=" + workTypeName);
+        DebugLog.d("dayDate=" + dayDate);
+
 		fm = getSupportFragmentManager();
 
-		// set dialog
-		dialog = new ProgressDialog(activity);
-		dialog.setCancelable(false);
-		dialog.setMessage(getString(R.string.generatingInspectionForm));
-		dialog.show();
+		showMessageDialog(getString(R.string.generatingInspectionForm));
 
 		inputJumlahWargaDialog = new LovelyTextInputDialog(this, R.style.CheckBoxTintTheme)
 				.setTopColorRes(R.color.item_drill_red)
 				.setTopTitle("input Jumlah Warga")
 				.setTopTitleColor(R.color.lightgray)
 				.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
-
-		// get data bundle from ScheduleFragment
-		Bundle bundle = getIntent().getExtras();
-		if (bundle != null) {
-
-			scheduleId 	 = bundle.getString(Constants.KEY_SCHEDULEID);
-			siteId		 = bundle.getInt(Constants.KEY_SITEID);
-			workTypeId	 = bundle.getInt(Constants.KEY_WORKTYPEID);
-			workTypeName = bundle.getString(Constants.KEY_WORKTYPENAME);
-			dayDate 	 = bundle.getString(Constants.KEY_DAYDATE);
-		}
-
-		DebugLog.d("scheduleId=" + scheduleId);
-		DebugLog.d("siteId=" + siteId);
-		DebugLog.d("workTypeId=" + workTypeId);
-		DebugLog.d("workTypeName=" + workTypeName);
-		DebugLog.d("dayDate=" + dayDate);
 
 		// get schedule base model by scheduleid
 		scheduleBaseModels = new ScheduleGeneral();
@@ -126,7 +125,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		navigationFragment.setSchedule(scheduleBaseModels);
 		navigationFragment.setNavigationModel(rowModel);
 		navigationFragment.setWorkTypeName(workTypeName);
-		navigateToFragment(navigationFragment, R.id.fragment_behind);
+		addFragment(fm, navigationFragment, R.id.fragment_behind);
 
 		if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
 
@@ -147,7 +146,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			}
 		}
 
-		dialog.dismiss();
+		hideDialog();
 
 		trackThisPage("Form");
 	}
@@ -160,13 +159,13 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		EventBus.getDefault().register(this);
+		//EventBus.getDefault().register(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		EventBus.getDefault().unregister(this);
+		//EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -206,12 +205,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		mSlidingLayer.openLayer(true);
 	}
 
-	private void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
-		FragmentTransaction ft = fm.beginTransaction();
-		ft.add(viewContainerResId, fragment, fragment.getClass().getSimpleName());
-		ft.commit();
-	}
-
 	private Fragment getCurrentFragment(String tag) {
 
 		if (fm != null) {
@@ -237,16 +230,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 		return groupRow;
 	}
 
-	public void onEvent(UploadProgressEvent event){
-		if (dialog.isShowing()){
-			dialog.setMessage(event.progressString);
-			if (event.done) dialog.dismiss();
-		}else if (!event.done) {
-			dialog.show();
-			dialog.setMessage(event.progressString);
-		}
-	}
-
 	private void checkDataWarga() {
 
 		int dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
@@ -255,7 +238,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 			// found data by that scheduleid
 			// check amount of warga
-
 			generateImbasPetirChildModel(dataIndex);
 
 		} else {
@@ -271,7 +253,6 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 			// insert new data warga as many as amount inputted
 			MyApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
-
 			FormImbasPetirConfig.insertDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
 			generateImbasPetirChildModel(dataIndex);
 			updateItems();
@@ -307,7 +288,16 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 						RowModel wargaKeModel = rowModel.getAllItemByWorkFormGroupId(model.id).get(0);
 
-						StringBuilder wargaLabel = new StringBuilder(wargaKeModel.text).append(wargas.get(i).getWargaid());
+						int workFormGroupId = model.id;
+
+						String wargakelabel = wargaKeModel.text;
+						String wargaId = wargas.get(i).getWargaid();
+						String warganame = StringUtil.getName(scheduleId, wargaId, Constants.EMPTY, workFormGroupId, "Nama");
+
+						StringBuilder wargaLabel = new StringBuilder(wargakelabel).append(wargaId);
+
+						if (!TextUtils.isEmpty(warganame))
+							wargaLabel.append(" (").append(warganame).append(")");
 
 						wargaKeModel.text = new String(wargaLabel);
 
@@ -349,9 +339,9 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	private void updateItems() {
 
 		currentFragment = getCurrentFragment(NavigationFragment.class.getSimpleName());
-
 		if (currentFragment instanceof NavigationFragment) {
 
+			DebugLog.d("current fragment = navigation fragment");
 			((NavigationFragment) currentFragment).setItems(rowModel);
 
 		}

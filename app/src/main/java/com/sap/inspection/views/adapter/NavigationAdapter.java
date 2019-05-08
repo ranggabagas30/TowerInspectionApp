@@ -1,9 +1,13 @@
 package com.sap.inspection.views.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Debug;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.rindang.zconfig.APIList;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.CheckInActivity;
@@ -21,6 +27,7 @@ import com.sap.inspection.FormActivityWarga;
 import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
@@ -32,6 +39,7 @@ import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
@@ -210,16 +218,13 @@ public class NavigationAdapter extends MyBaseAdapter {
 				DebugLog.d("============== get default view : "+getItemViewType(position));
 				break;
 			}
+
 			holder.expandCollapse = (ImageView) view.findViewById(R.id.expandCollapse);
 			holder.expandCollapse.setOnClickListener(expandCollapseListener);
 			holder.uploadWorkFormGroup = (ImageView) view.findViewById(R.id.workformgroup_upload);
 			holder.uploadWorkFormGroup.setOnClickListener(uploadWorkFormGroupListener);
 			holder.title = (TextView) view.findViewById(R.id.title);
 			holder.title.setOnClickListener(ItemClickListener);
-
-			if (getItemViewType(position) == 0){
-				holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
-			}
 
 			view.setTag(holder);
 
@@ -233,6 +238,11 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 		switch (getItemViewType(position)) {
 		case 0:
+			holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
+
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR) && getItem(position).text.equalsIgnoreCase("Warga"))
+				holder.uploadWorkFormGroup.setVisibility(View.INVISIBLE);
+
 			holder.expandCollapse.setImageResource(getItem(position).isOpen ? R.drawable.ic_collapse : R.drawable.ic_expand);
 			break;
 		case 1:
@@ -243,18 +253,15 @@ public class NavigationAdapter extends MyBaseAdapter {
 			DebugLog.d("view type = 1");
 			DebugLog.d("label name = " + rowModel.text);
 
-			if (rowModel.text.contains(Constants.regexWargaId)) {
+			holder.removeSubMenu.setVisibility(View.INVISIBLE);
+
+			if (rowModel.text.contains(Constants.regexId)) {
 
 				DebugLog.d("remove submenu visibility is VISIBLE");
 
 				holder.removeSubMenu.setVisibility(View.VISIBLE);
 				holder.removeSubMenu.setTag(rowModel);
 				holder.removeSubMenu.setOnClickListener(removeSubMenuClickListener);
-
-			} else {
-
-				DebugLog.d("remove submenu visibility is INVISIBLE");
-				holder.removeSubMenu.setVisibility(View.INVISIBLE);
 
 			}
 
@@ -267,13 +274,9 @@ public class NavigationAdapter extends MyBaseAdapter {
 		return view; 
 	}
 
-	OnClickListener expandCollapseListener = new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			int position = (Integer) v.getTag();
-			toggleExpand(position);
-		}
+	OnClickListener expandCollapseListener = v -> {
+		int position = (Integer) v.getTag();
+		toggleExpand(position);
 	};
 
 	OnClickListener uploadWorkFormGroupListener = new OnClickListener() {
@@ -285,36 +288,47 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 				if (!ItemUploadManager.getInstance().isRunning()) {
 
-					String scheduleId = getScheduleId();
-					int position = (int) v.getTag();
+                    int position = (int) v.getTag();
 
-					RowModel rowModel = getItem(position);
-					DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
+                    RowModel rowModel = getItem(position);
+                    DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
 
-					ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
-					ArrayList<ItemValueModel> listItemValue = ItemValueModel.getItemValuesForUpload(scheduleId);
+                    String scheduleId = getScheduleId();
+                    int workFormGroupId = rowModel.work_form_group_id;
 
-					for (ItemValueModel model : listItemValue) {
+                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+					//if (false) { // debug only
 
-						WorkFormItemModel workFormItemModel = WorkFormItemModel.getItemById(model.itemId, rowModel.work_form_group_id);
+                        /*ArrayList<ItemValueModel> uploadItems = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY);
+                        ItemUploadManager.getInstance().addItemValues(uploadItems);*/
 
-						// get upload items by workformgroupid
-						if (rowModel.work_form_group_id == workFormItemModel.work_form_group_id) {
-							listItemUploadByWorkFormGroupId.add(model);
-							DebugLog.d("t1.workFormGroupId : " + model.work_form_group_id);
-							DebugLog.d("t1.scheduleId : " + 	 model.scheduleId);
-							DebugLog.d("t1.operatorId : " + 	 model.operatorId);
-							DebugLog.d("t1.itemId : " + 		 model.itemId);
-							DebugLog.d("t1.remark : " +			 model.remark);
-							DebugLog.d("t1.value : "  + 		 model.value);
-						}
-						DebugLog.d("\n\n");
-					}
+                        new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY).execute();
 
-					if (listItemUploadByWorkFormGroupId.size()!= 0) {
-						ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
 					} else {
-						MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+
+						ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
+						ArrayList<ItemValueModel> listItemValue = ItemValueModel.getItemValuesForUpload(scheduleId);
+
+						for (ItemValueModel model : listItemValue) {
+
+							WorkFormItemModel workFormItemModel = WorkFormItemModel.getItemById(model.itemId, rowModel.work_form_group_id);
+
+							// get upload items by workformgroupid
+							if (rowModel.work_form_group_id == workFormItemModel.work_form_group_id) {
+								listItemUploadByWorkFormGroupId.add(model);
+								DebugLog.d("t1.workFormGroupId : " + model.work_form_group_id);
+								DebugLog.d("t1.scheduleId : " + 	 model.scheduleId);
+								DebugLog.d("t1.operatorId : " + 	 model.operatorId);
+								DebugLog.d("t1.itemId : " + 		 model.itemId);
+								DebugLog.d("t1.photoStatus : " + 	 model.photoStatus);
+								DebugLog.d("t1.remark : " +			 model.remark);
+								DebugLog.d("t1.value : "  + 		 model.value);
+							}
+							DebugLog.d("\n\n");
+						}
+
+                        ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
+
 					}
 
 				} else {
@@ -333,6 +347,7 @@ public class NavigationAdapter extends MyBaseAdapter {
                 positionAncestry = position;
                 DebugLog.d("positionAncestry : " + positionAncestry);
             }
+
 			if (getItem(position).text.equalsIgnoreCase("others form")){
 				Intent intent = new Intent(context, FormFillActivity.class);
 				intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
@@ -340,8 +355,8 @@ public class NavigationAdapter extends MyBaseAdapter {
 				intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
                 intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, shown.get(positionAncestry).text);
 				DebugLog.d("----ini others form lho----- "+scheduleId);
-			}
-			else if (getItem(position).hasForm){
+
+			} else if (getItem(position).hasForm){
 
                 DebugLog.d("----schedule id----- "+scheduleId);
 
@@ -349,39 +364,66 @@ public class NavigationAdapter extends MyBaseAdapter {
                 Intent intent;
 
                 // if the navigation item is "Warga Ke-"
-				if (getItem(position).text.contains(Constants.regexWargaId)) {
+                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR)) {
 
-					int parentId = getItem(position).id;
+                    if (getItem(position).text.contains(Constants.regexId)) {
 
-					intent = new Intent(context, FormActivityWarga.class);
-					intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
-					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
-					intent.putExtra(Constants.KEY_WORKFORMGROUPID, String.valueOf(getItem(position).work_form_group_id));
-					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
+						DebugLog.d("click warga id");
+                        int parentId = getItem(position).id;
 
-					ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
+                        intent = new Intent(context, FormActivityWarga.class);
+                        intent.putExtra(Constants.KEY_DATAINDEX, dataIndex);
+                        intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+                        intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
+                        intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
+                        intent.putExtra(Constants.KEY_WORKFORMGROUPID, String.valueOf(getItem(position).work_form_group_id));
+                        intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
 
-					if (wargas != null && !wargas.isEmpty()) {
+                        ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
 
-						String wargaId = StringUtil.getWargaIdFromLabel(getItem(position).text);
-						intent.putExtra(Constants.KEY_WARGAID, wargaId);
+                        if (wargas != null && !wargas.isEmpty()) {
+
+                            String wargaIdFromLabel = StringUtil.getIdFromLabel(getItem(position).text);
+                            Warga warga = FormImbasPetirConfig.getWarga(wargas, wargaIdFromLabel);
+                            String message = "warga is null";
+
+                            if (warga != null) {
+
+                                message = "warga is not null";
+                                String wargaId = warga.getWargaid();
+                                intent.putExtra(Constants.KEY_WARGAID, wargaId);
+                                context.startActivity(intent);
+                            }
+                            DebugLog.e(message);
+                        }
+
+                    } else if (getItem(position).text.contains(Constants.regexBeritaAcaraClosing) ||
+                               getItem(position).text.contains(Constants.regexBeritaAcaraPenghancuran)) {
+
+                       proceedApprovalCheckingFirst(scheduleId, workFormGroupName, getItem(position).id, getItem(position).work_form_group_id);
+
+                    } else {
+
+						intent = new Intent(context, FormFillActivity.class);
+						intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+						intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
+						intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
+						intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+						context.startActivity(intent);
 
 					}
+                } else {
 
-				} else {
 					intent = new Intent(context, FormFillActivity.class);
 					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
 					intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
 					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-					intent.putExtra(Constants.KEY_SCHEDULEBASEMODEL, scheduleBaseModel);
+					context.startActivity(intent);
 				}
-                context.startActivity(intent);
 			} else {
 
-				if (getItem(position).id == -1) { // action tambah warga
+				if (getItem(position).text.contains(Constants.regexTambah)) { // action tambah warga
 
 					((FormActivity) context).showInputAmountWargaDialog(dataIndex);
 
@@ -398,7 +440,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 		DebugLog.d("remove item with id " + removeRowModel.id + " and label " + removeRowModel.text);
 
 		String scheduleDeleteId = scheduleId;
-		String wargaDeleteId = StringUtil.getWargaIdFromLabel(removeRowModel.text);
+		String wargaDeleteId = StringUtil.getIdFromLabel(removeRowModel.text);
 
 		boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
 
@@ -426,6 +468,92 @@ public class NavigationAdapter extends MyBaseAdapter {
 		}
 		notifyDataSetChanged();
 	}
+
+	private void proceedApprovalCheckingFirst(String scheduleId, String workFormGroupName, int rowId, int workFormGroupId) {
+
+		DebugLog.d("proceed approval checking ... ");
+
+		CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, rowId, workFormGroupId);
+		APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+		/*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
+
+			CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, rowId, workFormGroupId);
+			APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+
+		} else {
+
+			Intent intent = new Intent(context, FormFillActivity.class);
+			intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+			intent.putExtra(Constants.KEY_ROWID, rowId);
+			intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+			intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+			context.startActivity(intent);
+		}*/
+
+	}
+
+	private static class CheckApprovalHandler extends Handler {
+
+	    private Context context;
+        private String scheduleId;
+        private String workFormGroupName;
+        private int rowId;
+        private int workFormGroupId;
+
+	    public CheckApprovalHandler(Context context, String scheduleId, String workFormGroupName, int rowId, int workFormGroupId) {
+	        this.context = context;
+	        this.scheduleId = scheduleId;
+	        this.workFormGroupName = workFormGroupName;
+	        this.rowId = rowId;
+	        this.workFormGroupId = workFormGroupId;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            Bundle bundle = msg.getData();
+
+            boolean isResponseOK = bundle.getBoolean("isresponseok");
+			Gson gson = new Gson();
+
+            if (isResponseOK) {
+
+                if (bundle.getString("json") != null){
+
+					CheckApprovalResponseModel checkApprovalResponseModel = gson.fromJson(bundle.getString("json"), CheckApprovalResponseModel.class);
+					checkApprovalResponseModel.toString();
+
+					if (!checkApprovalResponseModel.status_code.equalsIgnoreCase("failed")) {
+
+						DebugLog.d("check approval success");
+
+						FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
+
+						Intent intent = new Intent(context, FormFillActivity.class);
+						intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+						intent.putExtra(Constants.KEY_ROWID, rowId);
+						intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+						intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+						context.startActivity(intent);
+						return;
+					}
+
+					DebugLog.d("belum ada approval dari STP");
+					MyApplication.getInstance().toast("Schedule menunggu approval dari STP", Toast.LENGTH_LONG);
+
+                } else {
+
+                    MyApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
+
+                }
+            } else {
+
+            	MyApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
+                DebugLog.d("response not ok");
+            }
+        }
+    }
 
 	private class ViewHolder {
 		ImageView expandCollapse;

@@ -84,7 +84,8 @@
     <string name="progressUpload">Upload dalam proses. Silahkan tunggu</string>
     <string name="downloadfile">Mengunduh file. Silahkan tunggu..</string>
     <string name="apkforupdateisnotfound">Update aplikasi gagal ! File APK tidak terunduh atau tidak ditemukan</string>
-    <string name="getNewfromServer">Mendapatkan form terbaru dari server..</string>
+    <string name="gettingnewform">Mendapatkan form terbaru dari server..</string>
+    <string name="gettingnewformimbaspetir">Mendapatkan form imbas petir dari server</string>
     <string name="formUpdateFailedFastInternet">Pembaharuan form gagal\nsilahkan login ulang untuk mendapatkan internet yang cepat</string>
     <string name="preparingItemForUpload">Persiapan item untuk di Upload</string>
     <string name="noItemNewToUpload">Tidak ada item yang baru untuk di upload</string>
@@ -105,6 +106,7 @@
     <string name="newUpdateAvail">Update terbaru</string>
     <string name="noNewUpdateAvail">Tidak ada pembaharuan</string>
     <string name="pengaturan">Pengaturan</string>
+    <string name="rationale_allpermissions">Mohon berikan izin agar bisa menggunakan aplikasi</string>
     <string name="rationale_readphonestate">Mohon berikan izin agar bisa meregister device ke server</string>
     <string name="rationale_externalstorage">Mohon berikan izin agar bisa mengakses direktori</string>
     <string name="rationale_requestlocation">Mohon berikn izin agar bisa mengakses lokasi</string>

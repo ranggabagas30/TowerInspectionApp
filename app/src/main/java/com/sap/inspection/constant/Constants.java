@@ -1,5 +1,8 @@
 package com.sap.inspection.constant;
 
+import com.sap.inspection.MyApplication;
+import com.sap.inspection.R;
+
 public class Constants {
 	
 	public static final String[] DAYS 		= {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
@@ -75,6 +78,7 @@ public class Constants {
 	public static String KEY_SITEID = "KEY_SITEID";
 	public static String KEY_ROWID = "KEY_ROWID";
 	public static String KEY_WORKFORMGROUPID = "KEY_WORKFORMGROUPID";
+	public static String KEY_DATAINDEX = "KEY_DATAINDEX";
 	public static String KEY_WARGAID = "KEY_WARGAID";
 	public static String KEY_BARANGID = "KEY_BARANGID";
 	public static String KEY_PARENTID = "KEY_PARENTID";
@@ -104,12 +108,12 @@ public class Constants {
 	public static final String regexCHECKLIST = "(.*)CHECKLIST(.*)";
 	public static final String regexSITEINFORMATION = "(.*)SITE INFORMATION(.*)";
 	public static final String regexPREVENTIVE = "(.*)PREVENTIVE(.*)";
-	public static final String regexWargaId	= "Warga Id-";
 
 	/**
 	 * ============================= REQUEST CODE =================================================
 	 * */
 
+	public static final int RC_ALL_PERMISSION = 0;
 	public static final int RC_STORAGE_PERMISSION = 1;
 	public static final int RC_READ_PHONE_STATE = 2;
 	public static final int RC_LOCATION_PERMISSION = 3;
@@ -123,4 +127,29 @@ public class Constants {
 
 	public static final String APPLICATION_SAP = "sap";
 	public static final String APPLICATION_STP = "stp";
+
+	public static final String EMPTY = "EMPTY";
+
+	/**
+	 * ============================= PHOTO STATUS =================================================
+	 * */
+
+	public static final String OK = "OK";
+	public static final String NOK = "NOK";
+	public static final String NA = "NA";
+
+	/**
+	 * ============================= FORM IMBAS PETIR =================================================
+	 * */
+
+	public static final String regexIMBASPETIR = "(.*)IMBAS PETIR(.*)";
+	public static final String regexWarga = "Warga";
+	public static final String regexTambah = "Tambah";
+	public static final String regexId = "Id-";
+	public static final String regexWargaId	= "Warga Id-";
+	public static final String regexBarangId = "Barang Id-";
+	public static final String regexBeritaAcaraClosing = "Berita Acara Closing";
+	public static final String regexBeritaAcaraPenghancuran = "Berita Acara Penghancuran";
+	public static final String regexKwitansi = "Kwitansi";
+	public static final String regexPhotoPenghancuran = "Photo Penghancuran";
 } 

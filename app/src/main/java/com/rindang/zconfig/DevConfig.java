@@ -10,7 +10,7 @@ public class DevConfig extends BaseConfig{
 
 	private final String SENDER_ID = "934425217631";
 	// rangga
-	protected String host = "http://192.168.120.165:9292"; // stagging
+	protected String host = "http://192.168.120.18:9292"; // stagging
 
 	@Override
 	public String getHost() {

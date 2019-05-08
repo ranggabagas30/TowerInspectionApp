@@ -347,7 +347,7 @@ package com.sap.inspection.views.adapter;
 //		}else if (item.field_type.equalsIgnoreCase("file")){
 //			hasInput = true;
 //			PhotoItem photo = new PhotoItem(context);
-//			photo.setButtonClickListener(photoListener);
+//			photo.setButtonTakePictureListener(photoListener);
 //			if (initValue == null){
 //				initValue = new ItemValueModel();
 //				initValue.itemId = item.id;
@@ -356,7 +356,7 @@ package com.sap.inspection.views.adapter;
 //				initValue.typePhoto = true;
 //				initValue.operatorId = operatorId;
 //			}
-//			photo.setValue(initValue);
+//			photo.notifyDataChanged(initValue);
 //			return photo;
 //			//		}else if (item.field_type.equalsIgnoreCase("checkbox")){
 //			//			LinearLayout linearLayout = new LinearLayout(context);
@@ -476,7 +476,7 @@ package com.sap.inspection.views.adapter;
 //		}else if (item.field_type.equalsIgnoreCase("file")){
 //			hasInput = true;
 //			PhotoItem photo = new PhotoItem(context);
-//			photo.setButtonClickListener(photoListener);
+//			photo.setButtonTakePictureListener(photoListener);
 //			if (initValue == null){
 //				initValue = new ItemValueModel();
 //				initValue.itemId = item.id;
@@ -485,7 +485,7 @@ package com.sap.inspection.views.adapter;
 //				initValue.typePhoto = true;
 //				initValue.operatorId = operatorId;
 //			}
-//				photo.setValue(initValue);
+//				photo.notifyDataChanged(initValue);
 //			return photo;
 //			//		}else if (item.field_type.equalsIgnoreCase("checkbox")){
 //			//			LinearLayout linearLayout = new LinearLayout(context);

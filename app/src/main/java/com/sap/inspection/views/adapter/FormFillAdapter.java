@@ -3,6 +3,7 @@ package com.sap.inspection.views.adapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -26,11 +27,13 @@ import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.OperatorModel;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.rules.SavingRule;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.FormInputText;
 import com.sap.inspection.view.MyTextView;
 import com.sap.inspection.view.PhotoItem;
@@ -38,6 +41,7 @@ import com.sap.inspection.view.PhotoItemRadio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class FormFillAdapter extends MyBaseAdapter {
 
@@ -53,10 +57,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 	// SAP only
 	private String wargaId;
 	private String barangId;
+	private boolean isScheduleApproved;
 
 	private OnClickListener photoListener;
-    private OnClickListener uploadListener;
-    private boolean isChecklistOrSiteInformation;
+	private OnClickListener uploadListener;
+	private boolean isChecklistOrSiteInformation;
 	//	private List<ItemFormRenderModel> shownX = new ArrayList<>();
 	private SparseArray<List<ItemFormRenderModel>> sparseArray = new SparseArray<>();
 
@@ -128,9 +133,13 @@ public class FormFillAdapter extends MyBaseAdapter {
 	@Override
 	public void notifyDataSetChanged() {
 		shown.clear();
+
+		// add all children item models into the list (flattening)
 		for (ItemFormRenderModel model : models) {
 			shown.addAll(model.getModels());
 		}
+
+		// remove corrective item from shown list
 		for (int i = 0; i < shown.size(); i++) {
 			ItemFormRenderModel model = shown.get(i);
 			if (model.column!=null && model.column.column_name!=null
@@ -138,15 +147,18 @@ public class FormFillAdapter extends MyBaseAdapter {
 				shown.remove(i);
 		}
 
-		DebugLog.d("models size = "+shown.size());
+		DebugLog.d("models size = " + shown.size());
+
+		// add all items' label into the shown list
 		List<String> strings = new ArrayList<>();
 		for (int i = 0; i < this.shown.size(); i++) {
 			ItemFormRenderModel item = this.shown.get(i);
-			DebugLog.d("i="+i+" "+item.getLabel()+ " type="+item.type);
+			//DebugLog.d("i = " +i+ " "+item.getLabel()+ " type="+item.type + " wargaid = " + item.getWargaId() + " barangid = " + item.getBarangId());
 			if (item.type==ItemFormRenderModel.TYPE_EXPAND)
 				strings.add(item.workItemModel.label);
 		}
 
+		// removing item from shown which has type = TYPE HEADER
 		for (int i = 0; i < strings.size(); i++) {
 			String s = strings.get(i);
 			for (int j = 0; j < shown.size(); j++) {
@@ -240,7 +252,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.photoRadio = (PhotoItemRadio) convertView.findViewById(R.id.item_form_photo);
 				holder.upload = (ImageView) convertView.findViewById(R.id.item_form_upload);
 				holder.photoRadio.setAudit(isAudit());
-				holder.photoRadio.setButtonClickListener(photoListener);
+				holder.photoRadio.setButtonTakePictureListener(photoListener);
 				holder.upload.setOnClickListener(uploadListener);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
@@ -249,7 +261,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.photo = (PhotoItem) convertView.findViewById(R.id.item_form_photo);
 				holder.upload = (ImageView) convertView.findViewById(R.id.item_form_upload);
 				holder.photo.setAudit(isAudit());
-				holder.photo.setButtonClickListener(photoListener);
+				holder.photo.setButtonTakePictureListener(photoListener);
                 holder.upload.setOnClickListener(uploadListener);
 				holder.photo.setSavingRule(savingRule);
 				break;
@@ -321,7 +333,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.label.setText(getItem(position).workItemModel.label);
 				DebugLog.d("checkbox itemvalue : "+(getItem(position).itemValue == null ? getItem(position).itemValue : getItem(position).itemValue.value));
 				reviseCheckBox(holder.checkBox, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[,]"), getItem(position).rowId, getItem(position).operatorId);
-				setMandatory(holder,getItem(position));
+				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_RADIO:
 				DebugLog.d("TYPE_RADIO");
@@ -330,7 +342,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				check(position);
 				holder.label.setText(getItem(position).workItemModel.label);
 				reviseRadio(holder.radio, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
-				setMandatory(holder,getItem(position));
+				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_HEADER:
 				DebugLog.d("TYPE HEADER");
@@ -377,8 +389,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 						}
 					}
-
-
 				}
 				holder.label.setText(getItem(position).workItemModel.labelHeader);
 				holder.colored.setText(getItem(position).getPercent());
@@ -386,16 +396,18 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE_RADIO:
 				DebugLog.d("TYPE_PICTURE_RADIO");
+				holder.photoRadio.setScheduleId(scheduleId);
 				holder.photoRadio.setItemFormRenderModel(getItem(position));
-				holder.photoRadio.setValue(getItem(position).itemValue,true);
+				holder.photoRadio.setItemValue(getItem(position).itemValue,true);
 				holder.upload.setTag(position);
+				setUploadButtonVisibility(holder);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
 				DebugLog.d("TYPE_PICTURE");
 				holder.photo.setItemFormRenderModel(getItem(position));
-				holder.photo.setValue(getItem(position).itemValue,true);
-				setMandatory(holder,getItem(position));
+				holder.photo.setItemValue(getItem(position).itemValue,true);
 				holder.upload.setTag(position);
+				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_TEXT_INPUT:
 				DebugLog.d("TYPE_TEXT_INPUT");
@@ -431,7 +443,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.input.setTextChange(formTextChange);
 				holder.input.setEnabled(!getItem(position).workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm());
 				check(position);
-				setMandatory(holder,getItem(position));
+				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_EXPAND:
 				DebugLog.d("TYPE_EXPAND");
@@ -459,13 +471,25 @@ public class FormFillAdapter extends MyBaseAdapter {
 		return convertView;
 	}
 
-	private void setMandatory(ViewHolder viewHolder, ItemFormRenderModel itemFormRenderModel) {
+	private void setMandatoryVisibility(ViewHolder viewHolder, ItemFormRenderModel itemFormRenderModel) {
 		if (itemFormRenderModel.workItemModel.mandatory) {
 			viewHolder.mandatory.setVisibility(View.VISIBLE);
 		} else {
 			viewHolder.mandatory.setVisibility(View.GONE);
 		}
 	}
+
+	private void setUploadButtonVisibility(ViewHolder holder) {
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			if (StringUtil.isNotNullAndEmpty(wargaId) || StringUtil.isNotNullAndEmpty(barangId)) {
+				holder.upload.setVisibility(View.INVISIBLE);
+			} else
+				holder.upload.setVisibility(View.VISIBLE);
+		}
+
+	}
+
 	private void check(int position){
 //		log("============== aaaaaa ============================");
 //		log("============== aaaaaa ============================");
@@ -476,7 +500,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 //		log("item id : "+ getItem(position).workItemModel.id);
 	}
 
-	private void reviseCheckBox(LinearLayout linear,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
+	private void reviseCheckBox(LinearLayout linear,ItemFormRenderModel item, String[] split, int rowId, int operatorId){
 		boolean isHorizontal = true;
 		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
 		//boolean isEnabled = !item.workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation);
@@ -540,25 +564,19 @@ public class FormFillAdapter extends MyBaseAdapter {
 		linear.setOrientation(isHorizontal ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
 	}
 
-	private void reviseRadio(RadioGroup radioGroup,ItemFormRenderModel item,String[] split,int rowId, int operatorId){
+	private void reviseRadio(RadioGroup radioGroup, ItemFormRenderModel item, String[] split, int rowId, int operatorId){
+
 		boolean isHorizontal = true;
 		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
-		//boolean isEnabled = !item.workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation);
 
-		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
-		DebugLog.d("radioGroup child count after addview : " + radioGroup.getChildCount());
 		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
 			radioButton.setOnCheckedChangeListener(null);
 			radioButton.setEnabled(isEnabled);
-			DebugLog.d("radioButton enabled ? " + isEnabled);
 		}
-
 		radioGroup.clearCheck();
 		isHorizontal = 3 >= item.workItemModel.options.size();
 		DebugLog.d("isHorizontal : " + isHorizontal);
-		DebugLog.d("radioGroup child count before addview : " + radioGroup.getChildCount());
-
 		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			//binding checkbox
 			if (i < item.workItemModel.options.size()){
@@ -570,12 +588,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 				radioButton.setTag(item);
 				if (split != null)
 					for(int j = 0; j < split.length; j++){
-						if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j])) {
+						if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j]))
 							radioGroup.check(radioButton.getId());
-							DebugLog.d("split[" + j + "] = " + split[j]);
-						}
 					}
-                DebugLog.d("checkedChangeListener ... ");
+				DebugLog.d("checkedChangeListener ... ");
 				radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
 			}
 			//remove unused checkbox
@@ -592,13 +608,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 			radioGroup.addView(radioButton);
 			if (split != null)
 				for(int j = 0; j < split.length; j++){
-					if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j])) {
+					if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j]))
 						radioGroup.check(radioButton.getId());
-
-					}
 				}
 			radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
-			radioButton.setEnabled(isEnabled);
+
 		}
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 	}
@@ -620,20 +634,16 @@ public class FormFillAdapter extends MyBaseAdapter {
 		LinearLayout expandButton;
 	}
 
-	OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {
-
-		@Override
-		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-			ItemFormRenderModel item = (ItemFormRenderModel) buttonView.getTag();
-			String value = null;
-			for (WorkFormOptionsModel option : item.workItemModel.options)
-				if (option.label.equals(buttonView.getText())){
-					value = option.value;
-					break;
-				}
-			DebugLog.d( "-=-=-=- value : "+value);
-			saveValue(item, isChecked, true, value);
-		}
+	OnCheckedChangeListener onCheckedChangeListener = (buttonView, isChecked) -> {
+		ItemFormRenderModel item = (ItemFormRenderModel) buttonView.getTag();
+		String value = null;
+		for (WorkFormOptionsModel option : item.workItemModel.options)
+			if (option.label.equals(buttonView.getText())){
+				value = option.value;
+				break;
+			}
+		DebugLog.d( "-=-=-=- value : " + value);
+		saveValue(item, isChecked, true, value);
 	};
 
 	FormTextChange formTextChange = (string, view) -> {
@@ -652,42 +662,25 @@ public class FormFillAdapter extends MyBaseAdapter {
 			itemFormRenderModel.itemValue.itemId = itemFormRenderModel.workItemModel.id;
 			itemFormRenderModel.itemValue.scheduleId = itemFormRenderModel.schedule.id;
 			itemFormRenderModel.itemValue.rowId = itemFormRenderModel.rowId;
-
-			// SAP only
-			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-				itemFormRenderModel.itemValue.wargaId = wargaId;
-				itemFormRenderModel.itemValue.barangId = barangId;
-			}
+			itemFormRenderModel.itemValue.value = value;
 		}
 
-		DebugLog.d("=== ITEM UPDATES ===");
-		DebugLog.d("isAdding="+isAdding+", isCompundButton="+isCompundButton+", value="+value);
-		DebugLog.d("item scheduleid : " + itemFormRenderModel.itemValue.scheduleId);
-		DebugLog.d("item operatorid : " + itemFormRenderModel.itemValue.operatorId);
-		DebugLog.d("item itemid : " + itemFormRenderModel.itemValue.itemId);
-		DebugLog.d("item siteid : " + itemFormRenderModel.itemValue.siteId);
-		DebugLog.d("item gpsaccur : " + itemFormRenderModel.itemValue.gpsAccuracy);
-		DebugLog.d("item rowid : " + itemFormRenderModel.itemValue.rowId);
-		DebugLog.d("item remark : " + itemFormRenderModel.itemValue.remark);
-		DebugLog.d("item photostatus : " + itemFormRenderModel.itemValue.photoStatus);
-		DebugLog.d("item latitude : " + itemFormRenderModel.itemValue.latitude);
-		DebugLog.d("item longitude : " + itemFormRenderModel.itemValue.longitude);
-		DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
-		DebugLog.d("item uploadstatus : " + itemFormRenderModel.itemValue.uploadStatus);
-		DebugLog.d("item photodate : " + itemFormRenderModel.itemValue.photoDate);
-		DebugLog.d("item wargaid : " + itemFormRenderModel.itemValue.wargaId);
-		DebugLog.d("item barangid : " + itemFormRenderModel.itemValue.barangId);
+		// SAP only
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			itemFormRenderModel.itemValue.wargaId = wargaId;
+			itemFormRenderModel.itemValue.barangId = barangId;
+		}
 
 		if (isCompundButton){
 			if (isAdding){ //adding value on check box
 				DebugLog.d("goto adding");
 				// value still null or blank
-				if (itemFormRenderModel.itemValue.value == null  || itemFormRenderModel.itemValue.value.equalsIgnoreCase("")){
+				if (TextUtils.isEmpty(itemFormRenderModel.itemValue.value)){
 					itemFormRenderModel.itemValue.value = value;
 					itemFormRenderModel.schedule.sumTaskDone ++;
 				}
-				// any value apply before
 				else{
+					// any value apply before
 					String[] chkBoxValue = itemFormRenderModel.itemValue.value.split("[,]");
 					for(int i = 0; i < chkBoxValue.length; i++){ 
 						if (chkBoxValue[i].equalsIgnoreCase(value))
@@ -696,13 +689,36 @@ public class FormFillAdapter extends MyBaseAdapter {
 							itemFormRenderModel.itemValue.value += ","+value;
 					}
 				}
+
 				itemFormRenderModel.itemValue.uploadStatus = ItemValueModel.UPLOAD_NONE;
 				saveAfterCheck(itemFormRenderModel);
+
+				DebugLog.d("=== ITEM UPDATES ===");
+				DebugLog.d("isAdding="+isAdding+", isCompundButton="+isCompundButton+", value="+value);
+				DebugLog.d("item scheduleid : " + itemFormRenderModel.itemValue.scheduleId);
+				DebugLog.d("item operatorid : " + itemFormRenderModel.itemValue.operatorId);
+				DebugLog.d("item itemid : " + itemFormRenderModel.itemValue.itemId);
+				DebugLog.d("item siteid : " + itemFormRenderModel.itemValue.siteId);
+				DebugLog.d("item gpsaccur : " + itemFormRenderModel.itemValue.gpsAccuracy);
+				DebugLog.d("item rowid : " + itemFormRenderModel.itemValue.rowId);
+				DebugLog.d("item remark : " + itemFormRenderModel.itemValue.remark);
+				DebugLog.d("item photostatus : " + itemFormRenderModel.itemValue.photoStatus);
+				DebugLog.d("item latitude : " + itemFormRenderModel.itemValue.latitude);
+				DebugLog.d("item longitude : " + itemFormRenderModel.itemValue.longitude);
+				DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+				DebugLog.d("item uploadstatus : " + itemFormRenderModel.itemValue.uploadStatus);
+				DebugLog.d("item photodate : " + itemFormRenderModel.itemValue.photoDate);
+				DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+				DebugLog.d("item wargaid : " + itemFormRenderModel.itemValue.wargaId);
+				DebugLog.d("item barangid : " + itemFormRenderModel.itemValue.barangId);
+				DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
+
 			}else{ // deleting on checkbox
+
 				DebugLog.d("goto deleting");
 				String[] chkBoxValue = itemFormRenderModel.itemValue.value.split("[,]");
 				itemFormRenderModel.itemValue.value = "";
-				//removing unchecked checkbox value
+
 				for(int i = 0; i < chkBoxValue.length; i++){ 
 					if (!chkBoxValue[i].equalsIgnoreCase(value))
 						if (i == chkBoxValue.length - 1 || chkBoxValue[chkBoxValue.length - 1].equalsIgnoreCase(value))
@@ -726,27 +742,43 @@ public class FormFillAdapter extends MyBaseAdapter {
 				DebugLog.d("goto deleting");
 				if (itemFormRenderModel.itemValue.value != null) {
 
-					// SAP only
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId, wargaId, barangId);
-					} else {
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId, itemFormRenderModel.itemValue.wargaId, itemFormRenderModel.itemValue.barangId);
+					else
 						ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
-					}
 				}
 				itemFormRenderModel.itemValue = null;
 				itemFormRenderModel.schedule.sumTaskDone--;
-			}
-			else{
+			} else{
 				DebugLog.d("goto adding");
 				if (itemFormRenderModel.itemValue.value == null)
 					itemFormRenderModel.schedule.sumTaskDone++;
 				itemFormRenderModel.itemValue.value = value;
 				itemFormRenderModel.itemValue.uploadStatus = ItemValueModel.UPLOAD_NONE;
 				itemFormRenderModel.itemValue.save();
+
+				DebugLog.d("=== ITEM UPDATES ===");
+				DebugLog.d("isAdding="+isAdding+", isCompundButton="+isCompundButton+", value="+value);
+				DebugLog.d("item scheduleid : " + itemFormRenderModel.itemValue.scheduleId);
+				DebugLog.d("item operatorid : " + itemFormRenderModel.itemValue.operatorId);
+				DebugLog.d("item itemid : " + itemFormRenderModel.itemValue.itemId);
+				DebugLog.d("item siteid : " + itemFormRenderModel.itemValue.siteId);
+				DebugLog.d("item gpsaccur : " + itemFormRenderModel.itemValue.gpsAccuracy);
+				DebugLog.d("item rowid : " + itemFormRenderModel.itemValue.rowId);
+				DebugLog.d("item remark : " + itemFormRenderModel.itemValue.remark);
+				DebugLog.d("item photostatus : " + itemFormRenderModel.itemValue.photoStatus);
+				DebugLog.d("item latitude : " + itemFormRenderModel.itemValue.latitude);
+				DebugLog.d("item longitude : " + itemFormRenderModel.itemValue.longitude);
+				DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+				DebugLog.d("item uploadstatus : " + itemFormRenderModel.itemValue.uploadStatus);
+				DebugLog.d("item photodate : " + itemFormRenderModel.itemValue.photoDate);
+				DebugLog.d("item value : " + itemFormRenderModel.itemValue.value);
+				DebugLog.d("item wargaid : " + itemFormRenderModel.itemValue.wargaId);
+				DebugLog.d("item barangid : " + itemFormRenderModel.itemValue.barangId);
+				DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
 			}
 		}
 		itemFormRenderModel.schedule.save();
-		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
 	}
 	
 	private void saveAfterCheck(ItemFormRenderModel itemFormRenderModel){
@@ -760,13 +792,21 @@ public class FormFillAdapter extends MyBaseAdapter {
 	}
 	
 	private void deleteAfterCheck(ItemFormRenderModel itemFormRenderModel){
-		if (itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")){
-			for (OperatorModel operator : itemFormRenderModel.schedule.operators){
-				itemFormRenderModel.itemValue.operatorId = operator.id;
-				itemFormRenderModel.itemValue.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
-			}
-		}else
-			itemFormRenderModel.itemValue.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
+
+		if (itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")) {
+
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+				ItemValueModel.deleteAllBy(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.wargaId, itemFormRenderModel.itemValue.barangId);
+			} else
+				ItemValueModel.deleteAllBy(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId);
+
+		} else {
+
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+				ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId, itemFormRenderModel.itemValue.wargaId, itemFormRenderModel.itemValue.barangId);
+			else
+				ItemValueModel.delete(itemFormRenderModel.itemValue.scheduleId, itemFormRenderModel.itemValue.itemId, itemFormRenderModel.itemValue.operatorId);
+		}
 	}
 
 	private boolean isAudit() {
@@ -814,22 +854,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 			}
 			updateView();
-		}
-	}
-
-	private void toggleEditable(ViewHolder holder) {
-		if (MyApplication.getInstance().isInCheckHasilPm()) {
-			DebugLog.d("input is disabled");
-			if (holder.radio != null) holder.radio.setEnabled(false);
-			if (holder.input != null) holder.input.setEnabled(false);
-			if (holder.checkBox != null) holder.checkBox.setEnabled(false);
-			if (holder.photoRadio!= null) holder.photoRadio.setEnabled(false);
-		} else {
-			DebugLog.d("input is enabled");
-			if (holder.radio != null) holder.radio.setEnabled(true);
-			if (holder.input != null) holder.input.setEnabled(true);
-			if (holder.checkBox != null) holder.checkBox.setEnabled(true);
-			if (holder.photoRadio!= null) holder.photoRadio.setEnabled(true);
 		}
 	}
 }

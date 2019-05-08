@@ -1,18 +1,22 @@
 package com.sap.inspection.manager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Debug;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
+import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
@@ -26,6 +30,7 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.ItemDefaultResponseModel;
 import com.sap.inspection.model.responsemodel.ItemWargaResponseModel;
@@ -68,6 +73,8 @@ import java.util.LinkedList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.sap.inspection.model.value.ItemValueModel.isPictureRadioItemValidated;
+
 //import android.util.Log;
 
 public class ItemUploadManager {
@@ -103,29 +110,60 @@ public class ItemUploadManager {
     }
 
     public void addItemValues(Collection<ItemValueModel> itemvalues) {
-        DebugLog.d("itemvalues="+itemvalues.size());
-        this.itemValues.clear();
-        this.itemValuesFailed.clear();
-        for (ItemValueModel item : itemvalues) {
-            if (!item.disable) {
-                this.itemValues.add(item);
-            }
-        }
-        if (!running) {
-            uploadTask = null;
-            uploadTask = new UploadValue();
-            uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            //"There is upload process, please wait until finish"
-            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+        if (itemvalues == null)
+            MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
+        else {
+                if (itemvalues.isEmpty()) {
+                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+                    return;
+                }
+
+                DebugLog.d("itemvalues="+itemvalues.size());
+                this.itemValues.clear();
+                this.itemValuesFailed.clear();
+                for (ItemValueModel item : itemvalues) {
+                    if (item != null && !item.disable) {
+                        this.itemValues.add(item);
+                    }
+                }
+                if (!running) {
+                    uploadTask = null;
+                    uploadTask = new UploadValue();
+                    uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
         }
     }
 
-    public void addItemValue(ItemValueModel itemvalue) {
-        if (itemvalue.disable) return;
+    public void addItemValue(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
+
+        // if the filled items are mandatory, then apply strict rules
+        if (workFormItem.mandatory) {
+
+            // for non-TYPE_PICTURE_RADIO
+            if (TextUtils.isEmpty(filledItem.value)) {
+
+                if (workFormItem.field_type.equalsIgnoreCase("file") && !TextUtils.isEmpty(filledItem.photoStatus) && !filledItem.photoStatus.equalsIgnoreCase(Constants.NA))
+                    MyApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
+                else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
+                    DebugLog.d("item file picture radio not validated");
+
+                return;
+
+            } else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem)) {
+                return;
+            }
+
+        } else {
+
+            if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
+                return;
+        }
+
+        if (filledItem.disable) return;
+
         this.itemValues.clear();
         this.itemValuesFailed.clear();
-        this.itemValues.add(itemvalue);
+        this.itemValues.add(filledItem);
         if (!running) {
             uploadTask = null;
             uploadTask = new UploadValue();
@@ -134,6 +172,7 @@ public class ItemUploadManager {
             //There is upload process, please wait until finish
             MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
         }
+
     }
 
     private class UploadValue extends AsyncTask<Void, String, Void> {
@@ -154,7 +193,12 @@ public class ItemUploadManager {
         private Gson gson = new Gson();
         private String scheduleId;
 
-        public UploadValue() {
+        private Handler responseObserver;
+
+        public UploadValue() {}
+
+        public UploadValue(Handler responseObserver) {
+            this.responseObserver = responseObserver;
         }
 
         @Override
@@ -184,8 +228,10 @@ public class ItemUploadManager {
                 publish(itemValues.size() + " item yang tersisa");
                 latestStatus = itemValues.size() + " item yang tersisa";
 
-                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-                    checkWargaIDRegistration(itemValues.get(0));
+                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+                    ItemValueModel itemChanged = checkWargaAndBarangID(itemValues.get(0));
+                    itemValues.set(0, itemChanged);
+                }
 
                 /** upload Photo **/
                 response = uploadItem2(itemValues.get(0));
@@ -198,12 +244,12 @@ public class ItemUploadManager {
 
                 } else {
 
-                    // stop upload progress
+                    // stop upload
                     break;
                 }
             }
 
-            if (scheduleId != null && isPreventive(scheduleId)) {
+            if (scheduleId != null && StringUtil.isPreventive(scheduleId)) {
                 DebugLog.d("hit corrective");
                 APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() + scheduleId + "/update");
             }
@@ -227,6 +273,7 @@ public class ItemUploadManager {
 
             } else {
                 latestStatus = syncFail;
+                simpleResponseMessage = "response is null";
                 messageToServer = MESSAGE_FAILED;
             }
 
@@ -261,25 +308,20 @@ public class ItemUploadManager {
             return null;
         }
 
-        private void checkWargaIDRegistration(ItemValueModel item) {
+        private ItemValueModel checkWargaAndBarangID(ItemValueModel item) {
 
-            if (StringUtil.isWargaNotRegistered(item.wargaId)) {
-
-                int dataindex = FormImbasPetirConfig.getDataIndex(scheduleId);
-
-                if (dataindex != -1) {
-
-                    ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataindex);
-
-                    Warga warga = FormImbasPetirConfig.getWarga(wargas, item.wargaId);
-
-                    if (warga != null) {
-                        DebugLog.d("warga is not registered, change with real wargaid --> (" + item.wargaId + "," + warga.getWargaid() + ")");
-                        item.wargaId = warga.getWargaid();
-                        itemValues.set(0, item);
-                    }
-                }
+            if (StringUtil.isNotRegistered(item.wargaId)) {
+                String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(item.scheduleId, item.wargaId);
+                DebugLog.d("(wargaid, realwargaid) : (" + item.wargaId + "," + realwargaId +")");
+                item.wargaId = realwargaId;
             }
+
+            if (StringUtil.isNotRegistered(item.barangId)) {
+                String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(item.scheduleId, item.wargaId, item.barangId);
+                DebugLog.d("(barangid, realbarangid) : (" + item.barangId + "," + realbarangid +")");
+                item.barangId = realbarangid;
+            }
+            return item;
         }
 
         private void processUploadResponse() {
@@ -294,25 +336,30 @@ public class ItemUploadManager {
 
                 if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-                    if (StringUtil.isWargaNotRegistered(item.wargaId)) {
+                    // form imbas petir check new wargaid and new barangid after registration
 
+                    if (StringUtil.isNotRegistered(item.wargaId)) {
+
+                        //String scheduleId = item.scheduleId;
                         String oldWargaId = item.wargaId;
                         String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
 
-                        // update wargaid and barangid
+                        // update wargaid in the config
                         updateWargaId(oldWargaId, newWargaId);
 
-                        // update warga id to the table
                         item.wargaId = newWargaId;
                     }
 
-                    if (item.barangId != null) {
+                    if (StringUtil.isNotRegistered(item.barangId)) {
 
+                        String wargaId = item.wargaId;
                         String oldBarangId = item.barangId;
                         String newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
-                        updateBarangId(oldBarangId, newBarangId);
 
-                        // update barang id to the table
+                        // update barangid in the config
+                        updateBarangId(wargaId, oldBarangId, newBarangId);
+
+                        // update barangid in the table
                         item.barangId = newBarangId;
                     }
                 }
@@ -321,47 +368,33 @@ public class ItemUploadManager {
 
                 DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
                 DebugLog.d("upload status : " + item.uploadStatus);
+
+                // insert or replace value data
                 item.save();
+
             } else {
                 if (responseUploadItemModel.status == 400 ||
                     responseUploadItemModel.status == 422 ||
                     responseUploadItemModel.status == 403 ||
                     responseUploadItemModel.status == 404) {
 
-                    simpleResponseMessage = responseUploadItemModel.messages + " with statuscode : " + responseUploadItemModel.status;
+                    simpleResponseMessage = " with statuscode : " + responseUploadItemModel.status + "\n" + responseUploadItemModel.messages;
                 }
                 itemValuesFailed.add(itemValues.remove(0));
-            }
-        }
-
-        private void uploadInformasiDiri() {
-
-            ItemWargaResponseModel responseUploadItemModel = gson.fromJson(response, ItemWargaResponseModel.class);
-
-            DebugLog.d("status code : " + responseUploadItemModel.status);
-            if (responseUploadItemModel.status == 201 || responseUploadItemModel.status == 200) {
-
-                ItemValueModel item = itemValues.remove(0);
-                item.uploadStatus = ItemValueModel.UPLOAD_DONE;
-                itemValueSuccessCount++;
-
-                DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
-                DebugLog.d("upload status : " + item.uploadStatus);
-                item.save();
             }
         }
 
         private void updateWargaId(String oldWargaId, String newWargaId) {
 
             DebugLog.d("update warga id : (old,new) = (" + oldWargaId + "," + newWargaId + ")");
-            FormImbasPetirConfig.updateWarga(scheduleId, oldWargaId, newWargaId);
+            FormImbasPetirConfig.updateWargaId(scheduleId, oldWargaId, newWargaId);
 
         }
 
-        private void updateBarangId(String oldBarangId, String newBarangId) {
+        private void updateBarangId(String wargaId, String oldBarangId, String newBarangId) {
 
             DebugLog.d("update barang id : (old,new) = (" + oldBarangId + "," + newBarangId + ")");
-
+            FormImbasPetirConfig.updateBarangId(scheduleId, wargaId, oldBarangId, newBarangId);
         }
 
         private ArrayList<NameValuePair> getParams(ItemValueModel itemValue) {
@@ -377,7 +410,7 @@ public class ItemUploadManager {
 
                 params.add(new BasicNameValuePair("photo_status", itemValue.photoStatus));
 
-                if (null != itemValue.value && null != itemValue.photoStatus) {
+                if (null != itemValue.value) {
                     if (itemValue.photoDate == null) {
                         params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
                         DebugLog.d("photo_datetime : " + itemValue.createdAt);
@@ -396,9 +429,9 @@ public class ItemUploadManager {
                 params.add(new BasicNameValuePair("longitude", itemValue.longitude));
             if (itemValue.gpsAccuracy != 0)
                 params.add(new BasicNameValuePair("accuracy", String.valueOf(itemValue.gpsAccuracy)));
-            if (itemValue.wargaId != null)
+            if (itemValue.wargaId != null && !itemValue.wargaId.equalsIgnoreCase(Constants.EMPTY))
                 params.add(new BasicNameValuePair("wargaid", itemValue.wargaId));
-            if (itemValue.barangId != null)
+            if (itemValue.barangId != null && !itemValue.barangId.equalsIgnoreCase(Constants.EMPTY))
                 params.add(new BasicNameValuePair("barangid", itemValue.barangId));
             return params;
         }
@@ -434,13 +467,14 @@ public class ItemUploadManager {
 
                 ArrayList<NameValuePair> params = getParams(itemValue);
 
-                if (itemValue.photoStatus != null)
+                if (itemValue.photoStatus != null && itemValue.value != null)
                     reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
 
                 for (int i = 0; i < params.size(); i++) {
                     DebugLog.d(params.get(i).getName() + " || " + params.get(i).getValue());
                     reqEntity.addPart(params.get(i).getName(), new StringBody(params.get(i).getValue()));
                 }
+
                 System.gc();
 
                 InputStream data;
@@ -697,15 +731,6 @@ public class ItemUploadManager {
         public String getJson() {
             return json;
         }
-    }
-
-    public boolean isPreventive(String scheduleId) {
-
-        ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
-        scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
-
-        String workTypeName = scheduleBaseModel.work_type.name;
-        return workTypeName.matches(Constants.regexPREVENTIVE);
     }
 
 }

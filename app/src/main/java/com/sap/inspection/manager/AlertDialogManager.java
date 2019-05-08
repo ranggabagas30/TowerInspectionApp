@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 
 import com.sap.inspection.R;
+import com.sap.inspection.constant.Constants;
 
 public class AlertDialogManager {
 	/**
@@ -30,7 +31,7 @@ public class AlertDialogManager {
 			alertDialog.setIcon((status) ? R.drawable.success : R.drawable.fail);
 
 		// Setting OK Button
-		alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+		alertDialog.setButton(Constants.OK, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 			}
 		});

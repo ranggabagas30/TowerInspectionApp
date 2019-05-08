@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
@@ -79,6 +80,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		View view = convertView;
 		final ViewHolder holder;
+
+		ScheduleBaseModel itemModel = getItem(position);
+
 		if (convertView == null) {
 			holder = new ViewHolder();
 			switch (getItemViewType(position)) {
@@ -97,7 +101,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				holder.task = (TextView) view.findViewById(R.id.item_schedule_task);
 				holder.place = (TextView) view.findViewById(R.id.item_schedule_place);
 				holder.upload = view.findViewById(R.id.item_schedule_upload);
-                holder.upload.setOnClickListener(upload);
+				holder.upload.setOnClickListener(upload);
+				holder.upload.setVisibility(View.VISIBLE);
+
 				break;
 			default:
 				break;
@@ -108,22 +114,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 
 		switch (getItemViewType(position)) {
 		case 0:
-//			Calendar calendar = null;
-//			try {
-//				calendar = DateTools.toCalendar(getItem(position).work_date);
-//			} catch (ParseException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			if (calendar == null)
-//				holder.title.setText(getItem(position).work_date);
-//			else
-//				holder.title.setText(Constants.MONTHS[calendar.get(Calendar.MONTH)] +" "+ calendar.get(Calendar.DATE) +","+ calendar.get(Calendar.YEAR));
-			
 			String[] date = getItem(position).day_date.split("[-]",3);
 			
 			holder.title.setText(Constants.MONTHS[Integer.parseInt(date[1]) - 1 ] +" "+ date[2] +","+ date[0]);
-
 			break;
 
 		case 1:
@@ -135,8 +128,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.task.setTextColor(Color.parseColor(getItem(position).getTaskColor()));
 			holder.place.setText(getItem(position).getPlace());
             holder.upload.setTag(getItem(position).id);
+			if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR))
+				holder.upload.setVisibility(View.INVISIBLE);
 			break;
-
 
 		default:
 			break;
@@ -170,16 +164,18 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			if (!GlobalVar.getInstance().anyNetwork(MyApplication.getContext())) {
 				MyApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
 			} else {
-				String id = (String) v.getTag();
+				String scheduleId = (String) v.getTag();
 
-				ItemValueModel itemValueModel = new ItemValueModel();
-				ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(id);
+				/*ItemValueModel itemValueModel = new ItemValueModel();
+				ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(scheduleId);
 				if (itemValueModels.size() != 0) {
 					ItemUploadManager.getInstance().addItemValues(itemValueModels);
 				} else {
 					MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
-				}
+				}*/
 
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+					new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, Constants.EMPTY, Constants.EMPTY).execute();
 			}
         }
     };

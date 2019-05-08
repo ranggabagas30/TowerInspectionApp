@@ -44,6 +44,7 @@ public class OperatorModel extends BaseModel {
 	}
 	
 	public OperatorModel getOperatorById(int id) {
+
 		OperatorModel model = null;
 
 		String table = DbManager.mOperator;

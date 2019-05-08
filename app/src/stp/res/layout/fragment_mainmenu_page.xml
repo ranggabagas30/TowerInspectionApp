@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -19,7 +18,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/user"
         android:orientation="vertical"
-        android:weightSum="2">
+        android:weightSum="1.5">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,71 +35,12 @@
                 <include layout="@layout/item_mainmenu" />
             </FrameLayout>
 
-            <View android:layout_width="@dimen/padding_xxs"
+            <View
+                android:layout_width="@dimen/padding_xxs"
                 android:layout_height="@dimen/padding_xxs" />
 
             <FrameLayout
                 android:id="@+id/s2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:scaleType="centerCrop">
-
-                <include layout="@layout/item_mainmenu" />
-            </FrameLayout>
-        </LinearLayout>
-
-        <View android:layout_width="@dimen/padding_xxs"
-            android:layout_height="@dimen/padding_xxs" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5">
-
-            <FrameLayout android:id="@+id/s3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:scaleType="centerCrop">
-
-                <include layout="@layout/item_mainmenu" />
-            </FrameLayout>
-
-            <View android:layout_width="@dimen/padding_xxs"
-                android:layout_height="@dimen/padding_xxs" />
-
-            <FrameLayout android:id="@+id/s4"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:scaleType="centerCrop">
-
-                <include layout="@layout/item_mainmenu" />
-            </FrameLayout>
-        </LinearLayout>
-
-        <View android:layout_width="@dimen/padding_xxs"
-            android:layout_height="@dimen/padding_xxs" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5">
-
-            <FrameLayout android:id="@+id/s5"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:scaleType="centerCrop">
-
-                <include layout="@layout/item_mainmenu" />
-            </FrameLayout>
-
-            <View android:layout_width="@dimen/padding_xxs"
-                android:layout_height="@dimen/padding_xxs" />
-
-            <FrameLayout android:id="@+id/s6"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
@@ -117,16 +57,16 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.5" >
+            android:layout_weight="0.5">
 
             <FrameLayout
-                android:id="@+id/s7"
+                android:id="@+id/s3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
-                android:scaleType="centerCrop" >
-                <include layout="@layout/item_mainmenu" />
+                android:scaleType="centerCrop">
 
+                <include layout="@layout/item_mainmenu" />
             </FrameLayout>
 
             <View
@@ -134,17 +74,49 @@
                 android:layout_height="@dimen/padding_xxs" />
 
             <FrameLayout
-                android:id="@+id/s8"
+                android:id="@+id/s4"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
-                android:scaleType="centerCrop" >
+                android:scaleType="centerCrop">
+
                 <include layout="@layout/item_mainmenu" />
-
             </FrameLayout>
-
         </LinearLayout>
 
+        <View
+            android:layout_width="@dimen/padding_xxs"
+            android:layout_height="@dimen/padding_xxs" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5">
+
+            <FrameLayout
+                android:id="@+id/s5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop">
+
+                <include layout="@layout/item_mainmenu" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="@dimen/padding_xxs"
+                android:layout_height="@dimen/padding_xxs" />
+
+            <FrameLayout
+                android:id="@+id/s6"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop">
+
+                <include layout="@layout/item_mainmenu" />
+            </FrameLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>
