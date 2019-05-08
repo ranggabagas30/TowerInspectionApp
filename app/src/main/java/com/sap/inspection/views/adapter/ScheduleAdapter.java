@@ -158,26 +158,17 @@ public class ScheduleAdapter extends MyBaseAdapter {
         public View upload;
 	}
 
-    View.OnClickListener upload = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-			if (!GlobalVar.getInstance().anyNetwork(MyApplication.getContext())) {
-				MyApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
-			} else {
-				String scheduleId = (String) v.getTag();
+    View.OnClickListener upload = v -> {
+		if (!GlobalVar.getInstance().anyNetwork(MyApplication.getContext())) {
+			MyApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
+		} else {
+			String scheduleId = (String) v.getTag();
 
-				/*ItemValueModel itemValueModel = new ItemValueModel();
-				ArrayList<ItemValueModel> itemValueModels = itemValueModel.getItemValuesForUpload(scheduleId);
-				if (itemValueModels.size() != 0) {
-					ItemUploadManager.getInstance().addItemValues(itemValueModels);
-				} else {
-					MyApplication.getInstance().toast(context.getResources().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
-				}*/
-
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-					new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, Constants.EMPTY, Constants.EMPTY).execute();
-			}
-        }
-    };
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, Constants.EMPTY, Constants.EMPTY).execute();
+			else
+				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId).execute();
+		}
+	};
 
 }

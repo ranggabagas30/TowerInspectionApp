@@ -369,11 +369,6 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
-	/*public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
-
-		return getItemValuesForUpload(scheduleId, null, null);
-	}*/
-
 
 	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
 
@@ -422,31 +417,35 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
-	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId) {
+	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId) {
 
-        DebugLog.d("upload items by scheduleId = " + scheduleId);
-	    ArrayList<ItemValueModel> uploadItems = new ArrayList<>();
-
-	    ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
-	    scheduleBaseModel.getScheduleById(scheduleId);
-
-        WorkFormModel workFormModel = new WorkFormModel();
-        workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModel.work_type.id);
-
-        WorkFormGroupModel groupModel = new WorkFormGroupModel();
-        Vector<WorkFormGroupModel> workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
-
-        for (WorkFormGroupModel perGroup : workFormGroupModels) {
-
-            uploadItems.addAll(getItemValuesForUpload(scheduleId, perGroup.id, Constants.EMPTY, Constants.EMPTY));
-
-        }
-
-        return uploadItems;
+		return getItemValuesForUploadWithMandatoryCheck(scheduleId, null, null);
     }
 
+	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, String wargaId, String barangId) {
 
-	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
+		DebugLog.d("upload items by scheduleId = " + scheduleId);
+		ArrayList<ItemValueModel> uploadItems = new ArrayList<>();
+
+		ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
+		scheduleBaseModel.getScheduleById(scheduleId);
+
+		WorkFormModel workFormModel = new WorkFormModel();
+		workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModel.work_type.id);
+
+		WorkFormGroupModel groupModel = new WorkFormGroupModel();
+		Vector<WorkFormGroupModel> workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
+
+		for (WorkFormGroupModel perGroup : workFormGroupModels) {
+
+			uploadItems.addAll(getItemValuesForUploadWithMandatoryCheck(scheduleId, perGroup.id, wargaId, barangId));
+
+		}
+
+		return uploadItems;
+	}
+
+	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
 
         DebugLog.d("upload items by scheduleid = " + scheduleId + " workFormGroupId = " + work_form_group_id);
 		ArrayList<ItemValueModel> results = new ArrayList<>();
@@ -526,9 +525,17 @@ public class ItemValueModel extends BaseModel {
 		private String barangId;
 		private int workFormGroupId;
 
+		public AsyncCollectItemValuesForUpload(String scheduleId) {
+			new AsyncCollectItemValuesForUpload(scheduleId, UNSPECIFIED, null, null);
+		}
+
 		public AsyncCollectItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
 		    new AsyncCollectItemValuesForUpload(scheduleId, UNSPECIFIED, wargaId, barangId);
         }
+
+        public AsyncCollectItemValuesForUpload(String scheduleId, int workFormGroupId) {
+			new AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, null, null);
+		}
 
 		public AsyncCollectItemValuesForUpload(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
 			this.scheduleId = scheduleId;
@@ -550,10 +557,20 @@ public class ItemValueModel extends BaseModel {
 		@Override
 		protected ArrayList<ItemValueModel> doInBackground(Void... voids) {
 
-		    if (workFormGroupId == UNSPECIFIED)
-		        return getItemValuesForUpload(scheduleId);
-             else
-			    return getItemValuesForUpload(scheduleId, workFormGroupId, wargaId, barangId);
+		    if (workFormGroupId == UNSPECIFIED) {
+
+		    	if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+					return getItemValuesForUploadWithMandatoryCheck(scheduleId, wargaId, wargaId);
+		    	else
+					return getItemValuesForUploadWithMandatoryCheck(scheduleId);
+
+			} else {
+
+		    	if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+					return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupId, wargaId, barangId);
+		    	else
+		    		return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupId, null, null);
+			}
 
 		}
 

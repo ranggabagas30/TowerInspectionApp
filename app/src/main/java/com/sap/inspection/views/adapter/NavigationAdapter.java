@@ -296,40 +296,10 @@ public class NavigationAdapter extends MyBaseAdapter {
                     String scheduleId = getScheduleId();
                     int workFormGroupId = rowModel.work_form_group_id;
 
-                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-					//if (false) { // debug only
-
-                        /*ArrayList<ItemValueModel> uploadItems = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY);
-                        ItemUploadManager.getInstance().addItemValues(uploadItems);*/
-
-                        new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY).execute();
-
-					} else {
-
-						ArrayList<ItemValueModel> listItemUploadByWorkFormGroupId = new ArrayList<>();
-						ArrayList<ItemValueModel> listItemValue = ItemValueModel.getItemValuesForUpload(scheduleId);
-
-						for (ItemValueModel model : listItemValue) {
-
-							WorkFormItemModel workFormItemModel = WorkFormItemModel.getItemById(model.itemId, rowModel.work_form_group_id);
-
-							// get upload items by workformgroupid
-							if (rowModel.work_form_group_id == workFormItemModel.work_form_group_id) {
-								listItemUploadByWorkFormGroupId.add(model);
-								DebugLog.d("t1.workFormGroupId : " + model.work_form_group_id);
-								DebugLog.d("t1.scheduleId : " + 	 model.scheduleId);
-								DebugLog.d("t1.operatorId : " + 	 model.operatorId);
-								DebugLog.d("t1.itemId : " + 		 model.itemId);
-								DebugLog.d("t1.photoStatus : " + 	 model.photoStatus);
-								DebugLog.d("t1.remark : " +			 model.remark);
-								DebugLog.d("t1.value : "  + 		 model.value);
-							}
-							DebugLog.d("\n\n");
-						}
-
-                        ItemUploadManager.getInstance().addItemValues(listItemUploadByWorkFormGroupId);
-
-					}
+                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+						new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY).execute();
+                    else
+                    	new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId).execute();
 
 				} else {
 					MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);

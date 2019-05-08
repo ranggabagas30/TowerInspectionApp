@@ -19,8 +19,8 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19020400
-        versionName "2.4.0"
+        versionCode 19020401
+        versionName "2.4.1"
         setProperty("archivesBaseName", "sap" + "-v" + "(" + versionName + ")")
     }
 
