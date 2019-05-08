@@ -210,10 +210,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 	public View getView(final int position, View convertView, ViewGroup parent) {
 
 		final ViewHolder holder;
+        DebugLog.d("position="+position+" type="+getItemViewType(position));
 		if (convertView == null) {
 			DebugLog.d("convertView == null");
 			holder = new ViewHolder();
-			DebugLog.d("position="+position+" type="+getItemViewType(position));
 			switch (getItemViewType(position)) {
 			case ItemFormRenderModel.TYPE_CHECKBOX:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_checkbox,null);
@@ -277,7 +277,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.description = (TextView) convertView.findViewById(R.id.item_form_description);
 				holder.input = (FormInputText) convertView.findViewById(R.id.item_form_input);
 				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
-
 				break;
 			case ItemFormRenderModel.TYPE_EXPAND:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_expand,null);
@@ -299,7 +298,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		}
 		
 		if (getItem(position).workItemModel != null)
-			DebugLog.d( "picture : "+getItem(position).workItemModel.pictureEndPoint);
+			DebugLog.d( "picture : " + getItem(position).workItemModel.pictureEndPoint);
 		if (holder.picture != null){
 			if (getItem(position).workItemModel != null && getItem(position).workItemModel.pictureEndPoint != null){
 				DebugLog.d( "picture show : "+getItem(position).workItemModel.pictureEndPoint);
@@ -343,6 +342,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				holder.label.setText(getItem(position).workItemModel.label);
 				reviseRadio(holder.radio, getItem(position), getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
 				setMandatoryVisibility(holder,getItem(position));
+
 				break;
 			case ItemFormRenderModel.TYPE_HEADER:
 				DebugLog.d("TYPE HEADER");
@@ -436,10 +436,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 				holder.input.setTextChange(null);
 				holder.input.setTag(getItem(position));
+				holder.input.setText("");
 				if (getItem(position).itemValue != null)
 					holder.input.setText(getItem(position).itemValue.value);
-				else
-					holder.input.setText("");
+
 				holder.input.setTextChange(formTextChange);
 				holder.input.setEnabled(!getItem(position).workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm());
 				check(position);
@@ -467,7 +467,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 		}
 
-		//toggleEditable(holder);
 		return convertView;
 	}
 
@@ -487,7 +486,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 			} else
 				holder.upload.setVisibility(View.VISIBLE);
 		}
-
 	}
 
 	private void check(int position){
@@ -548,6 +546,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 			isHorizontal = item.workItemModel.options.get(i).label.length() < 4;
 			//			checkBox.setTag(rowId+"|"+item.workItemModel.id+"|"+operatorId+"|"+item.workItemModel.options.get(i).value+"|0");
 			checkBox.setTag(item);
+			checkBox.setEnabled(isEnabled);
 			linear.addView(checkBox);
 			checkBox.setOnCheckedChangeListener(null);
 			if (split != null)
@@ -557,7 +556,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 				}
 			else
 				checkBox.setChecked(false);
-			checkBox.setEnabled(isEnabled);
 			checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
 		}
 
@@ -603,8 +601,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 			RadioButton radioButton = new RadioButton(context);
 			radioButton.setText(item.workItemModel.options.get(i).label);
 			isHorizontal = item.workItemModel.options.get(i).label.length() < 4;
-			//			radioButton.setTag(rowId+"|"+item.workItemModel.id+"|"+operatorId+"|"+item.workItemModel.options.get(i).value+"|0");
 			radioButton.setTag(item);
+			radioButton.setEnabled(isEnabled);
 			radioGroup.addView(radioButton);
 			if (split != null)
 				for(int j = 0; j < split.length; j++){
@@ -612,7 +610,6 @@ public class FormFillAdapter extends MyBaseAdapter {
 						radioGroup.check(radioButton.getId());
 				}
 			radioButton.setOnCheckedChangeListener(onCheckedChangeListener);
-
 		}
 		radioGroup.setOrientation(isHorizontal ? RadioGroup.HORIZONTAL : RadioGroup.VERTICAL);
 	}

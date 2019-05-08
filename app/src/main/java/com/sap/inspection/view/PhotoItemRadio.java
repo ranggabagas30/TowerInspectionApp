@@ -155,7 +155,9 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory)
 			mandatory.setVisibility(VISIBLE);
 
-		enable();
+		/*if (!MyApplication.getInstance().isInCheckHasilPm())
+			enable();*/
+
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
 				(itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 1") ||
 						itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 2"))) {
@@ -577,7 +579,6 @@ public class PhotoItemRadio extends RelativeLayout {
     }
 
     private void disable() {
-		DebugLog.d("label disable : " + itemFormRenderModel.workItemModel.label);
         if (remark!=null) remark.setEnabled(false);
         if (material_request!=null) material_request.setEnabled(false);
         if (radioGroup!=null) radioGroup.setEnabled(false);
