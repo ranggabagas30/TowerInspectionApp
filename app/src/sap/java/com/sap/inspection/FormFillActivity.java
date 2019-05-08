@@ -100,6 +100,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private String barangId;
     private String scheduleId;
 	private String workFormGroupName;
+	private String workTypeName;
 	private int workFormGroupId;
 	private int rowId;
 
@@ -142,6 +143,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			rowId 				= bundle.getInt(Constants.KEY_ROWID);
 			workFormGroupId 	= bundle.getInt(Constants.KEY_WORKFORMGROUPID);
 			workFormGroupName 	= bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
+			workTypeName		= bundle.getString(Constants.KEY_WORKTYPENAME);
 			scheduleId 			= bundle.getString(Constants.KEY_SCHEDULEID);
             wargaId 			= bundle.getString(Constants.KEY_WARGAID) != null ? bundle.getString(Constants.KEY_WARGAID) : Constants.EMPTY;
             barangId			= bundle.getString(Constants.KEY_BARANGID) != null ? bundle.getString(Constants.KEY_BARANGID) : Constants.EMPTY;
@@ -179,7 +181,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		adapter.setScheduleId(scheduleId);
 		adapter.setPhotoListener(photoClickListener);
 		adapter.setUploadListener(uploadClickListener);
-		adapter.setWorkType(schedule.work_type.name);
+		adapter.setWorkTypeName(schedule.work_type.name);
 		adapter.setWorkFormGroupId(workFormGroupId);
 		adapter.setWorkFormGroupName(workFormGroupName);
 
@@ -653,15 +655,22 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						}
 					}
 
-					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
+					if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
+
 						photoItem.deletePhoto();
-						//photoItem.setPhotoDate(photoDate);
 						photoItem.setImage(photo, latitude, longitude, accuracy);
 
 					} else {
 
-						DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-						MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+						if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
+							photoItem.deletePhoto();
+							photoItem.setImage(photo, latitude, longitude, accuracy);
+
+						} else {
+
+							DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
+							MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+						}
 					}
 
 					return;
