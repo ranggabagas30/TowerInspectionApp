@@ -245,7 +245,7 @@ public class FormActivityWarga extends BaseActivity {
 
             } else if (rowModel.text.equalsIgnoreCase("Kwitansi")) {
 
-                proceedApprovalCheckingFirst(scheduleId, workFormGroupName, rowId, Integer.valueOf(workFormGroupId), realWargaId, realBarangId);
+                proceedApprovalCheckingFirst(scheduleId, workFormGroupName, rowModel.id, rowModel.work_form_group_id, realWargaId, realBarangId);
 
             } else{
 
