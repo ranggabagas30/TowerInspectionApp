@@ -12,8 +12,10 @@ import android.os.Debug;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.constant.Constants;
@@ -417,26 +419,20 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
-	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId) {
+	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels) {
 
-		return getItemValuesForUploadWithMandatoryCheck(scheduleId, null, null);
+		return getItemValuesForUploadWithMandatoryCheck(scheduleId, groupModels, null, null);
     }
 
-	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, String wargaId, String barangId) {
+	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels, String wargaId, String barangId) {
 
 		DebugLog.d("upload items by scheduleId = " + scheduleId);
 		ArrayList<ItemValueModel> uploadItems = new ArrayList<>();
 
-		ScheduleBaseModel scheduleBaseModel = new ScheduleGeneral();
-		scheduleBaseModel.getScheduleById(scheduleId);
+		for (WorkFormGroupModel perGroup : groupModels) {
 
-		WorkFormModel workFormModel = new WorkFormModel();
-		workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModel.work_type.id);
-
-		WorkFormGroupModel groupModel = new WorkFormGroupModel();
-		Vector<WorkFormGroupModel> workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
-
-		for (WorkFormGroupModel perGroup : workFormGroupModels) {
+			if (getItemValuesForUploadWithMandatoryCheck(scheduleId, perGroup.id, wargaId, barangId) == null)
+				return null;
 
 			uploadItems.addAll(getItemValuesForUploadWithMandatoryCheck(scheduleId, perGroup.id, wargaId, barangId));
 
@@ -525,17 +521,10 @@ public class ItemValueModel extends BaseModel {
 		private String barangId;
 		private int workFormGroupId;
 
-		public AsyncCollectItemValuesForUpload(String scheduleId) {
-			new AsyncCollectItemValuesForUpload(scheduleId, UNSPECIFIED, null, null);
-		}
-
-		public AsyncCollectItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
-		    new AsyncCollectItemValuesForUpload(scheduleId, UNSPECIFIED, wargaId, barangId);
-        }
-
-        public AsyncCollectItemValuesForUpload(String scheduleId, int workFormGroupId) {
-			new AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, null, null);
-		}
+		private ScheduleBaseModel scheduleBaseModel;
+		private WorkFormModel workFormModel;
+		private WorkFormGroupModel groupModel;
+		private Vector<WorkFormGroupModel> workFormGroupModels;
 
 		public AsyncCollectItemValuesForUpload(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
 			this.scheduleId = scheduleId;
@@ -552,6 +541,21 @@ public class ItemValueModel extends BaseModel {
 		protected void onPreExecute() {
 			super.onPreExecute();
 			publish("Menyiapkan item untuk diupload");
+
+			if (workFormGroupId == UNSPECIFIED) {
+
+				scheduleBaseModel = new ScheduleGeneral();
+				scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
+
+				DebugLog.d("scheduleBase id : " + scheduleBaseModel.id);
+				DebugLog.d("scheduleBase worktype id : " + scheduleBaseModel.work_type.id);
+
+				workFormModel = new WorkFormModel();
+				workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModel.work_type.id);
+
+				groupModel = new WorkFormGroupModel();
+				workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
+			}
 		}
 
 		@Override
@@ -559,17 +563,38 @@ public class ItemValueModel extends BaseModel {
 
 		    if (workFormGroupId == UNSPECIFIED) {
 
-		    	if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-					return getItemValuesForUploadWithMandatoryCheck(scheduleId, wargaId, wargaId);
-		    	else
-					return getItemValuesForUploadWithMandatoryCheck(scheduleId);
+		    	if (!workFormGroupModels.isEmpty()) {
+
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+						DebugLog.d("SAP upload by (" + scheduleId + ",  UNSPECIFIED, " + wargaId + ", " + barangId + ")");
+						return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupModels, wargaId, wargaId);
+					}
+					else {
+
+						DebugLog.d("STP upload by (" + scheduleId + ",  UNSPECIFIED)");
+						return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupModels);
+					}
+				} else {
+
+					Crashlytics.log(Log.ERROR, ItemValueModel.class.getSimpleName(), "Schedule " + scheduleId + " tidak memiliki daftar workformgroup");
+					MyApplication.getInstance().toast("Schedule " + scheduleId + " tidak memiliki daftar workformgroup", Toast.LENGTH_SHORT);
+
+					return new ArrayList<>();
+				}
 
 			} else {
 
-		    	if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+		    	if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+		    		DebugLog.d("SAP upload by (" + scheduleId + ", " + workFormGroupId + ", " + wargaId + ", " + barangId + ")");
 					return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupId, wargaId, barangId);
-		    	else
-		    		return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupId, null, null);
+				}
+		    	else {
+
+		    		DebugLog.d("STP upload by (" + scheduleId + ", " + workFormGroupId + ")");
+					return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupId, null, null);
+				}
 			}
 
 		}

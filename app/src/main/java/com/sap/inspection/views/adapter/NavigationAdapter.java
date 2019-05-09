@@ -291,15 +291,17 @@ public class NavigationAdapter extends MyBaseAdapter {
                     int position = (int) v.getTag();
 
                     RowModel rowModel = getItem(position);
-                    DebugLog.d("rowModel.work_form_group_id : " + rowModel.work_form_group_id);
 
-                    String scheduleId = getScheduleId();
-                    int workFormGroupId = rowModel.work_form_group_id;
+					String scheduleId = getScheduleId();
+					int workFormGroupId = rowModel.work_form_group_id;
+
+					DebugLog.d("scheduleId : " + scheduleId);
+					DebugLog.d("workFormGroupId : " + workFormGroupId);
 
                     if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 						new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY).execute();
                     else
-                    	new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId).execute();
+                    	new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, null, null).execute();
 
 				} else {
 					MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);

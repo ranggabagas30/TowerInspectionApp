@@ -165,9 +165,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			String scheduleId = (String) v.getTag();
 
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, Constants.EMPTY, Constants.EMPTY).execute();
+				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, ItemValueModel.UNSPECIFIED, Constants.EMPTY, Constants.EMPTY).execute();
 			else
-				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId).execute();
+				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, ItemValueModel.UNSPECIFIED, null, null).execute();
 		}
 	};
 
