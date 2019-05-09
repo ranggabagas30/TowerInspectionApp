@@ -464,7 +464,7 @@ public class ItemValueModel extends BaseModel {
 						if (itemValues == null && isMandatory) {
 
 							// mandatory item is not filled
-							DebugLog.e("Item label " + workFormItem.label + " kosong, cancel upload");
+							DebugLog.e("Item " + workFormItem.label + " kosong, cancel upload");
 							return null;
 						}
 						else if (itemValues != null) { // there are some filled items
@@ -643,8 +643,11 @@ public class ItemValueModel extends BaseModel {
             if (filledItem == null && workFormItem.mandatory) {
 
                 // mandatory item is not filled
-                DebugLog.e("Item label " + workFormItem.label + " harus diisi");
-                MyApplication.getInstance().toast("Item label " + workFormItem.label + " harus diisi", Toast.LENGTH_SHORT);
+                //DebugLog.e("Item " + workFormItem.label + " kosong harus diisi");
+                //MyApplication.getInstance().toast("Item " + workFormItem.label + " kosong harus diisi", Toast.LENGTH_SHORT);
+
+				DebugLog.d("Mandatory item ada yang kosong");
+				MyApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
                 return false;
 
             } else if (filledItem != null) {
@@ -667,8 +670,11 @@ public class ItemValueModel extends BaseModel {
 
                         } else {
 
-                            DebugLog.e("Item label " + workFormItem.label + " kosong, cancel upload");
-                            MyApplication.getInstance().toast("Item label " + workFormItem.label + " harus diisi", Toast.LENGTH_SHORT);
+                            /*DebugLog.e("Item " + workFormItem.label + " kosong, cancel upload");
+                            MyApplication.getInstance().toast("Item " + workFormItem.label + " kosong harus diisi", Toast.LENGTH_SHORT);*/
+
+							DebugLog.d("Mandatory item ada yang kosong");
+							MyApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
                             return false; // and not photo item radio, then return null
                         }
 

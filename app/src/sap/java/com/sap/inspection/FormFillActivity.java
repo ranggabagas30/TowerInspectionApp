@@ -1011,7 +1011,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				getCurrentFocus().clearFocus();
 			}
 		}
- 
+
 		@Override
 		public void onScroll(AbsListView absListView, int i, int i1, int i2) {
 
