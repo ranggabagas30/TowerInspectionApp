@@ -988,40 +988,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						break;
 					}
 
-					/*boolean isMandatory = item.workItemModel.mandatory;
-					if (item.itemValue == null && isMandatory) {
-						mandatoryLabel = item.workItemModel.label;
-						mandatoryFound = true;
-						break;
-					} else if (item.itemValue != null) {
-
-						ItemValueModel filledItem = item.itemValue;
-
-						if (isMandatory) {
-
-							if (TextUtils.isEmpty(filledItem.value)) {
-
-								// no photo file and photo status not equal "NA"
-								if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !TextUtils.isEmpty(item.itemValue.photoStatus) && !item.itemValue.photoStatus.equalsIgnoreCase(Constants.NA)) {
-									mandatoryLabel = item.workItemModel.label;
-									mandatoryFound = true;
-									MyApplication.getInstance().toast("Photo " + mandatoryLabel + " tidak ada", Toast.LENGTH_SHORT);
-									break;
-								} else if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
-									mandatoryLabel = item.workItemModel.label;
-									mandatoryFound = true;
-									break;
-								}
-							}
-						} else {
-
-							if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
-								mandatoryLabel = item.workItemModel.label;
-								mandatoryFound = true;
-								break;
-							}
-						}
-					}*/
 				}
 			}
 
@@ -1045,7 +1011,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				getCurrentFocus().clearFocus();
 			}
 		}
-
+ 
 		@Override
 		public void onScroll(AbsListView absListView, int i, int i1, int i2) {
 

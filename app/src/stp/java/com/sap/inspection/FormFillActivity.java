@@ -117,8 +117,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private File photo;
 	private FormFillAdapter adapter;
 
-//	private LocationManager locationManager;
-//	private LocationListener locationListener;
 	private LatLng currentGeoPoint;
 	private int accuracy;
 	private String make;
@@ -127,8 +125,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private TextView title;
 	private String pageTitle;
 	private boolean finishInflate;
-
-	private ProgressDialog progressDialog;
 
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
@@ -452,10 +448,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
 			}
 			else if (itemFormRenderModel.itemValue!=null) {
-				DebugLog.d("pos=" + pos + " hasPicture=" + itemFormRenderModel.hasPicture + " value=" + itemFormRenderModel.itemValue.value + " picture=" + itemFormRenderModel.itemValue.picture + " photoStatus=" + itemFormRenderModel.itemValue.photoStatus);
+
+				ItemValueModel itemUpload = itemFormRenderModel.itemValue;
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.workItemModel, itemFormRenderModel.itemValue);
+
+				DebugLog.d("isMandatory= " + itemFormRenderModel.workItemModel.mandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
+
 			} else {
-				Toast.makeText(activity, "Imbas Petir Data belum terisi", Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, "Tidak ada foto", Toast.LENGTH_LONG).show();
 			}
         }
     };
@@ -612,7 +612,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
 						photoItem.deletePhoto();
-						photoItem.setPhotoDate(photoDate);
 						photoItem.setImage(photo, latitude, longitude, accuracy);
 
 					} else {
@@ -764,11 +763,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
-			try {
-				showMessageDialog("Generating form "+values[0]+" % complete");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			showMessageDialog("Generating form "+values[0]+" % complete");
 		}
 
 		@Override
