@@ -50,7 +50,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 	private ArrayList<ItemFormRenderModel> models;
 	private ArrayList<ItemFormRenderModel> shown;
 	private String scheduleId;
-	private String workType;
+	private String workTypeName;
 	private String workFormGroupName;
 	private int workFormGroupId;
 
@@ -70,8 +70,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	private SparseBooleanArray expandState = new SparseBooleanArray();
 
-	public void setWorkType(String workType) {
-		this.workType = workType;
+	public void setWorkTypeName(String workTypeName) {
+		this.workTypeName = workTypeName;
 	}
 
 	public void setWorkFormGroupId(int workFormGroupId) {
@@ -348,7 +348,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				DebugLog.d("TYPE HEADER");
 				DebugLog.d("workFormGroupId = " + workFormGroupId);
                 DebugLog.d("workFormGroupName = " + workFormGroupName);
-				DebugLog.d("workType = " + workType);
+				DebugLog.d("workTypeName = " + workTypeName);
 				if (workFormGroupName.equalsIgnoreCase("Photograph") && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 					DebugLog.d("Parent label : " + getItem(position).label);
 					holder.upload_status.setVisibility(View.VISIBLE);
@@ -807,9 +807,9 @@ public class FormFillAdapter extends MyBaseAdapter {
 	}
 
 	private boolean isAudit() {
-		if (workType == null)
+		if (workTypeName == null)
 			return false;
-		return workType.equalsIgnoreCase("SITE AUDIT");
+		return workTypeName.equalsIgnoreCase("SITE AUDIT");
 	}
 
 	public ObjectAnimator createRotateAnimator(final View target, final float from, final float to) {

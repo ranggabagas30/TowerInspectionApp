@@ -326,6 +326,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 				intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
 				intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
                 intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, shown.get(positionAncestry).text);
+				intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
 				DebugLog.d("----ini others form lho----- "+scheduleId);
 
 			} else if (getItem(position).hasForm){
@@ -350,6 +351,7 @@ public class NavigationAdapter extends MyBaseAdapter {
                         intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
                         intent.putExtra(Constants.KEY_WORKFORMGROUPID, String.valueOf(getItem(position).work_form_group_id));
                         intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+                        intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
 
                         ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
 
@@ -372,7 +374,7 @@ public class NavigationAdapter extends MyBaseAdapter {
                     } else if (getItem(position).text.contains(Constants.regexBeritaAcaraClosing) ||
                                getItem(position).text.contains(Constants.regexBeritaAcaraPenghancuran)) {
 
-                       proceedApprovalCheckingFirst(scheduleId, workFormGroupName, getItem(position).id, getItem(position).work_form_group_id);
+                       proceedApprovalCheckingFirst(scheduleId, workFormGroupName, workTypeName, getItem(position).id, getItem(position).work_form_group_id);
 
                     } else {
 
@@ -381,6 +383,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 						intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
 						intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
 						intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+						intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
 						context.startActivity(intent);
 
 					}
@@ -391,6 +394,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
 					intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
 					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+					intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
 					context.startActivity(intent);
 				}
 			} else {
@@ -441,11 +445,11 @@ public class NavigationAdapter extends MyBaseAdapter {
 		notifyDataSetChanged();
 	}
 
-	private void proceedApprovalCheckingFirst(String scheduleId, String workFormGroupName, int rowId, int workFormGroupId) {
+	private void proceedApprovalCheckingFirst(String scheduleId, String workFormGroupName, String workTypeName, int rowId, int workFormGroupId) {
 
 		DebugLog.d("proceed approval checking ... ");
 
-		CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, rowId, workFormGroupId);
+		CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, workTypeName, rowId, workFormGroupId);
 		APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
 
 		/*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
@@ -470,13 +474,15 @@ public class NavigationAdapter extends MyBaseAdapter {
 	    private Context context;
         private String scheduleId;
         private String workFormGroupName;
+        private String workTypeName;
         private int rowId;
         private int workFormGroupId;
 
-	    public CheckApprovalHandler(Context context, String scheduleId, String workFormGroupName, int rowId, int workFormGroupId) {
+	    public CheckApprovalHandler(Context context, String scheduleId, String workFormGroupName, String workTypeName, int rowId, int workFormGroupId) {
 	        this.context = context;
 	        this.scheduleId = scheduleId;
 	        this.workFormGroupName = workFormGroupName;
+	        this.workTypeName = workTypeName;
 	        this.rowId = rowId;
 	        this.workFormGroupId = workFormGroupId;
         }
@@ -507,6 +513,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 						intent.putExtra(Constants.KEY_ROWID, rowId);
 						intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
 						intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+						intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
 						context.startActivity(intent);
 						return;
 					}

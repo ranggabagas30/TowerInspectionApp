@@ -180,7 +180,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         adapter.setScheduleId(scheduleId);
         adapter.setPhotoListener(photoClickListener);
         adapter.setUploadListener(uploadClickListener);
-        adapter.setWorkType(schedule.work_type.name);
+        adapter.setWorkTypeName(schedule.work_type.name);
         adapter.setWorkFormGroupId(workFormGroupId);
         adapter.setWorkFormGroupName(workFormGroupName);
 
