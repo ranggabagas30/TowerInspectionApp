@@ -71,8 +71,8 @@ android {
         }
         stp {
             applicationId 'com.stp.inspection'
-            versionCode 19020300
-            versionName "2.3.0"
+            versionCode 19020401
+            versionName "2.4.1"
             dimension "default"
             buildConfigField ("int", DBMANAGERVALUE_SCHEMA_VERSION, "8")
             buildConfigField ("int", DBMANAGER_SCHEMA_VERSION, "9")
