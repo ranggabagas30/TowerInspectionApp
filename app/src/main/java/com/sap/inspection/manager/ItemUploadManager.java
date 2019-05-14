@@ -228,10 +228,10 @@ public class ItemUploadManager {
                 publish(itemValues.size() + " item yang tersisa");
                 latestStatus = itemValues.size() + " item yang tersisa";
 
-                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+                /*if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
                     ItemValueModel itemChanged = checkWargaAndBarangID(itemValues.get(0));
                     itemValues.set(0, itemChanged);
-                }
+                }*/
 
                 /** upload Photo **/
                 response = uploadItem2(itemValues.get(0));
@@ -310,17 +310,8 @@ public class ItemUploadManager {
 
         private ItemValueModel checkWargaAndBarangID(ItemValueModel item) {
 
-            if (StringUtil.isNotRegistered(item.wargaId)) {
-                String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(item.scheduleId, item.wargaId);
-                DebugLog.d("(wargaid, realwargaid) : (" + item.wargaId + "," + realwargaId +")");
-                item.wargaId = realwargaId;
-            }
-
-            if (StringUtil.isNotRegistered(item.barangId)) {
-                String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(item.scheduleId, item.wargaId, item.barangId);
-                DebugLog.d("(barangid, realbarangid) : (" + item.barangId + "," + realbarangid +")");
-                item.barangId = realbarangid;
-            }
+            item.wargaId    = StringUtil.getRegisteredWargaId(item.scheduleId, item.wargaId);
+            item.barangId   = StringUtil.getRegisteredBarangId(item.scheduleId, item.wargaId, item.barangId);
             return item;
         }
 
@@ -338,29 +329,50 @@ public class ItemUploadManager {
 
                     // form imbas petir check new wargaid and new barangid after registration
 
-                    if (StringUtil.isNotRegistered(item.wargaId)) {
+                    boolean isNotRegistered = false;
+                    String oldWargaId = item.wargaId;
+                    String oldBarangId = item.barangId;
 
-                        //String scheduleId = item.scheduleId;
-                        String oldWargaId = item.wargaId;
-                        String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
+                    DebugLog.d("(oldWargaId, oldBarangId) : (" + oldWargaId + ", " + oldBarangId +")");
 
-                        // update wargaid in the config
-                        updateWargaId(oldWargaId, newWargaId);
+                    if (StringUtil.isNotNullAndEmpty(oldWargaId)) {
 
-                        item.wargaId = newWargaId;
+                        if (StringUtil.isNotRegistered(oldWargaId)) {
+
+                            //String scheduleId = item.scheduleId;
+                            String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
+
+                            // update wargaid in the config
+                            updateWargaId(oldWargaId, newWargaId);
+
+                            item.wargaId = newWargaId;
+
+                            isNotRegistered = true;
+                        }
                     }
 
-                    if (StringUtil.isNotRegistered(item.barangId)) {
+                    if (StringUtil.isNotNullAndEmpty(oldWargaId) && StringUtil.isNotNullAndEmpty(oldBarangId)) {
 
-                        String wargaId = item.wargaId;
-                        String oldBarangId = item.barangId;
-                        String newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
+                        if (StringUtil.isNotRegistered(oldBarangId)) {
 
-                        // update barangid in the config
-                        updateBarangId(wargaId, oldBarangId, newBarangId);
+                            String newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
 
-                        // update barangid in the table
-                        item.barangId = newBarangId;
+                            // update barangid in the config
+                            updateBarangId(oldWargaId, oldBarangId, newBarangId);
+
+                            // update barangid in the table
+                            item.barangId = newBarangId;
+
+                            isNotRegistered = true;
+                        }
+
+                    }
+
+                    if (isNotRegistered) {
+
+                        // delete old items which using old wargaid or old barangid
+                        //DebugLog.d("-> Delete old itemid : (" + item.scheduleId + ", " + item.itemId + ", " + item.wargaId + ", " + item.barangId + ")");
+                        ItemValueModel.delete(item.scheduleId, item.itemId, item.operatorId, oldWargaId, oldBarangId);
                     }
                 }
 
@@ -404,6 +416,7 @@ public class ItemUploadManager {
             params.add(new BasicNameValuePair("schedule_id", itemValue.scheduleId));
             params.add(new BasicNameValuePair("operator_id", String.valueOf(itemValue.operatorId)));
             params.add(new BasicNameValuePair("item_id", String.valueOf(itemValue.itemId)));
+
             if (itemValue.value != null)
                 params.add(new BasicNameValuePair("value", itemValue.value));
             if (itemValue.photoStatus != null) {
@@ -429,10 +442,22 @@ public class ItemUploadManager {
                 params.add(new BasicNameValuePair("longitude", itemValue.longitude));
             if (itemValue.gpsAccuracy != 0)
                 params.add(new BasicNameValuePair("accuracy", String.valueOf(itemValue.gpsAccuracy)));
-            if (itemValue.wargaId != null && !itemValue.wargaId.equalsIgnoreCase(Constants.EMPTY))
-                params.add(new BasicNameValuePair("wargaid", itemValue.wargaId));
-            if (itemValue.barangId != null && !itemValue.barangId.equalsIgnoreCase(Constants.EMPTY))
-                params.add(new BasicNameValuePair("barangid", itemValue.barangId));
+
+            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+                String wargaId = null;
+                String barangId = null;
+
+                if (StringUtil.isNotNullAndEmpty(itemValue.wargaId)) {
+                    wargaId = StringUtil.getRegisteredWargaId(itemValue.scheduleId, itemValue.wargaId);
+                    params.add(new BasicNameValuePair("wargaid", wargaId));
+                }
+                if (StringUtil.isNotNullAndEmpty(wargaId) && StringUtil.isNotNullAndEmpty(itemValue.barangId)) {
+                    barangId = StringUtil.getRegisteredBarangId(itemValue.scheduleId, wargaId, itemValue.barangId);
+                    params.add(new BasicNameValuePair("barangid", barangId));
+                }
+            }
+
             return params;
         }
 

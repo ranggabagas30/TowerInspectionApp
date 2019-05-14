@@ -238,6 +238,8 @@ public class FormActivityWarga extends BaseActivity {
 
         String realBarangId = getBarangId();
 
+        DebugLog.d("(realwargaid, realbarangid) : (" + realWargaId + ", " + realBarangId + ")");
+
         if (realWargaId != null) {
             if (StringUtil.isNotRegistered(realWargaId) && !rowModel.text.equalsIgnoreCase("Informasi Diri")) {
 
@@ -251,7 +253,7 @@ public class FormActivityWarga extends BaseActivity {
 
                 Intent intent = new Intent(this, FormFillActivity.class);
                 intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-                intent.putExtra(Constants.KEY_WARGAID, getWargaId());
+                intent.putExtra(Constants.KEY_WARGAID, realWargaId);
                 intent.putExtra(Constants.KEY_BARANGID, realBarangId);
                 intent.putExtra(Constants.KEY_ROWID, rowModel.id);
                 intent.putExtra(Constants.KEY_WORKFORMGROUPID, rowModel.work_form_group_id);
@@ -492,7 +494,7 @@ public class FormActivityWarga extends BaseActivity {
                 /*ArrayList<ItemValueModel> itemUploads = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, null);
                 ItemUploadManager.getInstance().addItemValues(itemUploads);*/
 
-                new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, null).execute();
+                new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, Constants.EMPTY).execute();
             }
         }
 

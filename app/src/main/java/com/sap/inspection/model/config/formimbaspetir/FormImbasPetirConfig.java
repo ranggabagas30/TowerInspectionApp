@@ -116,6 +116,21 @@ public class FormImbasPetirConfig
         return null;
     }
 
+    public static Warga getWarga(String scheduleId, String wargaId) {
+
+        int dataIndex = getDataIndex(scheduleId);
+
+        if (dataIndex != -1) {
+
+            DebugLog.d( "schedule data index found, get registered warga id");
+            ArrayList<Warga> wargas = getDataWarga(dataIndex);
+
+            return getWarga(wargas, wargaId);
+        }
+
+        return null;
+    }
+
     public static Warga getWarga(ArrayList<Warga> wargas, String wargaId) {
 
         int indexFound = getWargaIndex(wargas, wargaId);

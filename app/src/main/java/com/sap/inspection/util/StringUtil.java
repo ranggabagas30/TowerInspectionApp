@@ -118,9 +118,9 @@ public class StringUtil {
 
     public static String getRegisteredWargaId(String scheduleId, String wargaId) {
 
-        if (!TextUtils.isEmpty(wargaId)) {
+        if (isNotNullAndEmpty(wargaId)) {
 
-            if (StringUtil.isNotRegistered(wargaId)) {
+            if (isNotRegistered(wargaId)) {
                 String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
                 DebugLog.d("(wargaid, realwargaid) : (" + wargaId + "," + realwargaId +")");
                 return realwargaId;
@@ -133,9 +133,9 @@ public class StringUtil {
 
     public static String getRegisteredBarangId(String scheduleId, String wargaId, String barangId) {
 
-        if (!TextUtils.isEmpty(barangId) && !TextUtils.isEmpty(wargaId)) {
+        if (isNotNullAndEmpty(wargaId) && isNotNullAndEmpty(barangId)) {
 
-            if (StringUtil.isNotRegistered(barangId)) {
+            if (isNotRegistered(barangId)) {
                 String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(scheduleId, wargaId, barangId);
                 DebugLog.d("(barangid, realbarangid) : (" + barangId + "," + realbarangid +")");
                 return realbarangid;
@@ -183,7 +183,7 @@ public class StringUtil {
 
 
     public static boolean isNotRegistered(String id) {
-        return id.contains("new") && !id.equalsIgnoreCase(Constants.EMPTY);
+        return id.contains("new");
     }
 
 
