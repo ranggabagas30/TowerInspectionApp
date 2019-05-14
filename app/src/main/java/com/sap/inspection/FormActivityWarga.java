@@ -236,11 +236,11 @@ public class FormActivityWarga extends BaseActivity {
             setBarangId(StringUtil.getIdFromLabel(rowModel.text));
         }
 
-        String realBarangId = getBarangId();
+        String realBarangId = StringUtil.getRegisteredBarangId(scheduleId, realWargaId, getBarangId());
 
         DebugLog.d("(realwargaid, realbarangid) : (" + realWargaId + ", " + realBarangId + ")");
 
-        if (realWargaId != null) {
+        if (StringUtil.isNotNullAndEmpty(realWargaId)) {
             if (StringUtil.isNotRegistered(realWargaId) && !rowModel.text.equalsIgnoreCase("Informasi Diri")) {
 
                 MyApplication.getInstance().toast("Tidak bisa melanjutkan membuka form. Silahkan upload data 'Informasi Diri' terlebih dahulu", Toast.LENGTH_LONG);
@@ -307,7 +307,7 @@ public class FormActivityWarga extends BaseActivity {
                     CheckApprovalResponseModel checkApprovalResponseModel = gson.fromJson(bundle.getString("json"), CheckApprovalResponseModel.class);
                     checkApprovalResponseModel.toString();
 
-                    if (!checkApprovalResponseModel.status_code.equalsIgnoreCase("failed")) {
+                    if (!checkApprovalResponseModel.messages.equalsIgnoreCase("failed")) {
 
                         DebugLog.d("check approval success");
 

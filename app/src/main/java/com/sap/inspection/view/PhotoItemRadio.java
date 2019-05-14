@@ -155,8 +155,8 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory)
 			mandatory.setVisibility(VISIBLE);
 
-		/*if (!MyApplication.getInstance().isInCheckHasilPm())
-			enable();*/
+		if (!MyApplication.getInstance().isInCheckHasilPm())
+			enable();
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
 				(itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 1") ||
@@ -165,6 +165,8 @@ public class PhotoItemRadio extends RelativeLayout {
 			// ignore mandatory when did not get any approval yet
 			itemFormRenderModel.workItemModel.disable = true;
 			itemFormRenderModel.workItemModel.save();
+
+
 			disable();
 
 			DebugLog.d("proceed approval checking ... ");
@@ -611,7 +613,7 @@ public class PhotoItemRadio extends RelativeLayout {
                     CheckApprovalResponseModel checkApprovalResponseModel = gson.fromJson(bundle.getString("json"), CheckApprovalResponseModel.class);
                     checkApprovalResponseModel.toString();
 
-                    if (!checkApprovalResponseModel.status_code.equalsIgnoreCase("failed")) {
+                    if (!checkApprovalResponseModel.messages.equalsIgnoreCase("failed")) {
 
                         DebugLog.d("check approval success");
 
@@ -619,6 +621,7 @@ public class PhotoItemRadio extends RelativeLayout {
 						itemFormRenderModel.workItemModel.save();
 
                         FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
+
                         enable();
                         return;
                     }

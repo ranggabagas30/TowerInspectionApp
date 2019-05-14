@@ -502,7 +502,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 					CheckApprovalResponseModel checkApprovalResponseModel = gson.fromJson(bundle.getString("json"), CheckApprovalResponseModel.class);
 					checkApprovalResponseModel.toString();
 
-					if (!checkApprovalResponseModel.status_code.equalsIgnoreCase("failed")) {
+					if (!checkApprovalResponseModel.messages.equalsIgnoreCase("failed")) {
 
 						DebugLog.d("check approval success");
 

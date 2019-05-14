@@ -82,6 +82,7 @@ public class ItemUploadManager {
     private static ItemUploadManager instance;
     private ArrayList<ItemValueModel> itemValues;
     private ArrayList<ItemValueModel> itemValuesFailed;
+    private ArrayList<ItemValueModel> itemValuesModified;
 
     private boolean running = false;
     public String syncDone = "Sinkronisasi selesai";
@@ -96,6 +97,7 @@ public class ItemUploadManager {
     private ItemUploadManager() {
         itemValues = new ArrayList<>();
         itemValuesFailed = new ArrayList<>();
+        itemValuesModified = new ArrayList<>();
     }
 
     public static ItemUploadManager getInstance() {
@@ -121,6 +123,7 @@ public class ItemUploadManager {
                 DebugLog.d("itemvalues="+itemvalues.size());
                 this.itemValues.clear();
                 this.itemValuesFailed.clear();
+                this.itemValuesModified.clear();
                 for (ItemValueModel item : itemvalues) {
                     if (item != null && !item.disable) {
                         this.itemValues.add(item);
@@ -163,6 +166,7 @@ public class ItemUploadManager {
 
         this.itemValues.clear();
         this.itemValuesFailed.clear();
+        this.itemValuesModified.clear();
         this.itemValues.add(filledItem);
         if (!running) {
             uploadTask = null;
@@ -327,53 +331,49 @@ public class ItemUploadManager {
 
                 if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-                    // form imbas petir check new wargaid and new barangid after registration
+                    itemValuesModified.add(item);
 
-                    boolean isNotRegistered = false;
+                    // form imbas petir check new wargaid and new barangid after registration
+                    String newWargaId;
                     String oldWargaId = item.wargaId;
+
+                    String newBarangId;
                     String oldBarangId = item.barangId;
 
-                    DebugLog.d("(oldWargaId, oldBarangId) : (" + oldWargaId + ", " + oldBarangId +")");
+                    if (StringUtil.isNotNullAndEmpty(oldWargaId) && StringUtil.isNotRegistered(oldWargaId)) {
 
-                    if (StringUtil.isNotNullAndEmpty(oldWargaId)) {
+                        if (responseUploadItemModel.data.getWarga_id() != 0) {
 
-                        if (StringUtil.isNotRegistered(oldWargaId)) {
+                            DebugLog.d("upload informasi diri complete, update wargaid");
+                            newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
 
-                            //String scheduleId = item.scheduleId;
-                            String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
+                            // update all items with old 'wargaId' value on FormValue table to the new one
+                            //ItemValueModel.updateWargaId(item.scheduleId, oldWargaId, newWargaId);
+                            ItemValueModel.updateWargaItems(oldWargaId, newWargaId, itemValuesModified);
 
-                            // update wargaid in the config
+                            // update formimbaspetirconfig
                             updateWargaId(oldWargaId, newWargaId);
 
-                            item.wargaId = newWargaId;
-
-                            isNotRegistered = true;
+                            return;
                         }
                     }
 
-                    if (StringUtil.isNotNullAndEmpty(oldWargaId) && StringUtil.isNotNullAndEmpty(oldBarangId)) {
+                    if (StringUtil.isNotNullAndEmpty(oldBarangId) && StringUtil.isNotRegistered(oldBarangId)) {
 
-                        if (StringUtil.isNotRegistered(oldBarangId)) {
+                        if (responseUploadItemModel.data.getBarang_id() != 0) {
 
-                            String newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
+                            newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
 
-                            // update barangid in the config
+                            // update all items with old 'barangId' value on FormValue table to the new one
+                            ItemValueModel.updateBarangItems(oldWargaId, oldBarangId, newBarangId, itemValuesModified);
+
+                            // update formimbaspetirconfig
                             updateBarangId(oldWargaId, oldBarangId, newBarangId);
 
-                            // update barangid in the table
-                            item.barangId = newBarangId;
-
-                            isNotRegistered = true;
+                            return;
                         }
-
                     }
 
-                    if (isNotRegistered) {
-
-                        // delete old items which using old wargaid or old barangid
-                        //DebugLog.d("-> Delete old itemid : (" + item.scheduleId + ", " + item.itemId + ", " + item.wargaId + ", " + item.barangId + ")");
-                        ItemValueModel.delete(item.scheduleId, item.itemId, item.operatorId, oldWargaId, oldBarangId);
-                    }
                 }
 
                 itemValueSuccessCount++;
@@ -381,7 +381,6 @@ public class ItemUploadManager {
                 DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
                 DebugLog.d("upload status : " + item.uploadStatus);
 
-                // insert or replace value data
                 item.save();
 
             } else {
@@ -395,6 +394,56 @@ public class ItemUploadManager {
                 itemValuesFailed.add(itemValues.remove(0));
             }
         }
+
+        private void checkWargaIdAndBarangId(ItemValueModel item, ItemDefaultResponseModel responseUploadItemModel) {
+
+            boolean isNotRegistered = false;
+            String oldWargaId = item.wargaId;
+            String oldBarangId = item.barangId;
+
+            DebugLog.d("(oldWargaId, oldBarangId) : (" + oldWargaId + ", " + oldBarangId +")");
+
+            if (StringUtil.isNotNullAndEmpty(oldWargaId)) {
+
+                if (StringUtil.isNotRegistered(oldWargaId)) {
+
+                    //String scheduleId = item.scheduleId;
+                    String newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
+
+                    // update wargaid in the config
+                    updateWargaId(oldWargaId, newWargaId);
+
+                    item.wargaId = newWargaId;
+
+                    isNotRegistered = true;
+                }
+            }
+
+            if (StringUtil.isNotNullAndEmpty(oldWargaId) && StringUtil.isNotNullAndEmpty(oldBarangId)) {
+
+                if (StringUtil.isNotRegistered(oldBarangId)) {
+
+                    String newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
+
+                    // update barangid in the config
+                    updateBarangId(oldWargaId, oldBarangId, newBarangId);
+
+                    // update barangid in the table
+                    item.barangId = newBarangId;
+
+                    isNotRegistered = true;
+                }
+
+            }
+
+            if (isNotRegistered) {
+
+                // delete old items which using old wargaid or old barangid
+                //DebugLog.d("-> Delete old itemid : (" + item.scheduleId + ", " + item.itemId + ", " + item.wargaId + ", " + item.barangId + ")");
+                ItemValueModel.delete(item.scheduleId, item.itemId, item.operatorId, oldWargaId, oldBarangId);
+            }
+        }
+
 
         private void updateWargaId(String oldWargaId, String newWargaId) {
 

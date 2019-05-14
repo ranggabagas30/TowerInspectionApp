@@ -32,6 +32,7 @@ import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.StringUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -141,8 +142,8 @@ public class ItemValueModel extends BaseModel {
 		String whereScheduleId = scheduleId != null ? DbManagerValue.colScheduleId + "=" + scheduleId : "";
 		String whereItemId = itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=" + itemId : "";				// if itemid is unspecified
 		String whereOperatorId = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=" + operatorId : ""; // if operatorid is unspecified
-		String whereWarga = wargaId != null ? " AND " + DbManagerValue.colWargaId + "= '" + wargaId + "'" : "";
-		String whereBarang = barangId != null ? " AND " + DbManagerValue.colBarangId + "= '" + barangId + "'" : "";
+		String whereWarga = StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "= '" + wargaId + "'" : "";
+		String whereBarang = StringUtil.isNotNullAndEmpty(barangId)? " AND " + DbManagerValue.colBarangId + "= '" + barangId + "'" : "";
 
 		DebugLog.d("delete item(s) with scheduleid = " + scheduleId + whereItemId + whereOperatorId + whereWarga + whereBarang);
 
@@ -202,8 +203,8 @@ public class ItemValueModel extends BaseModel {
 		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
 		String whereitemid   	= itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=?" : "";
 		String whereoperatorid  = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=?" : "";
-		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
-		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String wherewargaid  	= StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= StringUtil.isNotNullAndEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
 		String where = wherescheduleid + whereitemid + whereoperatorid + wherewargaid + wherebarangid;
 		DebugLog.d("Get item(s) by (" + scheduleId + "," + itemId + "," + operatorId + "," + wargaId + "," + barangId +")");
@@ -216,9 +217,9 @@ public class ItemValueModel extends BaseModel {
 			argsList.add(String.valueOf(itemId));
 		if (operatorId != UNSPECIFIED)
 			argsList.add(String.valueOf(operatorId));
-		if (wargaId != null)
+		if (StringUtil.isNotNullAndEmpty(wargaId))
 			argsList.add(wargaId);
-		if (barangId != null)
+		if (StringUtil.isNotNullAndEmpty(barangId))
 			argsList.add(barangId);
 
 		String[] args = new String[argsList.size()];
@@ -247,8 +248,8 @@ public class ItemValueModel extends BaseModel {
 		String[] columns = null;
 		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
 		String whereitemid   	= itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=?" : "";
-		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
-		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String wherewargaid  	= StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= StringUtil.isNotNullAndEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 		String order 			= DbManagerValue.colItemId + " ASC";
 
 		String where = wherescheduleid + whereitemid + wherewargaid + wherebarangid;
@@ -260,9 +261,9 @@ public class ItemValueModel extends BaseModel {
 			argsList.add(scheduleId);
 		if (itemId != UNSPECIFIED)
 			argsList.add(String.valueOf(itemId));
-		if (wargaId != null)
+		if (StringUtil.isNotNullAndEmpty(wargaId))
 			argsList.add(wargaId);
-		if (barangId != null)
+		if (StringUtil.isNotNullAndEmpty(barangId))
 			argsList.add(barangId);
 
 		String[] args = new String[argsList.size()];
@@ -298,8 +299,8 @@ public class ItemValueModel extends BaseModel {
 		String[] columns = null;
 		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
 		String whererowid   	= rowId != UNSPECIFIED ? " AND " + DbManagerValue.colRowId + "=?" : "";
-		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
-		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String wherewargaid  	= StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= StringUtil.isNotNullAndEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
 		String where = wherescheduleid + whererowid + wherewargaid + wherebarangid;
 		DebugLog.d("Get item(s) by (" + scheduleId + "," + rowId + "," + wargaId + "," + barangId +")");
@@ -310,9 +311,9 @@ public class ItemValueModel extends BaseModel {
 			argsList.add(scheduleId);
 		if (rowId != UNSPECIFIED)
 			argsList.add(String.valueOf(rowId));
-		if (wargaId != null)
+		if (StringUtil.isNotNullAndEmpty(wargaId))
 			argsList.add(wargaId);
-		if (barangId != null)
+		if (StringUtil.isNotNullAndEmpty(barangId))
 			argsList.add(barangId);
 
 		String[] args = new String[argsList.size()];
@@ -377,8 +378,8 @@ public class ItemValueModel extends BaseModel {
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
 		String wherescheduleid  = scheduleId != null ? DbManagerValue.colScheduleId + "=?" : "";
-		String wherewargaid  	= wargaId != null ? " AND " + DbManagerValue.colWargaId + "=?" : "";
-		String wherebarangid 	= barangId != null ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String wherewargaid  	= StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= StringUtil.isNotNullAndEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
 		String where = wherescheduleid + wherewargaid + wherebarangid;
 		DebugLog.d("Get item(s) by (" + scheduleId + ", " + wargaId + ", " + barangId +")");
@@ -387,9 +388,9 @@ public class ItemValueModel extends BaseModel {
 
 		if (scheduleId != null)
 			argsList.add(scheduleId);
-		if (wargaId != null)
+		if (StringUtil.isNotNullAndEmpty(wargaId))
 			argsList.add(wargaId);
-		if (barangId != null)
+		if (StringUtil.isNotNullAndEmpty(barangId))
 			argsList.add(barangId);
 
 		String[] args = new String[argsList.size()];
@@ -1106,11 +1107,37 @@ public class ItemValueModel extends BaseModel {
 
 		ContentValues cv = new ContentValues();
 		cv.put(DbManagerValue.colWargaId, newWargaId);
+		cv.put(DbManagerValue.colUploadStatus, ItemValueModel.UPLOAD_DONE);
 
 		DbRepositoryValue.getInstance().getDB().update(DbManagerValue.mFormValue, cv, where, args);
 		DbRepositoryValue.getInstance().close();
 	}
 
+	public static void updateWargaItems(String oldWargaId, String newWargaId, ArrayList<ItemValueModel> itemValuesModified) {
+
+		for (ItemValueModel itemValueSaved : itemValuesModified) {
+
+			DebugLog.d(String.format("saving (scheduleid, itemid, oldwargaid, newwargaid) : (%s, %s, %s, %s)", itemValueSaved.scheduleId, itemValueSaved.itemId, oldWargaId, newWargaId));
+			itemValueSaved.wargaId = newWargaId;
+			itemValueSaved.save();
+
+			DebugLog.d("deleting old item...");
+			ItemValueModel.delete(itemValueSaved.scheduleId, itemValueSaved.itemId, itemValueSaved.operatorId, oldWargaId, Constants.EMPTY);
+		}
+	}
+
+	public static void updateBarangItems(String wargaId, String oldBarangId, String newBarangId, ArrayList<ItemValueModel> itemValueModified) {
+
+		for (ItemValueModel itemValueSaved : itemValueModified) {
+
+			DebugLog.d(String.format("saving (scheduleid, itemid, oldwargaid, newwargaid) : (%s, %s, %s, %s)", itemValueSaved.scheduleId, itemValueSaved.itemId, oldBarangId, newBarangId));
+			itemValueSaved.barangId = newBarangId;
+			itemValueSaved.save();
+
+			DebugLog.d("deleting old item...");
+			ItemValueModel.delete(itemValueSaved.scheduleId, itemValueSaved.itemId, itemValueSaved.operatorId, wargaId, oldBarangId);
+		}
+	}
 
 	@Override
 	public String toString() {
