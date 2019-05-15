@@ -340,7 +340,7 @@ public class ItemUploadManager {
                     String newBarangId;
                     String oldBarangId = item.barangId;
 
-                    if (StringUtil.isNotNullAndEmpty(oldWargaId) && StringUtil.isNotRegistered(oldWargaId)) {
+                    if (StringUtil.isNotNullAndNotEmpty(oldWargaId) && StringUtil.isNotRegistered(oldWargaId)) {
 
                         if (responseUploadItemModel.data.getWarga_id() != 0) {
 
@@ -358,7 +358,7 @@ public class ItemUploadManager {
                         }
                     }
 
-                    if (StringUtil.isNotNullAndEmpty(oldBarangId) && StringUtil.isNotRegistered(oldBarangId)) {
+                    if (StringUtil.isNotNullAndNotEmpty(oldBarangId) && StringUtil.isNotRegistered(oldBarangId)) {
 
                         if (responseUploadItemModel.data.getBarang_id() != 0) {
 
@@ -403,7 +403,7 @@ public class ItemUploadManager {
 
             DebugLog.d("(oldWargaId, oldBarangId) : (" + oldWargaId + ", " + oldBarangId +")");
 
-            if (StringUtil.isNotNullAndEmpty(oldWargaId)) {
+            if (StringUtil.isNotNullAndNotEmpty(oldWargaId)) {
 
                 if (StringUtil.isNotRegistered(oldWargaId)) {
 
@@ -419,7 +419,7 @@ public class ItemUploadManager {
                 }
             }
 
-            if (StringUtil.isNotNullAndEmpty(oldWargaId) && StringUtil.isNotNullAndEmpty(oldBarangId)) {
+            if (StringUtil.isNotNullAndNotEmpty(oldWargaId) && StringUtil.isNotNullAndNotEmpty(oldBarangId)) {
 
                 if (StringUtil.isNotRegistered(oldBarangId)) {
 
@@ -497,11 +497,11 @@ public class ItemUploadManager {
                 String wargaId = null;
                 String barangId = null;
 
-                if (StringUtil.isNotNullAndEmpty(itemValue.wargaId)) {
+                if (StringUtil.isNotNullAndNotEmpty(itemValue.wargaId)) {
                     wargaId = StringUtil.getRegisteredWargaId(itemValue.scheduleId, itemValue.wargaId);
                     params.add(new BasicNameValuePair("wargaid", wargaId));
                 }
-                if (StringUtil.isNotNullAndEmpty(wargaId) && StringUtil.isNotNullAndEmpty(itemValue.barangId)) {
+                if (StringUtil.isNotNullAndNotEmpty(wargaId) && StringUtil.isNotNullAndNotEmpty(itemValue.barangId)) {
                     barangId = StringUtil.getRegisteredBarangId(itemValue.scheduleId, wargaId, itemValue.barangId);
                     params.add(new BasicNameValuePair("barangid", barangId));
                 }

@@ -9,6 +9,7 @@ import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -145,27 +146,36 @@ public class NavigationAdapter extends MyBaseAdapter {
 	public void notifyDataSetChanged() {
 		shown = model.getModels();
 		DebugLog.d("shown size = "+shown.size());
+
         int position = 0;
         for (RowModel rowModel : shown) {
-            DebugLog.d("id : " + rowModel.id);
+
+        	/*if (rowModel.text.contains(Constants.regexId) && !rowModel.text.matches("\\s*\\([A-Za-z]+\\)")) {
+
+        		rowModel.text = StringUtil.getIdWithName(scheduleId, rowModel.text, rowModel.work_form_group_id);
+			}*/
+			DebugLog.d("id : " + rowModel.id);
 			DebugLog.d("workFormGroupId : " + rowModel.work_form_group_id);
-            DebugLog.d("name : " + rowModel.text);
-            DebugLog.d("ancestry name : " + shown.get(position).text);
-            DebugLog.d("ancestry : " + rowModel.ancestry);
-            DebugLog.d("parentId : " + rowModel.parent_id);
+			DebugLog.d("name : " + rowModel.text);
+			DebugLog.d("ancestry : " + rowModel.ancestry);
+			DebugLog.d("parentId : " + rowModel.parent_id);
             if (rowModel.children != null) {
                 DebugLog.d("children size : " + rowModel.children.size());
+                int childPosition = 0;
                 for (RowModel child : rowModel.children) {
                     DebugLog.d("--- child id : " + child.id);
 					DebugLog.d("--- child workFormGroupId : " + child.work_form_group_id);
                     DebugLog.d("--- child name : " + child.text);
                     DebugLog.d("--- child ancestry : " + child.ancestry);
                     DebugLog.d("--- child parentId : " + child.parent_id);
+
+                    childPosition++;
                 }
             }
             DebugLog.d("\n\n");
             position++;
         }
+
 		super.notifyDataSetChanged();
 	}
 

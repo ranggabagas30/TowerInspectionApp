@@ -429,7 +429,7 @@ public class RowModel extends BaseModel {
                         for (int barangke = 0; barangke < barangSize; barangke++) {
 
                         	String barangID = barangs.get(barangke).getBarangid();
-                        	String barangName = StringUtil.getName(scheduleId, wargaId, barangID, parentItem.work_form_group_id, "Nama");
+                        	String barangName = StringUtil.getName(scheduleId, wargaId, barangID, parentItem.work_form_group_id);
                             StringBuilder barangLabelBuilder = new StringBuilder(barangLabel).append(barangID);
 
                             if (!TextUtils.isEmpty(barangName))

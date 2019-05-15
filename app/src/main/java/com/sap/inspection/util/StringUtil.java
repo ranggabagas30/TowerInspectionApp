@@ -118,7 +118,7 @@ public class StringUtil {
 
     public static String getRegisteredWargaId(String scheduleId, String wargaId) {
 
-        if (isNotNullAndEmpty(wargaId)) {
+        if (isNotNullAndNotEmpty(wargaId)) {
 
             if (isNotRegistered(wargaId)) {
                 String realwargaId  = FormImbasPetirConfig.getRegisteredWargaId(scheduleId, wargaId);
@@ -133,7 +133,7 @@ public class StringUtil {
 
     public static String getRegisteredBarangId(String scheduleId, String wargaId, String barangId) {
 
-        if (isNotNullAndEmpty(wargaId) && isNotNullAndEmpty(barangId)) {
+        if (isNotNullAndNotEmpty(wargaId) && isNotNullAndNotEmpty(barangId)) {
 
             if (isNotRegistered(barangId)) {
                 String realbarangid  = FormImbasPetirConfig.getRegisteredBarangId(scheduleId, wargaId, barangId);
@@ -146,20 +146,24 @@ public class StringUtil {
         return null;
     }
 
-    public static String getName(String scheduleId, String wargaId, String barangId, int workFormGroupId, String lable) {
+    public static String getName(String scheduleId, String wargaId, String barangId, int workFormGroupId) {
 
         // on sap database get rowcol model using inner join
-        RowColumnModel rowColumnWarga = RowColumnModel.getRowColumnItem(workFormGroupId, lable);
+        RowColumnModel rowColumnWarga = RowColumnModel.getRowColumnItem(workFormGroupId, "Nama");
 
         if (rowColumnWarga != null) {
 
-            // on value database
-            String realWargaId = getRegisteredWargaId(scheduleId, wargaId);
-            String realBarangId = getRegisteredBarangId(scheduleId, wargaId, barangId);
+            if (!TextUtils.isEmpty(wargaId) && !TextUtils.isEmpty(barangId)) {
 
-            if (!TextUtils.isEmpty(realWargaId) && !TextUtils.isEmpty(realBarangId)) {
+                wargaId = getRegisteredWargaId(scheduleId, wargaId);
 
-                ItemValueModel itemInformasiDiri = ItemValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, realWargaId, realBarangId);
+                if (!barangId.equalsIgnoreCase(Constants.EMPTY)) {
+
+                    barangId = getRegisteredBarangId(scheduleId, wargaId, barangId);
+
+                }
+
+                ItemValueModel itemInformasiDiri = ItemValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, wargaId, barangId);
                 if (itemInformasiDiri != null) {
 
                     DebugLog.d("full name : " + itemInformasiDiri.value);
@@ -172,8 +176,22 @@ public class StringUtil {
         return "";
     }
 
+    public static String getIdWithName(String scheduleId, String rowLabel, int work_form_group_id) {
 
-    public static boolean isNotNullAndEmpty(String id) {
+        String wargaId = StringUtil.getIdFromLabel(rowLabel);
+
+        wargaId = getRegisteredWargaId(scheduleId, wargaId);
+        String wargaName = StringUtil.getName(scheduleId, wargaId, Constants.EMPTY, work_form_group_id);
+
+        StringBuilder wargaLabelBuilder = new StringBuilder(Constants.regexId).append(wargaId);
+        if (!TextUtils.isEmpty(wargaName)) {
+            wargaLabelBuilder.append(" (").append(wargaName).append(")");
+        }
+
+        return new String(wargaLabelBuilder);
+    }
+
+    public static boolean isNotNullAndNotEmpty(String id) {
 
         if (!TextUtils.isEmpty(id))
             return !id.equalsIgnoreCase(Constants.EMPTY);
@@ -183,7 +201,7 @@ public class StringUtil {
 
 
     public static boolean isNotRegistered(String id) {
-        return id.contains("new");
+        return id.contains("new") && !id.equalsIgnoreCase(Constants.EMPTY);
     }
 
 

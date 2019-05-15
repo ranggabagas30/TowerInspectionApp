@@ -95,25 +95,26 @@ public class FormActivityWarga extends BaseActivity {
         mNavigationMenu.setItemAnimator(new DefaultItemAnimator());
         mNavigationMenu.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-        int work_form_group_id = Integer.valueOf(workFormGroupId);
-        String wargaLable = "Warga ID ";
-        String wargaID = StringUtil.getRegisteredWargaId(scheduleId, wargaId);
-        String wargaName = StringUtil.getName(scheduleId, wargaId, Constants.EMPTY, work_form_group_id, "Nama");
-
-        StringBuilder wargaLableBuilder = new StringBuilder(wargaLable).append(wargaID);
-
-        if (!TextUtils.isEmpty(wargaName))
-            wargaLableBuilder.append( "(").append(wargaName).append(")");
-
-        mHeaderTitle.setText(new String(wargaLableBuilder));
-
-        mHeaderSubtitle.setText("Schedule ID " + scheduleId);
         generateNavigationItems(true);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        DebugLog.d("onResume");
+
+        int work_form_group_id = Integer.valueOf(workFormGroupId);
+        String wargaLable = "Warga ID ";
+        String wargaID = StringUtil.getRegisteredWargaId(scheduleId, wargaId);
+        String wargaName = StringUtil.getName(scheduleId, wargaId, Constants.EMPTY, work_form_group_id);
+
+        StringBuilder wargaLableBuilder = new StringBuilder(wargaLable).append(wargaID);
+
+        if (!TextUtils.isEmpty(wargaName))
+            wargaLableBuilder.append( " (").append(wargaName).append(")");
+
+        mHeaderTitle.setText(new String(wargaLableBuilder));
+        mHeaderSubtitle.setText("Schedule ID " + scheduleId);
     }
 
     public String getScheduleId() {
@@ -240,7 +241,7 @@ public class FormActivityWarga extends BaseActivity {
 
         DebugLog.d("(realwargaid, realbarangid) : (" + realWargaId + ", " + realBarangId + ")");
 
-        if (StringUtil.isNotNullAndEmpty(realWargaId)) {
+        if (!TextUtils.isEmpty(realWargaId)) {
             if (StringUtil.isNotRegistered(realWargaId) && !rowModel.text.equalsIgnoreCase("Informasi Diri")) {
 
                 MyApplication.getInstance().toast("Tidak bisa melanjutkan membuka form. Silahkan upload data 'Informasi Diri' terlebih dahulu", Toast.LENGTH_LONG);

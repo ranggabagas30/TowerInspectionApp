@@ -288,18 +288,11 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 						RowModel wargaKeModel = rowModel.getAllItemByWorkFormGroupId(model.id).get(0);
 
-						int workFormGroupId = model.id;
+						String wargaLabel = wargaKeModel.text;
+						String wargaId	  = wargas.get(i).getWargaid();
+						String wargaRowLabel = wargaLabel + wargaId;
 
-						String wargakelabel = wargaKeModel.text;
-						String wargaId = wargas.get(i).getWargaid();
-						String warganame = StringUtil.getName(scheduleId, wargaId, Constants.EMPTY, workFormGroupId, "Nama");
-
-						StringBuilder wargaLabel = new StringBuilder(wargakelabel).append(wargaId);
-
-						if (!TextUtils.isEmpty(warganame))
-							wargaLabel.append(" (").append(warganame).append(")");
-
-						wargaKeModel.text = new String(wargaLabel);
+						wargaKeModel.text = StringUtil.getIdWithName(scheduleId, wargaRowLabel, model.id);
 
 						DebugLog.d("-- child id : " + wargaKeModel.id);
 						DebugLog.d("-- child work form group id : " + wargaKeModel.work_form_group_id);

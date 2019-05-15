@@ -142,8 +142,8 @@ public class ItemValueModel extends BaseModel {
 		String whereScheduleId = scheduleId != null ? DbManagerValue.colScheduleId + "=" + scheduleId : "";
 		String whereItemId = itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=" + itemId : "";				// if itemid is unspecified
 		String whereOperatorId = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=" + operatorId : ""; // if operatorid is unspecified
-		String whereWarga = StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "= '" + wargaId + "'" : "";
-		String whereBarang = StringUtil.isNotNullAndEmpty(barangId)? " AND " + DbManagerValue.colBarangId + "= '" + barangId + "'" : "";
+		String whereWarga = StringUtil.isNotNullAndNotEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "= '" + wargaId + "'" : "";
+		String whereBarang = StringUtil.isNotNullAndNotEmpty(barangId)? " AND " + DbManagerValue.colBarangId + "= '" + barangId + "'" : "";
 
 		DebugLog.d("delete item(s) with scheduleid = " + scheduleId + whereItemId + whereOperatorId + whereWarga + whereBarang);
 
@@ -203,8 +203,8 @@ public class ItemValueModel extends BaseModel {
 		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
 		String whereitemid   	= itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=?" : "";
 		String whereoperatorid  = operatorId != UNSPECIFIED ? " AND " + DbManagerValue.colOperatorId + "=?" : "";
-		String wherewargaid  	= StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
-		String wherebarangid 	= StringUtil.isNotNullAndEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String wherewargaid  	= StringUtil.isNotNullAndNotEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= StringUtil.isNotNullAndNotEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
 		String where = wherescheduleid + whereitemid + whereoperatorid + wherewargaid + wherebarangid;
 		DebugLog.d("Get item(s) by (" + scheduleId + "," + itemId + "," + operatorId + "," + wargaId + "," + barangId +")");
@@ -217,9 +217,9 @@ public class ItemValueModel extends BaseModel {
 			argsList.add(String.valueOf(itemId));
 		if (operatorId != UNSPECIFIED)
 			argsList.add(String.valueOf(operatorId));
-		if (StringUtil.isNotNullAndEmpty(wargaId))
+		if (StringUtil.isNotNullAndNotEmpty(wargaId))
 			argsList.add(wargaId);
-		if (StringUtil.isNotNullAndEmpty(barangId))
+		if (StringUtil.isNotNullAndNotEmpty(barangId))
 			argsList.add(barangId);
 
 		String[] args = new String[argsList.size()];
@@ -248,8 +248,8 @@ public class ItemValueModel extends BaseModel {
 		String[] columns = null;
 		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
 		String whereitemid   	= itemId != UNSPECIFIED ? " AND " + DbManagerValue.colItemId + "=?" : "";
-		String wherewargaid  	= StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
-		String wherebarangid 	= StringUtil.isNotNullAndEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String wherewargaid  	= StringUtil.isNotNullAndNotEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= StringUtil.isNotNullAndNotEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 		String order 			= DbManagerValue.colItemId + " ASC";
 
 		String where = wherescheduleid + whereitemid + wherewargaid + wherebarangid;
@@ -261,9 +261,9 @@ public class ItemValueModel extends BaseModel {
 			argsList.add(scheduleId);
 		if (itemId != UNSPECIFIED)
 			argsList.add(String.valueOf(itemId));
-		if (StringUtil.isNotNullAndEmpty(wargaId))
+		if (StringUtil.isNotNullAndNotEmpty(wargaId))
 			argsList.add(wargaId);
-		if (StringUtil.isNotNullAndEmpty(barangId))
+		if (StringUtil.isNotNullAndNotEmpty(barangId))
 			argsList.add(barangId);
 
 		String[] args = new String[argsList.size()];
@@ -299,8 +299,8 @@ public class ItemValueModel extends BaseModel {
 		String[] columns = null;
 		String wherescheduleid  = DbManagerValue.colScheduleId + "=?";
 		String whererowid   	= rowId != UNSPECIFIED ? " AND " + DbManagerValue.colRowId + "=?" : "";
-		String wherewargaid  	= StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
-		String wherebarangid 	= StringUtil.isNotNullAndEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String wherewargaid  	= StringUtil.isNotNullAndNotEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= StringUtil.isNotNullAndNotEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
 		String where = wherescheduleid + whererowid + wherewargaid + wherebarangid;
 		DebugLog.d("Get item(s) by (" + scheduleId + "," + rowId + "," + wargaId + "," + barangId +")");
@@ -311,9 +311,9 @@ public class ItemValueModel extends BaseModel {
 			argsList.add(scheduleId);
 		if (rowId != UNSPECIFIED)
 			argsList.add(String.valueOf(rowId));
-		if (StringUtil.isNotNullAndEmpty(wargaId))
+		if (StringUtil.isNotNullAndNotEmpty(wargaId))
 			argsList.add(wargaId);
-		if (StringUtil.isNotNullAndEmpty(barangId))
+		if (StringUtil.isNotNullAndNotEmpty(barangId))
 			argsList.add(barangId);
 
 		String[] args = new String[argsList.size()];
@@ -378,8 +378,8 @@ public class ItemValueModel extends BaseModel {
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
 		String wherescheduleid  = scheduleId != null ? DbManagerValue.colScheduleId + "=?" : "";
-		String wherewargaid  	= StringUtil.isNotNullAndEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
-		String wherebarangid 	= StringUtil.isNotNullAndEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
+		String wherewargaid  	= StringUtil.isNotNullAndNotEmpty(wargaId) ? " AND " + DbManagerValue.colWargaId + "=?" : "";
+		String wherebarangid 	= StringUtil.isNotNullAndNotEmpty(barangId) ? " AND " + DbManagerValue.colBarangId + "=?" : "";
 
 		String where = wherescheduleid + wherewargaid + wherebarangid;
 		DebugLog.d("Get item(s) by (" + scheduleId + ", " + wargaId + ", " + barangId +")");
@@ -388,9 +388,9 @@ public class ItemValueModel extends BaseModel {
 
 		if (scheduleId != null)
 			argsList.add(scheduleId);
-		if (StringUtil.isNotNullAndEmpty(wargaId))
+		if (StringUtil.isNotNullAndNotEmpty(wargaId))
 			argsList.add(wargaId);
-		if (StringUtil.isNotNullAndEmpty(barangId))
+		if (StringUtil.isNotNullAndNotEmpty(barangId))
 			argsList.add(barangId);
 
 		String[] args = new String[argsList.size()];

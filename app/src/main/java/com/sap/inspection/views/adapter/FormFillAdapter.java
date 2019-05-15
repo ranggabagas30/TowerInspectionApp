@@ -481,7 +481,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 	private void setUploadButtonVisibility(ViewHolder holder) {
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-			if (StringUtil.isNotNullAndEmpty(wargaId) || StringUtil.isNotNullAndEmpty(barangId)) {
+			if (StringUtil.isNotNullAndNotEmpty(wargaId) || StringUtil.isNotNullAndNotEmpty(barangId)) {
 				holder.upload.setVisibility(View.INVISIBLE);
 			} else
 				holder.upload.setVisibility(View.VISIBLE);

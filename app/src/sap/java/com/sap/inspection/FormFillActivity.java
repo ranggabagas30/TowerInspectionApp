@@ -241,9 +241,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			        }
 			    }
 
-		    }
-		    else
-		    {
+		    } else {
 		        if (!listView.isFocused())
 		        {
 		            // listView.setItemsCanFocus(false);
@@ -760,12 +758,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					if (form.hasInput){
 						DebugLog.d("========================= head row has input : ");
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
-						labels.add(form.getLabel());
+
+						if (!TextUtils.isEmpty(form.getLabel())) {
+							labels.add(form.getLabel()); DebugLog.d("add label : " + form.getLabel());
+						}
 						formModels.add(form);
 					}
 					else if (form.hasPicture){
 						DebugLog.d("========================= head row has picture : ");
-						labels.add(form.getLabel());
+
+						if (!TextUtils.isEmpty(form.getLabel())) {
+							labels.add(form.getLabel()); DebugLog.d("add label : " + form.getLabel());
+						}
 						formModels.add(form);
 					}
 					break;
@@ -805,11 +809,17 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					while (labels.indexOf(label) != -1){
 						label = label+".";
 					}
-					labels.add(label);
+
+					if (!TextUtils.isEmpty(label)) {
+						labels.add(label);
+
+						DebugLog.d("indexes : " + indexes.get(indexes.size()-1));
+						DebugLog.d("label : " + label);
+						DebugLog.d("lables now : " + labels.get(labels.size()-1));
+					}
+
 					formModels.add(form);
-					DebugLog.d("indexes : " + indexes.get(indexes.size()-1));
-					DebugLog.d("label : " + label);
-					DebugLog.d("lables now : " + labels.get(labels.size()-1));
+
 				}else
 					parentLabel = form.getLabel();
 //				setPercentage(model.id);
@@ -845,6 +855,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			title.setText(pageTitle);
 			hideDialog();
 			adapter.setItems(formModels);
+
 			boolean ada = false;
 			DebugLog.d("total formModels items : " + formModels.size());
 			for (ItemFormRenderModel item : formModels) {
@@ -894,7 +905,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 			String barangLabel = pageTitle;
 			String barangID = barangId;
-			String barangName = StringUtil.getName(scheduleId, wargaId, barangId, workFormGroupId, "Nama");
+			String barangName = StringUtil.getName(scheduleId, wargaId, barangId, workFormGroupId);
 
 			StringBuilder barangLabelBuilder = new StringBuilder(barangLabel).append(barangID);
 
@@ -1007,7 +1018,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		public void onScrollStateChanged(AbsListView absListView, int i) {
 			InputMethodManager inputManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 			if (getCurrentFocus() != null) {
-				inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+				if (inputManager != null) {
+					inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+				}
 				getCurrentFocus().clearFocus();
 			}
 		}
