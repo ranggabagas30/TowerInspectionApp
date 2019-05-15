@@ -759,17 +759,25 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						DebugLog.d("========================= head row has input : ");
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 
-						if (!TextUtils.isEmpty(form.getLabel())) {
-							labels.add(form.getLabel()); DebugLog.d("add label : " + form.getLabel());
+						String label = form.getLabel();
+
+						if (TextUtils.isEmpty(label)) {
+							label = "item with no label";
 						}
+
+						labels.add(label);
 						formModels.add(form);
 					}
 					else if (form.hasPicture){
 						DebugLog.d("========================= head row has picture : ");
 
-						if (!TextUtils.isEmpty(form.getLabel())) {
-							labels.add(form.getLabel()); DebugLog.d("add label : " + form.getLabel());
+						String label = form.getLabel();
+
+						if (TextUtils.isEmpty(label)) {
+							label = "item with no label";
 						}
+
+						labels.add(label);
 						formModels.add(form);
 					}
 					break;
@@ -810,14 +818,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						label = label+".";
 					}
 
-					if (!TextUtils.isEmpty(label)) {
-						labels.add(label);
-
-						DebugLog.d("indexes : " + indexes.get(indexes.size()-1));
-						DebugLog.d("label : " + label);
-						DebugLog.d("lables now : " + labels.get(labels.size()-1));
+					if (TextUtils.isEmpty(label)) {
+						label = "item with no label";
 					}
 
+					labels.add(label);
+					DebugLog.d("indexes : " + indexes.get(indexes.size()-1));
+					DebugLog.d("label : " + label);
+					DebugLog.d("lables now : " + labels.get(labels.size()-1));
 					formModels.add(form);
 
 				}else
