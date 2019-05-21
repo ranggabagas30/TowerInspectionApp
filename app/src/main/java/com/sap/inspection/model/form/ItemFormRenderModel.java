@@ -177,7 +177,7 @@ public class ItemFormRenderModel extends BaseModel {
     public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels, String parentLabel) {
         if (schedule.operators == null || schedule.operators.size() == 0) {
             DebugLog.d("operator none");
-            Toast.makeText(MyApplication.getInstance(), "Tidak ada operator", Toast.LENGTH_LONG).show();
+            MyApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
             return;
         }
 
