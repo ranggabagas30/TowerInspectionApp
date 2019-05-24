@@ -19,20 +19,34 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
+import com.scottyab.aescrypt.AESCrypt;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.Key;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 public class CommonUtil {
 
@@ -456,5 +470,125 @@ public class CommonUtil {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     *
+     * encryption
+     *
+     * */
+
+    public static String getEncryptedString(String source) {
+
+        String fileNameEncrypt = "";
+
+        try {
+            fileNameEncrypt = AESCrypt.encrypt(BuildConfig.FLAVOR, source);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            DebugLog.e(e.getMessage());
+        }
+
+        DebugLog.d("source : " + source);
+        DebugLog.d("encrypt : " + fileNameEncrypt);
+
+        return fileNameEncrypt;
+    }
+
+    private static byte[] getFile(File f) {
+
+        //File f = new File(filePath);
+        InputStream is = null;
+        try {
+            is = new FileInputStream(f);
+        } catch (FileNotFoundException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
+        byte[] content = null;
+        try {
+            content = new byte[is.available()];
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        try {
+            if (content != null) {
+                is.read(content);
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return content;
+    }
+
+    private static byte[] encryptPdfFile(Key key, byte[] content) {
+        Cipher cipher;
+        byte[] encrypted = null;
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            encrypted = cipher.doFinal(content);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return encrypted;
+
+    }
+
+    private static byte[] decryptPdfFile(Key key, byte[] textCryp) {
+        Cipher cipher;
+        byte[] decrypted = null;
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            decrypted = cipher.doFinal(textCryp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return decrypted;
+    }
+
+    private static void saveFile(byte[] fileBytes, String filePathOutput) throws IOException {
+
+        FileOutputStream fos = new FileOutputStream(filePathOutput);
+        fos.write(fileBytes);
+        fos.close();
+
+    }
+
+    public static void encryptFile(File file, String filePathOutput) {
+
+        byte[] fileBytes = getFile(file);
+        byte[] encryptedBytes = encryptPdfFile(MyApplication.getKey(), fileBytes);
+        try {
+            saveFile(encryptedBytes, filePathOutput);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Crashlytics.logException(e);
+            DebugLog.e(e.getMessage());
+        }
+    }
+
+    public static File getDecryptedFile(String fileSource) {
+
+        File fileEncrypted = new File(fileSource);
+        byte[] fileBytes = getFile(fileEncrypted);
+        byte[] decryptedBytes = decryptPdfFile(MyApplication.getKey(), fileBytes);
+
+        try {
+            saveFile(decryptedBytes, fileSource);
+            return fileEncrypted;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+            DebugLog.e(e.getMessage());
+        }
+
+        return null;
     }
 }

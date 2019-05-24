@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -69,16 +70,19 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ExifUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
+import com.scottyab.aescrypt.AESCrypt;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -515,7 +519,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			try
 			{
 				// place where to store camera taken picture
-				photo = createTemporaryFile("picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-", ".jpg");
+				String part			   = "picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-";
+
+				// temporary image file
+				photo = createTemporaryFile(CommonUtil.getEncryptedString(part), ".jpg");
 
 			}
 			catch(Exception e)
@@ -551,6 +558,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	}
 
 	private File createTemporaryFile(String part, String ext) throws Exception {
+
 		File tempDir;
 		boolean createDirStatus;
 
@@ -568,8 +576,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				DebugLog.d("external storage available");
 
-				tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
-				tempDir = new File(tempDir, "TowerInspection"); // create temp folder
+				tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), Constants.FOLDER_CAMERA);
+				tempDir = new File(tempDir, Constants.FOLDER_TOWER_INSPECTION); // create temp folder
 				tempDir = new File(tempDir, schedule.id); // create schedule folder
 
 				if (!tempDir.exists()) {
@@ -638,31 +646,21 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), schedule.id, textMarks);
 
-				if (null != file) {
+				String fileOutput = file.toString();
+				CommonUtil.encryptFile(file, fileOutput);
 
-					if (CommonUtil.isExternalStorageAvailable()) {
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-							Intent mediaScanIntent = new Intent(
-									Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-							Uri contentUri = Uri.fromFile(file);
-							mediaScanIntent.setData(contentUri);
-							this.sendBroadcast(mediaScanIntent);
-						} else {
-							sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-									Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
-						}
-					}
+				if (null != file) {
 
 					if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
 
 						photoItem.deletePhoto();
-						photoItem.setImage(photo, latitude, longitude, accuracy);
+						photoItem.setImage(file, latitude, longitude, accuracy);
 
 					} else {
 
 						if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
 							photoItem.deletePhoto();
-							photoItem.setImage(photo, latitude, longitude, accuracy);
+							photoItem.setImage(file, latitude, longitude, accuracy);
 
 						} else {
 

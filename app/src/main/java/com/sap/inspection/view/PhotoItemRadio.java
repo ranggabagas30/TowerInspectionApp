@@ -261,44 +261,55 @@ public class PhotoItemRadio extends RelativeLayout {
 			if (!TextUtils.isEmpty(value.value)) {
 				photoRoot.setVisibility(VISIBLE);
 				noPicture.setVisibility(GONE);
-				imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", new File(value.value));
-				BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView,new ImageLoadingListener() {
 
-					@Override
-					public void onLoadingStarted(String arg0, View arg1) {
-						progress.setVisibility(View.VISIBLE);
-						photoRoot.setVisibility(View.VISIBLE);
-						noPicture.setVisibility(View.GONE);
-					}
+				if (!TextUtils.isEmpty(value.value)) {
 
-					@Override
-					public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
-						progress.setVisibility(View.GONE);
-						photoRoot.setVisibility(View.GONE);
-						noPicture.setVisibility(View.VISIBLE);
-					}
+					File imageDecrypted = CommonUtil.getDecryptedFile(value.value);
 
-					@Override
-					public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
-						progress.setVisibility(View.GONE);
-						photoRoot.setVisibility(View.VISIBLE);
-						if (value != null){
-							if (value.value == null)
-								noPicture.setVisibility(View.VISIBLE);
-							if (value.photoStatus == null){
-								radioGroup.check(R.id.radioOK);
+					if (imageDecrypted != null) {
+						imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", imageDecrypted);
+						BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView,new ImageLoadingListener() {
+
+							@Override
+							public void onLoadingStarted(String arg0, View arg1) {
+								progress.setVisibility(View.VISIBLE);
+								photoRoot.setVisibility(View.VISIBLE);
+								noPicture.setVisibility(View.GONE);
 							}
-						}
-					}
 
-					@Override
-					public void onLoadingCancelled(String arg0, View arg1) {
-						progress.setVisibility(View.GONE);
-						photoRoot.setVisibility(View.VISIBLE);
-						noPicture.setVisibility(View.GONE);
-					}
+							@Override
+							public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+								progress.setVisibility(View.GONE);
+								photoRoot.setVisibility(View.GONE);
+								noPicture.setVisibility(View.VISIBLE);
+							}
 
-				});
+							@Override
+							public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
+								progress.setVisibility(View.GONE);
+								photoRoot.setVisibility(View.VISIBLE);
+								if (value != null){
+									if (value.value == null)
+										noPicture.setVisibility(View.VISIBLE);
+									if (value.photoStatus == null){
+										radioGroup.check(R.id.radioOK);
+									}
+								}
+							}
+
+							@Override
+							public void onLoadingCancelled(String arg0, View arg1) {
+								progress.setVisibility(View.GONE);
+								photoRoot.setVisibility(View.VISIBLE);
+								noPicture.setVisibility(View.GONE);
+							}
+
+						});
+
+					} else {
+						DebugLog.e("unable to load image");
+					}
+				}
 			}
 
 			//notify radiobuttons
@@ -353,23 +364,6 @@ public class PhotoItemRadio extends RelativeLayout {
                     }
                 }
             }
-
-            //save();
-            /*
-			if (TextUtils.isEmpty(value.remark)) {
-
-				if (itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")) {
-
-					DebugLog.d("delete all items for all operators by scheduleid");
-					ItemValueModel.deleteAllBy(value.scheduleId, value.itemId);
-
-				} else {
-
-					DebugLog.d("delete item for operatorid : " + value.operatorId + " by scheduleid");
-					ItemValueModel.delete(value.scheduleId, value.itemId, value.operatorId);
-
-				}
-			}*/
 
         } else {
 			reset();
@@ -505,11 +499,6 @@ public class PhotoItemRadio extends RelativeLayout {
 				return;
 			}
 		}
-	}
-
-	public void setPhotoDate(String date) {
-	    value.createdAt = "";
-		value.photoDate = value.createdAt = date;
 	}
 
 	public void setUploadstatus(String uploadstatus) {

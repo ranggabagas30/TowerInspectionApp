@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Picture;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.media.ExifInterface;
@@ -192,12 +193,13 @@ public class ImageUtil {
             DebugLog.d("image uri : " + imageUri);
             DebugLog.d("path of image : " + path);
 
-            Bitmap bitmap = writeTextOnDrawable(ctx, path, x, textMarks);
+            Bitmap bitmap = resizeAndWriteTextOnDrawable(ctx, path, x, textMarks);
 
             File file = new File(path);
             DebugLog.d("file path : " + file.getPath());
             try {
                 FileOutputStream out = new FileOutputStream(file);
+
                 //kualitas
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
                 out.flush();
@@ -241,7 +243,7 @@ public class ImageUtil {
             else
                 tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
 
-            String path = null;
+            String path;
             if (url.contains("?"))
             	path = tempDir.getAbsolutePath()+"/TowerInspection/"+url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
             else
@@ -334,7 +336,7 @@ public class ImageUtil {
 		return File.createTempFile(part, ext, tempDir);
 	}
 
-    public static Bitmap writeTextOnDrawable(Context mContext, String imagePath, String text) {
+    public static Bitmap resizeAndWriteTextOnDrawable(Context mContext, String imagePath, String text) {
 
 	    Bitmap bm = BitmapFactory.decodeFile(imagePath)
                 .copy(Bitmap.Config.ARGB_8888, true);
@@ -368,7 +370,7 @@ public class ImageUtil {
         return bm;
     }
 
-    public static Bitmap writeTextOnDrawable(Context mContext, String imagePath, int x,  String[] texts) {
+    public static Bitmap resizeAndWriteTextOnDrawable(Context mContext, String imagePath, int x,  String[] texts) {
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds=true;
@@ -386,24 +388,10 @@ public class ImageUtil {
         int reqHeight = (int) (imageHeight * factorToUse);
 
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
         options.inJustDecodeBounds = false;
         options.inMutable = true;
+
         Bitmap bitmap_Result = BitmapFactory.decodeFile(imagePath, options);
-
-        /*bitmap_Result = Bitmap.createScaledBitmap(bitmap_Result,
-                (int) (imageWidth * factorToUse),
-                (int) (imageHeight * factorToUse),
-                false);*/
-        /*
-        * legacy
-        * */
-        //Bitmap bitmap_Source = BitmapFactory.decodeFile(imagePath);
-
-        /*Bitmap bitmap_Result = Bitmap.createScaledBitmap(bitmap_Source,
-                (int) (imageWidth * factorToUse),
-                (int) (imageHeight * factorToUse),
-                false);*/
 
         float bitmapRotation = imageOrientation(imagePath);
 
@@ -429,8 +417,8 @@ public class ImageUtil {
 
         int dy_potrait  = PrefUtil.getIntPref(R.string.linespacepotrait, Constants.TEXT_LINE_SPACE_POTRAIT);
         int dy_landscape = PrefUtil.getIntPref(R.string.linespacelandscape, Constants.TEXT_LINE_SPACE_LANDSCAPE);
-        float xPos = 0.0f;
-        float yPos = 0.0f;
+        float xPos;
+        float yPos;
 
         for (int i = 0; i < texts.length; i++) {
             textMark.setTextMark(texts[i]);
@@ -438,7 +426,7 @@ public class ImageUtil {
 
             //If the text is bigger than the canvas , reduce the font size;
 
-            float px = 0.0f;
+            float px;
             int textWidth  = textMark.getTextRect().width();
             int textHeight = textMark.getTextRect().height();
             int textSize;
@@ -475,8 +463,6 @@ public class ImageUtil {
             DebugLog.d("Canvas width x height : " + canvas.getWidth() + " x " + canvas.getHeight());
 
             canvas.drawText(textMark.getTextMark(), xPos, yPos, textPaint);
-
-
         }
 
         DebugLog.d("required : width="+reqWidth+" height="+reqHeight);
@@ -516,13 +502,7 @@ public class ImageUtil {
     }
 
     public static boolean isPortrait(int width, int height) {
-	    if (width <= height) {
-	        //MyApplication.getInstance().toast("portrait", Toast.LENGTH_SHORT);
-            return true;
-        } else {
-            //MyApplication.getInstance().toast("landscape", Toast.LENGTH_SHORT);
-            return false;
-        }
+        return width <= height;
     }
 
     public static int convertToPixels(Context context, int nDP)
@@ -569,8 +549,7 @@ public class ImageUtil {
 	    return lineWidth * RATIO / cpl;
     }
 
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;

@@ -13,11 +13,21 @@ import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Key;
+import java.security.SecureRandom;
 import java.util.Vector;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 public class StringUtil {
 
@@ -75,6 +85,12 @@ public class StringUtil {
         return workTypeName.matches(Constants.regexPREVENTIVE);
     }
 
+
+    /**
+     *
+     * Form Imbas Petir Utils
+     *
+     * */
     public static int getWargaKeIndex(String wargaKeText) {
 
         String pattern = "Warga Ke-";
@@ -203,6 +219,4 @@ public class StringUtil {
     public static boolean isNotRegistered(String id) {
         return id.contains("new") && !id.equalsIgnoreCase(Constants.EMPTY);
     }
-
-
 }
