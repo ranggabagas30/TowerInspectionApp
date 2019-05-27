@@ -28,6 +28,11 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
 import com.scottyab.aescrypt.AESCrypt;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +40,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.util.Arrays;
@@ -477,22 +484,9 @@ public class CommonUtil {
      * encryption
      *
      * */
+    public static String getEncryotedMD5Hex(String source) {
 
-    public static String getEncryptedString(String source) {
-
-        String fileNameEncrypt = "";
-
-        try {
-            fileNameEncrypt = AESCrypt.encrypt(BuildConfig.FLAVOR, source);
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
-            DebugLog.e(e.getMessage());
-        }
-
-        DebugLog.d("source : " + source);
-        DebugLog.d("encrypt : " + fileNameEncrypt);
-
-        return fileNameEncrypt;
+        return new String(Hex.encodeHex(DigestUtils.md5(source)));
     }
 
     private static byte[] getFile(File f) {
@@ -560,11 +554,12 @@ public class CommonUtil {
 
     }
 
+    // using AES
     public static void encryptFile(File file, String filePathOutput) {
 
-        byte[] fileBytes = getFile(file);
-        byte[] encryptedBytes = encryptPdfFile(MyApplication.getKey(), fileBytes);
         try {
+            byte[] fileBytes = FileUtils.readFileToByteArray(file);
+            byte[] encryptedBytes = encryptPdfFile(MyApplication.getKey(), fileBytes);
             saveFile(encryptedBytes, filePathOutput);
         } catch (IOException e) {
             e.printStackTrace();
@@ -573,20 +568,60 @@ public class CommonUtil {
         }
     }
 
-    public static File getDecryptedFile(String fileSource) {
+    public static void decryptFile(File file, String filePathOutput) {
 
-        File fileEncrypted = new File(fileSource);
-        byte[] fileBytes = getFile(fileEncrypted);
-        byte[] decryptedBytes = decryptPdfFile(MyApplication.getKey(), fileBytes);
+        if (!filePathOutput.isEmpty()) {
 
+            try {
+                byte[] fileBytes = FileUtils.readFileToByteArray(file);
+                byte[] decryptedBytes = decryptPdfFile(MyApplication.getKey(), fileBytes);
+                saveFile(decryptedBytes, filePathOutput);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+                DebugLog.e(e.getMessage());
+            }
+        }
+    }
+
+    public static void encryptFileBase64(File file, String fileOutput) {
+
+        DebugLog.d("encrypt file");
         try {
-            saveFile(decryptedBytes, fileSource);
-            return fileEncrypted;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            byte[] fileBytes = FileUtils.readFileToByteArray(file);
+            byte[] encryptedBytes = new Base64().encode(fileBytes);
+            FileUtils.writeByteArrayToFile(new File(fileOutput), encryptedBytes);
+            //saveFile(encryptedBytes, fileOutput);
+
         } catch (IOException e) {
             e.printStackTrace();
-            DebugLog.e(e.getMessage());
+        }
+    }
+
+    public static void decryptFileBase64(File file, String fileOutput) {
+
+        DebugLog.d("decrypt file");
+        try {
+            byte[] fileBytes = FileUtils.readFileToByteArray(file);
+            byte[] decryptedBytes = new Base64().decode(fileBytes);
+            FileUtils.writeByteArrayToFile(new File(fileOutput), decryptedBytes);
+            //saveFile(decryptedBytes, fileSource);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] getDecryptedByteBase64(File file) {
+
+        DebugLog.d("get decrypted bytes base64");
+
+        try {
+            byte[] fileBytes = FileUtils.readFileToByteArray(file);
+            return new Base64().decode(fileBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return null;

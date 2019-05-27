@@ -133,7 +133,7 @@ public class Constants {
 	public static final String EMPTY = "EMPTY";
 
 	public static final String FOLDER_CAMERA = "Camera";
-	public static final String FOLDER_TOWER_INSPECTION = "TowerInspection";
+	public static final String FOLDER_TOWER_INSPECTION = ".TowerInspection";
 	public static final String DIR_PHOTOS = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/" + Constants.FOLDER_CAMERA + "/" + Constants.FOLDER_TOWER_INSPECTION;
 	/**
 	 * ============================= PHOTO STATUS =================================================

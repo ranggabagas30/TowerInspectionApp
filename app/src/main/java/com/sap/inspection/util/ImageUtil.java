@@ -19,6 +19,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
@@ -26,12 +27,45 @@ import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.tools.DebugLog;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ImageUtil {
 	public static final int MenuShootImage = 101;
-	
+
+    /*
+     * called when image is stored
+     */
+    public static boolean createTimestampImage(Context context, byte[] data, LatLng currentGeoPoint){
+
+        // Create the <timestamp>.jpg file and modify the exif data
+        String filename = "/sdcard"+String.format("/%d.jpg", System.currentTimeMillis());
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(filename);
+            try {
+                fileOutputStream.write(data);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            fileOutputStream.flush();
+            fileOutputStream.close();
+            ExifInterface exif = new ExifInterface(filename);
+            ExifUtil.createExifData(context, exif, currentGeoPoint.latitude, currentGeoPoint.longitude);
+            exif.saveAttributes();
+            return true;
+
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 	public static void resizeAndSaveImage(String imageUri) {
         try {
 
@@ -148,7 +182,6 @@ public class ImageUtil {
             bitmap = ExifUtil.rotateBitmap(path,bitmap);
             DebugLog.d("width="+bitmap.getWidth()+" height="+bitmap.getHeight());
 
-
             File file;
             file = new File(path);
             DebugLog.d(file.getPath());
@@ -174,37 +207,27 @@ public class ImageUtil {
     }
 
     public static File resizeAndSaveImageCheckExifWithMark(Context ctx, String imageUri, String scheduleId, String[] textMarks) {
+
         File fileReturn = null;
-        File tempDir;
         //change to 480 from 640
         int x = 640;
 
         try {
-            if (CommonUtil.isExternalStorageAvailable()) {
-                DebugLog.d("external storage available");
-                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-            } else {
-                DebugLog.d("external storage not available");
-                tempDir = new File(ctx.getFilesDir()+"/Camera/");
-            }
 
-            //String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
-            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+ imageUri;
-            DebugLog.d("image uri : " + imageUri);
-            DebugLog.d("path of image : " + path);
+            String path = Constants.DIR_PHOTOS + "/" + scheduleId + "/" + imageUri;
 
             Bitmap bitmap = resizeAndWriteTextOnDrawable(ctx, path, x, textMarks);
 
             File file = new File(path);
             DebugLog.d("file path : " + file.getPath());
-            try {
-                FileOutputStream out = new FileOutputStream(file);
 
-                //kualitas
+            try {
+
+                FileOutputStream out = new FileOutputStream(file);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
-                out.flush();
                 out.close();
                 fileReturn = file;
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -245,9 +268,9 @@ public class ImageUtil {
 
             String path;
             if (url.contains("?"))
-            	path = tempDir.getAbsolutePath()+"/TowerInspection/"+url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
+            	path = tempDir.getAbsolutePath() + "/" + Constants.FOLDER_TOWER_INSPECTION + "/" + url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
             else
-            	path = tempDir.getAbsolutePath()+"/TowerInspection/"+url.substring(url.lastIndexOf('/')+1);
+            	path = tempDir.getAbsolutePath() + "/" + Constants.FOLDER_TOWER_INSPECTION + "/" + url.substring(url.lastIndexOf('/')+1);
 
             File file;
             file = new File(path);
@@ -315,11 +338,12 @@ public class ImageUtil {
         boolean createDirStatus;
 
         if (CommonUtil.isExternalStorageAvailable())
-            tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
+            tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), Constants.FOLDER_CAMERA);
         else
-            tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
+            tempDir = new File(MyApplication.getContext().getFilesDir(), Constants.FOLDER_CAMERA);
 
-		tempDir=new File(tempDir.getAbsolutePath()+"/TowerInspection/");
+		tempDir = new File(tempDir.getAbsolutePath(), Constants.FOLDER_TOWER_INSPECTION);
+
 		if(!tempDir.exists())
 		{
             createDirStatus = tempDir.mkdir();

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Debug;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.sap.inspection.BaseActivity;
@@ -262,63 +264,86 @@ public class PhotoItemRadio extends RelativeLayout {
 				photoRoot.setVisibility(VISIBLE);
 				noPicture.setVisibility(GONE);
 
-				if (!TextUtils.isEmpty(value.value)) {
+				DebugLog.d("value : " + value.value);
 
-					File imageDecrypted = CommonUtil.getDecryptedFile(value.value);
+				//CommonUtil.decryptFile(new File(value.value), value.value);
+				//CommonUtil.decryptFileBase64(new File(value.value), value.value);
 
-					if (imageDecrypted != null) {
-						imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", imageDecrypted);
-						BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView,new ImageLoadingListener() {
+				/*imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", new File(value.value));
+				BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView, new ImageLoadingListener() {
 
-							@Override
-							public void onLoadingStarted(String arg0, View arg1) {
-								progress.setVisibility(View.VISIBLE);
-								photoRoot.setVisibility(View.VISIBLE);
-								noPicture.setVisibility(View.GONE);
-							}
-
-							@Override
-							public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
-								progress.setVisibility(View.GONE);
-								photoRoot.setVisibility(View.GONE);
-								noPicture.setVisibility(View.VISIBLE);
-							}
-
-							@Override
-							public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
-								progress.setVisibility(View.GONE);
-								photoRoot.setVisibility(View.VISIBLE);
-								if (value != null){
-									if (value.value == null)
-										noPicture.setVisibility(View.VISIBLE);
-									if (value.photoStatus == null){
-										radioGroup.check(R.id.radioOK);
-									}
-								}
-							}
-
-							@Override
-							public void onLoadingCancelled(String arg0, View arg1) {
-								progress.setVisibility(View.GONE);
-								photoRoot.setVisibility(View.VISIBLE);
-								noPicture.setVisibility(View.GONE);
-							}
-
-						});
-
-					} else {
-						DebugLog.e("unable to load image");
+					@Override
+					public void onLoadingStarted(String arg0, View arg1) {
+						progress.setVisibility(View.VISIBLE);
+						photoRoot.setVisibility(View.VISIBLE);
+						noPicture.setVisibility(View.GONE);
 					}
+
+					@Override
+					public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+						progress.setVisibility(View.GONE);
+						photoRoot.setVisibility(View.GONE);
+						noPicture.setVisibility(View.VISIBLE);
+					}
+
+					@Override
+					public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
+						progress.setVisibility(View.GONE);
+						photoRoot.setVisibility(View.VISIBLE);
+						if (value != null){
+							if (value.value == null)
+								noPicture.setVisibility(View.VISIBLE);
+							if (value.photoStatus == null){
+								radioGroup.check(R.id.radioOK);
+							}
+						}
+					}
+
+					@Override
+					public void onLoadingCancelled(String arg0, View arg1) {
+						progress.setVisibility(View.GONE);
+						photoRoot.setVisibility(View.VISIBLE);
+						noPicture.setVisibility(View.GONE);
+					}
+
+				});*/
+
+				byte[] decryptedBytes = CommonUtil.getDecryptedByteBase64(new File(value.value));
+
+				if (decryptedBytes != null) {
+
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inMutable = true;
+					Bitmap bmp = BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.length, options);
+
+					DebugLog.d("load decrypted image");
+					imageView.setImageBitmap(bmp);
+
+					progress.setVisibility(View.GONE);
+					photoRoot.setVisibility(View.VISIBLE);
+					if (value != null){
+						if (value.value == null)
+							noPicture.setVisibility(View.VISIBLE);
+						if (value.photoStatus == null){
+							radioGroup.check(R.id.radioOK);
+						}
+					}
+
+				} else {
+
+					// on loading failed
+					progress.setVisibility(View.GONE);
+					photoRoot.setVisibility(View.GONE);
+					noPicture.setVisibility(View.VISIBLE);
+
 				}
+
 			}
 
 			//notify radiobuttons
 			imageView.setVisibility(VISIBLE);
 			btnTakePicture.setVisibility(VISIBLE);
             if (!TextUtils.isEmpty(value.photoStatus)) {
-/*
-            	imageView.setVisibility(VISIBLE);
-            	btnTakePicture.setVisibility(VISIBLE);*/
 
                 switch (value.photoStatus) {
 

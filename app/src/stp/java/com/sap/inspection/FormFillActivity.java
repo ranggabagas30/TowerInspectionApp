@@ -525,7 +525,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                 DebugLog.d("external storage available");
 
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
-                tempDir = new File(tempDir, "TowerInspection"); // create temp folder
+                tempDir = new File(tempDir, Constants.FOLDER_TOWER_INSPECTION); // create temp folder
                 tempDir = new File(tempDir, schedule.id); // create schedule folder
 
                 if (!tempDir.exists()) {
@@ -628,37 +628,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	/*
-	 * called when image is stored
-	 */
-	public boolean storeByteImage(byte[] data){
-		// Create the <timestamp>.jpg file and modify the exif data
-		String filename = "/sdcard"+String.format("/%d.jpg", System.currentTimeMillis());
-		try {
-			FileOutputStream fileOutputStream = new FileOutputStream(filename);
-			try {
-				fileOutputStream.write(data);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			fileOutputStream.flush();
-			fileOutputStream.close();
-			ExifInterface exif = new ExifInterface(filename);
-            ExifUtil.createExifData(this, exif, currentGeoPoint.latitude, currentGeoPoint.longitude);
-			exif.saveAttributes();
-			return true;
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
 	}
 
 	public void setCurrentGeoPoint(LatLng currentGeoPoint) {

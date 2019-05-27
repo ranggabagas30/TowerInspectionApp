@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
@@ -25,16 +26,10 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 
 	@Override
 	protected Void doInBackground(Void... arg0) {
-		File tempDir;
-		if (CommonUtil.isExternalStorageAvailable())
-			tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-		else
-			tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
 
-		String path = tempDir.getAbsolutePath()+"/TowerInspection/";
+		String path = Constants.DIR_PHOTOS + "/";
 		getFileCount(path);
-		File f;
-		f = new File(path);
+		File f = new File(path);
 		File[] files  = f.listFiles();
 		publishProgress(count);
 		clearImageCache();

@@ -78,6 +78,8 @@ import com.sap.inspection.views.adapter.FormFillAdapter;
 import com.scottyab.aescrypt.AESCrypt;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -522,7 +524,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String part			   = "picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-";
 
 				// temporary image file
-				photo = createTemporaryFile(CommonUtil.getEncryptedString(part), ".jpg");
+				photo = createTemporaryFile(CommonUtil.getEncryotedMD5Hex(part), ".jpg");
 
 			}
 			catch(Exception e)
@@ -646,10 +648,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), schedule.id, textMarks);
 
-				String fileOutput = file.toString();
-				CommonUtil.encryptFile(file, fileOutput);
-
 				if (null != file) {
+
+					String fileOutput = file.toString();
+					CommonUtil.encryptFileBase64(file, fileOutput);
+
+					// reget file
+					file = new File(fileOutput);
 
 					if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
 

@@ -37,6 +37,7 @@ import com.sap.inspection.model.responsemodel.ItemWargaResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.StringUtil;
 
 import org.apache.http.Header;
@@ -52,6 +53,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -70,6 +72,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import de.greenrobot.event.EventBus;
 
@@ -541,8 +544,13 @@ public class ItemUploadManager {
 
                 ArrayList<NameValuePair> params = getParams(itemValue);
 
-                if (itemValue.photoStatus != null && itemValue.value != null)
-                    reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
+                if (itemValue.photoStatus != null && itemValue.value != null) {
+
+                    //reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
+                    File fileUpload = new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""));
+                    String fileName = fileUpload.getName();
+                    reqEntity.addPart("picture", new ByteArrayBody(Objects.requireNonNull(CommonUtil.getDecryptedByteBase64(fileUpload)), fileName));
+                }
 
                 for (int i = 0; i < params.size(); i++) {
                     DebugLog.d(params.get(i).getName() + " || " + params.get(i).getValue());

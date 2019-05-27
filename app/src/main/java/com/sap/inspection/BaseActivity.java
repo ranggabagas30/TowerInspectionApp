@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +21,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -56,6 +58,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.PrefUtil;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -81,16 +84,6 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 	protected SharedPreferences mPref;
 
 	public static ImageLoader imageLoader = ImageLoader.getInstance();
-	public static DisplayImageOptions  avatarOptions = new DisplayImageOptions.Builder()
-															.showStubImage(R.drawable.logo_app)
-															.cacheInMemory()
-															.cacheOnDisc()
-															.build();
-	
-	public static DisplayImageOptions  itemOptions = new DisplayImageOptions.Builder()
-															.cacheInMemory()
-															.cacheOnDisc()
-															.build();
 
 	// Progress dialog type (0 - for Horizontal progress bar)
 	public static final int progress_bar_type = 0;
@@ -409,6 +402,45 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 	public void setFlagScheduleSaved(boolean flagScheduleSaved) {
 		this.flagScheduleSaved = flagScheduleSaved;
 		hideDialog();
+	}
+
+	/** Dialog for asking GPS permission to user **/
+	protected LovelyStandardDialog gpsDialog() {
+		return new LovelyStandardDialog(this, R.style.CheckBoxTintTheme)
+				.setTopColor(color(R.color.theme_color))
+				.setButtonsColor(color(R.color.theme_color))
+				.setIcon(R.drawable.logo_app)
+				//string title information GPS
+				.setTitle(getString(R.string.informationGPS))
+				.setMessage("Silahkan aktifkan GPS")
+				.setCancelable(false)
+				.setPositiveButton(android.R.string.yes, v -> {
+					Intent gpsOptionsIntent = new Intent(
+							Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+					startActivity(gpsOptionsIntent);
+				});
+	}
+
+	/** checking any network is available or not **/
+	protected boolean isNetworkAvailable() {
+		return GlobalVar.getInstance().anyNetwork(this);
+	}
+
+	/** Showing network permission dialog if network is not available **/
+	protected void networkPermissionDialog() {
+		if (!isNetworkAvailable()){
+			new LovelyStandardDialog(this, R.style.CheckBoxTintTheme)
+					.setTopColor(color(R.color.theme_color))
+					.setButtonsColor(color(R.color.theme_color))
+					.setIcon(R.drawable.logo_app)
+					.setTitle("Information")
+					.setMessage("No internet connection. Please connect your network.")
+					.setCancelable(false)
+					.setPositiveButton(android.R.string.yes, v -> {
+						startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+					})
+					.show();
+		}
 	}
 
 	/**
