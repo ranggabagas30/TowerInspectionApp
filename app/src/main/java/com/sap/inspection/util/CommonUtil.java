@@ -19,20 +19,41 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
+import com.scottyab.aescrypt.AESCrypt;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.security.GeneralSecurityException;
+import java.security.Key;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 public class CommonUtil {
 
@@ -456,5 +477,153 @@ public class CommonUtil {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     *
+     * encryption
+     *
+     * */
+    public static String getEncryotedMD5Hex(String source) {
+
+        return new String(Hex.encodeHex(DigestUtils.md5(source)));
+    }
+
+    private static byte[] getFile(File f) {
+
+        //File f = new File(filePath);
+        InputStream is = null;
+        try {
+            is = new FileInputStream(f);
+        } catch (FileNotFoundException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
+        byte[] content = null;
+        try {
+            content = new byte[is.available()];
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        try {
+            if (content != null) {
+                is.read(content);
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return content;
+    }
+
+    private static byte[] encryptPdfFile(Key key, byte[] content) {
+        Cipher cipher;
+        byte[] encrypted = null;
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            encrypted = cipher.doFinal(content);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return encrypted;
+
+    }
+
+    private static byte[] decryptPdfFile(Key key, byte[] textCryp) {
+        Cipher cipher;
+        byte[] decrypted = null;
+        try {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            decrypted = cipher.doFinal(textCryp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return decrypted;
+    }
+
+    private static void saveFile(byte[] fileBytes, String filePathOutput) throws IOException {
+
+        FileOutputStream fos = new FileOutputStream(filePathOutput);
+        fos.write(fileBytes);
+        fos.close();
+
+    }
+
+    // using AES
+    public static void encryptFile(File file, String filePathOutput) {
+
+        try {
+            byte[] fileBytes = FileUtils.readFileToByteArray(file);
+            byte[] encryptedBytes = encryptPdfFile(MyApplication.getKey(), fileBytes);
+            saveFile(encryptedBytes, filePathOutput);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Crashlytics.logException(e);
+            DebugLog.e(e.getMessage());
+        }
+    }
+
+    public static void decryptFile(File file, String filePathOutput) {
+
+        if (!filePathOutput.isEmpty()) {
+
+            try {
+                byte[] fileBytes = FileUtils.readFileToByteArray(file);
+                byte[] decryptedBytes = decryptPdfFile(MyApplication.getKey(), fileBytes);
+                saveFile(decryptedBytes, filePathOutput);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+                DebugLog.e(e.getMessage());
+            }
+        }
+    }
+
+    public static void encryptFileBase64(File file, String fileOutput) {
+
+        DebugLog.d("encrypt file");
+        try {
+            byte[] fileBytes = FileUtils.readFileToByteArray(file);
+            byte[] encryptedBytes = new Base64().encode(fileBytes);
+            FileUtils.writeByteArrayToFile(new File(fileOutput), encryptedBytes);
+            //saveFile(encryptedBytes, fileOutput);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void decryptFileBase64(File file, String fileOutput) {
+
+        DebugLog.d("decrypt file");
+        try {
+            byte[] fileBytes = FileUtils.readFileToByteArray(file);
+            byte[] decryptedBytes = new Base64().decode(fileBytes);
+            FileUtils.writeByteArrayToFile(new File(fileOutput), decryptedBytes);
+            //saveFile(decryptedBytes, fileSource);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] getDecryptedByteBase64(File file) {
+
+        DebugLog.d("get decrypted bytes base64");
+
+        try {
+            byte[] fileBytes = FileUtils.readFileToByteArray(file);
+            return new Base64().decode(fileBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

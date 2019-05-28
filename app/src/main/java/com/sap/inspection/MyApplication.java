@@ -30,10 +30,15 @@ import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.CommonUtil;
+import com.scottyab.aescrypt.AESCrypt;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap;
 import java.util.HashMap;
+
+import javax.crypto.KeyGenerator;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -50,6 +55,9 @@ public class MyApplication extends Application {
 	private boolean SCHEDULE_NEED_CHECK_IN;
 	private boolean CHECK_APP_VERSION_STATE;
 	private boolean DEVICE_REGISTER_STATE;
+	private KeyGenerator keyGenerator;
+
+	public static Key key;
 
 	public CheckinDataModel checkinDataModel;
 
@@ -158,6 +166,7 @@ public class MyApplication extends Application {
 		//2. initialization stetho facebook debug
 		if (BuildConfig.DEBUG) {
 			Stetho.initializeWithDefaults(this);
+			AESCrypt.DEBUG_LOG_ENABLED = true;
 		}
 
 		//3. initialization image loader configuration
@@ -201,6 +210,13 @@ public class MyApplication extends Application {
 			DebugLog.d(dir + "\n");
 		}
 
+		try {
+			keyGenerator = KeyGenerator.getInstance("AES");
+			keyGenerator.init(128);
+			key = keyGenerator.generateKey();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 
 		IN_CHECK_HASIL_PM = false;
 		SCHEDULE_NEED_CHECK_IN = false;
@@ -209,21 +225,6 @@ public class MyApplication extends Application {
 		IN_FORM_IMBAS_PETIR = false;
 		checkinDataModel = new CheckinDataModel();
 	}
-
-	/*private Tracker mTracker;
-
-	*//**
-	 * Gets the default {@link Tracker} for this {@link Application}.
-	 * @return tracker
-	 *//*
-	synchronized public Tracker getDefaultTracker() {
-		if (mTracker == null) {
-			GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-			// To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-			mTracker = analytics.newTracker(R.xml.global_tracker);
-		}
-		return mTracker;
-	}*/
 
 	/**
      * new analytics tracker from Firebase
@@ -293,5 +294,9 @@ public class MyApplication extends Application {
 
 	public void setDEVICE_REGISTER_STATE(boolean DEVICE_REGISTER_STATE) {
 		this.DEVICE_REGISTER_STATE = DEVICE_REGISTER_STATE;
+	}
+
+	public static Key getKey() {
+		return key;
 	}
 }

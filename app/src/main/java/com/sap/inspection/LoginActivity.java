@@ -109,162 +109,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	/** File url to download **/
 	private static String file_url;
 
-	/** Backup local SQLite Database **/
-	private void copyDB(String dbname,String dstName){
-	    try {
-	        File sd = Environment.getExternalStorageDirectory();
-	        File data = Environment.getDataDirectory();
-	        if (sd.canWrite()) {
-	            String currentDBPath = "//data//"+ BuildConfig.APPLICATION_ID+ "//databases//"+dbname;
-	            String backupDBPath = dstName;
-	            File currentDB = new File(data, currentDBPath);
-	            File backupDB = new File(sd, backupDBPath);
-				DebugLog.d("external dir : "+backupDB.getPath());
-				DebugLog.d("database path : "+currentDB.getPath());
-
-	            if (currentDB.exists()) {
-	                FileChannel src = new FileInputStream(currentDB).getChannel();
-	                FileChannel dst = new FileOutputStream(backupDB).getChannel();
-	                dst.transferFrom(src, 0, src.size());
-	                src.close();
-	                dst.close();
-	            }
-	        }
-			//string copy database sukses
-			Toast.makeText(activity, getString(R.string.copydatabasesuccess), Toast.LENGTH_SHORT).show();
-
-	    } catch (Exception e) {
-			DebugLog.e(e.getMessage());
-			DebugLog.e(e.getCause().getMessage());
-
-			//string copy database gagal
-			Toast.makeText(activity, getString(R.string.copydatabasefailed), Toast.LENGTH_SHORT).show();
-	    }
-	}
-
-	private void copyDB2(String dbname,String dstName){
-	    try {
-//	        File sd = Environment.getExternalStorageDirectory();
-//	        File data = Environment.getDataDirectory();
-	    	File sd = Environment.getExternalStorageDirectory();
-	        File data = Environment.getDataDirectory();
-	        if (sd.canWrite()) {
-	            String currentDBPath = "//data//"+ BuildConfig.APPLICATION_ID+ "//databases//"+dbname;
-	            String backupDBPath = dstName;
-	            File currentDB = new File(data, currentDBPath);
-	            File backupDB = new File(sd, backupDBPath);
-				DebugLog.d("external dir : "+backupDB.getPath());
-				DebugLog.d("database path : "+currentDB.getPath());
-
-	            if (currentDB.exists()) {
-	                FileChannel src = new FileInputStream(currentDB).getChannel();
-	                FileChannel dst = new FileOutputStream(backupDB).getChannel();
-	                dst.transferFrom(src, 0, src.size());
-	                src.close();
-	                dst.close();
-	            }
-	        }
-	    } catch (Exception e) {
-			DebugLog.e(e.getMessage());
-			DebugLog.e(e.getCause().getMessage());
-	    }
-	}
-
-	/** Dialog for asking GPS permission to user **/
-	private LovelyStandardDialog gpsDialog() {
-		return new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
-				.setTopColor(color(R.color.theme_color))
-				.setButtonsColor(color(R.color.theme_color))
-				.setIcon(R.drawable.logo_app)
-				//string title information GPS
-				.setTitle(getString(R.string.informationGPS))
-				.setMessage("Silahkan aktifkan GPS")
-				.setCancelable(false)
-				.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Intent gpsOptionsIntent = new Intent(
-								Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-						startActivity(gpsOptionsIntent);
-						finish();
-					}
-				});
-	}
-
-	/** checking any network is available or not **/
-	private boolean isNetworkAvailable() {
-		return GlobalVar.getInstance().anyNetwork(this);
-	}
-
-	/** Showing network permission dialog if network is not available **/
-	private void networkPermissionDialog() {
-		if (!isNetworkAvailable()){
-			new LovelyStandardDialog(this,R.style.CheckBoxTintTheme)
-					.setTopColor(color(R.color.theme_color))
-					.setButtonsColor(color(R.color.theme_color))
-					.setIcon(R.drawable.logo_app)
-					.setTitle("Information")
-					.setMessage("No internet connection. Please connect your network.")
-					.setCancelable(false)
-					.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
-							finish();
-						}
-					})
-					.show();
-			return;
-		}
-	}
-
-	/** Get login session from preference **/
-	private void getLoginSessionFromPreference() {
-		if (getPreference(R.string.keep_login,false) && !getPreference(R.string.user_authToken,"").isEmpty()) {
-			Intent intent = new Intent(this, jumto);
-			if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false))
-				intent.putExtra(Constants.LOADSCHEDULE,true);
-			startActivity(intent);
-			finish();
-			return;
-		}
-	}
-
-	/** Get version, checking update, and triggering update if need update **/
-	private void getVersionCheckingUpdate() {
-		String version = null;
-		int versionCode = 0;
-		try {
-			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-			versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		CommonUtil.fixVersion(getApplicationContext());
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		update = (Button) findViewById(R.id.update);
-		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
-		DebugLog.d("pref version Name = " + getPreference(R.string.latest_version,""));
-		//rangga
-		update.setVisibility(View.GONE);
-		/*if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
-			update.setVisibility(View.GONE);
-		}
-		else{
-			update.setVisibility(View.VISIBLE);
-		}*/
-	}
-
-	/** Ensure that Location GPS and Location Networkf had been enabled when app is resumed **/
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (!CommonUtil.checkGpsStatus(this) && !CommonUtil.checkNetworkStatus(this)) {
-			gpsDialog().show();
-		}
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -273,7 +117,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 		trackThisPage("Login");
 
 		networkPermissionDialog();
-		getLoginSessionFromPreference();
 
 		developmentLayout = findViewById(R.id.devLayout);
 		developmentLayout.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
@@ -296,12 +139,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 			copyDB(getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
 		});
 
-		if (isJump){
-			Intent intent = new Intent(this, jumto);
-			startActivity(intent);
-			finish();
-		}
-		
 		writePreference("cook", "value");
 		login = findViewById(R.id.login);
 		login.setOnClickListener(onClickListener);
@@ -344,6 +181,115 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 				startActivity(intent);
 			}
 		});
+	}
+
+	/** Ensure that Location GPS and Location Networkf had been enabled when app is resumed **/
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (!CommonUtil.checkGpsStatus(this) && !CommonUtil.checkNetworkStatus(this)) {
+			gpsDialog().show();
+		} else {
+			getLoginSessionFromPreference();
+		}
+	}
+
+	/** Backup local SQLite Database **/
+	private void copyDB(String dbname,String dstName){
+		try {
+			File sd = Environment.getExternalStorageDirectory();
+			File data = Environment.getDataDirectory();
+			if (sd.canWrite()) {
+				String currentDBPath = "//data//"+ BuildConfig.APPLICATION_ID+ "//databases//"+dbname;
+				String backupDBPath = dstName;
+				File currentDB = new File(data, currentDBPath);
+				File backupDB = new File(sd, backupDBPath);
+				DebugLog.d("external dir : "+backupDB.getPath());
+				DebugLog.d("database path : "+currentDB.getPath());
+
+				if (currentDB.exists()) {
+					FileChannel src = new FileInputStream(currentDB).getChannel();
+					FileChannel dst = new FileOutputStream(backupDB).getChannel();
+					dst.transferFrom(src, 0, src.size());
+					src.close();
+					dst.close();
+				}
+			}
+			//string copy database sukses
+			Toast.makeText(activity, getString(R.string.copydatabasesuccess), Toast.LENGTH_SHORT).show();
+
+		} catch (Exception e) {
+			DebugLog.e(e.getMessage());
+			DebugLog.e(e.getCause().getMessage());
+
+			//string copy database gagal
+			Toast.makeText(activity, getString(R.string.copydatabasefailed), Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void copyDB2(String dbname,String dstName){
+		try {
+//	        File sd = Environment.getExternalStorageDirectory();
+//	        File data = Environment.getDataDirectory();
+			File sd = Environment.getExternalStorageDirectory();
+			File data = Environment.getDataDirectory();
+			if (sd.canWrite()) {
+				String currentDBPath = "//data//"+ BuildConfig.APPLICATION_ID+ "//databases//"+dbname;
+				String backupDBPath = dstName;
+				File currentDB = new File(data, currentDBPath);
+				File backupDB = new File(sd, backupDBPath);
+				DebugLog.d("external dir : "+backupDB.getPath());
+				DebugLog.d("database path : "+currentDB.getPath());
+
+				if (currentDB.exists()) {
+					FileChannel src = new FileInputStream(currentDB).getChannel();
+					FileChannel dst = new FileOutputStream(backupDB).getChannel();
+					dst.transferFrom(src, 0, src.size());
+					src.close();
+					dst.close();
+				}
+			}
+		} catch (Exception e) {
+			DebugLog.e(e.getMessage());
+			DebugLog.e(e.getCause().getMessage());
+		}
+	}
+
+	/** Get login session from preference **/
+	private void getLoginSessionFromPreference() {
+		if (getPreference(R.string.keep_login,false) && !getPreference(R.string.user_authToken,"").isEmpty()) {
+			Intent intent = new Intent(this, jumto);
+			if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false))
+				intent.putExtra(Constants.LOADSCHEDULE,true);
+			startActivity(intent);
+			finish();
+		}
+	}
+
+	/** Get version, checking update, and triggering update if need update **/
+	private void getVersionCheckingUpdate() {
+		String version = null;
+		int versionCode = 0;
+		try {
+			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		CommonUtil.fixVersion(getApplicationContext());
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		update = (Button) findViewById(R.id.update);
+		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
+		DebugLog.d("pref version Name = " + getPreference(R.string.latest_version,""));
+		//rangga
+		update.setVisibility(View.GONE);
+		/*if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
+			update.setVisibility(View.GONE);
+		}
+		else{
+			update.setVisibility(View.VISIBLE);
+		}*/
 	}
 
 	private void initForm(){

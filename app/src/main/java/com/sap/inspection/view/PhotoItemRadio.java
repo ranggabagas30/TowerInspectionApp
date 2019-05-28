@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Debug;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.sap.inspection.BaseActivity;
@@ -261,8 +263,14 @@ public class PhotoItemRadio extends RelativeLayout {
 			if (!TextUtils.isEmpty(value.value)) {
 				photoRoot.setVisibility(VISIBLE);
 				noPicture.setVisibility(GONE);
-				imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", new File(value.value));
-				BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView,new ImageLoadingListener() {
+
+				DebugLog.d("value : " + value.value);
+
+				//CommonUtil.decryptFile(new File(value.value), value.value);
+				//CommonUtil.decryptFileBase64(new File(value.value), value.value);
+
+				/*imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", new File(value.value));
+				BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView, new ImageLoadingListener() {
 
 					@Override
 					public void onLoadingStarted(String arg0, View arg1) {
@@ -298,16 +306,44 @@ public class PhotoItemRadio extends RelativeLayout {
 						noPicture.setVisibility(View.GONE);
 					}
 
-				});
+				});*/
+
+				byte[] decryptedBytes = CommonUtil.getDecryptedByteBase64(new File(value.value));
+
+				if (decryptedBytes != null) {
+
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inMutable = true;
+					Bitmap bmp = BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.length, options);
+
+					DebugLog.d("load decrypted image");
+					imageView.setImageBitmap(bmp);
+
+					progress.setVisibility(View.GONE);
+					photoRoot.setVisibility(View.VISIBLE);
+					if (value != null){
+						if (value.value == null)
+							noPicture.setVisibility(View.VISIBLE);
+						if (value.photoStatus == null){
+							radioGroup.check(R.id.radioOK);
+						}
+					}
+
+				} else {
+
+					// on loading failed
+					progress.setVisibility(View.GONE);
+					photoRoot.setVisibility(View.GONE);
+					noPicture.setVisibility(View.VISIBLE);
+
+				}
+
 			}
 
 			//notify radiobuttons
 			imageView.setVisibility(VISIBLE);
 			btnTakePicture.setVisibility(VISIBLE);
             if (!TextUtils.isEmpty(value.photoStatus)) {
-/*
-            	imageView.setVisibility(VISIBLE);
-            	btnTakePicture.setVisibility(VISIBLE);*/
 
                 switch (value.photoStatus) {
 
@@ -353,23 +389,6 @@ public class PhotoItemRadio extends RelativeLayout {
                     }
                 }
             }
-
-            //save();
-            /*
-			if (TextUtils.isEmpty(value.remark)) {
-
-				if (itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")) {
-
-					DebugLog.d("delete all items for all operators by scheduleid");
-					ItemValueModel.deleteAllBy(value.scheduleId, value.itemId);
-
-				} else {
-
-					DebugLog.d("delete item for operatorid : " + value.operatorId + " by scheduleid");
-					ItemValueModel.delete(value.scheduleId, value.itemId, value.operatorId);
-
-				}
-			}*/
 
         } else {
 			reset();
@@ -505,11 +524,6 @@ public class PhotoItemRadio extends RelativeLayout {
 				return;
 			}
 		}
-	}
-
-	public void setPhotoDate(String date) {
-	    value.createdAt = "";
-		value.photoDate = value.createdAt = date;
 	}
 
 	public void setUploadstatus(String uploadstatus) {
