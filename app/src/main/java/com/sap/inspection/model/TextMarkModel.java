@@ -34,7 +34,7 @@ public class TextMarkModel extends BaseModel {
         return instance;
     }
 
-    protected TextMarkModel(){
+    private TextMarkModel(){
 
     }
 
@@ -56,11 +56,11 @@ public class TextMarkModel extends BaseModel {
         }
     }
 
-    public String getTextMark() {
+    public synchronized String getTextMark() {
         return this.textContent;
     }
 
-    public Paint generateTextPaint() {
+    public synchronized Paint generateTextPaint() {
         this.textStyleApplied =
                 Typeface.create(defaultTexkMarkOptions.getTextFamilyName(), defaultTexkMarkOptions.getTextStyle());
         this.textPaint = new Paint();
@@ -74,7 +74,7 @@ public class TextMarkModel extends BaseModel {
         return textPaint;
     }
 
-    public Rect getTextRect() {
+    public synchronized Rect getTextRect() {
         return this.textRect;
     }
 
