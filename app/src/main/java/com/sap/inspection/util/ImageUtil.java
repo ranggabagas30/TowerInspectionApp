@@ -7,16 +7,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Picture;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
@@ -206,27 +210,21 @@ public class ImageUtil {
         return fileReturn;
     }
 
-    public static File resizeAndSaveImageCheckExifWithMark(Context ctx, String imageUri, String scheduleId, String[] textMarks) {
+    public static void resizeAndSaveImageCheckExifWithMark(Context ctx, String path, String[] textMarks) {
 
-        File fileReturn = null;
         //change to 480 from 640
         int x = 640;
 
         try {
 
-            String path = Constants.DIR_PHOTOS + "/" + scheduleId + "/" + imageUri;
-
             Bitmap bitmap = resizeAndWriteTextOnDrawable(ctx, path, x, textMarks);
-
             File file = new File(path);
-            DebugLog.d("file path : " + file.getPath());
 
             try {
 
                 FileOutputStream out = new FileOutputStream(file);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
                 out.close();
-                fileReturn = file;
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -236,8 +234,29 @@ public class ImageUtil {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
+    }
 
-        return fileReturn;
+    public static void addWaterMark(Context context, int res, String imagePath) {
+
+        try {
+
+            Bitmap bitmap = stickWatermark(context, res, imagePath);
+            File file = new File(imagePath);
+
+            try {
+
+                FileOutputStream out = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+                out.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.gc();
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean resizeAndSaveImage2(Bitmap bitmap, File file) {
@@ -419,7 +438,7 @@ public class ImageUtil {
 
         float bitmapRotation = imageOrientation(imagePath);
 
-        bitmap_Result = ExifUtil.rotateBitmap(imagePath,bitmap_Result);
+        bitmap_Result = ExifUtil.rotateBitmap(imagePath, bitmap_Result);
         Canvas canvas = new Canvas(bitmap_Result);
 
         int outputWidth  = bitmap_Result.getWidth();
@@ -428,13 +447,11 @@ public class ImageUtil {
         Paint greyPaint = new Paint();
         greyPaint.setColor(mContext.getResources().getColor(R.color.transparent_gray));
 
+        DebugLog.d("bitmapRotation : " + bitmapRotation);
         if (isPortrait(outputWidth, outputHeight)) { // portrait
-            DebugLog.d("bitmapRotation : " + bitmapRotation);
-            canvas.drawRect(0, canvas.getHeight() * 83/100, canvas.getWidth(), canvas.getHeight(), greyPaint);
-        } else {
-                                                      // landscape
-            DebugLog.d("bitmapRotation : " + bitmapRotation);
-            canvas.drawRect(0, canvas.getHeight() * 60/100, canvas.getWidth(), canvas.getHeight(), greyPaint);
+            canvas.drawRect(0, canvas.getHeight() * 83f/100f, canvas.getWidth(), canvas.getHeight(), greyPaint);
+        } else {                                    // landscape
+            canvas.drawRect(0, canvas.getHeight() * 60f/100f, canvas.getWidth(), canvas.getHeight(), greyPaint);
         }
 
         TextMarkModel textMark = TextMarkModel.getInstance();
@@ -462,8 +479,7 @@ public class ImageUtil {
                 textPaint.setTextSize(px);
 
                 xPos = convertToPixels(mContext, 10);
-                //yPos = (canvas.getHeight() * 83/100) + convertToPixels(mContext, textHeight) + dy_potrait * i;
-                yPos = (canvas.getHeight() * 90/100) + dy_potrait * i;
+                yPos = (canvas.getHeight() * 90f/100) + dy_potrait * i;
 
                 DebugLog.d("text size portrait : " + textSize);
                 DebugLog.d("line space portrait : " + dy_potrait);
@@ -475,15 +491,14 @@ public class ImageUtil {
 
                 textPaint.setTextSize(px);
                 xPos = convertToPixels(mContext, 10);
-                //yPos = (canvas.getHeight() * 70/100) + convertToPixels(mContext, textHeight) + dy_potrait * i;
-                yPos = (canvas.getHeight() * 70/100) + dy_landscape * i;
+                yPos = (canvas.getHeight() * 70f/100) + dy_landscape * i;
 
                 DebugLog.d("text size landscape : " + textSize);
                 DebugLog.d("line space landscape : " + dy_landscape);
             }
 
             DebugLog.d("text mark width : " + textWidth);
-            DebugLog.d("px : " + px);
+            DebugLog.d("text size in px : " + px);
             DebugLog.d("Canvas width x height : " + canvas.getWidth() + " x " + canvas.getHeight());
 
             canvas.drawText(textMark.getTextMark(), xPos, yPos, textPaint);
@@ -495,6 +510,117 @@ public class ImageUtil {
         return bitmap_Result;
     }
 
+    public static Bitmap stickWatermark(Context context, int res, String imagePath) {
+
+        int x = 73;
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds=true;
+
+        BitmapFactory.decodeResource(context.getResources(), res, options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+
+        float factorH = x / (float)imageHeight;
+        float factorW = x / (float)imageWidth;
+        float factorToUse = (factorH > factorW) ? factorW : factorH;
+        DebugLog.d("outdimension = " + imageWidth + " x " + imageHeight);
+        DebugLog.d("factor H = " + factorH);
+        DebugLog.d("factor W = " + factorW);
+        DebugLog.d("factorToUse = "+factorToUse);
+
+        int reqWidth = (int) (imageWidth * factorToUse);
+        int reqHeight = (int) (imageHeight * factorToUse);
+
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+        options.inJustDecodeBounds = false;
+        options.inMutable = true;
+
+        Bitmap watermarkBitmap  = BitmapFactory.decodeResource(context.getResources(), res, options);
+
+        options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        options.inMutable = true;
+        Bitmap imageBitmap = BitmapFactory.decodeFile(imagePath, options);
+
+        int widthWaterMark  = watermarkBitmap.getWidth();
+        int heightWaterMark = watermarkBitmap.getHeight();
+
+        int widthImage  = imageBitmap.getWidth();
+        int heightImage = imageBitmap.getHeight();
+
+        DebugLog.d("required size : " + reqWidth + " x " + reqHeight);
+        DebugLog.d("watermark size : " + widthWaterMark + " x " + heightWaterMark);
+        DebugLog.d("image size : " + widthImage + " x " + heightImage);
+
+        //float scale = ( heightImage * 0.10f) / heightWaterMark;
+        float rectBlackTop;
+        float xPos, yPos;
+        float leftMargin = convertToPixels(context, 5);
+        float bottomMargin = convertToPixels(context, 5);
+
+        /**
+         * to determine the y-axis position of watermark, use transparent black rectangle background's top position of the textMark
+         * as reference. While for x-axis position, just use parent's left border.
+         *
+         * */
+        if (isPortrait(widthImage, heightImage)) { // Portrait
+
+            rectBlackTop = heightImage * 83f/100f;
+
+        } else { // landscape
+
+            rectBlackTop = heightImage * 60f/100f;
+        }
+
+        yPos = rectBlackTop - heightWaterMark - bottomMargin;
+        xPos = 0f + leftMargin;
+
+        Paint paintWatermark = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG | Paint.FILTER_BITMAP_FLAG);
+        paintWatermark.setAlpha(50);
+
+        Canvas canvas = new Canvas(imageBitmap);
+        canvas.drawBitmap(watermarkBitmap, xPos, yPos, paintWatermark);
+
+        watermarkBitmap.recycle(); // garbage collected
+
+        return imageBitmap;
+    }
+
+    public static Bitmap loadDecryptedImage(String imagePath) {
+
+        int x = 640;
+        byte[] decryptedBytes = CommonUtil.getDecryptedByteBase64(new File(imagePath));
+
+        if (decryptedBytes != null) {
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds=true;
+
+            BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.length, options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+
+            float factorH = x / (float)imageHeight;
+            float factorW = x / (float)imageWidth;
+            float factorToUse = (factorH > factorW) ? factorW : factorH;
+            DebugLog.d("outdimension = " + imageWidth + " x " + imageHeight);
+            DebugLog.d("factor H = " + factorH);
+            DebugLog.d("factor W = " + factorW);
+            DebugLog.d("factorToUse = "+factorToUse);
+
+            int reqWidth = (int) (imageWidth * factorToUse);
+            int reqHeight = (int) (imageHeight * factorToUse);
+
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            options.inJustDecodeBounds = false;
+            options.inMutable = true;
+
+            return BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.length, options);
+        }
+
+        return null;
+    }
 
     public static float imageOrientation(String src) {
         int orientation = 0;

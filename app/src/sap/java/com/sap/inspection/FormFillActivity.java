@@ -636,7 +636,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				}
 
 				String[] textMarks = new String[3];
-				//String photoDate = photoItem.getPhotoDate();
 				String photoDate = DateTools.getCurrentDate();
 				String latitude = siteLatitude;
 				String longitude = siteLongitude;
@@ -646,40 +645,34 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
-				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), schedule.id, textMarks);
+				ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.toString(), textMarks);
+				ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photo.toString());
+                CommonUtil.encryptFileBase64(photo, photo.toString());
 
-				if (null != file) {
+                // reget filePhotoResult
+                File filePhotoResult = new File(photo.toString());
 
-					String fileOutput = file.toString();
-					CommonUtil.encryptFileBase64(file, fileOutput);
+                if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
 
-					// reget file
-					file = new File(fileOutput);
+                    photoItem.deletePhoto();
+                    photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
 
-					if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
+                } else {
 
-						photoItem.deletePhoto();
-						photoItem.setImage(file, latitude, longitude, accuracy);
+                    if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
+                        photoItem.deletePhoto();
+                        photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
 
-					} else {
+                    } else {
 
-						if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
-							photoItem.deletePhoto();
-							photoItem.setImage(file, latitude, longitude, accuracy);
+                        DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
+                        MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+                    }
+                }
 
-						} else {
+                return;
 
-							DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-							MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
-						}
-					}
-
-					return;
-				}
-
-				DebugLog.e("file = null. Pengambilan foto gagal. Silahkan ulangi kembali");
-				MyApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
-			}
+            }
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
