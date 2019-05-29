@@ -32,6 +32,7 @@ import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.FormFillActivity;
@@ -48,6 +49,7 @@ import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.StringUtil;
 
 import java.io.File;
@@ -308,11 +310,38 @@ public class PhotoItemRadio extends RelativeLayout {
 
 				});*/
 
+				Bitmap photoBmp = ImageUtil.loadDecryptedImage(value.value);
+
+				if (photoBmp != null) {
+
+					DebugLog.d("load decrypted image");
+					imageView.setImageBitmap(photoBmp);
+
+					progress.setVisibility(View.GONE);
+					photoRoot.setVisibility(View.VISIBLE);
+					if (value != null){
+						if (value.value == null)
+							noPicture.setVisibility(View.VISIBLE);
+						if (value.photoStatus == null){
+							radioGroup.check(R.id.radioOK);
+						}
+					}
+
+				} else {
+
+					// on loading failed
+					progress.setVisibility(View.GONE);
+					photoRoot.setVisibility(View.GONE);
+					noPicture.setVisibility(View.VISIBLE);
+
+				}
+				/*
 				byte[] decryptedBytes = CommonUtil.getDecryptedByteBase64(new File(value.value));
 
 				if (decryptedBytes != null) {
 
 					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inJustDecodeBounds = false;
 					options.inMutable = true;
 					Bitmap bmp = BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.length, options);
 
@@ -336,7 +365,7 @@ public class PhotoItemRadio extends RelativeLayout {
 					photoRoot.setVisibility(View.GONE);
 					noPicture.setVisibility(View.VISIBLE);
 
-				}
+				}*/
 
 			}
 

@@ -20,6 +20,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
@@ -437,7 +438,7 @@ public class ImageUtil {
 
         float bitmapRotation = imageOrientation(imagePath);
 
-        bitmap_Result = ExifUtil.rotateBitmap(imagePath,bitmap_Result);
+        bitmap_Result = ExifUtil.rotateBitmap(imagePath, bitmap_Result);
         Canvas canvas = new Canvas(bitmap_Result);
 
         int outputWidth  = bitmap_Result.getWidth();
@@ -497,7 +498,7 @@ public class ImageUtil {
             }
 
             DebugLog.d("text mark width : " + textWidth);
-            DebugLog.d("px : " + px);
+            DebugLog.d("text size in px : " + px);
             DebugLog.d("Canvas width x height : " + canvas.getWidth() + " x " + canvas.getHeight());
 
             canvas.drawText(textMark.getTextMark(), xPos, yPos, textPaint);
@@ -511,11 +512,35 @@ public class ImageUtil {
 
     public static Bitmap stickWatermark(Context context, int res, String imagePath) {
 
+        int x = 73;
+
         BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds=true;
+
+        BitmapFactory.decodeResource(context.getResources(), res, options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+
+        float factorH = x / (float)imageHeight;
+        float factorW = x / (float)imageWidth;
+        float factorToUse = (factorH > factorW) ? factorW : factorH;
+        DebugLog.d("outdimension = " + imageWidth + " x " + imageHeight);
+        DebugLog.d("factor H = " + factorH);
+        DebugLog.d("factor W = " + factorW);
+        DebugLog.d("factorToUse = "+factorToUse);
+
+        int reqWidth = (int) (imageWidth * factorToUse);
+        int reqHeight = (int) (imageHeight * factorToUse);
+
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
         options.inMutable = true;
 
         Bitmap watermarkBitmap  = BitmapFactory.decodeResource(context.getResources(), res, options);
+
+        options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        options.inMutable = true;
         Bitmap imageBitmap = BitmapFactory.decodeFile(imagePath, options);
 
         int widthWaterMark  = watermarkBitmap.getWidth();
@@ -524,15 +549,15 @@ public class ImageUtil {
         int widthImage  = imageBitmap.getWidth();
         int heightImage = imageBitmap.getHeight();
 
-        Bitmap resultBitmap = Bitmap.createBitmap(widthImage, heightImage, Bitmap.Config.ARGB_8888);
-
-        RectF rect = new RectF(0, 0, widthWaterMark, heightWaterMark);
+        DebugLog.d("required size : " + reqWidth + " x " + reqHeight);
+        DebugLog.d("watermark size : " + widthWaterMark + " x " + heightWaterMark);
+        DebugLog.d("image size : " + widthImage + " x " + heightImage);
 
         //float scale = ( heightImage * 0.10f) / heightWaterMark;
         float rectBlackTop;
         float xPos, yPos;
-        float leftMargin = 50f;
-        float bottomMargin = 50f;
+        float leftMargin = convertToPixels(context, 5);
+        float bottomMargin = convertToPixels(context, 5);
 
         /**
          * to determine the y-axis position of watermark, use transparent black rectangle background's top position of the textMark
@@ -551,20 +576,50 @@ public class ImageUtil {
         yPos = rectBlackTop - heightWaterMark - bottomMargin;
         xPos = 0f + leftMargin;
 
-        Matrix matrix = new Matrix();
-        //matrix.postScale(scale, scale);
-        matrix.mapRect(rect);
-        matrix.postTranslate(xPos, yPos);
-
         Paint paintWatermark = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG | Paint.FILTER_BITMAP_FLAG);
-        Canvas canvas = new Canvas(resultBitmap);
-        canvas.drawBitmap(imageBitmap, 0, 0, paintWatermark);
-
         paintWatermark.setAlpha(50);
-        canvas.drawBitmap(watermarkBitmap, matrix, paintWatermark);
+
+        Canvas canvas = new Canvas(imageBitmap);
+        canvas.drawBitmap(watermarkBitmap, xPos, yPos, paintWatermark);
+
         watermarkBitmap.recycle(); // garbage collected
 
-        return resultBitmap;
+        return imageBitmap;
+    }
+
+    public static Bitmap loadDecryptedImage(String imagePath) {
+
+        int x = 640;
+        byte[] decryptedBytes = CommonUtil.getDecryptedByteBase64(new File(imagePath));
+
+        if (decryptedBytes != null) {
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds=true;
+
+            BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.length, options);
+            int imageHeight = options.outHeight;
+            int imageWidth = options.outWidth;
+
+            float factorH = x / (float)imageHeight;
+            float factorW = x / (float)imageWidth;
+            float factorToUse = (factorH > factorW) ? factorW : factorH;
+            DebugLog.d("outdimension = " + imageWidth + " x " + imageHeight);
+            DebugLog.d("factor H = " + factorH);
+            DebugLog.d("factor W = " + factorW);
+            DebugLog.d("factorToUse = "+factorToUse);
+
+            int reqWidth = (int) (imageWidth * factorToUse);
+            int reqHeight = (int) (imageHeight * factorToUse);
+
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            options.inJustDecodeBounds = false;
+            options.inMutable = true;
+
+            return BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.length, options);
+        }
+
+        return null;
     }
 
     public static float imageOrientation(String src) {
