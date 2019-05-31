@@ -120,6 +120,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 							newSubNavItems.add(subNavItem);
 
 						} else {
+
 							DebugLog.d("--> sub nav excluded");
 						}
 					}
@@ -136,10 +137,15 @@ public class NavigationAdapter extends MyBaseAdapter {
 		DebugLog.d("\n\n === stop iterating === ");
 
 		newRowItems.children = dummyRowItems;
-
 		DebugLog.d("new row items size : " + newRowItems.children.size());
 
 		setItems(newRowItems);
+
+		// hit delete warga API
+		String wargaId = StringUtil.getIdFromLabel(removeItem.text);
+		wargaId = StringUtil.getRegisteredWargaId(scheduleId, wargaId);
+
+		APIHelper.deleteWarga(context, new Handler(), wargaId);
 	}
 
 	@Override

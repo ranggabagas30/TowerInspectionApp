@@ -108,7 +108,7 @@ public class APIHelper {
 		getJsonFromUrl(context, handler, APIList.formVersionUrl()+"?access_token="+getAccessToken(context));
 	}
 	
-	public static void getForms(Context context,Handler handler, String userId){
+	public static void getForms(Context context,Handler handler, String userId) {
 		getJsonFromUrl(context, handler, APIList.formsUrl()+"?template=full&user_id="+userId+"&access_token="+getAccessToken(context));
 //		getJsonFromUrl(context, handler, APIList.formGroupUrl()+"?template=full&user_id="+userId+"&access_token="+getAccessToken(context));
 	}
@@ -119,6 +119,10 @@ public class APIHelper {
 
     public static void getCheckApproval(Context context, Handler handler, String scheduleId) {
 		getJsonFromUrl(context, handler, APIList.checkApprove(scheduleId) + "?access_token=" + getAccessToken(context));
+	}
+
+	public static void deleteWarga(Context context, Handler handler, String wargaId) {
+		getJsonFromUrl(context, handler, APIList.deleteWarga(wargaId) + "?access_token=" + getAccessToken(context));
 	}
 
 	public static String getAccessToken(Context context){
