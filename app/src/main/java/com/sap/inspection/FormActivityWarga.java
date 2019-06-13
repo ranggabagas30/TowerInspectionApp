@@ -1,5 +1,6 @@
 package com.sap.inspection;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -28,6 +29,7 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
@@ -587,6 +589,7 @@ public class FormActivityWarga extends BaseActivity {
                 }).show();
             }
 
+            @SuppressLint("HandlerLeak")
             public void removeBarangId(RowModel removedChildItem) {
 
                 String realWargaId  = StringUtil.getRegisteredWargaId(scheduleId, getWargaId());
@@ -596,14 +599,41 @@ public class FormActivityWarga extends BaseActivity {
 
                 DebugLog.d("remove barang with (id, label, wargaid, barangid) : (" + removedChildItem.id + ", " + removedChildItem.text + ", " + realWargaId + ", " + realBarangId + ")");
 
-                ItemValueModel.deleteAllBy(scheduleId, realWargaId, realBarangId);
+                APIHelper.deleteBarang(FormActivityWarga.this, new Handler() {
+                    @Override
+                    public void handleMessage(Message msg) {
 
-                boolean isSuccessful = FormImbasPetirConfig.removeBarang(scheduleId, realWargaId, realBarangId);
-                if (isSuccessful) {
+                        String successfulMessage = "Sukses hapus data barangId (" + realBarangId + ")";
+                        String failedMessage	 = "Gagal hapus data barangId (" + realBarangId + "). Item telah terhapus atau tidak ditemukan";
 
-                    DebugLog.d("remove barangid berhasil");
-                    removeNavigationItem(removedChildItem);
-                }
+                        Bundle bundle = msg.getData();
+                        Gson gson = new Gson();
+
+                        BaseResponseModel responseDeleteBarangModel = gson.fromJson(bundle.getString("json"), BaseResponseModel.class);
+
+                        boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+                        if (isResponseOK) {
+
+                            ItemValueModel.deleteAllBy(scheduleId, realWargaId, realBarangId);
+
+                            boolean isSuccessful = FormImbasPetirConfig.removeBarang(scheduleId, realWargaId, realBarangId);
+                            if (isSuccessful) {
+
+                                DebugLog.d("remove barangid berhasil dengan message : " + responseDeleteBarangModel.messages);
+                                removeNavigationItem(removedChildItem);
+                                MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
+                            } else {
+                                MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
+                            }
+
+                        } else {
+
+                            MyApplication.getInstance().toast(failedMessage + ". Repsonse not OK from server", Toast.LENGTH_LONG);
+                            DebugLog.e("response not ok");
+                        }
+                    }
+                }, realBarangId);
             }
 
             public void uploadItemsByBarangId(RowModel uploadChildItem) {

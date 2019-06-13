@@ -141,6 +141,10 @@ public class APIHelper {
 		deleteJsonFromUrl(context, handler, APIList.deleteWarga(wargaId) + "?access_token=" + getAccessToken(context));
 	}
 
+	public static void deleteBarang(Context context, Handler handler, String barangId) {
+		deleteJsonFromUrl(context, handler, APIList.deleteBarang(barangId) + "?access_token=" + getAccessToken(context));
+	}
+
 	public static String getAccessToken(Context context){
 		SharedPreferences mpref =  PreferenceManager.getDefaultSharedPreferences(context);
 		return mpref.getString(context.getString(R.string.user_authToken), "");

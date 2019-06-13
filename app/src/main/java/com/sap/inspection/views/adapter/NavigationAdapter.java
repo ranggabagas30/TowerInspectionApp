@@ -441,6 +441,8 @@ public class NavigationAdapter extends MyBaseAdapter {
 				Bundle bundle = msg.getData();
 				Gson gson = new Gson();
 
+				BaseResponseModel responseDeleteWargaModel = gson.fromJson(bundle.getString("json"), BaseResponseModel.class);
+
 				boolean isResponseOK = bundle.getBoolean("isresponseok");
 
 				if (isResponseOK) {
@@ -448,7 +450,11 @@ public class NavigationAdapter extends MyBaseAdapter {
 					boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
 
 					if (isSuccessful) {
+
+						ItemValueModel.deleteAllBy(scheduleId, realWargaDeletedid, Constants.EMPTY);
+
 						removeItem(removeRowModel);
+						DebugLog.d("remove wargaid berhasil dengan message : " + responseDeleteWargaModel.messages);
 						MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
 					} else {
 						MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);

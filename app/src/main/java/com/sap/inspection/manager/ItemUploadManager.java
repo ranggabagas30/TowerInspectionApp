@@ -332,6 +332,11 @@ public class ItemUploadManager {
                 ItemValueModel item = itemValues.remove(0);
                 item.uploadStatus = ItemValueModel.UPLOAD_DONE;
 
+                itemValueSuccessCount++;
+
+                DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
+                DebugLog.d("upload status : " + item.uploadStatus);
+
                 if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
                     itemValuesModified.add(item);
@@ -378,11 +383,6 @@ public class ItemUploadManager {
                     }
 
                 }
-
-                itemValueSuccessCount++;
-
-                DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
-                DebugLog.d("upload status : " + item.uploadStatus);
 
                 item.save();
 

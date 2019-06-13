@@ -56,6 +56,12 @@ public class APIList {
 	public static String deleteWarga(String wargaId) {
 		return AppConfig.getInstance().getV1() + "/delete_warga/" + wargaId;
 	}
+
+	// Delete Barang by barangId
+	public static String deleteBarang(String barangId) {
+		return AppConfig.getInstance().getV1() + "/delete_barang/" + barangId;
+	}
+
 	//FormGroup
 	public static String formGroupUrl(){
 		return AppConfig.getInstance().getV1()+"/work_form_groups";
