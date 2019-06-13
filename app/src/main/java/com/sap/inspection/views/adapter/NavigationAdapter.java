@@ -40,6 +40,7 @@ import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
@@ -140,12 +141,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 		DebugLog.d("new row items size : " + newRowItems.children.size());
 
 		setItems(newRowItems);
-
-		// hit delete warga API
-		String wargaId = StringUtil.getIdFromLabel(removeItem.text);
-		wargaId = StringUtil.getRegisteredWargaId(scheduleId, wargaId);
-
-		APIHelper.deleteWarga(context, new Handler(), wargaId);
 	}
 
 	@Override
@@ -425,6 +420,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 		}
 	};
 
+	@SuppressLint("HandlerLeak")
 	OnClickListener removeSubMenuClickListener = v -> {
 
 		RowModel removeRowModel = (RowModel) v.getTag();
@@ -433,18 +429,37 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 		String scheduleDeleteId = scheduleId;
 		String wargaDeleteId = StringUtil.getIdFromLabel(removeRowModel.text);
+		String realWargaDeletedid = StringUtil.getRegisteredWargaId(scheduleDeleteId, wargaDeleteId);
 
-		boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
+		APIHelper.deleteWarga(context, new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
 
-		String successfulMessage = "Sukses hapus data wargaid (" + wargaDeleteId + ")";
-		String failedMessage	 = "Gagal hapus data wargaid (" + wargaDeleteId + "). Item telah terhapus atau tidak ditemukan";
+				String successfulMessage = "Sukses hapus data wargaid (" + wargaDeleteId + ")";
+				String failedMessage	 = "Gagal hapus data wargaid (" + wargaDeleteId + "). Item telah terhapus atau tidak ditemukan";
 
-		if (isSuccessful) {
-			removeItem(removeRowModel);
-			MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
-		} else {
-			MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
-		}
+				Bundle bundle = msg.getData();
+				Gson gson = new Gson();
+
+				boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+				if (isResponseOK) {
+
+					boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
+
+					if (isSuccessful) {
+						removeItem(removeRowModel);
+						MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
+					} else {
+						MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
+					}
+				} else {
+
+					MyApplication.getInstance().toast(failedMessage + ". Repsonse not OK from server", Toast.LENGTH_LONG);
+					DebugLog.e("response not ok");
+				}
+			}
+		}, realWargaDeletedid);
 	};
 
 	private void toggleExpand(int position){

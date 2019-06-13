@@ -54,6 +54,22 @@ public class APIHelper {
 		}
 	}
 
+	public static void deleteJsonFromUrl(Context context, Handler handler, String url) {
+
+	    if (GlobalVar.getInstance().anyNetwork(context)) {
+
+	        JSONConnectionDelete deleteJson = new JSONConnectionDelete(context, url, handler);
+	        deleteJson.execute();
+
+        } else {
+
+            // network not available
+            DebugLog.d(context.getString(R.string.checkConnection));
+            MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+
+        }
+    }
+
 	//Account
 	public static void login(Context context,Handler handler, String userName, String password){
 		LinkedList<NameValuePair> params = new LinkedList<NameValuePair>();
@@ -122,7 +138,7 @@ public class APIHelper {
 	}
 
 	public static void deleteWarga(Context context, Handler handler, String wargaId) {
-		getJsonFromUrl(context, handler, APIList.deleteWarga(wargaId) + "?access_token=" + getAccessToken(context));
+		deleteJsonFromUrl(context, handler, APIList.deleteWarga(wargaId) + "?access_token=" + getAccessToken(context));
 	}
 
 	public static String getAccessToken(Context context){
