@@ -28,19 +28,17 @@ import java.util.Vector;
 public class ScheduleAdapter extends MyBaseAdapter {
 
 	private Context context;
-	private Vector<ScheduleBaseModel> models;
-	
+	private Vector<ScheduleBaseModel> models = new Vector<>();
+
+	public ScheduleAdapter(Context context) {
+		this.context = context;
+	}
 
 	public void setItems(Vector<ScheduleBaseModel> models) {
 		this.models = models;
 		notifyDataSetChanged();
 	}
 
-	public ScheduleAdapter(Context context) {
-		this.context = context;
-		models = new Vector<>();
-	}
-	
 	@Override
 	public int getCount() {
 		return models.size();
@@ -103,6 +101,8 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				holder.upload = view.findViewById(R.id.item_schedule_upload);
 				holder.upload.setOnClickListener(upload);
 				holder.upload.setVisibility(View.VISIBLE);
+				holder.deleteSchedule = view.findViewById(R.id.item_schedule_delete);
+				holder.deleteSchedule.setOnClickListener(delete);
 
 				break;
 			default:
@@ -128,6 +128,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.task.setTextColor(Color.parseColor(getItem(position).getTaskColor()));
 			holder.place.setText(getItem(position).getPlace());
             holder.upload.setTag(getItem(position).id);
+            holder.deleteSchedule.setTag(getItem(position));
 			if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR))
 				holder.upload.setVisibility(View.INVISIBLE);
 			break;
@@ -136,7 +137,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			break;
 		}
 
-		if (view != null && getItem(position).isAnimated == true){
+		if (view != null && getItem(position).isAnimated == true) {
 			getItem(position).isAnimated = false;
 			Animation animation = new ScaleAnimation((float)0, (float)1.0 ,(float)1.0, (float)1.0);
 			animation.setDuration(1000);
@@ -156,6 +157,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 		public TextView place;
 		public ImageView arrow;
         public View upload;
+        public ImageView deleteSchedule;
 	}
 
     View.OnClickListener upload = v -> {
@@ -169,6 +171,11 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			else
 				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, ItemValueModel.UNSPECIFIED, null, null).execute();
 		}
+	};
+
+	View.OnClickListener delete = v -> {
+
+
 	};
 
 }

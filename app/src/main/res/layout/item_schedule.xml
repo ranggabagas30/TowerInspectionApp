@@ -106,6 +106,17 @@
     </RelativeLayout>
 
     <com.sap.inspection.view.ImageViewForList
+        android:id="@+id/item_schedule_delete"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:layout_toStartOf="@+id/item_schedule_upload"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/padding_small"
+        android:src="@drawable/ic_collapse"
+        android:visibility="visible"/>
+
+    <com.sap.inspection.view.ImageViewForList
         android:id="@+id/item_schedule_upload"
         android:layout_width="50dp"
         android:layout_height="50dp"
