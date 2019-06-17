@@ -4,6 +4,7 @@ package com.sap.inspection.tools;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,14 +19,16 @@ public class DeleteAllDataDialog {
 
 	private OnClickListener positive;
 	private OnClickListener negative;
+	private OnPositiveClickListener onPositiveClickListener;
 	private EditText password;
 	private AlertDialog dialog;
+	private String scheduleId;
 
 	public Context context;
 
-	public DeleteAllDataDialog(Context prompt)
-	{ 
+	public DeleteAllDataDialog(Context prompt, String scheduleId) {
 		this.context = prompt;
+		this.scheduleId = scheduleId;
 	}
 
 	public void show(){
@@ -61,25 +64,23 @@ public class DeleteAllDataDialog {
 			v.setTag(password.getText().toString());
 			dialog.dismiss();
 			boolean passTrue = PrefUtil.getStringPref(R.string.password, null).equals(password.getText().toString());
-			if (passTrue){
-				if (positive != null)
-					positive.onClick(v);
+			if (passTrue) {
+				if (onPositiveClickListener != null) {
+					onPositiveClickListener.onPositiveClick(scheduleId);
+				}
 			}
 			else
 				Toast.makeText(context, "Please enter the correct password", Toast.LENGTH_SHORT).show();
 		}
 	};
 
-	public void setPositive(OnClickListener positive) {
-		this.positive = positive;
+	public void setOnPositiveClickListener(OnPositiveClickListener onPositiveClickListener) {
+		this.onPositiveClickListener = onPositiveClickListener;
 	}
 
-	public void setNegative(OnClickListener negative) {
-		this.negative = negative;
-	}
+	public interface OnPositiveClickListener {
 
-	public String getComment(){
-		return password.getText().toString();
-	}
+		void onPositiveClick(String scheduleId);
 
+	}
 }

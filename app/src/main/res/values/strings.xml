@@ -56,7 +56,6 @@
     <string name="measurement">Measurement</string>
     <string name="criteria">Criteria :</string>
 
-
     <!-- Error Message -->
     <string name="login_unauthorized">Username and Password salah</string>
     <string name="feature_not_supported_or_removed_from_server">Fitur ini belum didukung oleh server atau dihapus dari server</string>

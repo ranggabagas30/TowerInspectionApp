@@ -5,11 +5,13 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
+import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 
@@ -17,7 +19,16 @@ import java.io.File;
 
 import de.greenrobot.event.EventBus;
 
-public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
+public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
+
+	private String mPath = Constants.DIR_PHOTOS + "/";
+	private String mScheduleId;
+
+	public AsyncDeleteAllFiles() {}
+
+	public AsyncDeleteAllFiles(String scheduleId) {
+		this.mScheduleId = scheduleId;
+	}
 
 	@Override
 	protected void onPreExecute() {
@@ -27,9 +38,11 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 	@Override
 	protected Void doInBackground(Void... arg0) {
 
-		String path = Constants.DIR_PHOTOS + "/";
-		getFileCount(path);
-		File f = new File(path);
+		if (!TextUtils.isEmpty(mScheduleId))
+			mPath += mScheduleId + "/";
+
+		getFileCount(mPath);
+		File f = new File(mPath);
 		File[] files  = f.listFiles();
 		publishProgress(count);
 		clearImageCache();
@@ -63,8 +76,6 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 		ScheduleBaseModel.resetAllSchedule();
 
 */
-		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-		mPref.edit().clear().commit();
 		/*
 		Resources r = MyApplication.getContext().getResources();
 		mPref.edit().putBoolean(Constants.LOADAFTERLOGIN, false).commit();
@@ -74,8 +85,11 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 		mPref.edit().putString(r.getString(R.string.user_id), "").commit();
 		mPref.edit().putString(r.getString(R.string.user_authToken), "").commit();*/
 
-		CommonUtil.clearApplicationData();
-
+		if (TextUtils.isEmpty(mScheduleId)) {// if there is no specific dir by scheduleId, then clear all application data
+			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+			mPref.edit().clear().commit();
+			CommonUtil.clearApplicationData();
+		}
 		return null;
 	}
 
@@ -83,6 +97,12 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
 		EventBus.getDefault().post(new DeleteAllProgressEvent("Delete Done", true));
+
+		// after deleting files, then delete all data in table
+		if (TextUtils.isEmpty(mScheduleId))
+			ItemValueModel.deleteAll();
+		else
+			ItemValueModel.deleteAllBy(mScheduleId);
 	}
 
 	private int count = 0;
@@ -97,7 +117,7 @@ public class DeleteAllDataTask extends AsyncTask<Void, Integer, Void>{
 		if(files != null)
 			for(int i=0; i < files.length; i++)
 			{
-				count ++;
+				count++;
 				File file = files[i];
 				if(file.isDirectory())
 				{   

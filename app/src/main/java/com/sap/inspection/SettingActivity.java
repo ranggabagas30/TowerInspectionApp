@@ -1,71 +1,34 @@
 package com.sap.inspection;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.sap.inspection.connection.APIHelper;
-import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.event.DeleteAllProgressEvent;
-import com.sap.inspection.event.DeleteAllScheduleEvent;
-import com.sap.inspection.event.ScheduleProgressEvent;
-import com.sap.inspection.event.ScheduleTempProgressEvent;
-import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.UploadListener;
-import com.sap.inspection.manager.DeleteAllDataTask;
+import com.sap.inspection.manager.AsyncDeleteAllFiles;
 import com.sap.inspection.manager.ItemUploadManager;
-import com.sap.inspection.model.DbManager;
-import com.sap.inspection.model.DbRepository;
-import com.sap.inspection.model.form.ColumnModel;
-import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.model.form.WorkFormGroupModel;
-import com.sap.inspection.model.form.WorkFormModel;
-import com.sap.inspection.model.responsemodel.FormResponseModel;
-import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
-import com.sap.inspection.model.responsemodel.VersionModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.ItemValueModel;
-import com.sap.inspection.task.ScheduleSaver;
-import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PrefUtil;
-import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.view.FormInputText;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.List;
 
-import de.greenrobot.event.EventBus;
-import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class SettingActivity extends BaseActivity implements UploadListener, EasyPermissions.PermissionCallbacks {
@@ -243,16 +206,20 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
         @Override
         public void onClick(View v) {
-            DeleteAllDataDialog dialog = new DeleteAllDataDialog(activity);
-            dialog.setPositive(positiveDeleteClickListener);
+            DeleteAllDataDialog dialog = new DeleteAllDataDialog(activity, null);
+            dialog.setOnPositiveClickListener(new DeleteAllDataDialog.OnPositiveClickListener() {
+                @Override
+                public void onPositiveClick(String scheduleId) {
+
+                    if (TextUtils.isEmpty(scheduleId)) {
+                        trackEvent("user_delete_all_data");
+                        AsyncDeleteAllFiles task = new AsyncDeleteAllFiles();
+                        task.execute();
+                    }
+                }
+            });
             dialog.show();
         }
-    };
-
-    OnClickListener positiveDeleteClickListener = v -> {
-        trackEvent("user_delete_all_data");
-        DeleteAllDataTask task = new DeleteAllDataTask();
-        task.execute();
     };
 
     OnClickListener deleteScheduleClickListener = new OnClickListener() {

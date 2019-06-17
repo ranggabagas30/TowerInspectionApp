@@ -10,7 +10,7 @@ import com.sap.inspection.model.DbRepository;
 
 import de.greenrobot.event.EventBus;
 
-public class DeleteAllSchedules extends AsyncTask<Void, Integer, Void>{
+public class AsyncDeleteAllSchedules extends AsyncTask<Void, Integer, Void>{
 
 	@Override
 	protected void onPreExecute() {

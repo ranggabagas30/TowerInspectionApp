@@ -327,6 +327,14 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 
 		showMessageDialog(getString(R.string.getScheduleFromServer));
 		APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
+
+		/*if (GlobalVar.getInstance().anyNetwork(this))
+			APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
+		else {
+			// network not available
+			DebugLog.d(context.getString(R.string.checkConnection));
+			MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+		}*/
 	}
 
 	protected void downloadSchedules() {

@@ -105,12 +105,14 @@ public class ItemValueModel extends BaseModel {
 		stmt.close();
 		DbRepositoryValue.getInstance().close();
 
+		MyApplication.getInstance().toast("Sukses delete seluruh data", Toast.LENGTH_SHORT);
 	}
 
 	public static void deleteAllBy(String scheduleId) {
 
 		deleteAllBy(scheduleId, null, null);
 
+		MyApplication.getInstance().toast("Sukses delete seluruh data schedule " + scheduleId, Toast.LENGTH_SHORT);
 	}
 
 	public static void deleteAllBy(String scheduleId, String wargaId, String barangId) {

@@ -59,7 +59,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/item_schedule_arrow"
+        android:layout_toLeftOf="@id/item_schedule_delete"
         android:layout_toRightOf="@id/item_schedule_statuslayout"
         android:paddingBottom="@dimen/padding_medium"
         android:paddingLeft="@dimen/padding_large"
@@ -109,11 +109,11 @@
         android:id="@+id/item_schedule_delete"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:clickable="true"
-        android:layout_toStartOf="@+id/item_schedule_upload"
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/padding_small"
+        android:layout_toStartOf="@id/item_schedule_upload"
         android:src="@drawable/ic_collapse"
+        android:clickable="true"
         android:visibility="visible"/>
 
     <com.sap.inspection.view.ImageViewForList

@@ -17,12 +17,12 @@ import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.manager.ItemUploadManager;
+import com.sap.inspection.manager.AsyncDeleteAllFiles;
 import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.tools.DeleteAllDataDialog;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 public class ScheduleAdapter extends MyBaseAdapter {
@@ -128,7 +128,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.task.setTextColor(Color.parseColor(getItem(position).getTaskColor()));
 			holder.place.setText(getItem(position).getPlace());
             holder.upload.setTag(getItem(position).id);
-            holder.deleteSchedule.setTag(getItem(position));
+            holder.deleteSchedule.setTag(position);
 			if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR))
 				holder.upload.setVisibility(View.INVISIBLE);
 			break;
@@ -175,7 +175,22 @@ public class ScheduleAdapter extends MyBaseAdapter {
 
 	View.OnClickListener delete = v -> {
 
+		int deletedSchedulePosition = (int) v.getTag();
+		ScheduleBaseModel deletedScheduleItem = getItem(deletedSchedulePosition);
 
+		DebugLog.d("start deleting schedule " + deletedScheduleItem.id + " with pos " + deletedSchedulePosition);
+		//MyApplication.getInstance().toast("Schedule " + deletedScheduleItem.id + " deleted successfully", Toast.LENGTH_LONG);
+
+		DeleteAllDataDialog deleteDialog = new DeleteAllDataDialog(context, deletedScheduleItem.id);
+		deleteDialog.setOnPositiveClickListener(new DeleteAllDataDialog.OnPositiveClickListener() {
+			@Override
+			public void onPositiveClick(String scheduleId) {
+				DebugLog.d("delete all files by scheduleid " + scheduleId);
+				AsyncDeleteAllFiles task = new AsyncDeleteAllFiles(scheduleId);
+				task.execute();
+			}
+		});
+
+		deleteDialog.show();
 	};
-
 }
