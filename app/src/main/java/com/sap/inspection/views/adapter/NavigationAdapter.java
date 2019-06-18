@@ -1,6 +1,7 @@
 package com.sap.inspection.views.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,11 +10,13 @@ import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +47,11 @@ import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.tools.DeleteAllDataDialog;
+import com.sap.inspection.tools.DeleteWargaAndBarangDialog;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.StringUtil;
+import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,11 +69,20 @@ public class NavigationAdapter extends MyBaseAdapter {
 	private String scheduleId;
 	private String workTypeName;
 	private ScheduleBaseModel scheduleBaseModel;
+	private LovelyTextInputDialog mConfirmDeleteWargaDialog;
     private int positionAncestry;
 	int dataIndex = -1;
 
-    public void setSchedule(ScheduleBaseModel scheduleBaseModel) {
-    	this.scheduleBaseModel = scheduleBaseModel;
+	public NavigationAdapter(Context context) {
+		this.context = context;
+		if (null == model)
+			model = new RowModel();
+		if (null == shown)
+			shown = new Vector<RowModel>();
+	}
+
+	public void setSchedule(ScheduleBaseModel scheduleBaseModel) {
+		this.scheduleBaseModel = scheduleBaseModel;
 	}
 	public void setScheduleId(String scheduleId) {
 		this.scheduleId = scheduleId;
@@ -77,15 +93,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 	}
 
 	public void setWorkTypeName(String workTypeName) {
-        this.workTypeName = workTypeName;
-    }
-
-	public NavigationAdapter(Context context) {
-		this.context = context;
-		if (null == model)
-			model = new RowModel();
-		if (null == shown)
-			shown = new Vector<RowModel>();
+		this.workTypeName = workTypeName;
 	}
 
 	public void setItems(RowModel model){
@@ -321,125 +329,143 @@ public class NavigationAdapter extends MyBaseAdapter {
 		}
 	};
 
-	OnClickListener ItemClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			int position = (Integer) v.getTag();
-            if (getItem(position).id == 0) {
-                positionAncestry = position;
-                DebugLog.d("positionAncestry : " + positionAncestry);
-            }
+	OnClickListener ItemClickListener = v -> {
 
-			if (getItem(position).text.equalsIgnoreCase("others form")){
-				Intent intent = new Intent(context, FormFillActivity.class);
-				intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
-				intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
-				intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-                intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, shown.get(positionAncestry).text);
-				intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-				DebugLog.d("----ini others form lho----- "+scheduleId);
-
-			} else if (getItem(position).hasForm){
-
-                DebugLog.d("----schedule id----- "+scheduleId);
-
-                String workFormGroupName = shown.get(positionAncestry).text;
-                Intent intent;
-
-                // if the navigation item is "Warga Ke-"
-                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR)) {
-
-                    if (getItem(position).text.contains(Constants.regexId)) {
-
-						DebugLog.d("click warga id");
-                        int parentId = getItem(position).id;
-
-                        intent = new Intent(context, FormActivityWarga.class);
-                        intent.putExtra(Constants.KEY_DATAINDEX, dataIndex);
-                        intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-                        intent.putExtra(Constants.KEY_PARENTID, String.valueOf(parentId));
-                        intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
-                        intent.putExtra(Constants.KEY_WORKFORMGROUPID, String.valueOf(getItem(position).work_form_group_id));
-                        intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-                        intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-
-                        ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
-
-                        if (wargas != null && !wargas.isEmpty()) {
-
-                            String wargaIdFromLabel = StringUtil.getIdFromLabel(getItem(position).text);
-                            Warga warga = FormImbasPetirConfig.getWarga(wargas, wargaIdFromLabel);
-                            String message = "warga is null";
-
-                            if (warga != null) {
-
-                                message = "warga is not null";
-                                String wargaId = warga.getWargaid();
-                                intent.putExtra(Constants.KEY_WARGAID, wargaId);
-                                context.startActivity(intent);
-                            }
-                            DebugLog.e(message);
-                        }
-
-                    } else if (getItem(position).text.contains(Constants.regexBeritaAcaraClosing) ||
-                               getItem(position).text.contains(Constants.regexBeritaAcaraPenghancuran)) {
-
-                       proceedApprovalCheckingFirst(scheduleId, workFormGroupName, workTypeName, getItem(position).id, getItem(position).work_form_group_id);
-
-                    } else {
-
-						intent = new Intent(context, FormFillActivity.class);
-						intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-						intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
-						intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
-						intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-						intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-						context.startActivity(intent);
-
-					}
-                } else {
-
-					intent = new Intent(context, FormFillActivity.class);
-					intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-					intent.putExtra(Constants.KEY_ROWID, getItem(position).id);
-					intent.putExtra(Constants.KEY_WORKFORMGROUPID, getItem(position).work_form_group_id);
-					intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-					intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-					context.startActivity(intent);
-				}
-			} else {
-
-				if (getItem(position).text.contains(Constants.regexTambah)) { // action tambah warga
-
-					((FormActivity) context).showInputAmountWargaDialog(dataIndex);
-
-				} else
-					toggleExpand(position);
-			}
-		}
+		int position = (Integer) v.getTag();
+		itemClickAction(position);
 	};
 
 	OnClickListener removeSubMenuClickListener = v -> {
 
 		RowModel removeRowModel = (RowModel) v.getTag();
+		showConfirmDeleteWargaDialog(removeRowModel);
 
-		DebugLog.d("remove item with id " + removeRowModel.id + " and label " + removeRowModel.text);
-
-		String scheduleDeleteId = scheduleId;
-		String wargaDeleteId = StringUtil.getIdFromLabel(removeRowModel.text);
-
-		boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
-
-		String successfulMessage = "Sukses hapus data wargaid (" + wargaDeleteId + ")";
-		String failedMessage	 = "Gagal hapus data wargaid (" + wargaDeleteId + "). Item telah terhapus atau tidak ditemukan";
-
-		if (isSuccessful) {
-			removeItem(removeRowModel);
-			MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
-		} else {
-			MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
-		}
 	};
+
+	private void itemClickAction(int position) {
+
+		if (getItem(position).id == 0) {
+			positionAncestry = position;
+			DebugLog.d("positionAncestry : " + positionAncestry);
+		}
+
+		if (getItem(position).text.equalsIgnoreCase("others form")){
+
+			DebugLog.d("----ini others form lho----- "+scheduleId);
+			BaseActivity.navigateToFormFillActivity(
+					scheduleId,
+					getItem(position).id,
+					getItem(position).work_form_group_id,
+					shown.get(positionAncestry).text,
+					workTypeName);
+
+		} else if (getItem(position).hasForm){
+
+			DebugLog.d("----schedule id----- "+scheduleId);
+
+			String workFormGroupName = shown.get(positionAncestry).text;
+			Intent intent;
+
+			// if the navigation item is "Warga Ke-"
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR)) {
+
+				if (getItem(position).text.contains(Constants.regexId)) {
+
+					DebugLog.d("click warga id");
+					int parentId = getItem(position).id;
+
+					ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
+
+					if (wargas != null && !wargas.isEmpty()) {
+
+						String wargaIdFromLabel = StringUtil.getIdFromLabel(getItem(position).text);
+						Warga warga = FormImbasPetirConfig.getWarga(wargas, wargaIdFromLabel);
+						String message = "warga is null";
+
+						if (warga != null) {
+
+							message = "warga is not null";
+							String wargaId = warga.getWargaid();
+
+							BaseActivity.navigateToFormActivityWarga(
+									dataIndex,
+									scheduleId,
+									String.valueOf(parentId),
+									getItem(position).id,
+									String.valueOf(getItem(position).work_form_group_id),
+									workFormGroupName,
+									workTypeName,
+									wargaId
+							);
+						}
+						DebugLog.e(message);
+					}
+
+				} else if (getItem(position).text.contains(Constants.regexBeritaAcaraClosing) ||
+						getItem(position).text.contains(Constants.regexBeritaAcaraPenghancuran)) {
+
+					proceedApprovalCheckingFirst(
+							scheduleId,
+							workFormGroupName,
+							workTypeName,
+							getItem(position).id,
+							getItem(position).work_form_group_id);
+
+				} else {
+
+					BaseActivity.navigateToFormFillActivity(
+							scheduleId,
+							getItem(position).id,
+							getItem(position).work_form_group_id,
+							workFormGroupName,
+							workTypeName);
+				}
+			} else {
+
+				BaseActivity.navigateToFormFillActivity(
+						scheduleId,
+						getItem(position).id,
+						getItem(position).work_form_group_id,
+						workFormGroupName, workTypeName);
+
+			}
+		} else {
+
+			if (getItem(position).text.contains(Constants.regexTambah)) { // action tambah warga
+
+				((FormActivity) context).showInputAmountWargaDialog(dataIndex);
+
+			} else
+				toggleExpand(position);
+		}
+	}
+
+	private void showConfirmDeleteWargaDialog(RowModel removedWargaItem) {
+
+		DebugLog.d("remove item with id " + removedWargaItem.id + " and label " + removedWargaItem.text);
+
+		DeleteWargaAndBarangDialog deleteWargaDialog = new DeleteWargaAndBarangDialog(context, removedWargaItem);
+		deleteWargaDialog.setOnPositiveClickListener(removedRowItem -> {
+
+			String scheduleDeleteId = scheduleId;
+			String wargaDeleteId = StringUtil.getIdFromLabel(removedRowItem.text);
+
+			boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
+
+			String successfulMessage = "Sukses hapus data wargaid (" + wargaDeleteId + ")";
+			String failedMessage	 = "Gagal hapus data wargaid (" + wargaDeleteId + "). Item telah terhapus atau tidak ditemukan";
+
+			if (isSuccessful) {
+				removeItem(removedRowItem);
+				MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
+			} else {
+				MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
+			}
+
+		});
+
+		deleteWargaDialog.show();
+	}
 
 	private void toggleExpand(int position){
 		if (getItem(position).isOpen){
@@ -461,21 +487,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 		CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, workTypeName, rowId, workFormGroupId);
 		APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
-
-		/*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
-
-			CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, rowId, workFormGroupId);
-			APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
-
-		} else {
-
-			Intent intent = new Intent(context, FormFillActivity.class);
-			intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-			intent.putExtra(Constants.KEY_ROWID, rowId);
-			intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
-			intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-			context.startActivity(intent);
-		}*/
 
 	}
 
@@ -515,16 +526,15 @@ public class NavigationAdapter extends MyBaseAdapter {
 					if (!checkApprovalResponseModel.messages.equalsIgnoreCase("failed")) {
 
 						DebugLog.d("check approval success");
-
 						FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
 
-						Intent intent = new Intent(context, FormFillActivity.class);
-						intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-						intent.putExtra(Constants.KEY_ROWID, rowId);
-						intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
-						intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-						intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-						context.startActivity(intent);
+						BaseActivity.navigateToFormFillActivity(
+								scheduleId,
+								rowId,
+								workFormGroupId,
+								workFormGroupName,
+								workTypeName);
+
 						return;
 					}
 
