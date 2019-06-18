@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.rindang.zconfig.APIList;
+import com.sap.inspection.BaseActivity;
 import com.sap.inspection.CallendarActivity;
 import com.sap.inspection.CheckInActivity;
 import com.sap.inspection.FormActivity;
@@ -303,17 +304,26 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 		if (workTypeName.matches(Constants.regexPREVENTIVE) && !MyApplication.getInstance().isInCheckHasilPm()) {
 		    MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
-			intent = new Intent(activity, CheckInActivity.class);
+
+			BaseActivity.navigateToCheckinActivity(
+					userId,
+					scheduleId,
+					siteId,
+					dayDate,
+					workTypeId,
+					workTypeName
+			);
+
 		} else {
-			intent = new Intent(activity, FormActivity.class);
+
+			BaseActivity.navigateToFormActivity(
+					scheduleId,
+					siteId,
+					workTypeId,
+					workTypeName,
+					dayDate
+			);
 		}
-		intent.putExtra(Constants.KEY_USERID, userId);
-		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-		intent.putExtra(Constants.KEY_SITEID, siteId);
-		intent.putExtra(Constants.KEY_DAYDATE, dayDate);
-		intent.putExtra(Constants.KEY_WORKTYPEID, workTypeId);
-		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-		startActivity(intent);
 
 	}
 
