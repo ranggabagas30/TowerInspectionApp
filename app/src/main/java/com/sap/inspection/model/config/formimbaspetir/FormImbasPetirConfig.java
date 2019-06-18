@@ -602,12 +602,32 @@ public class FormImbasPetirConfig
             if (formImbasPetirConfig != null) {
 
                 // update imbas petir data
-                DebugLog.d("update imbas petir data");
-                DebugLog.d("imbas petir data update : " + imbasPetirData.toString());
+                DebugLog.d("update imbas petir data with scheduleid " + scheduleId);
                 formImbasPetirConfig.getData().set(dataIndex, imbasPetirData);
 
                 ConfigModel.save(ConfigModel.CONFIG_ENUM.IMBAS_PETIR_CONFIG.name(), new Gson().toJson(formImbasPetirConfig));
             }
         }
+    }
+
+    public static boolean removeData(String scheduleId) {
+
+        int dataIndex = getDataIndex(scheduleId);
+
+        if (dataIndex != -1) {
+
+            FormImbasPetirConfig formImbasPetirConfig = getImbasPetirConfig();
+
+            if (formImbasPetirConfig != null) {
+
+                DebugLog.d("delete imbas petir data with scheduleid " + scheduleId);
+                formImbasPetirConfig.getData().remove(dataIndex);
+
+                ConfigModel.save(ConfigModel.CONFIG_ENUM.IMBAS_PETIR_CONFIG.name(), new Gson().toJson(formImbasPetirConfig));
+                return true;
+            }
+        }
+
+        return false;
     }
 }
