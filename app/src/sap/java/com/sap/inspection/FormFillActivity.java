@@ -151,9 +151,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			workFormGroupName 	= bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
 			workTypeName		= bundle.getString(Constants.KEY_WORKTYPENAME);
 			scheduleId 			= bundle.getString(Constants.KEY_SCHEDULEID);
-            wargaId 			= bundle.getString(Constants.KEY_WARGAID) != null ? bundle.getString(Constants.KEY_WARGAID) : Constants.EMPTY;
-            barangId			= bundle.getString(Constants.KEY_BARANGID) != null ? bundle.getString(Constants.KEY_BARANGID) : Constants.EMPTY;
-            DebugLog.d("received bundle : ");
+			wargaId 			= bundle.getString(Constants.KEY_WARGAID) != null ? bundle.getString(Constants.KEY_WARGAID) : Constants.EMPTY;
+			barangId			= bundle.getString(Constants.KEY_BARANGID) != null ? bundle.getString(Constants.KEY_BARANGID) : Constants.EMPTY;
+
+			DebugLog.d("received bundle : ");
             DebugLog.d("rowId = " + rowId);
             DebugLog.d("workFormGroupId = " + workFormGroupId);
             DebugLog.d("workFormGroupName = " + workFormGroupName);
@@ -190,11 +191,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		adapter.setWorkTypeName(schedule.work_type.name);
 		adapter.setWorkFormGroupId(workFormGroupId);
 		adapter.setWorkFormGroupName(workFormGroupName);
-
-		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-			adapter.setWargaId(wargaId);
-			adapter.setBarangId(barangId);
-		}
+		adapter.setWargaId(wargaId);
+		adapter.setBarangId(barangId);
 
 		list = findViewById(R.id.list);
 		list.setOnItemSelectedListener(itemSelected);
