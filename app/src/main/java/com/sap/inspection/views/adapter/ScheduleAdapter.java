@@ -100,7 +100,6 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				holder.place = (TextView) view.findViewById(R.id.item_schedule_place);
 				holder.upload = view.findViewById(R.id.item_schedule_upload);
 				holder.upload.setOnClickListener(upload);
-				holder.upload.setVisibility(View.VISIBLE);
 				holder.deleteSchedule = view.findViewById(R.id.item_schedule_delete);
 				holder.deleteSchedule.setOnClickListener(delete);
 
@@ -128,9 +127,16 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.task.setTextColor(Color.parseColor(getItem(position).getTaskColor()));
 			holder.place.setText(getItem(position).getPlace());
             holder.upload.setTag(getItem(position).id);
+            holder.upload.setVisibility(View.VISIBLE);
             holder.deleteSchedule.setTag(position);
-			if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR))
-				holder.upload.setVisibility(View.INVISIBLE);
+			holder.deleteSchedule.setVisibility(View.VISIBLE);
+			if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR)) {
+
+				holder.upload.setVisibility(View.GONE);
+				holder.deleteSchedule.setVisibility(View.GONE);
+
+			}
+
 			break;
 
 		default:
@@ -179,7 +185,6 @@ public class ScheduleAdapter extends MyBaseAdapter {
 		ScheduleBaseModel deletedScheduleItem = getItem(deletedSchedulePosition);
 
 		DebugLog.d("start deleting schedule " + deletedScheduleItem.id + " with pos " + deletedSchedulePosition);
-		//MyApplication.getInstance().toast("Schedule " + deletedScheduleItem.id + " deleted successfully", Toast.LENGTH_LONG);
 
 		DeleteAllDataDialog deleteDialog = new DeleteAllDataDialog(context, deletedScheduleItem.id);
 		deleteDialog.setOnPositiveClickListener(new DeleteAllDataDialog.OnPositiveClickListener() {
