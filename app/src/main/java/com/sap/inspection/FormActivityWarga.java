@@ -31,6 +31,7 @@ import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.tools.DeleteWargaAndBarangDialog;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.MyTextView;
 import com.sap.inspection.views.adapter.NavigationAdapter;
@@ -45,7 +46,7 @@ public class FormActivityWarga extends BaseActivity {
     private MyTextView mHeaderTitle, mHeaderSubtitle;
     private RecyclerView mNavigationMenu;
     private LovelyTextInputDialog mInputJumlahBarangDialog;
-
+    private DeleteWargaAndBarangDialog mDeleteBarangDialog;
     private RecyclerNavigationAdapter mNavigationAdapter;
     private Vector<RowModel> mNavigationItemsParentOnly = new Vector<>();
     private Vector<RowModel> mNavigationItems = new Vector<>();
@@ -252,14 +253,16 @@ public class FormActivityWarga extends BaseActivity {
 
             } else{
 
-                Intent intent = new Intent(this, FormFillActivity.class);
-                intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-                intent.putExtra(Constants.KEY_WARGAID, realWargaId);
-                intent.putExtra(Constants.KEY_BARANGID, realBarangId);
-                intent.putExtra(Constants.KEY_ROWID, rowModel.id);
-                intent.putExtra(Constants.KEY_WORKFORMGROUPID, rowModel.work_form_group_id);
-                intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-                startActivity(intent);
+                BaseActivity.navigateToFormFillActivity(
+                        scheduleId,
+                        rowModel.id,
+                        rowModel.work_form_group_id,
+                        workFormGroupName,
+                        null,
+                        realWargaId,
+                        realBarangId
+                );
+
             }
         }
 
@@ -314,15 +317,16 @@ public class FormActivityWarga extends BaseActivity {
 
                         FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
 
+                        BaseActivity.navigateToFormFillActivity(
+                                scheduleId,
+                                rowId,
+                                workFormGroupId,
+                                workFormGroupName,
+                                null,
+                                wargaId,
+                                barangId
+                        );
 
-                        Intent intent = new Intent(context, FormFillActivity.class);
-                        intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
-                        intent.putExtra(Constants.KEY_WARGAID, wargaId);
-                        intent.putExtra(Constants.KEY_BARANGID, barangId);
-                        intent.putExtra(Constants.KEY_ROWID, rowId);
-                        intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
-                        intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
-                        context.startActivity(intent);
                         return;
                     }
 
@@ -552,21 +556,28 @@ public class FormActivityWarga extends BaseActivity {
                     case R.id.title :
 
                         if (labelMenu.equalsIgnoreCase("Tambah barang")) {
+
                             showInputAmountBarangDialog();
+
                         } else if (labelMenu.contains(Constants.regexId)) {
+
                             navigateToFormFillActivity(itemClick);
+
                         }
                         break;
                     case R.id.removesubmenu :
 
                         if (labelMenu.contains(Constants.regexId)) {
-                            removeBarangId(itemClick);
+
+                            showConfirmDeleteBarangDialog(itemClick);
                         }
                         break;
                     case R.id.workformgroup_upload :
 
                         if (labelMenu.contains(Constants.regexId)) {
+
                             uploadItemsByBarangId(itemClick);
+
                         }
                         break;
 
@@ -585,6 +596,13 @@ public class FormActivityWarga extends BaseActivity {
                     generateNavigationItems(true);
 
                 }).show();
+            }
+
+            public void showConfirmDeleteBarangDialog(RowModel removedBarangItem) {
+
+                mDeleteBarangDialog = new DeleteWargaAndBarangDialog(FormActivityWarga.this, removedBarangItem);
+                mDeleteBarangDialog.setOnPositiveClickListener(this::removeBarangId);
+                mDeleteBarangDialog.show();
             }
 
             public void removeBarangId(RowModel removedChildItem) {
@@ -617,8 +635,6 @@ public class FormActivityWarga extends BaseActivity {
                 String realBarangId = StringUtil.getRegisteredBarangId(scheduleId, realWargaId, getBarangId());
 
                 DebugLog.d("(real wargaid, real barangid) : (" + realWargaId + ", " + realBarangId + ")");
-                /*ArrayList<ItemValueModel> uploadItemsByBarangId = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, realBarangId);
-                ItemUploadManager.getInstance().addItemValues(uploadItemsByBarangId);*/
 
                 new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, realBarangId).execute();
             }
