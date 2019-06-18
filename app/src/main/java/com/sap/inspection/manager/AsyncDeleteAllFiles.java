@@ -11,6 +11,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
+import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.ItemValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
@@ -86,9 +87,10 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 		mPref.edit().putString(r.getString(R.string.user_authToken), "").commit();*/
 
 		if (TextUtils.isEmpty(mScheduleId)) {// if there is no specific dir by scheduleId, then clear all application data
-			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+			/*SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 			mPref.edit().clear().commit();
-			CommonUtil.clearApplicationData();
+			CommonUtil.clearApplicationData();*/
+			ScheduleBaseModel.delete(MyApplication.getContext());
 		}
 		return null;
 	}
@@ -96,19 +98,23 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 	@Override
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
-		EventBus.getDefault().post(new DeleteAllProgressEvent("Delete Done", true));
 
 		// after deleting files, then delete all data in table
-		if (TextUtils.isEmpty(mScheduleId))
+		if (TextUtils.isEmpty(mScheduleId)) {
+
 			ItemValueModel.deleteAll();
-		else
-			ItemValueModel.deleteAllBy(mScheduleId);
+            EventBus.getDefault().post(new DeleteAllProgressEvent("Delete Done", true, true));
+
+        } else {
+
+            ItemValueModel.deleteAllBy(mScheduleId);
+            EventBus.getDefault().post(new DeleteAllProgressEvent("Delete Done", true, false));
+        }
 	}
 
 	private int count = 0;
 
-	private int getFileCount(String dirPath) 
-	{
+	private int getFileCount(String dirPath) {
 		if (count != 0)
 			return count;
 		File f = new File(dirPath);
