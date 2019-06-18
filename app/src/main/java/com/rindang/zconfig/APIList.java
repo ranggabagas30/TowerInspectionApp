@@ -47,8 +47,19 @@ public class APIList {
 	    return AppConfig.getInstance().getV1() + "/form_imbas_petir";
     }
 
+    // Check Approve
     public static String checkApprove(String scheduleId) {
 		return AppConfig.getInstance().getV1() + "/check_approve/" + scheduleId;
+	}
+
+	// Delete Warga by wargaId
+	public static String deleteWarga(String wargaId) {
+		return AppConfig.getInstance().getV1() + "/delete_warga/" + wargaId;
+	}
+
+	// Delete Barang by barangId
+	public static String deleteBarang(String barangId) {
+		return AppConfig.getInstance().getV1() + "/delete_barang/" + barangId;
 	}
 
 	//FormGroup

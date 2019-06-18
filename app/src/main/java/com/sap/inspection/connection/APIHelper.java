@@ -57,6 +57,22 @@ public class APIHelper {
 		}
 	}
 
+	public static void deleteJsonFromUrl(Context context, Handler handler, String url) {
+
+	    if (GlobalVar.getInstance().anyNetwork(context)) {
+
+	        JSONConnectionDelete deleteJson = new JSONConnectionDelete(context, url, handler);
+	        deleteJson.execute();
+
+        } else {
+
+            // network not available
+            DebugLog.d(context.getString(R.string.checkConnection));
+            MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+
+        }
+    }
+
 	//Account
 	public static void login(Context context,Handler handler, String userName, String password){
 		LinkedList<NameValuePair> params = new LinkedList<NameValuePair>();
@@ -111,7 +127,7 @@ public class APIHelper {
 		getJsonFromUrl(context, handler, APIList.formVersionUrl()+"?access_token="+getAccessToken(context));
 	}
 	
-	public static void getForms(Context context,Handler handler, String userId){
+	public static void getForms(Context context,Handler handler, String userId) {
 		getJsonFromUrl(context, handler, APIList.formsUrl()+"?template=full&user_id="+userId+"&access_token="+getAccessToken(context));
 //		getJsonFromUrl(context, handler, APIList.formGroupUrl()+"?template=full&user_id="+userId+"&access_token="+getAccessToken(context));
 	}
@@ -122,6 +138,14 @@ public class APIHelper {
 
     public static void getCheckApproval(Context context, Handler handler, String scheduleId) {
 		getJsonFromUrl(context, handler, APIList.checkApprove(scheduleId) + "?access_token=" + getAccessToken(context));
+	}
+
+	public static void deleteWarga(Context context, Handler handler, String wargaId) {
+		deleteJsonFromUrl(context, handler, APIList.deleteWarga(wargaId) + "?access_token=" + getAccessToken(context));
+	}
+
+	public static void deleteBarang(Context context, Handler handler, String barangId) {
+		deleteJsonFromUrl(context, handler, APIList.deleteBarang(barangId) + "?access_token=" + getAccessToken(context));
 	}
 
 	public static String getAccessToken(Context context){

@@ -43,6 +43,7 @@ import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
+import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.model.value.ItemValueModel;
@@ -128,6 +129,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 							newSubNavItems.add(subNavItem);
 
 						} else {
+
 							DebugLog.d("--> sub nav excluded");
 						}
 					}
@@ -144,7 +146,6 @@ public class NavigationAdapter extends MyBaseAdapter {
 		DebugLog.d("\n\n === stop iterating === ");
 
 		newRowItems.children = dummyRowItems;
-
 		DebugLog.d("new row items size : " + newRowItems.children.size());
 
 		setItems(newRowItems);
