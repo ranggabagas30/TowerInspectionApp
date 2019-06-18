@@ -89,6 +89,7 @@ public class Constants {
 	public static String KEY_DAYDATE = "KEY_DAYDATE";
 	public static String KEY_WORKFORMGROUPNAME = "KEY_WORKFORMGROUPNAME";
 	public static String KEY_SCHEDULEBASEMODEL = "KEY_SCHEDULEBASEMODEL";
+	public static String KEY_CHECKINDURATION = "KEY_CHECKINDURATION";
 
 	public static final String LOADAFTERLOGIN = "load";
 	public static final String LOADSCHEDULE = "load_schedule";
