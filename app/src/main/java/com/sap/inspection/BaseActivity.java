@@ -44,6 +44,8 @@ import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
+import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
@@ -58,6 +60,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.PrefUtil;
+import com.sap.inspection.util.StringUtil;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -68,6 +71,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -208,7 +212,10 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		if (event.done) {
 			hideDialog();
 			Toast.makeText(activity, event.progressString, Toast.LENGTH_SHORT).show();
-			navigateToLoginActivity();
+
+			if (event.shouldRelogin)
+				navigateToLoginActivity();
+
 		} else {
 			showMessageDialog(event.progressString);
 		}
@@ -477,10 +484,66 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		ft.commit();
 	}
 
-	protected void navigateToLoginActivity() {
-		Intent i = new Intent(BaseActivity.this, LoginActivity.class);
+	public static void navigateToLoginActivity() {
+		Intent i = new Intent(MyApplication.getContext(), LoginActivity.class);
 		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		startActivity(i);
+		MyApplication.getContext().startActivity(i);
+	}
+
+	public static void navigateToFormActivity(String scheduleId, int siteId, int workTypeId, String workTypeName, String dayDate) {
+		Intent intent = new Intent(MyApplication.getContext(), FormActivity.class);
+		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+		intent.putExtra(Constants.KEY_SITEID, siteId);
+		intent.putExtra(Constants.KEY_DAYDATE, dayDate);
+		intent.putExtra(Constants.KEY_WORKTYPEID, workTypeId);
+		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
+		MyApplication.getContext().startActivity(intent);
+	}
+
+	public static void navigateToFormActivityWarga(int dataIndex, String scheduleId, String parentId, int rowId, String workFormGroupId, String workFormGroupName, String workTypeName, String wargaId) {
+		Intent intent = new Intent(MyApplication.getContext(), FormActivityWarga.class);
+		intent.putExtra(Constants.KEY_DATAINDEX, dataIndex);
+		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+		intent.putExtra(Constants.KEY_PARENTID, parentId);
+		intent.putExtra(Constants.KEY_ROWID, rowId);
+		intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+		intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
+		intent.putExtra(Constants.KEY_WARGAID, wargaId);
+		MyApplication.getContext().startActivity(intent);
+	}
+
+	public static void navigateToFormFillActivity(String scheduleId, int rowId, int workFormGroupId, String workFormGroupName, String workTypeName) {
+		Intent intent = new Intent(MyApplication.getContext(), FormFillActivity.class);
+		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+		intent.putExtra(Constants.KEY_ROWID, rowId);
+		intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+		intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
+		MyApplication.getContext().startActivity(intent);
+	}
+
+	public static void navigateToFormFillActivity(String scheduleId, int rowId, int workFormGroupId, String workFormGroupName, String workTypeName, String wargaId, String barangId) {
+		Intent intent = new Intent(MyApplication.getContext(), FormFillActivity.class);
+		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+		intent.putExtra(Constants.KEY_ROWID, rowId);
+		intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
+		intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
+		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
+		intent.putExtra(Constants.KEY_WARGAID, wargaId);
+		intent.putExtra(Constants.KEY_BARANGID, barangId);
+		MyApplication.getContext().startActivity(intent);
+	}
+
+	public static void navigateToCheckinActivity(String userId, String scheduleId, int siteId, String dayDate, int workTypeId, String workTypeName) {
+		Intent intent = new Intent(MyApplication.getContext(), CheckInActivity.class);
+		intent.putExtra(Constants.KEY_USERID, userId);
+		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
+		intent.putExtra(Constants.KEY_SITEID, siteId);
+		intent.putExtra(Constants.KEY_DAYDATE, dayDate);
+		intent.putExtra(Constants.KEY_WORKTYPEID, workTypeId);
+		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
+		MyApplication.getContext().startActivity(intent);
 	}
 
 	/**
