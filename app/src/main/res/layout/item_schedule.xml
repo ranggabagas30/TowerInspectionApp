@@ -124,6 +124,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/padding_small"
-        android:src="@drawable/ic_upload" />
+        android:src="@drawable/ic_upload"
+        android:visibility="visible"/>
 
 </RelativeLayout>
