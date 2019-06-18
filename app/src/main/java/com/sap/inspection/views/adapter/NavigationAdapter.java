@@ -441,6 +441,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 		}
 	}
 
+	@SuppressLint("HandlerLeak")
 	private void showConfirmDeleteWargaDialog(RowModel removedWargaItem) {
 
 		DebugLog.d("remove item with id " + removedWargaItem.id + " and label " + removedWargaItem.text);
@@ -449,20 +450,44 @@ public class NavigationAdapter extends MyBaseAdapter {
 		deleteWargaDialog.setOnPositiveClickListener(removedRowItem -> {
 
 			String scheduleDeleteId = scheduleId;
-			String wargaDeleteId = StringUtil.getIdFromLabel(removedRowItem.text);
+			String wargaDeleteId = StringUtil.getIdFromLabel(removedWargaItem.text);
+			String realWargaDeletedid = StringUtil.getRegisteredWargaId(scheduleDeleteId, wargaDeleteId);
 
-			boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
+			APIHelper.deleteWarga(context, new Handler() {
+				@Override
+				public void handleMessage(Message msg) {
 
-			String successfulMessage = "Sukses hapus data wargaid (" + wargaDeleteId + ")";
-			String failedMessage	 = "Gagal hapus data wargaid (" + wargaDeleteId + "). Item telah terhapus atau tidak ditemukan";
+					String successfulMessage = "Sukses hapus data wargaid (" + wargaDeleteId + ")";
+					String failedMessage	 = "Gagal hapus data wargaid (" + wargaDeleteId + "). Item telah terhapus atau tidak ditemukan";
 
-			if (isSuccessful) {
-				removeItem(removedRowItem);
-				MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
-			} else {
-				MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
-			}
+					Bundle bundle = msg.getData();
+					Gson gson = new Gson();
 
+					BaseResponseModel responseDeleteWargaModel = gson.fromJson(bundle.getString("json"), BaseResponseModel.class);
+
+					boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+					if (isResponseOK) {
+
+						boolean isSuccessful  = FormImbasPetirConfig.removeDataWarga(scheduleDeleteId, wargaDeleteId);
+
+						if (isSuccessful) {
+
+							ItemValueModel.deleteAllBy(scheduleId, realWargaDeletedid, Constants.EMPTY);
+
+							removeItem(removedWargaItem);
+							DebugLog.d("remove wargaid berhasil dengan message : " + responseDeleteWargaModel.messages);
+							MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
+						} else {
+							MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
+						}
+					} else {
+
+						MyApplication.getInstance().toast(failedMessage + ". Repsonse not OK from server", Toast.LENGTH_LONG);
+						DebugLog.e("response not ok");
+					}
+				}
+			}, realWargaDeletedid);
 		});
 
 		deleteWargaDialog.show();

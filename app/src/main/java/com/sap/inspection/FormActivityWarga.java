@@ -607,6 +607,7 @@ public class FormActivityWarga extends BaseActivity {
                 mDeleteBarangDialog.show();
             }
 
+            @SuppressLint("HandlerLeak")
             public void removeBarangId(RowModel removedChildItem) {
 
                 String realWargaId  = StringUtil.getRegisteredWargaId(scheduleId, getWargaId());
