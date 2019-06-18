@@ -82,7 +82,6 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private Notification.Builder mNotificationBuilder;
     private Notification mNotification;
     private PendingIntent mPendingIntent;
-    private Intent mToFormFillActivityIntent;
 
     /* variabel for doing post to server */
     int timeoutConnection =  1 * 3600 * 1000; // 1 HOUR
@@ -116,12 +115,6 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
-
-        /*if (DbRepository.getInstance().getDB() != null && !DbRepository.getInstance().getDB().isOpen()) {
-            DbRepository.getInstance().open(activity);
-        }*/
-
-        //DbRepository.getInstance().open(activity);
 
         mPastCoordinate = new Location(LocationManager.GPS_PROVIDER);
         mCheckoutHandler = new Handler();
@@ -359,33 +352,12 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
         MyApplication.getInstance().checkinDataModel = mParamObject;
 
-        mToFormFillActivityIntent = new Intent(this, FormActivity.class);
-        mToFormFillActivityIntent.putExtra(Constants.KEY_SCHEDULEID, mExtraScheduleId);
-        mToFormFillActivityIntent.putExtra(Constants.KEY_SITEID, mExtraSiteId);
-        mToFormFillActivityIntent.putExtra(Constants.KEY_DAYDATE, mExtraDayDate);
-        mToFormFillActivityIntent.putExtra(Constants.KEY_WORKTYPEID, mExtraWorkTypeId);
-        mToFormFillActivityIntent.putExtra(Constants.KEY_WORKTYPENAME, mExtraWorkTypeName);
-        startActivity(mToFormFillActivityIntent);
-    }
-
-    private boolean showNotification() {
-        mPendingIntent = PendingIntent.getActivity(this, 0, mToFormFillActivityIntent, 0);
-        mNotificationBuilder = new Notification.Builder(this);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mNotificationBuilder.setContentIntent(mPendingIntent)
-                                .setContentTitle("Check in status")
-                                .setContentText(getText(R.string.successmessagecheckin))
-                                .setSmallIcon(R.drawable.logo_app)
-                                .setOngoing(true)
-                                .setAutoCancel(true)
-                                .build();
-            mNotification = mNotificationBuilder.getNotification();
-            mNotificationManager.notify(NOTIFICATION_CHECK_IN, mNotification);
-            return true;
-        } else
-            return false;
-
+        BaseActivity.navigateToFormActivity(
+                mExtraScheduleId,
+                mExtraSiteId,
+                mExtraWorkTypeId,
+                mExtraWorkTypeName,
+                mExtraDayDate);
     }
 
     private void getBundleDataFromScheduleFragment() {
