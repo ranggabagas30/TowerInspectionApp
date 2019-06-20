@@ -353,6 +353,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         MyApplication.getInstance().checkinDataModel = mParamObject;
 
         BaseActivity.navigateToFormActivity(
+                this,
                 mExtraScheduleId,
                 mExtraSiteId,
                 mExtraWorkTypeId,

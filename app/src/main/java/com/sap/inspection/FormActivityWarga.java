@@ -256,6 +256,7 @@ public class FormActivityWarga extends BaseActivity {
             } else{
 
                 BaseActivity.navigateToFormFillActivity(
+                        FormActivityWarga.this,
                         scheduleId,
                         rowModel.id,
                         rowModel.work_form_group_id,
@@ -320,6 +321,7 @@ public class FormActivityWarga extends BaseActivity {
                         FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
 
                         BaseActivity.navigateToFormFillActivity(
+                                FormActivityWarga.this,
                                 scheduleId,
                                 rowId,
                                 workFormGroupId,

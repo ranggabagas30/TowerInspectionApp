@@ -5,6 +5,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -490,18 +491,18 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		MyApplication.getContext().startActivity(i);
 	}
 
-	public static void navigateToFormActivity(String scheduleId, int siteId, int workTypeId, String workTypeName, String dayDate) {
-		Intent intent = new Intent(MyApplication.getContext(), FormActivity.class);
+	public static void navigateToFormActivity(Context context, String scheduleId, int siteId, int workTypeId, String workTypeName, String dayDate) {
+		Intent intent = new Intent(context, FormActivity.class);
 		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 		intent.putExtra(Constants.KEY_SITEID, siteId);
 		intent.putExtra(Constants.KEY_DAYDATE, dayDate);
 		intent.putExtra(Constants.KEY_WORKTYPEID, workTypeId);
 		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-		MyApplication.getContext().startActivity(intent);
+		context.startActivity(intent);
 	}
 
-	public static void navigateToFormActivityWarga(int dataIndex, String scheduleId, String parentId, int rowId, String workFormGroupId, String workFormGroupName, String workTypeName, String wargaId) {
-		Intent intent = new Intent(MyApplication.getContext(), FormActivityWarga.class);
+	public static void navigateToFormActivityWarga(Context context, int dataIndex, String scheduleId, String parentId, int rowId, String workFormGroupId, String workFormGroupName, String workTypeName, String wargaId) {
+		Intent intent = new Intent(context, FormActivityWarga.class);
 		intent.putExtra(Constants.KEY_DATAINDEX, dataIndex);
 		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 		intent.putExtra(Constants.KEY_PARENTID, parentId);
@@ -510,21 +511,21 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
 		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
 		intent.putExtra(Constants.KEY_WARGAID, wargaId);
-		MyApplication.getContext().startActivity(intent);
+		context.startActivity(intent);
 	}
 
-	public static void navigateToFormFillActivity(String scheduleId, int rowId, int workFormGroupId, String workFormGroupName, String workTypeName) {
-		Intent intent = new Intent(MyApplication.getContext(), FormFillActivity.class);
+	public static void navigateToFormFillActivity(Context context, String scheduleId, int rowId, int workFormGroupId, String workFormGroupName, String workTypeName) {
+		Intent intent = new Intent(context, FormFillActivity.class);
 		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 		intent.putExtra(Constants.KEY_ROWID, rowId);
 		intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
 		intent.putExtra(Constants.KEY_WORKFORMGROUPNAME, workFormGroupName);
 		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-		MyApplication.getContext().startActivity(intent);
+		context.startActivity(intent);
 	}
 
-	public static void navigateToFormFillActivity(String scheduleId, int rowId, int workFormGroupId, String workFormGroupName, String workTypeName, String wargaId, String barangId) {
-		Intent intent = new Intent(MyApplication.getContext(), FormFillActivity.class);
+	public static void navigateToFormFillActivity(Context context, String scheduleId, int rowId, int workFormGroupId, String workFormGroupName, String workTypeName, String wargaId, String barangId) {
+		Intent intent = new Intent(context, FormFillActivity.class);
 		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 		intent.putExtra(Constants.KEY_ROWID, rowId);
 		intent.putExtra(Constants.KEY_WORKFORMGROUPID, workFormGroupId);
@@ -532,18 +533,18 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
 		intent.putExtra(Constants.KEY_WARGAID, wargaId);
 		intent.putExtra(Constants.KEY_BARANGID, barangId);
-		MyApplication.getContext().startActivity(intent);
+		context.startActivity(intent);
 	}
 
-	public static void navigateToCheckinActivity(String userId, String scheduleId, int siteId, String dayDate, int workTypeId, String workTypeName) {
-		Intent intent = new Intent(MyApplication.getContext(), CheckInActivity.class);
+	public static void navigateToCheckinActivity(Context context, String userId, String scheduleId, int siteId, String dayDate, int workTypeId, String workTypeName) {
+		Intent intent = new Intent(context, CheckInActivity.class);
 		intent.putExtra(Constants.KEY_USERID, userId);
 		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 		intent.putExtra(Constants.KEY_SITEID, siteId);
 		intent.putExtra(Constants.KEY_DAYDATE, dayDate);
 		intent.putExtra(Constants.KEY_WORKTYPEID, workTypeId);
 		intent.putExtra(Constants.KEY_WORKTYPENAME, workTypeName);
-		MyApplication.getContext().startActivity(intent);
+		context.startActivity(intent);
 	}
 
 	/**

@@ -306,6 +306,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		    MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
 
 			BaseActivity.navigateToCheckinActivity(
+					getActivity(),
 					userId,
 					scheduleId,
 					siteId,
@@ -317,6 +318,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		} else {
 
 			BaseActivity.navigateToFormActivity(
+					getActivity(),
 					scheduleId,
 					siteId,
 					workTypeId,

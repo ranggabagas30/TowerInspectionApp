@@ -354,6 +354,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 			DebugLog.d("----ini others form lho----- "+scheduleId);
 			BaseActivity.navigateToFormFillActivity(
+					context,
 					scheduleId,
 					getItem(position).id,
 					getItem(position).work_form_group_id,
@@ -389,6 +390,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 							String wargaId = warga.getWargaid();
 
 							BaseActivity.navigateToFormActivityWarga(
+									context,
 									dataIndex,
 									scheduleId,
 									String.valueOf(parentId),
@@ -415,6 +417,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 				} else {
 
 					BaseActivity.navigateToFormFillActivity(
+							context,
 							scheduleId,
 							getItem(position).id,
 							getItem(position).work_form_group_id,
@@ -424,6 +427,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 			} else {
 
 				BaseActivity.navigateToFormFillActivity(
+						context,
 						scheduleId,
 						getItem(position).id,
 						getItem(position).work_form_group_id,
@@ -555,6 +559,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 						FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
 
 						BaseActivity.navigateToFormFillActivity(
+								context,
 								scheduleId,
 								rowId,
 								workFormGroupId,
