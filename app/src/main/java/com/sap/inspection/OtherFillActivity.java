@@ -53,7 +53,7 @@
 //import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 //import com.sap.inspection.model.form.RowModel;
 //import com.sap.inspection.model.value.DbRepositoryValue;
-//import com.sap.inspection.model.value.ItemValueModel;
+//import com.sap.inspection.model.value.FormValueModel;
 //import com.sap.inspection.view.FormItem;
 //import com.sap.inspection.view.PhotoItemRadio;
 //import com.sap.inspection.views.adapter.FormFillAdapter;
@@ -68,7 +68,7 @@
 //	private int workFormGroupId;
 //	private int rowId;
 //	private ScheduleBaseModel schedule;
-//	private ItemValueModel itemValueForShare;
+//	private FormValueModel itemValueForShare;
 //	private Uri mImageUri;
 //	private HashMap<Integer, ItemUpdateResultViewModel> itemValuesProgressView;
 //	public ArrayList<Integer> indexes;
@@ -266,11 +266,11 @@
 //		}
 //		//
 //		if (itemValueForShare == null)
-//			itemValueForShare = new ItemValueModel();
+//			itemValueForShare = new FormValueModel();
 //
 //		itemValueForShare = itemValueForShare.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
 //		if (itemValueForShare == null){
-//			itemValueForShare = new ItemValueModel();
+//			itemValueForShare = new FormValueModel();
 //			itemValueForShare.scheduleId = schedule.id;
 //			itemValueForShare.rowId = Integer.parseInt(itemProperties[0]);
 //			itemValueForShare.itemId = Integer.parseInt(itemProperties[1]);
@@ -296,7 +296,7 @@
 //							itemValueForShare.value += ","+itemProperties[3];
 //					}
 //				}
-//				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+//				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 //				itemValueForShare.save();
 //			}else{ // deleting on checkbox
 //				log("goto deleting");
@@ -314,7 +314,7 @@
 //				if (itemValueForShare.value.equalsIgnoreCase(""))
 //					itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 //				else{
-//					itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+//					itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 //					itemValueForShare.save();
 //				}
 //			}
@@ -324,7 +324,7 @@
 //				itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 //			else{
 //				itemValueForShare.value = itemProperties[3];
-//				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+//				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 //				itemValueForShare.save();
 //			}
 //		}
@@ -335,7 +335,7 @@
 //	}
 //
 //	private int getTaskDone(int rowId,String scheduleId){
-//		ItemValueModel valueModel = new ItemValueModel();
+//		FormValueModel valueModel = new FormValueModel();
 //		return valueModel.countTaskDone(scheduleId, rowId);
 //
 //	}

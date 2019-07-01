@@ -125,6 +125,29 @@ public class WorkFormGroupModel extends BaseModel {
 		return input;
 	}
 
+	public static WorkFormGroupModel getWorkFormGroupById(String workFormGroupId) {
+
+		String table = DbManager.mWorkFormGroup;
+		String[] columns = null;
+		String where = DbManager.colID + "=?";
+		String[] args = new String[] { workFormGroupId };
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, null);
+
+		if (!cursor.moveToFirst()) {
+			cursor.close();
+			DbRepository.getInstance().close();
+			return null;
+		}
+
+		WorkFormGroupModel result = getWorkFormGroupFromCursor(cursor);
+		cursor.close();
+		DbRepository.getInstance().close();
+		return result;
+
+	}
+
 	public Vector<WorkFormGroupModel> getAllItemByWorkFormGroupId(Context context, int workFormId) {
 		DbRepository.getInstance().open(MyApplication.getInstance());
 		Vector<WorkFormGroupModel> result = getAllItemByWorkFormId(workFormId);
@@ -132,7 +155,7 @@ public class WorkFormGroupModel extends BaseModel {
 		return result;
 	}
 
-	public Vector<WorkFormGroupModel> getAllItemByWorkFormId(int workFormId) {
+	public static Vector<WorkFormGroupModel> getAllItemByWorkFormId(int workFormId) {
 		Vector<WorkFormGroupModel> result = new Vector<WorkFormGroupModel>();
 
 		String table = DbManager.mWorkFormGroup;
@@ -150,7 +173,7 @@ public class WorkFormGroupModel extends BaseModel {
 			return result;
 		}
 		do {
-			result.add(getFormFromCursor(cursor));
+			result.add(getWorkFormGroupFromCursor(cursor));
 		} while(cursor.moveToNext());
 
 		cursor.close();
@@ -158,7 +181,7 @@ public class WorkFormGroupModel extends BaseModel {
 		return result;
 	}
 
-	private WorkFormGroupModel getFormFromCursor(Cursor c) {
+	private static WorkFormGroupModel getWorkFormGroupFromCursor(Cursor c) {
 		WorkFormGroupModel item= new WorkFormGroupModel();
 
 		if (null == c)

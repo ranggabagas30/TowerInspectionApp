@@ -29,6 +29,11 @@ public class APIList {
 		return AppConfig.getInstance().getV1()+"/schedules";
 	}
 
+	//Corrective Schedule and Items
+	public static String correctiveSchedules(String userId) {
+		return AppConfig.getInstance().getV1() + "/users/" + userId + "/corrective_schedules";
+	}
+
 	//Checkin schedules
 	public static String checkinScheduleUrl(String scheduleId) { return AppConfig.getInstance().getV1()+ "/schedules/" + scheduleId + "/check_in"; }
 

@@ -1,17 +1,11 @@
 package com.sap.inspection.view;
 
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -29,13 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.FormFillActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
@@ -43,14 +31,11 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.ItemFormRenderModel;
-import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.ImageUtil;
-import com.sap.inspection.util.StringUtil;
 
 import java.io.File;
 
@@ -82,7 +67,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	protected String scheduleId;
 	protected int itemId;
 	protected int operatorId;
-	protected ItemValueModel value;
+	protected FormValueModel value;
 	protected String labelText;
 	private ItemFormRenderModel itemFormRenderModel;
 	private boolean onInit = false;
@@ -193,7 +178,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
 	}
 
-	public void setItemValue(ItemValueModel value, boolean initValue) {
+	public void setItemValue(FormValueModel value, boolean initValue) {
 
 		DebugLog.d("itemid : " + itemFormRenderModel.workItemModel.id);
 		DebugLog.d("label : " + itemFormRenderModel.workItemModel.label);
@@ -228,19 +213,19 @@ public class PhotoItemRadio extends RelativeLayout {
 		}
 	}
 
-	public void setValue(ItemValueModel value) {
+	public void setValue(FormValueModel value) {
 		this.value = value;
 		notifyDataChanged();
 
 	}
 
-	public ItemValueModel getValue() {
+	public FormValueModel getValue() {
 		return value;
 	}
 
 	public void initValue(){
 		if (value == null){
-			value = new ItemValueModel();
+			value = new FormValueModel();
 			if (itemFormRenderModel != null){
 				value.itemId = itemFormRenderModel.workItemModel.id;
 				value.scheduleId = itemFormRenderModel.schedule.id;
@@ -547,7 +532,7 @@ public class PhotoItemRadio extends RelativeLayout {
 					e.printStackTrace();
 				}
 				value.value = "";
-				value.uploadStatus = ItemValueModel.UPLOAD_NONE;
+				value.uploadStatus = FormValueModel.UPLOAD_NONE;
 				save();
 				notifyDataChanged();
 				return;

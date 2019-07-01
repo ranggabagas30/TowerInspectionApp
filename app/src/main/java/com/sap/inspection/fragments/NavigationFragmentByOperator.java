@@ -13,21 +13,21 @@
 //
 //import com.sap.inspection.FormFillActivity;
 //import com.sap.inspection.R;
-//import com.sap.inspection.listener.FormActivityListener;
+//import com.sap.inspection.listener.GroupActivityListener;
 //import com.sap.inspection.model.ScheduleBaseModel;
 //import com.sap.inspection.model.form.RowModel;
-//import com.sap.inspection.views.adapter.NavigationAdapter;
+//import com.sap.inspection.views.adapter.GroupsAdapter;
 //
 //public class NavigationFragmentByOperator extends BaseFragment{
-//	private NavigationAdapter adapter;
+//	private GroupsAdapter adapter;
 //	private ListView list;
 //	private View back, mainmenu;
 //	private TextView title, subTitle;
-//	private RowModel navigationModel;
+//	private RowModel groupRowItems;
 //	private ScheduleBaseModel scheduleModel;
 //	private String workFormGroupId;
 //	
-//	private FormActivityListener backPressedListener;
+//	private GroupActivityListener backPressedListener;
 //
 //	public static NavigationFragmentByOperator newInstance() {
 //		NavigationFragmentByOperator fragment = new NavigationFragmentByOperator();
@@ -37,7 +37,7 @@
 //	@Override
 //	public void onCreate(Bundle savedInstanceState) {
 //		super.onCreate(savedInstanceState);
-//		adapter = new NavigationAdapter(activity);
+//		adapter = new GroupsAdapter(activity);
 //	}
 //
 //	@Override
@@ -71,11 +71,11 @@
 //		return root;
 //	}
 //
-//	public void setFormActivityListener(FormActivityListener backPressedListener) {
+//	public void setGroupActivityListener(GroupActivityListener backPressedListener) {
 //		this.backPressedListener = backPressedListener;
 //	}
 //	
-//	public void setNavigationModel(RowModel navigationModel) {
+//	public void setGroupItems(RowModel navigationModel) {
 //		this.navigationModel = navigationModel;
 //	}
 //	

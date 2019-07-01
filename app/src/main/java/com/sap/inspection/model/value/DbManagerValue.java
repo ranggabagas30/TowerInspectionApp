@@ -58,7 +58,7 @@ public class DbManagerValue extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		//		Form Model
-		db.execSQL(ItemValueModel.createDB());
+		db.execSQL(FormValueModel.createDB());
 		db.execSQL(CorrectiveValueModel.createDB());
 		db.execSQL(RowValueModel.createDB());
 	}

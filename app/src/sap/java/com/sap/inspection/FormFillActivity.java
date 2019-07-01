@@ -1,19 +1,15 @@
 package com.sap.inspection;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -21,7 +17,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,8 +31,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
@@ -48,6 +41,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
@@ -59,40 +53,32 @@ import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
-import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ExifUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.CommonUtil;
-import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
-import com.scottyab.aescrypt.AESCrypt;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
-
-import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import de.greenrobot.event.EventBus;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -111,7 +97,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private int rowId;
 
 	private ScheduleBaseModel schedule;
-	private ItemValueModel itemValueForShare;
+	private FormValueModel itemValueForShare;
 	private Uri mImageUri;
 	public ArrayList<Integer> indexes;
 	public ArrayList<String> labels;
@@ -158,6 +144,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
             DebugLog.d("rowId = " + rowId);
             DebugLog.d("workFormGroupId = " + workFormGroupId);
             DebugLog.d("workFormGroupName = " + workFormGroupName);
+            DebugLog.d("workTypeName = " + workTypeName);
             DebugLog.d("scheduleId = " + scheduleId);
             DebugLog.d("wargaId = " + wargaId);
             DebugLog.d("barangId = " + barangId);
@@ -274,11 +261,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		//
 		if (itemValueForShare == null)
-			itemValueForShare = new ItemValueModel();
+			itemValueForShare = new FormValueModel();
 
 		itemValueForShare = itemValueForShare.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
 		if (itemValueForShare == null){
-			itemValueForShare = new ItemValueModel();
+			itemValueForShare = new FormValueModel();
 			itemValueForShare.scheduleId = schedule.id;
 			itemValueForShare.rowId = Integer.parseInt(itemProperties[0]);
 			itemValueForShare.itemId = Integer.parseInt(itemProperties[1]);
@@ -306,7 +293,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							itemValueForShare.value += ","+itemProperties[3];
 					}
 				}
-				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 				itemValueForShare.save();
 			}else{ // deleting on checkbox
 				DebugLog.d("goto deleting");
@@ -324,7 +311,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				if (itemValueForShare.value.equalsIgnoreCase(""))
 					itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 				else{
-					itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+					itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 					itemValueForShare.save();
 				}
 			}
@@ -338,7 +325,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			else{
 				DebugLog.d("saving update values");
 				itemValueForShare.value = itemProperties[3];
-				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 				itemValueForShare.save();
 			}
 		}
@@ -461,7 +448,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 			else if (itemFormRenderModel.itemValue!=null) {
 
-				ItemValueModel itemUpload = itemFormRenderModel.itemValue;
+				FormValueModel itemUpload = itemFormRenderModel.itemValue;
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.workItemModel, itemFormRenderModel.itemValue);
 
 				DebugLog.d("isMandatory= " + itemFormRenderModel.workItemModel.mandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
@@ -725,10 +712,30 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			rowModel = new RowModel(FormFillActivity.this);
-			rowModel = rowModel.getItemById(workFormGroupId, rowId);
-			column = ColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
 
+			rowModel = new RowModel(FormFillActivity.this);
+
+		    if (workTypeName.equalsIgnoreCase(getString(R.string.corrective))) {
+
+				CorrectiveScheduleResponseModel.CorrectiveGroup correctiveGroup = CorrectiveScheduleConfig.getCorrectiveGroup(Integer.valueOf(scheduleId), workFormGroupId);
+
+				if (correctiveGroup != null) {
+					Set<Integer> uniqueChildRowIds = new HashSet<>();
+					for (CorrectiveScheduleResponseModel.CorrectiveItem correctiveItem : correctiveGroup.getItems()) {
+						uniqueChildRowIds.add(correctiveItem.getRow_id());
+					}
+					int[] childRowIds = ArrayUtils.toPrimitiveArray(uniqueChildRowIds);
+					rowModel = rowModel.getItemById(workFormGroupId, rowId, childRowIds);
+
+				}
+
+            } else {
+
+                rowModel = rowModel.getItemById(workFormGroupId, rowId);
+
+			}
+
+			column = ColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
 			ItemFormRenderModel form;
 			setPageTitle();
 
@@ -744,10 +751,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
 					form.setColumn(column);
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-						form.setWargaid(wargaId);
-						form.setBarangid(barangId);
-					}
+					form.setWargaid(wargaId);
+					form.setBarangid(barangId);
 					form.setRowColumnModels(rowModel.row_columns, null);
 					if (form.hasInput){
 						DebugLog.d("========================= head row has input : ");
@@ -758,11 +763,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						if (TextUtils.isEmpty(label)) {
 							label = "item with no label";
 						}
-
 						labels.add(label);
 						formModels.add(form);
-					}
-					else if (form.hasPicture){
+					} else if (form.hasPicture){
 						DebugLog.d("========================= head row has picture : ");
 
 						String label = form.getLabel();
@@ -770,7 +773,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						if (TextUtils.isEmpty(label)) {
 							label = "item with no label";
 						}
-
 						labels.add(label);
 						formModels.add(form);
 					}
@@ -786,11 +788,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			DebugLog.d("\n\n========================= children size : " + rowModel.children.size());
 
 			for (RowModel model : rowModel.children) {
+
 				x++;
 				DebugLog.d("\nchildren ke-" + x);
 				DebugLog.d("checking header name ...");
 				checkHeaderName(model);
-				publishProgress(x*100/rowModel.children.size());
+				publishProgress(x * 100 / rowModel.children.size());
 				finishInflate = false;
 				DebugLog.d("-----------------------------------------------");
 				DebugLog.d("========================= child row id : "+model.id);
@@ -799,10 +802,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
 				form.setColumn(column);
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-					form.setWargaid(wargaId);
-					form.setBarangid(barangId);
-				}
+				form.setWargaid(wargaId);
+				form.setBarangid(barangId);
 				form.setWorkFormGroupName(workFormGroupName);
 				form.setRowColumnModels(model.row_columns,parentLabel);
 				if (form.hasInput){
@@ -995,7 +996,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				if (list.contains(item.type) && item.workItemModel != null) {
 
-					if (!ItemValueModel.isItemValueValidated(item.workItemModel, item.itemValue)) {
+					if (!FormValueModel.isItemValueValidated(item.workItemModel, item.itemValue)) {
 						mandatoryLabel = item.workItemModel.label;
 						mandatoryFound = true;
 						break;

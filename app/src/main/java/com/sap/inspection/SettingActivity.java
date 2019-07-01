@@ -17,7 +17,7 @@ import com.sap.inspection.listener.UploadListener;
 import com.sap.inspection.manager.AsyncDeleteAllFiles;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.value.CorrectiveValueModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
@@ -41,8 +41,9 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     Button upload;
     Button reupload;
     Button delete;
-    Button deleteSchedule;
-    Button refreshSchedule;
+    Button deleteAndUpdateSchedule;
+    Button updateSchedule;
+    Button updateCorrectiveSchedule;
     Button logout;
     TextView updateStatus;
     TextView uploadInfo;
@@ -75,9 +76,10 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         upload = findViewById(R.id.uploadData);
         uploadInfo = findViewById(R.id.uploadInfo);
         delete = findViewById(R.id.deleteData);
-        deleteSchedule = findViewById(R.id.deleteSchedule);
+        deleteAndUpdateSchedule = findViewById(R.id.deleteAndUpdateSchedule);
         reupload = findViewById(R.id.reuploadData);
-        refreshSchedule = findViewById(R.id.updateSchedule);
+        updateSchedule = findViewById(R.id.updateSchedule);
+        updateCorrectiveSchedule = findViewById(R.id.updateCorrectiveSchedule);
         logout = findViewById(R.id.setting_logout);
 
         String version = null;
@@ -136,7 +138,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
 
         delete.setOnClickListener(deleteClickListener);
-        deleteSchedule.setOnClickListener(deleteScheduleClickListener);
+        deleteAndUpdateSchedule.setOnClickListener(deleteAndUpdateScheduleClickListener);
 
         if (CommonUtil.isExternalStorageAvailable()) {
             DebugLog.d("external storage available");
@@ -156,9 +158,13 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         upload.setOnClickListener(uploadClickListener);
         reupload.setOnClickListener(reuploadClickListener);
         logout.setOnClickListener(logoutClickListener);
-        refreshSchedule.setOnClickListener(v -> {
+        updateSchedule.setOnClickListener(v -> {
             trackEvent("user_refresh_schedule");
             downloadSchedules();
+        });
+        updateCorrectiveSchedule.setOnClickListener(v -> {
+            trackEvent("user_update_corrective_schedule");
+            downloadCorrectiveSchedules();
         });
 
         trackThisPage("Setting");
@@ -222,7 +228,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         }
     };
 
-    OnClickListener deleteScheduleClickListener = new OnClickListener() {
+    OnClickListener deleteAndUpdateScheduleClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             DeleteAllSchedulesDialog dialog = new DeleteAllSchedulesDialog(activity);
@@ -258,10 +264,10 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             trackEvent("user_upload");
             showMessageDialog(getString(R.string.preparingItemForUpload));
 
-            ArrayList<ItemValueModel> itemValueModels = ItemValueModel.getItemValuesForUpload();
+            ArrayList<FormValueModel> formValueModels = FormValueModel.getItemValuesForUpload();
 
-            itemValueModels.addAll(CorrectiveValueModel.getItemValuesForUpload());
-            if (itemValueModels.size() == 0) {
+            formValueModels.addAll(CorrectiveValueModel.getItemValuesForUpload());
+            if (formValueModels.size() == 0) {
 
                 hideDialog();
 
@@ -271,15 +277,15 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                 return;
             }
             int i = 0;
-            for (ItemValueModel model : itemValueModels) {
+            for (FormValueModel model : formValueModels) {
                 i++;
                 //preparing
-                showMessageDialog("persiapan " + (100 * i / itemValueModels.size()) + "%");
-                model.uploadStatus = ItemValueModel.UPLOAD_ONGOING;
+                showMessageDialog("persiapan " + (100 * i / formValueModels.size()) + "%");
+                model.uploadStatus = FormValueModel.UPLOAD_ONGOING;
                 model.save();
             }
 
-            ItemUploadManager.getInstance().addItemValues(itemValueModels);
+            ItemUploadManager.getInstance().addItemValues(formValueModels);
             hideDialog();
 
             //String progress upload
@@ -304,7 +310,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                             dialog.dismiss();
                             //String Resetting upload
                             uploadInfo.setText(getString(R.string.reSettingUpload));
-                            ItemValueModel.resetAllUploadStatus();
+                            FormValueModel.resetAllUploadStatus();
                             CorrectiveValueModel.resetAllUploadStatus();
                             trackEvent("user_reupload");
                             upload.performClick();

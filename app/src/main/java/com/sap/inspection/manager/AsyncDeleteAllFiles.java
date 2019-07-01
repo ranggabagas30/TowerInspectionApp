@@ -1,20 +1,15 @@
 package com.sap.inspection.manager;
 
 
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.sap.inspection.MyApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.CommonUtil;
 
 import java.io.File;
 
@@ -71,7 +66,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 		RowColumnModel.delete(MyApplication.getInstance());
 		WorkFormItemModel.delete(MyApplication.getInstance());
 		WorkFormOptionsModel.delete(MyApplication.getInstance());
-		ItemValueModel.deleteAll(MyApplication.getInstance());
+		FormValueModel.deleteAll(MyApplication.getInstance());
 		CorrectiveValueModel.deleteAll(MyApplication.getInstance());
 //		RowValueModel.deleteAll(MyApplication.getInstance());
 		ScheduleBaseModel.resetAllSchedule();
@@ -90,7 +85,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 			/*SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 			mPref.edit().clear().commit();
 			CommonUtil.clearApplicationData();*/
-			ScheduleBaseModel.delete(MyApplication.getContext());
+			ScheduleBaseModel.delete();
 		}
 		return null;
 	}
@@ -102,12 +97,12 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 		// after deleting files, then delete all data in table
 		if (TextUtils.isEmpty(mScheduleId)) {
 
-			ItemValueModel.deleteAll();
+			FormValueModel.deleteAll();
             EventBus.getDefault().post(new DeleteAllProgressEvent("Delete Done", true, true));
 
         } else {
 
-            ItemValueModel.deleteAllBy(mScheduleId);
+            FormValueModel.deleteAllBy(mScheduleId);
             EventBus.getDefault().post(new DeleteAllProgressEvent("Delete Done", true, false));
         }
 	}

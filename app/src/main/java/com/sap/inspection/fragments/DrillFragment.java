@@ -7,12 +7,12 @@ import android.view.View.OnClickListener;
 import android.widget.AbsListView.LayoutParams;
 
 import com.sap.inspection.R;
-import com.sap.inspection.listener.FormActivityListener;
+import com.sap.inspection.listener.GroupActivityListener;
 import com.sap.inspection.views.adapter.DrillAdapter;
 
 public class DrillFragment extends BaseListTitleFragment{
 	private DrillAdapter adapter;
-	private FormActivityListener formActivityListener;
+	private GroupActivityListener groupActivityListener;
 	
 	public static DrillFragment newInstance() {
 		DrillFragment fragment = new DrillFragment();
@@ -42,15 +42,15 @@ public class DrillFragment extends BaseListTitleFragment{
 			
 			@Override
 			public void onClick(View v) {
-				if (formActivityListener != null)
-					formActivityListener.onShowNavigation();
+				if (groupActivityListener != null)
+					groupActivityListener.onShowNavigation();
 			}
 		});
 	}
 
-	public void setFormActivityListener(
-			FormActivityListener formActivityListener) {
-		this.formActivityListener = formActivityListener;
+	public void setGroupActivityListener(
+			GroupActivityListener groupActivityListener) {
+		this.groupActivityListener = groupActivityListener;
 	}
  
 	@Override

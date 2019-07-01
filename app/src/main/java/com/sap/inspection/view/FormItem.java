@@ -22,7 +22,7 @@ import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
@@ -228,7 +228,7 @@ public class FormItem extends RelativeLayout {
 		}
 
 		log(schedule.id+" | "+item.id+" | "+operatorId+" | "+rowId);
-		ItemValueModel initValue = new ItemValueModel();
+		FormValueModel initValue = new FormValueModel();
 		initValue = initValue.getItemValue(schedule.id,item.id,operatorId);
 		log("================================================");
 		log("================================================");
@@ -348,7 +348,7 @@ public class FormItem extends RelativeLayout {
 			PhotoItemRadio photo = new PhotoItemRadio(context);
 			photo.setButtonTakePictureListener(photoListener);
 			if (initValue == null){
-				initValue = new ItemValueModel();
+				initValue = new FormValueModel();
 				initValue.itemId = item.id;
 				initValue.scheduleId = schedule.id;
 				initValue.rowId = rowId;
@@ -379,7 +379,7 @@ public class FormItem extends RelativeLayout {
 		}
 		
 		log(schedule.id+" | "+item.id+" | "+operatorId);
-		ItemValueModel initValue = new ItemValueModel();
+		FormValueModel initValue = new FormValueModel();
 		initValue = initValue.getItemValue(schedule.id,item.id,operatorId);
 		log("================================================");
 		log("================================================");
@@ -477,7 +477,7 @@ public class FormItem extends RelativeLayout {
 			PhotoItemRadio photo = new PhotoItemRadio(context);
 			photo.setButtonTakePictureListener(photoListener);
 			if (initValue == null){
-				initValue = new ItemValueModel();
+				initValue = new FormValueModel();
 				initValue.itemId = item.id;
 				initValue.scheduleId = schedule.id;
 				initValue.rowId = rowId;

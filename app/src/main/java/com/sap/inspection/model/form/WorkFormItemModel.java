@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.os.Parcel;
-import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
@@ -14,8 +13,7 @@ import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.PictureModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
 
@@ -351,7 +349,7 @@ public class WorkFormItemModel extends BaseModel {
 
 		String table = DbManager.mWorkFormItem;
 		String[] columns = null;
-		String whereworkformgroupid = work_form_group_id != ItemValueModel.UNSPECIFIED ? DbManager.colWorkFormGroupId + "=? AND " : "";
+		String whereworkformgroupid = work_form_group_id != FormValueModel.UNSPECIFIED ? DbManager.colWorkFormGroupId + "=? AND " : "";
 		String wherefieldtype	    = excl_field_type != null ? DbManager.colFieldType + "!=?" : "";
 		String where = whereworkformgroupid + wherefieldtype;
 

@@ -1,6 +1,5 @@
 package com.sap.inspection.model.form;
 
-import android.os.Debug;
 import android.os.Parcel;
 import android.util.Log;
 import android.widget.Toast;
@@ -12,11 +11,9 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,7 +38,7 @@ public class ItemFormRenderModel extends BaseModel {
 
     public RowColumnModel firstItem;
     public WorkFormItemModel workItemModel;
-    public ItemValueModel itemValue;
+    public FormValueModel itemValue;
     public ItemFormRenderModel parent;
     public OperatorModel operator;
     public int operatorId;
@@ -217,8 +214,7 @@ public class ItemFormRenderModel extends BaseModel {
                 workItemModel.label = workItemModel.label + " \n " + parentLabel;
             if (this.workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
                 firstItem.items.remove(0);
-            }
-            else if (workItemModel.field_type.equalsIgnoreCase("file")) {
+            } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
                 DebugLog.d("item details : ");
                 DebugLog.d("item parent label : " + workItemModel.label);
                 DebugLog.d("id : " + workItemModel.id);
@@ -355,9 +351,9 @@ public class ItemFormRenderModel extends BaseModel {
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
             String wargaId  = getWargaId();
             String barangId = getBarangId();
-            child.itemValue = ItemValueModel.getItemValue(schedule.id, workItemModel.id, operatorId, wargaId, barangId);
+            child.itemValue = FormValueModel.getItemValue(schedule.id, workItemModel.id, operatorId, wargaId, barangId);
         } else {
-            child.itemValue = ItemValueModel.getItemValue(schedule.id, workItemModel.id, operatorId);
+            child.itemValue = FormValueModel.getItemValue(schedule.id, workItemModel.id, operatorId);
 
         }
 
@@ -398,10 +394,6 @@ public class ItemFormRenderModel extends BaseModel {
         } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
             hasInput = true;
             child.type = TYPE_PICTURE_RADIO;
-            /*if ("Photograph".equalsIgnoreCase(workFormGroupName) && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-                child.workItemModel.mandatory = true;
-                child.workItemModel.save();
-            }*/
             this.addFillableTask();
             child.parent = this;
             if (this.children.get(this.children.size() - 1).type == TYPE_OPERATOR)

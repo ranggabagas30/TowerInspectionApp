@@ -9,15 +9,15 @@
 //
 //import com.sap.inspection.constant.Constants;
 //import com.sap.inspection.fragments.BaseFragment;
-//import com.sap.inspection.fragments.NavigationFragment;
-//import com.sap.inspection.listener.FormActivityListener;
+//import com.sap.inspection.fragments.GroupFragment;
+//import com.sap.inspection.listener.GroupActivityListener;
 //import com.sap.inspection.model.ScheduleBaseModel;
 //import com.sap.inspection.model.ScheduleGeneral;
 //import com.sap.inspection.model.form.RowModel;
 //import com.sap.inspection.views.adapter.FragmentsAdapter;
 //import com.slidinglayer.SlidingLayer;
 //
-//public class FormActivityByOperator extends BaseActivity implements FormActivityListener{
+//public class FormActivityByOperator extends BaseActivity implements GroupActivityListener{
 //
 //	private SlidingLayer mSlidingLayer;
 //	public static final int REQUEST_CODE = 100;
@@ -29,7 +29,7 @@
 //
 //	ViewPager pager;
 //	FragmentsAdapter fragmentsAdapter;
-//	NavigationFragment navigationFragment = NavigationFragment.newInstance();
+//	GroupFragment navigationFragment = GroupFragment.newInstance();
 ////	DrillFragment drillFragment = DrillFragment.newInstance();
 //
 //	@Override
@@ -56,17 +56,17 @@
 //			log("========= "+model.level+" | "+model.id+" | "+model.ancestry);
 //		}
 //
-//		navigationFragment.setFormActivityListener(this);
-//		navigationFragment.setNavigationModel(rowModel);
+//		navigationFragment.setGroupActivityListener(this);
+//		navigationFragment.setGroupItems(rowModel);
 //		navigationFragment.setScheduleModel(scheduleModel);
 //		navigationFragment.setWorkFormGroupId(workFormGroupId);
-////		drillFragment.setFormActivityListener(this);
-////		navigateToFragment(drillFragment, R.id.fragment_behind);
-////		navigateToFragment(navigationFragment, R.id.fragment_front);
-//		navigateToFragment(navigationFragment, R.id.fragment_behind);
+////		drillFragment.setGroupActivityListener(this);
+////		replaceFragmentWith(drillFragment, R.id.fragment_behind);
+////		replaceFragmentWith(navigationFragment, R.id.fragment_front);
+//		replaceFragmentWith(navigationFragment, R.id.fragment_behind);
 //	}
 //
-//	private void navigateToFragment(BaseFragment fragment,int viewContainerResId) {
+//	private void replaceFragmentWith(BaseFragment fragment,int viewContainerResId) {
 //		FragmentManager fm = getSupportFragmentManager();
 //		FragmentTransaction ft = fm.beginTransaction();
 //		ft.replace(viewContainerResId, fragment);

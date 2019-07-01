@@ -116,8 +116,12 @@ public class APIHelper {
 		getJsonFromUrl(context, handler, APIList.userUrl()+"/"+userId+"/schedules?template=default&per_page=-1&"+"access_token="+getAccessToken(context));
 	}
 
-	//Item schedules
+	//Corrective Schedules and Items
+	public static void getCorrectiveSchedule(Context context, Handler handler, String userId) {
+		getJsonFromUrl(context, handler, APIList.correctiveSchedules(userId) + "?template=corrective&user_id=" + userId + "&access_token=" + getAccessToken(context));
+	}
 
+	//Item schedules
 	public static void getItemSchedules(Context context, Handler handler, String scheduleId, String userId) {
 		getJsonFromUrl(context, handler, APIList.itemSchedulesUrl(scheduleId, userId) + "&template=with_item&access_token=" + getAccessToken(context));
 	}

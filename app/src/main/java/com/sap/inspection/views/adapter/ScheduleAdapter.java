@@ -19,7 +19,7 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.AsyncDeleteAllFiles;
 import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 
@@ -100,8 +100,8 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				holder.place = (TextView) view.findViewById(R.id.item_schedule_place);
 				holder.upload = view.findViewById(R.id.item_schedule_upload);
 				holder.upload.setOnClickListener(upload);
-				holder.deleteSchedule = view.findViewById(R.id.item_schedule_delete);
-				holder.deleteSchedule.setOnClickListener(delete);
+				holder.deleteAndUpdateSchedule = view.findViewById(R.id.item_schedule_delete);
+				holder.deleteAndUpdateSchedule.setOnClickListener(delete);
 
 				break;
 			default:
@@ -128,12 +128,12 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.place.setText(getItem(position).getPlace());
             holder.upload.setTag(getItem(position).id);
             holder.upload.setVisibility(View.VISIBLE);
-            holder.deleteSchedule.setTag(position);
-			holder.deleteSchedule.setVisibility(View.VISIBLE);
+            holder.deleteAndUpdateSchedule.setTag(position);
+			holder.deleteAndUpdateSchedule.setVisibility(View.VISIBLE);
 			if (itemModel.work_type.name.matches(Constants.regexIMBASPETIR)) {
 
 				holder.upload.setVisibility(View.GONE);
-				holder.deleteSchedule.setVisibility(View.GONE);
+				holder.deleteAndUpdateSchedule.setVisibility(View.GONE);
 
 			}
 
@@ -163,7 +163,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 		public TextView place;
 		public ImageView arrow;
         public View upload;
-        public ImageView deleteSchedule;
+        public ImageView deleteAndUpdateSchedule;
 	}
 
     View.OnClickListener upload = v -> {
@@ -173,9 +173,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			String scheduleId = (String) v.getTag();
 
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, ItemValueModel.UNSPECIFIED, Constants.EMPTY, Constants.EMPTY).execute();
+				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, FormValueModel.UNSPECIFIED, Constants.EMPTY, Constants.EMPTY).execute();
 			else
-				new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, ItemValueModel.UNSPECIFIED, null, null).execute();
+				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, FormValueModel.UNSPECIFIED, null, null).execute();
 		}
 	};
 

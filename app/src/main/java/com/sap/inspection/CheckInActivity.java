@@ -72,7 +72,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private float mDistanceMeasurment, mAccuracy;
     private boolean mIsLocationRetrieved;
 
-    /* variabel for get extra data from NavigationAdapter */
+    /* variabel for get extra data from GroupsAdapter */
     private int mExtraSiteId, mExtraWorkTypeId;
     private String mExtraScheduleId, mExtraDayDate, mExtraWorkTypeName;
 
@@ -170,7 +170,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
                         showSuccessCheckinMessage();
                         startCheckoutCountdown();
                         keepCurrentLocationDataTobeUsed();
-                        navigateToFormActivity();
+                        navigateToGroupActivity();
 
                     } else {
 
@@ -269,7 +269,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
      * isCheckInGranted()     --> check devices location and accuracy, whether meets survey requirements or not
      * showFailCheckInMessages() --> show a message when check in activity returns fail result
      * showSuccessCheckinMessage() --> show a message when check in activity returns success result
-     * navigateToFormActivity() --> go to FormFillActivity (survey form)
+     * navigateToGroupActivity() --> go to FormFillActivity (survey form)
      * */
     private void initLocationServices() {
         mLocationRequestProvider.connect();
@@ -348,11 +348,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         CommonUtil.setPersistentLocation(mExtraScheduleId, mCurrentLat.getText().toString(), mCurrentLong.getText().toString());
     }
 
-    private void navigateToFormActivity() {
+    private void navigateToGroupActivity() {
 
         MyApplication.getInstance().checkinDataModel = mParamObject;
 
-        BaseActivity.navigateToFormActivity(
+        BaseActivity.navigateToGroupActivity(
                 this,
                 mExtraScheduleId,
                 mExtraSiteId,

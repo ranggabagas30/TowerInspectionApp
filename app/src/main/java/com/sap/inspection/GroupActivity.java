@@ -1,36 +1,24 @@
 package com.sap.inspection;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Debug;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatDialogFragment;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.event.UploadProgressEvent;
-import com.sap.inspection.fragments.BaseFragment;
-import com.sap.inspection.fragments.NavigationFragment;
-import com.sap.inspection.listener.FormActivityListener;
-import com.sap.inspection.model.ConfigModel;
-import com.sap.inspection.model.DbManager;
+import com.sap.inspection.fragments.GroupFragment;
+import com.sap.inspection.listener.GroupActivityListener;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
-import com.sap.inspection.model.config.formimbaspetir.Barang;
+import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
-import com.sap.inspection.model.config.formimbaspetir.ImbasPetirData;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
+import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
 import com.slidinglayer.SlidingLayer;
@@ -39,16 +27,13 @@ import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import de.greenrobot.event.EventBus;
-
-public class FormActivity extends BaseActivity implements FormActivityListener{
+public class GroupActivity extends BaseActivity implements GroupActivityListener {
 
 	private SlidingLayer mSlidingLayer;
-	private RowModel rowModel = null;
-	private WorkFormModel workFormModel;
-	private Vector<WorkFormGroupModel> workFormGroupModels;
-	private ScheduleBaseModel scheduleBaseModels;
-	private ProgressDialog dialog;
+	private RowModel parentGroupRow = null;
+	private WorkFormModel workForm;
+	private Vector<WorkFormGroupModel> workFormGroups;
+	private ScheduleBaseModel schedule;
 
 	private String dayDate;
 	private String scheduleId;
@@ -58,7 +43,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 	private FragmentManager fm;
 	private Fragment currentFragment;
-	private NavigationFragment navigationFragment = NavigationFragment.newInstance();
+	private GroupFragment groupFragment = GroupFragment.newInstance();
 
 	public LovelyTextInputDialog inputJumlahWargaDialog;
 
@@ -95,59 +80,94 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 				.setTopTitleColor(R.color.lightgray)
 				.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
 
-		// get schedule base model by scheduleid
-		scheduleBaseModels = new ScheduleGeneral();
-		scheduleBaseModels = scheduleBaseModels.getScheduleById(scheduleId);
-
-		// get workformid by worktypeid
-		workFormModel = new WorkFormModel();
-		workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModels.work_type.id);
-
-		DebugLog.d("== schedule worktype id : "+scheduleBaseModels.work_type.id);
-		DebugLog.d("== form model id : "+workFormModel.id);
-		DebugLog.d("== form model name : "+workFormModel.name);
-
-		// get all workformgroup by workformid
-		WorkFormGroupModel groupModel = new WorkFormGroupModel();
-		workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
-
 		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
 
+        // get schedule base model by scheduleid
+        schedule = new ScheduleGeneral();
+        schedule = schedule.getScheduleById(scheduleId);
+
 		//generate form
-		rowModel = new RowModel();
-		rowModel.isOpen = true;
-		rowModel.position = 0;
-		rowModel.text = "this is just";
-		rowModel.children = new Vector<>();
+		parentGroupRow = new RowModel();
+		parentGroupRow.isOpen = true;
+		parentGroupRow.position = 0;
+		parentGroupRow.text = "this is just";
+		parentGroupRow.children = new Vector<>();
 
-		navigationFragment.setFormActivityListener(this);
-		navigationFragment.setSchedule(scheduleBaseModels);
-		navigationFragment.setNavigationModel(rowModel);
-		navigationFragment.setWorkTypeName(workTypeName);
-		addFragment(fm, navigationFragment, R.id.fragment_behind);
+		if (workTypeName.equalsIgnoreCase(getString(R.string.corrective))) {
 
+			int correctiveScheduleId = Integer.valueOf(scheduleId);
+			CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule = CorrectiveScheduleConfig.getCorrectiveSchedule(correctiveScheduleId);
+			workFormGroups = new Vector<>();
+			if (correctiveSchedule != null) {
+				for (CorrectiveScheduleResponseModel.CorrectiveGroup correctiveGroup : correctiveSchedule.getGroup()) {
+
+					WorkFormGroupModel groupModel = WorkFormGroupModel.getWorkFormGroupById(String.valueOf(correctiveGroup.getId()));
+					workFormGroups.add(groupModel);
+				}
+
+				// get all workformgroup submenu
+				DebugLog.d("get all workformgroup submenu");
+				for (WorkFormGroupModel group : workFormGroups) {
+					DebugLog.d("==== form group group id : " + group.id + " | " + group.name);
+					RowModel groupRow = new RowModel();
+					groupRow.work_form_group_id = group.id;
+					groupRow.children = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
+					groupRow.text = group.name;
+					groupRow.level = 0;
+					parentGroupRow.children.add(groupRow); // children of
+				}
+			}
+
+		} else
 		if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
+
+			// get workformid by worktypeid
+			workForm = new WorkFormModel();
+			workForm = workForm.getItemByWorkTypeId(schedule.work_type.id);
+
+			DebugLog.d("== schedule worktype id : "+schedule.work_type.id);
+			DebugLog.d("== form model id : "+workForm.id);
+			DebugLog.d("== form model name : "+workForm.name);
+
+			// get all workformgroup by workformid
+			workFormGroups = WorkFormGroupModel.getAllItemByWorkFormId(workForm.id);
 
 			checkDataWarga();
 
-		} else {
+		} else{
+
+			// get workformid by worktypeid
+			workForm = new WorkFormModel();
+			workForm = workForm.getItemByWorkTypeId(schedule.work_type.id);
+
+			DebugLog.d("== schedule worktype id : "+schedule.work_type.id);
+			DebugLog.d("== form model id : "+workForm.id);
+			DebugLog.d("== form model name : "+workForm.name);
+
+			// get all workformgroup by workformid
+			workFormGroups = WorkFormGroupModel.getAllItemByWorkFormId(workForm.id);
 
 			// get all workformgroup submenu
 			DebugLog.d("get all workformgroup submenu");
-			for (WorkFormGroupModel model : workFormGroupModels) {
-				DebugLog.d("==== form group model id : " + model.id + " | " + model.name);
+			for (WorkFormGroupModel group : workFormGroups) {
+				DebugLog.d("==== form group group id : " + group.id + " | " + group.name);
 				RowModel groupRow = new RowModel();
-				groupRow.work_form_group_id = model.id;
-				groupRow.children = rowModel.getAllItemByWorkFormGroupId(model.id);
-				groupRow.text = model.name;
+				groupRow.work_form_group_id = group.id;
+				groupRow.children = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
+				groupRow.text = group.name;
 				groupRow.level = 0;
-				rowModel.children.add(groupRow); // children of
+				parentGroupRow.children.add(groupRow); // children of
 			}
 		}
 
-		hideDialog();
+		groupFragment.setGroupActivityListener(this);
+		groupFragment.setSchedule(schedule);
+		groupFragment.setGroupItems(parentGroupRow);
+		groupFragment.setWorkTypeName(workTypeName);
+		addFragment(fm, groupFragment, R.id.fragment_behind);
 
+		hideDialog();
 		trackThisPage("Form");
 	}
 
@@ -177,8 +197,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 	public void onBackPressed() {
 		if (mSlidingLayer.isOpened())
 			mSlidingLayer.closeLayer(true);
-		else
-		{
+		else {
 			DebugLog.d("back button pressed");
 			if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
 				MyApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
@@ -238,7 +257,7 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 			// found data by that scheduleid
 			// check amount of warga
-			generateImbasPetirChildModel(dataIndex);
+			generateImbasPetirGroups(dataIndex);
 
 		} else {
 
@@ -254,13 +273,13 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 			// insert new data warga as many as amount inputted
 			MyApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
 			FormImbasPetirConfig.insertDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
-			generateImbasPetirChildModel(dataIndex);
-			updateItems();
+			generateImbasPetirGroups(dataIndex);
+			updateGroupItems();
 
 		}).show();
 	}
 
-	public void generateImbasPetirChildModel(int dataIndex) {
+	public void generateImbasPetirGroups(int dataIndex) {
 
 		ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
 
@@ -268,74 +287,74 @@ public class FormActivity extends BaseActivity implements FormActivityListener{
 
 			int wargaSize = wargas.size();
 
-			rowModel.children = new Vector<>();
+			parentGroupRow.children = new Vector<>();
 
 			// get all workformgroup submenu
 			DebugLog.d("get all workformgroup submenu");
-			for (WorkFormGroupModel model : workFormGroupModels) {
+			for (WorkFormGroupModel group : workFormGroups) {
 
-				DebugLog.d("==== form group model id : " + model.id + " | " + model.name);
+				DebugLog.d("==== form group group id : " + group.id + " | " + group.name);
 				RowModel groupRow = new RowModel();
-				groupRow.work_form_group_id = model.id;
-				groupRow.text = model.name;
+				groupRow.work_form_group_id = group.id;
+				groupRow.text = group.name;
 				groupRow.level = 0;
 
-				if (model.name.equalsIgnoreCase("Warga")) {
+				if (group.name.equalsIgnoreCase("Warga")) {
 
 					Vector<RowModel> childRows = new Vector<>();
 
 					for (int i = 0; i < wargaSize; i++) {
 
-						RowModel wargaKeModel = rowModel.getAllItemByWorkFormGroupId(model.id).get(0);
+						RowModel wargaIdRow = parentGroupRow.getAllItemByWorkFormGroupId(group.id).get(0);
 
-						String wargaLabel = wargaKeModel.text;
+						String wargaLabel = wargaIdRow.text;
 						String wargaId	  = wargas.get(i).getWargaid();
 						String wargaRowLabel = wargaLabel + wargaId;
 
-						wargaKeModel.text = StringUtil.getIdWithName(scheduleId, wargaRowLabel, model.id);
+						wargaIdRow.text = StringUtil.getIdWithName(scheduleId, wargaRowLabel, group.id);
 
-						DebugLog.d("-- child id : " + wargaKeModel.id);
-						DebugLog.d("-- child work form group id : " + wargaKeModel.work_form_group_id);
-						DebugLog.d("-- child name : " + wargaKeModel.text);
-						DebugLog.d("-- child level : " + wargaKeModel.level);
-						DebugLog.d("-- child hasForm : " + wargaKeModel.hasForm);
-						DebugLog.d("-- child ancestry : " + wargaKeModel.ancestry);
-						DebugLog.d("-- child parentid : " + wargaKeModel.parent_id);
+						DebugLog.d("-- child id : " + wargaIdRow.id);
+						DebugLog.d("-- child work form group id : " + wargaIdRow.work_form_group_id);
+						DebugLog.d("-- child name : " + wargaIdRow.text);
+						DebugLog.d("-- child level : " + wargaIdRow.level);
+						DebugLog.d("-- child hasForm : " + wargaIdRow.hasForm);
+						DebugLog.d("-- child ancestry : " + wargaIdRow.ancestry);
+						DebugLog.d("-- child parentid : " + wargaIdRow.parent_id);
 						DebugLog.d("\n\n");
-						childRows.add(wargaKeModel);
+						childRows.add(wargaIdRow);
 					}
 
-					// row model for "tambah warga" submenu action
-					RowModel addWargaKeModel = new RowModel();
-					addWargaKeModel.id = -1;
-					addWargaKeModel.work_form_group_id = model.id;
-					addWargaKeModel.hasForm = false;
-					addWargaKeModel.text = "Tambah warga";
-					addWargaKeModel.level = 1;
-					addWargaKeModel.ancestry = null;
-					addWargaKeModel.parent_id = 0;
+					// row group for "tambah warga" submenu action
+					RowModel tambahWargaRow = new RowModel();
+					tambahWargaRow.id = -1;
+					tambahWargaRow.work_form_group_id = group.id;
+					tambahWargaRow.hasForm = false;
+					tambahWargaRow.text = "Tambah warga";
+					tambahWargaRow.level = 1;
+					tambahWargaRow.ancestry = null;
+					tambahWargaRow.parent_id = 0;
 
-					childRows.add(addWargaKeModel);
+					childRows.add(tambahWargaRow);
 
 					groupRow.children = childRows;
 
 				} else {
 
-					groupRow.children = rowModel.getAllItemByWorkFormGroupId(model.id);
+					groupRow.children = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
 				}
 
-				rowModel.children.add(groupRow);
+				parentGroupRow.children.add(groupRow);
 			}
 		}
 	}
 
-	private void updateItems() {
+	private void updateGroupItems() {
 
-		currentFragment = getCurrentFragment(NavigationFragment.class.getSimpleName());
-		if (currentFragment instanceof NavigationFragment) {
+		currentFragment = getCurrentFragment(GroupFragment.class.getSimpleName());
+		if (currentFragment instanceof GroupFragment) {
 
 			DebugLog.d("current fragment = navigation fragment");
-			((NavigationFragment) currentFragment).setItems(rowModel);
+			((GroupFragment) currentFragment).setItems(parentGroupRow);
 
 		}
 	}

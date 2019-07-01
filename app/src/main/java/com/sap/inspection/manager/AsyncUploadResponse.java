@@ -1,6 +1,6 @@
 package com.sap.inspection.manager;
 
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 
 import java.util.ArrayList;
 
@@ -9,6 +9,6 @@ import java.util.ArrayList;
  */
 
 public interface AsyncUploadResponse {
-    void itemUploadResponse(ItemValueModel itemValueModel);
-    void itemUploadResponse(ArrayList<ItemValueModel> itemValueModelArrayList);
+    void itemUploadResponse(FormValueModel formValueModel);
+    void itemUploadResponse(ArrayList<FormValueModel> formValueModelArrayList);
 }

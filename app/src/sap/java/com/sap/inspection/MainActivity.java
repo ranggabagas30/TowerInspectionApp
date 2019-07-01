@@ -108,8 +108,8 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		rlp.width = LayoutParams.MATCH_PARENT;
 		mainMenuFragment.setMainMenuClickListener(mainMenuClick);
 
-		navigateToFragment(mainMenuFragment, R.id.fragment_behind);
-		navigateToFragment(scheduleFragment, R.id.fragment_front);
+		replaceFragmentWith(mainMenuFragment, R.id.fragment_behind);
+		replaceFragmentWith(scheduleFragment, R.id.fragment_front);
 		trackThisPage("Main");
 	}
 

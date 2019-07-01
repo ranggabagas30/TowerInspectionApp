@@ -1,12 +1,7 @@
 package com.sap.inspection.manager;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.os.Debug;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -16,26 +11,18 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
-import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
-import com.sap.inspection.connection.JSONConnection;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
-import com.sap.inspection.model.DbRepository;
-import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
-import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.ItemDefaultResponseModel;
-import com.sap.inspection.model.responsemodel.ItemWargaResponseModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.CorrectiveValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.StringUtil;
@@ -47,13 +34,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ConnectionPoolTimeoutException;
-import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -62,12 +45,10 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
+import java.lang.reflect.Array;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,16 +57,16 @@ import java.util.Objects;
 
 import de.greenrobot.event.EventBus;
 
-import static com.sap.inspection.model.value.ItemValueModel.isPictureRadioItemValidated;
+import static com.sap.inspection.model.value.FormValueModel.isPictureRadioItemValidated;
 
 //import android.util.Log;
 
 public class ItemUploadManager {
 
     private static ItemUploadManager instance;
-    private ArrayList<ItemValueModel> itemValues;
-    private ArrayList<ItemValueModel> itemValuesFailed;
-    private ArrayList<ItemValueModel> itemValuesModified;
+    private ArrayList<FormValueModel> itemValues;
+    private ArrayList<FormValueModel> itemValuesFailed;
+    private ArrayList<FormValueModel> itemValuesModified;
 
     private boolean running = false;
     public String syncDone = "Sinkronisasi selesai";
@@ -114,7 +95,44 @@ public class ItemUploadManager {
         return latestStatus;
     }
 
-    public void addItemValues(Collection<ItemValueModel> itemvalues) {
+    public FormValueModel convertToFormValue(CorrectiveValueModel itemValue) {
+
+        FormValueModel formValue = new FormValueModel();
+        formValue.scheduleId    = itemValue.scheduleId;
+        formValue.operatorId    = itemValue.operatorId;
+        formValue.itemId        = itemValue.itemId;
+        formValue.siteId        = itemValue.siteId;
+        formValue.gpsAccuracy   = itemValue.gpsAccuracy;
+        formValue.rowId         = itemValue.rowId;
+        formValue.remark        = itemValue.remark;
+        formValue.photoStatus   = itemValue.photoStatus;
+        formValue.latitude      = itemValue.latitude;
+        formValue.longitude     = itemValue.longitude;
+        formValue.value         = itemValue.value;
+        formValue.uploadStatus  = itemValue.uploadStatus;
+        formValue.typePhoto     = itemValue.typePhoto;
+
+        return formValue;
+    }
+
+    public void addCorrectiveValues(ArrayList<CorrectiveValueModel> correctiveValues) {
+
+        ArrayList<FormValueModel> itemValuesForUpload = new ArrayList<>();
+
+        for (CorrectiveValueModel itemValue : correctiveValues) {
+
+            itemValuesForUpload.add(convertToFormValue(itemValue));
+        }
+
+        addItemValues(itemValuesForUpload);
+    }
+
+    public void addCorrectiveValue(WorkFormItemModel workFormItem, CorrectiveValueModel correctiveValue) {
+
+        addItemValue(workFormItem, convertToFormValue(correctiveValue));
+    }
+
+    public void addItemValues(ArrayList<FormValueModel> itemvalues) {
         if (itemvalues == null)
             MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
         else {
@@ -127,7 +145,7 @@ public class ItemUploadManager {
                 this.itemValues.clear();
                 this.itemValuesFailed.clear();
                 this.itemValuesModified.clear();
-                for (ItemValueModel item : itemvalues) {
+                for (FormValueModel item : itemvalues) {
                     if (item != null && !item.disable) {
                         this.itemValues.add(item);
                     }
@@ -140,7 +158,7 @@ public class ItemUploadManager {
         }
     }
 
-    public void addItemValue(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
+    public void addItemValue(WorkFormItemModel workFormItem, FormValueModel filledItem) {
 
         // if the filled items are mandatory, then apply strict rules
         if (workFormItem.mandatory) {
@@ -236,7 +254,7 @@ public class ItemUploadManager {
                 latestStatus = itemValues.size() + " item yang tersisa";
 
                 /*if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-                    ItemValueModel itemChanged = checkWargaAndBarangID(itemValues.get(0));
+                    FormValueModel itemChanged = checkWargaAndBarangID(itemValues.get(0));
                     itemValues.set(0, itemChanged);
                 }*/
 
@@ -262,8 +280,8 @@ public class ItemUploadManager {
             }
 
             // save failed item's status
-            for (ItemValueModel item : itemValuesFailed) {
-                item.uploadStatus = ItemValueModel.UPLOAD_FAIL;
+            for (FormValueModel item : itemValuesFailed) {
+                item.uploadStatus = FormValueModel.UPLOAD_FAIL;
                 item.save();
             }
 
@@ -315,7 +333,7 @@ public class ItemUploadManager {
             return null;
         }
 
-        private ItemValueModel checkWargaAndBarangID(ItemValueModel item) {
+        private FormValueModel checkWargaAndBarangID(FormValueModel item) {
 
             item.wargaId    = StringUtil.getRegisteredWargaId(item.scheduleId, item.wargaId);
             item.barangId   = StringUtil.getRegisteredBarangId(item.scheduleId, item.wargaId, item.barangId);
@@ -329,8 +347,8 @@ public class ItemUploadManager {
             DebugLog.d("status code : " + responseUploadItemModel.status);
             if (responseUploadItemModel.status == 201 || responseUploadItemModel.status == 200) {
 
-                ItemValueModel item = itemValues.remove(0);
-                item.uploadStatus = ItemValueModel.UPLOAD_DONE;
+                FormValueModel item = itemValues.remove(0);
+                item.uploadStatus = FormValueModel.UPLOAD_DONE;
 
                 itemValueSuccessCount++;
 
@@ -356,8 +374,8 @@ public class ItemUploadManager {
                             newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
 
                             // update all items with old 'wargaId' value on FormValue table to the new one
-                            //ItemValueModel.updateWargaId(item.scheduleId, oldWargaId, newWargaId);
-                            ItemValueModel.updateWargaItems(oldWargaId, newWargaId, itemValuesModified);
+                            //FormValueModel.updateWargaId(item.scheduleId, oldWargaId, newWargaId);
+                            FormValueModel.updateWargaItems(oldWargaId, newWargaId, itemValuesModified);
 
                             // update formimbaspetirconfig
                             updateWargaId(oldWargaId, newWargaId);
@@ -373,7 +391,7 @@ public class ItemUploadManager {
                             newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
 
                             // update all items with old 'barangId' value on FormValue table to the new one
-                            ItemValueModel.updateBarangItems(oldWargaId, oldBarangId, newBarangId, itemValuesModified);
+                            FormValueModel.updateBarangItems(oldWargaId, oldBarangId, newBarangId, itemValuesModified);
 
                             // update formimbaspetirconfig
                             updateBarangId(oldWargaId, oldBarangId, newBarangId);
@@ -398,7 +416,7 @@ public class ItemUploadManager {
             }
         }
 
-        private void checkWargaIdAndBarangId(ItemValueModel item, ItemDefaultResponseModel responseUploadItemModel) {
+        private void checkWargaIdAndBarangId(FormValueModel item, ItemDefaultResponseModel responseUploadItemModel) {
 
             boolean isNotRegistered = false;
             String oldWargaId = item.wargaId;
@@ -443,7 +461,7 @@ public class ItemUploadManager {
 
                 // delete old items which using old wargaid or old barangid
                 //DebugLog.d("-> Delete old itemid : (" + item.scheduleId + ", " + item.itemId + ", " + item.wargaId + ", " + item.barangId + ")");
-                ItemValueModel.delete(item.scheduleId, item.itemId, item.operatorId, oldWargaId, oldBarangId);
+                FormValueModel.delete(item.scheduleId, item.itemId, item.operatorId, oldWargaId, oldBarangId);
             }
         }
 
@@ -461,7 +479,7 @@ public class ItemUploadManager {
             FormImbasPetirConfig.updateBarangId(scheduleId, wargaId, oldBarangId, newBarangId);
         }
 
-        private ArrayList<NameValuePair> getParams(ItemValueModel itemValue) {
+        private ArrayList<NameValuePair> getParams(FormValueModel itemValue) {
 
             ArrayList<NameValuePair> params = new ArrayList<>();
 
@@ -513,7 +531,7 @@ public class ItemUploadManager {
             return params;
         }
 
-        private String uploadItem2(ItemValueModel itemValue) {
+        private String uploadItem2(FormValueModel itemValue) {
             try {
                 DebugLog.d("===== START UPLOADING PHOTO === \n");
                 DebugLog.d("** set params ** ");
@@ -635,7 +653,7 @@ public class ItemUploadManager {
             return params;
         }
 
-        private String uploadItem(ItemValueModel itemValue) {
+        private String uploadItem(FormValueModel itemValue) {
             try {
                 DebugLog.d("=============== post do BG");
                 HttpParams httpParameters = new BasicHttpParams();
