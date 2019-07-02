@@ -1,16 +1,21 @@
 package com.sap.inspection.model.form;
 
+import android.os.Debug;
 import android.os.Parcel;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
+import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
@@ -43,7 +48,9 @@ public class ItemFormRenderModel extends BaseModel {
     public OperatorModel operator;
     public int operatorId;
     public int rowId;
+    public int workFormGroupId;
     public String workFormGroupName;
+    public String workTypeName;
     public ArrayList<ItemFormRenderModel> children;
     public int type = TYPE_NONE;
     public boolean open = true;
@@ -64,12 +71,185 @@ public class ItemFormRenderModel extends BaseModel {
     private String wargaId;
     private String barangId;
 
+    public void setParent(ItemFormRenderModel parent) {
+        this.parent = parent;
+    }
+
     public void setColumn(ArrayList<ColumnModel> column) {
         this.columns = column;
     }
 
     public void setRowId(int rowId) {
         this.rowId = rowId;
+    }
+
+    public void setSchedule(ScheduleBaseModel schedule) {
+        this.schedule = schedule;
+    }
+
+    public void setWorkFormGroupId(int workFormGroupId) {
+        this.workFormGroupId = workFormGroupId;
+    }
+
+    public void setWorkFormGroupName(String workFormGroupName) {
+        this.workFormGroupName = workFormGroupName;
+    }
+
+    public void setWorkTypeName(String workTypeName) {
+        this.workTypeName = workTypeName;
+        DebugLog.d("workTypeName : " + workTypeName);
+    }
+
+    public void setWargaid(String wargaId) {
+        this.wargaId = wargaId;
+        DebugLog.d("wargaid : " + wargaId);
+    }
+
+    public void setBarangid(String barangId) {
+        this.barangId = barangId;
+        DebugLog.d("barangid : " + barangId);
+    }
+
+    public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels, String parentLabel) {
+
+        if (schedule.operators == null || schedule.operators.size() == 0) {
+            DebugLog.d("operator none");
+            MyApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
+            return;
+        }
+
+        // get column data with position = 1
+        DebugLog.d("> Find first item with column position = 1... \n\n");
+        firstItem = null;
+        int firstColId = -1;
+        for (ColumnModel columnModel : columns) {
+            if (columnModel.position == 1) {
+                firstColId = columnModel.id;
+                DebugLog.d("Found first column ! (col id, col name) : (" + columnModel.id + ", " + columnModel.column_name + ")");
+                break;
+            }
+        }
+
+        if (firstColId == -1)
+            return;
+
+        DebugLog.d("looping through row_col row items ... ");
+        DebugLog.d("|\trow_col_id\t|\trow_id\t|\tcol_id\t|\twork_form_group_id\t|");
+
+        for (int i = 0; i < rowColumnModels.size(); i++) {
+            RowColumnModel rowcol = rowColumnModels.get(i);
+
+            if (rowcol.column_id == firstColId) {
+                DebugLog.d("|\t" + rowcol.id + "\t\t|\t" + rowcol.row_id + "\t|\t" + rowcol.column_id + "\t\t|\t" + rowcol.work_form_group_id + "\t\t| --> found first item");
+                firstItem = rowColumnModels.remove(i);
+            } else
+                DebugLog.d("|\t" + rowcol.id + "\t\t|\t" + rowcol.row_id + "\t|\t" + rowcol.column_id + "\t\t|\t" + rowcol.work_form_group_id + "\t\t|");
+        }
+
+        if (firstItem == null)
+            return;
+
+        //generate first cell
+        if (firstItem.items.size() != 0) {
+            DebugLog.d("> generate first cell (header) ");
+            this.type = TYPE_HEADER;                                        DebugLog.d("TYPE\t:\t" + this.type);
+            this.workItemModel = firstItem.items.get(0);                    DebugLog.d("-WORKFORMITEM id\t:\t" + this.workItemModel.id);
+            this.label = workItemModel.label;                               DebugLog.d("-WORKFORMITEM label\t:\t" + this.label);
+            this.hasPicture = workItemModel.pictureEndPoint != null;        DebugLog.d("HASPICTURE ?\t" + this.hasPicture);
+            if (parentLabel != null)
+                workItemModel.label = workItemModel.label + " \n " + parentLabel;
+            if (this.workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
+                firstItem.items.remove(0);
+            }
+            ItemFormRenderModel child = new ItemFormRenderModel();
+            child.type = TYPE_HEADER_DIVIDER;
+            child.parent = this;
+            add(child);
+        }
+
+        if (!TextUtils.isEmpty(getColumn(firstItem.column_id).column_name)) {
+            if (checkAnyInputHead(firstItem.items)) {
+                ItemFormRenderModel child = new ItemFormRenderModel();
+                child.type = TYPE_COLUMN;
+                child.column = getColumn(firstItem.column_id);
+                child.parent = this;
+                add(child);
+            }
+        }
+
+        boolean anyInput = checkAnyInput(firstItem.items);
+        if (!anyInput) {
+            operator = schedule.operators.get(schedule.operator_number);
+            generateItemsPerOperator(firstItem, schedule.operators.get(schedule.operator_number).id);
+        } else {
+            for (int i = 0; i < schedule.operators.size(); i++) {
+                DebugLog.d("operator id " + schedule.operators.get(i).id);
+                ItemFormRenderModel child = new ItemFormRenderModel();
+                child.type = TYPE_OPERATOR;
+                child.operator = schedule.operators.get(i);
+                child.parent = this;
+                add(child);
+                generateItemsPerOperator(firstItem, schedule.operators.get(i).id);
+                if (schedule.operators.size() - 2 >= 0 && i < schedule.operators.size() - 1) {
+                    child = new ItemFormRenderModel();
+                    child.type = TYPE_LINE_DEVIDER;
+                    child.parent = this;
+                    add(child);
+                }
+            }
+        }
+
+        //generate other cell
+        DebugLog.d("> generate cell items for header " + this.label);
+        DebugLog.d("|\trow_col_id\t|\trow_id\t|\tcol_id\t|\twork_form_group_id\t|\titem size\t|");
+        for (RowColumnModel rowcol : rowColumnModels) {
+            DebugLog.d("|\t" + rowcol.id + "\t\t|\t" + rowcol.row_id + "\t|\t" + rowcol.column_id + "\t\t|\t" + rowcol.work_form_group_id + "\t\t|\t" + rowcol.items.size() + "\t|");
+            if (rowcol.items.size() > 0) {
+                ItemFormRenderModel child = new ItemFormRenderModel();
+                child.type = TYPE_COLUMN;
+                child.column = getColumn(rowcol.column_id);
+                child.parent = this;
+                add(child);
+                anyInput = checkAnyInput(rowcol.items);
+
+                if (!anyInput) {
+                    DebugLog.d("input type not found");
+                    generateItemsPerOperator(rowcol, schedule.operators.get(0).id);
+                } else {
+                    DebugLog.d("input type found");
+                    Vector<OperatorModel> operatorItems = schedule.operators;
+                    if (workTypeName.equalsIgnoreCase(MyApplication.getContext().getString(R.string.corrective))) {
+                        int inputTypeItemId = getInputTypeItemId(rowcol.items);
+                        if (inputTypeItemId != -1) {
+                            CorrectiveScheduleResponseModel.CorrectiveItem correctiveItem = CorrectiveScheduleConfig.getCorrectiveItem(Integer.valueOf(schedule.id), workFormGroupId, inputTypeItemId);
+                            if (correctiveItem != null) {
+                                Vector<Integer> operatorIds = correctiveItem.getOperator();
+                                operatorItems = new Vector<>();
+                                for (int operatorId : operatorIds) {
+                                    OperatorModel operatorItem = OperatorModel.getOperatorById(operatorId);
+                                    operatorItems.add(operatorItem);
+                                }
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < operatorItems.size(); i++) {
+                        child = new ItemFormRenderModel();
+                        child.type = TYPE_OPERATOR;
+                        child.operator = operatorItems.get(i);
+                        child.parent = this;
+                        add(child);
+                        generateItemsPerOperator(rowcol, operatorItems.get(i).id);
+                        if (operatorItems.size() - 2 >= 0 && i < operatorItems.size() - 1) {
+                            child = new ItemFormRenderModel();
+                            child.type = TYPE_LINE_DEVIDER;
+                            child.parent = this;
+                            add(child);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public String getPercent() {
@@ -80,26 +260,8 @@ public class ItemFormRenderModel extends BaseModel {
         fillableTask++;
     }
 
-    public void setSchedule(ScheduleBaseModel schedule) {
-        this.schedule = schedule;
-    }
-
-    public void setWorkFormGroupName(String workFormGroupName) {
-        this.workFormGroupName = workFormGroupName;
-    }
-
-    public void setWargaid(String wargaId) {
-        this.wargaId = wargaId;
-        DebugLog.d("wargaid : " + wargaId);
-    }
-
     public String getWargaId() {
         return wargaId;
-    }
-
-    public void setBarangid(String barangId) {
-        this.barangId = barangId;
-        DebugLog.d("barangid : " + barangId);
     }
 
     public String getBarangId() {
@@ -145,10 +307,6 @@ public class ItemFormRenderModel extends BaseModel {
         children.add(child);
     }
 
-    public void setParent(ItemFormRenderModel parent) {
-        this.parent = parent;
-    }
-
     public int getCount() {
         if (open && children != null)
             return children.size() + 1;
@@ -171,153 +329,24 @@ public class ItemFormRenderModel extends BaseModel {
     public void writeToParcel(Parcel arg0, int arg1) {
     }
 
-    public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels, String parentLabel) {
-        if (schedule.operators == null || schedule.operators.size() == 0) {
-            DebugLog.d("operator none");
-            MyApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
-            return;
-        }
-
-        firstItem = null;
-        int firstColId = -1;
-        for (ColumnModel columnModel : columns) {
-            if (columnModel.position == 1) {
-                firstColId = columnModel.id;
-                DebugLog.d("first column : " + columnModel.column_name + " colid " + columnModel.id);
-                break;
-            }
-        }
-
-        DebugLog.d("first column detected : " + firstColId);
-        if (firstColId == -1)
-            return;
-
-        for (int i = 0; i < rowColumnModels.size(); i++) {
-            DebugLog.d("current row col id : " + rowColumnModels.get(i).id);
-            if (rowColumnModels.get(i).column_id == firstColId) {
-                firstItem = rowColumnModels.remove(i);
-                DebugLog.d("first item id : " + firstItem.id);
-            }
-        }
-
-        if (firstItem == null)
-            return;
-
-        //generate first cell
-        if (firstItem.items.size() != 0) {
-            this.type = TYPE_HEADER;
-            this.workItemModel = firstItem.items.get(0);
-            this.label = workItemModel.label;
-            this.hasPicture = workItemModel.pictureEndPoint != null;
-            DebugLog.d("====================== check if picture is not null : " + workItemModel.pictureEndPoint);
-            if (parentLabel != null)
-                workItemModel.label = workItemModel.label + " \n " + parentLabel;
-            if (this.workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
-                firstItem.items.remove(0);
-            } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
-                DebugLog.d("item details : ");
-                DebugLog.d("item parent label : " + workItemModel.label);
-                DebugLog.d("id : " + workItemModel.id);
-                DebugLog.d("field type : file");
-                DebugLog.d("scope type : " + workItemModel.scope_type);
-                DebugLog.d("isExpand type : " + workItemModel.expand);
-                DebugLog.d("isMandatory : " + workItemModel.mandatory);
-            }
-            ItemFormRenderModel child = new ItemFormRenderModel();
-            child.type = TYPE_HEADER_DIVIDER;
-            child.parent = this;
-            add(child);
-        }
-
-
-        boolean anyInput = checkAnyInput(firstItem.items);
-
-        if (getColumn(firstItem.column_id).column_name != null && !getColumn(firstItem.column_id).column_name.equalsIgnoreCase("")) {
-            if (checkAnyInputHead(firstItem.items)) {
-                ItemFormRenderModel child = new ItemFormRenderModel();
-                child.type = TYPE_COLUMN;
-                child.column = getColumn(firstItem.column_id);
-                child.parent = this;
-                add(child);
-            }
-        }
-
-        DebugLog.d("anyInput = " + anyInput);
-        DebugLog.d("operators size = " + schedule.operators.size());
-        DebugLog.d("operator=" + new Gson().toJson(schedule.operators));
-        DebugLog.d("schedule_values=" + new Gson().toJson(schedule.schedule_values));
-        DebugLog.d("operator number=" + schedule.operator_number);
-        if (!anyInput) {
-            operator = schedule.operators.get(schedule.operator_number);
-            generateItemsPerOperator(firstItem, schedule.operators.get(schedule.operator_number).id);
-            DebugLog.d("operator "+schedule.operator_number);
-        } else {
-            DebugLog.d("operator loop");
-            for (int i = 0; i < schedule.operators.size(); i++) {
-                DebugLog.d("operator id " + schedule.operators.get(i).id);
-                ItemFormRenderModel child = new ItemFormRenderModel();
-                child.type = TYPE_OPERATOR;
-                child.operator = schedule.operators.get(i);
-                child.parent = this;
-                add(child);
-                generateItemsPerOperator(firstItem, schedule.operators.get(i).id);
-                if (schedule.operators.size() - 2 >= 0 && i < schedule.operators.size() - 1) {
-                    child = new ItemFormRenderModel();
-                    child.type = TYPE_LINE_DEVIDER;
-                    child.parent = this;
-                    add(child);
-                }
-            }
-        }
-
-        //generate other cell
-        for (RowColumnModel rowCol : rowColumnModels) {
-            if (rowCol.items.size() > 0) {
-                ItemFormRenderModel child = new ItemFormRenderModel();
-                child.type = TYPE_COLUMN;
-                child.column = getColumn(rowCol.column_id);
-                child.parent = this;
-                add(child);
-                anyInput = checkAnyInput(rowCol.items);
-
-                if (!anyInput) {
-                    generateItemsPerOperator(rowCol, schedule.operators.get(0).id);
-                } else
-                    for (int i = 0; i < schedule.operators.size(); i++) {
-                        child = new ItemFormRenderModel();
-                        child.type = TYPE_OPERATOR;
-                        child.operator = schedule.operators.get(i);
-                        child.parent = this;
-                        add(child);
-                        generateItemsPerOperator(rowCol, schedule.operators.get(i).id);
-                        if (schedule.operators.size() - 2 >= 0 && i < schedule.operators.size() - 1) {
-                            child = new ItemFormRenderModel();
-                            child.type = TYPE_LINE_DEVIDER;
-                            child.parent = this;
-                            add(child);
-                        }
-                    }
-            }
-        }
-    }
-
     private void generateItemsPerOperator(RowColumnModel rowCol, int operatorId) {
         for (int i = 0; i < rowCol.items.size(); i++) {
-            DebugLog.d("item : " + rowCol.items.get(i).label + " id : " + rowCol.items.get(i).id + " operator id : " + operatorId);
-            if (rowCol.items.get(i).id == 441)
-                DebugLog.d("===================== item : " + rowCol.items.get(i).label + " id : " + rowCol.items.get(i).id + "=================");
+            WorkFormItemModel item = rowCol.items.get(i);
+            DebugLog.d("(id, label, field type, scope type, operatorId) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.scope_type + ", " + operatorId + ")");
             if (rowCol.items.get(i).field_type == null)
                 continue;
-            generateViewItem(rowCol.row_id, rowCol.items.get(i), operatorId);
+            generateViewItem(rowCol.row_id, item, operatorId);
         }
     }
 
     //check if any input type
     private boolean checkAnyInput(Vector<WorkFormItemModel> items) {
         for (WorkFormItemModel item : items) {
-            DebugLog.d("scope type : " + item.scope_type);
-            if (item.field_type != null && !item.field_type.equalsIgnoreCase("label") && item.scope_type != null && !item.scope_type.equalsIgnoreCase("all"))
+            if (item.field_type != null && !item.field_type.equalsIgnoreCase("label") && item.scope_type != null && !item.scope_type.equalsIgnoreCase("all")) {
+                DebugLog.d("(id, label, field type, scope type) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.scope_type + ") --> found ");
                 return true;
+            } else
+                DebugLog.d("(id, label, field type, scope type) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.scope_type + ")");
         }
         return false;
     }
@@ -331,9 +360,20 @@ public class ItemFormRenderModel extends BaseModel {
         return false;
     }
 
+    private int getInputTypeItemId(Vector<WorkFormItemModel> items) {
+
+        int itemId = -1;
+        for (WorkFormItemModel item : items) {
+            if (!TextUtils.isEmpty(item.field_type) && !item.field_type.equalsIgnoreCase("label")) {
+                itemId = item.id;
+                DebugLog.d("(id, label, field type, scope type) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.scope_type + ") --> found ");
+            } else
+                DebugLog.d("(id, label, field type, scope type) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.scope_type + ")");
+        }
+        return itemId;
+    }
+
     private void generateViewItem(int rowId, WorkFormItemModel workItemModel, int operatorId) {
-        DebugLog.d("item label : " + workItemModel.label + " id : " + workItemModel.id + " expand="+workItemModel.expand);
-        DebugLog.d("item description : " + workItemModel.description + " id : " + workItemModel.id + "");
         if (workItemModel.pictureEndPoint != null)
             hasPicture = true;
         if (workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
@@ -345,7 +385,6 @@ public class ItemFormRenderModel extends BaseModel {
             return;
         }
 
-        DebugLog.d(schedule.id + " | " + workItemModel.id + " | " + operatorId + " | " + rowId);
         ItemFormRenderModel child = new ItemFormRenderModel();
 
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
@@ -354,7 +393,6 @@ public class ItemFormRenderModel extends BaseModel {
             child.itemValue = FormValueModel.getItemValue(schedule.id, workItemModel.id, operatorId, wargaId, barangId);
         } else {
             child.itemValue = FormValueModel.getItemValue(schedule.id, workItemModel.id, operatorId);
-
         }
 
         child.rowId = rowId;
@@ -368,29 +406,25 @@ public class ItemFormRenderModel extends BaseModel {
             this.addFillableTask();
             child.parent = this;
             add(child);
-            return;
         } else if (workItemModel.field_type.equalsIgnoreCase("text_field")) {
+            Log.d("default_value", "default value : " + child.workItemModel.default_value);
             hasInput = true;
             child.type = TYPE_TEXT_INPUT;
-            Log.d("default_value", "default value : " + child.workItemModel.default_value);
             this.addFillableTask();
             child.parent = this;
             add(child);
-            return;
         } else if (workItemModel.field_type.equalsIgnoreCase("checkbox")) {
             hasInput = true;
             child.type = TYPE_CHECKBOX;
             this.addFillableTask();
             child.parent = this;
             add(child);
-            return;
         } else if (workItemModel.field_type.equalsIgnoreCase("radio") || workItemModel.field_type.equalsIgnoreCase("dropdown")) {
             hasInput = true;
             child.type = TYPE_RADIO;
             this.addFillableTask();
             child.parent = this;
             add(child);
-            return;
         } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
             hasInput = true;
             child.type = TYPE_PICTURE_RADIO;
@@ -400,7 +434,6 @@ public class ItemFormRenderModel extends BaseModel {
                 child.operator = this.children.remove(this.children.size() - 1).operator;
             add(child);
         }
-        return;
     }
 
     public String getLabel() {

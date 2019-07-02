@@ -3,31 +3,30 @@ package com.sap.inspection.fragments;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.sap.inspection.R;
-import com.sap.inspection.listener.FormActivityListener;
+import com.sap.inspection.listener.GroupActivityListener;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.views.adapter.NavigationAdapter;
+import com.sap.inspection.views.adapter.GroupsAdapter;
 
-public class NavigationFragment extends BaseFragment {
-	private NavigationAdapter adapter;
+public class GroupFragment extends BaseFragment {
+	private GroupsAdapter adapter;
 	private ListView list;
 	private View back, mainmenu;
 	private TextView title, subTitle;
-	private RowModel navigationModel;
+	private RowModel groupItems;
 	private ScheduleBaseModel schedule;
     private String workTypeName;
 
-	private FormActivityListener backPressedListener;
+	private GroupActivityListener backPressedListener;
 
-	public static NavigationFragment newInstance() {
-		NavigationFragment fragment = new NavigationFragment();
+	public static GroupFragment newInstance() {
+		GroupFragment fragment = new GroupFragment();
 		return fragment;
 	}
 
@@ -35,7 +34,7 @@ public class NavigationFragment extends BaseFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		DebugLog.d("onCreate");
-		adapter = new NavigationAdapter(activity);
+		adapter = new GroupsAdapter(activity);
 	}
 
 	@Override
@@ -55,7 +54,7 @@ public class NavigationFragment extends BaseFragment {
 		mainmenu = root.findViewById(R.id.action_right);
 		mainmenu.setOnClickListener(v -> getActivity().finish());
 		list.setAdapter(adapter);
-		adapter.setItems(navigationModel);
+		adapter.setItems(groupItems);
 		adapter.setScheduleId(schedule.id);
 		adapter.setWorkTypeName(workTypeName);
 		return root;
@@ -65,20 +64,20 @@ public class NavigationFragment extends BaseFragment {
 		this.schedule = schedule;
 	}
 
-	public void setFormActivityListener(FormActivityListener backPressedListener) {
+	public void setGroupActivityListener(GroupActivityListener backPressedListener) {
 		this.backPressedListener = backPressedListener;
 	}
 	
-	public void setNavigationModel(RowModel navigationModel) {
-		this.navigationModel = navigationModel;
+	public void setGroupItems(RowModel groupItems) {
+		this.groupItems = groupItems;
 	}
 
 	public void setWorkTypeName(String workTypeName) {
 	    this.workTypeName = workTypeName;
     }
 
-    public void setItems(RowModel rowModel) {
-		adapter.setItems(rowModel);
+    public void setItems(RowModel groupItems) {
+		adapter.setItems(groupItems);
 	}
 	public void refreshItems() {
 		adapter.notifyDataSetChanged();

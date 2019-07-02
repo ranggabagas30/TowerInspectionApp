@@ -107,6 +107,15 @@
         android:descendantFocusability="beforeDescendants"
         android:dividerHeight="0dp"
         android:paddingLeft="@dimen/padding_large"
-        android:paddingRight="@dimen/padding_large" />
+        android:paddingRight="@dimen/padding_large"
+        android:visibility="visible"/>
 
+    <include
+        android:id="@+id/item_form_empty_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_search"
+        android:visibility="gone"
+        layout="@layout/item_form_empty"
+        />
 </RelativeLayout>

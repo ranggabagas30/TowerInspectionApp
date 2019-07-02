@@ -650,7 +650,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		protected Void doInBackground(Void... params) {
 			rowModel = new RowModel();
-			rowModel = rowModel.getItemById(workFormGroupId, rowId);
+			rowModel = rowModel.getAllItemsByRowId(workFormGroupId, rowId);
 			column = ColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
 
 			ItemFormRenderModel form;

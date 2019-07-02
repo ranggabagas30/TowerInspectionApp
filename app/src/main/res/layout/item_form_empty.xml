@@ -2,7 +2,8 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#eeeeee">
 
     <com.sap.inspection.view.MyTextView
         android:id="@+id/item_form_label"
@@ -10,13 +11,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="#ffffff"
         android:paddingBottom="@dimen/padding_small"
         android:paddingLeft="@dimen/padding_large"
         android:paddingRight="@dimen/padding_large"
         android:paddingTop="@dimen/padding_small"
         android:text="Tidak ada item"
-        android:textSize="25sp"
+        android:textSize="30sp"
         android:textColor="#666666" />
 
 </RelativeLayout>
