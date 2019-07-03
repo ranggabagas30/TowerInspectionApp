@@ -57,7 +57,9 @@ import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
+import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
@@ -745,8 +747,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			//check if the head has a form
 			DebugLog.d("\nGet header form fill and its children items...");
 			for(int i = 0; i < rowModel.row_columns.size(); i++){
-				DebugLog.d(i + ". row col id : " + rowModel.row_columns.get(i).id);
-				if (rowModel.row_columns.get(i).items.size() > 0){
+
+				RowColumnModel rowColHeader = rowModel.row_columns.get(i);
+				DebugLog.d(i + ". row col id : " + rowColHeader.id);
+
+				boolean foundHiddenItem = false;
+				for (WorkFormItemModel item : rowColHeader.items) {
+					if (!item.visible) {
+						foundHiddenItem = true;
+						break;
+					}
+				}
+
+				if (rowColHeader.items.size() > 0 && !foundHiddenItem){
 					finishInflate = false;
 					checkHeaderName(rowModel);
 					form = new ItemFormRenderModel();
@@ -783,43 +796,55 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			//check if the child has a form
 			String parentLabel = null;
 			DebugLog.d("\n\nlooping children with size : " + rowModel.children.size());
-			for (RowModel childrenItem : rowModel.children) {
+			for (RowModel rowChildren : rowModel.children) {
 
-				x++;
-				DebugLog.d("\nchildren ke-" + x + " with id " + childrenItem.id);
-				DebugLog.d("checking item's header label..");
-				checkHeaderName(childrenItem);
-				publishProgress(x * 100 / rowModel.children.size());
-				finishInflate = false;
-				form = new ItemFormRenderModel();
-				form.setSchedule(schedule);
-				form.setColumn(column);
-				form.setWargaid(wargaId);
-				form.setBarangid(barangId);
-				form.setWorkTypeName(workTypeName);
-				form.setWorkFormGroupName(workFormGroupName);
-				form.setWorkFormGroupId(workFormGroupId);
-				form.setRowColumnModels(childrenItem.row_columns,parentLabel);
-				if (form.hasInput){
-					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
-					String label = form.getLabel();
-					while (labels.indexOf(label) != -1){
-						label = label+".";
+				boolean foundHiddenItem = false;
+				for (RowColumnModel rowColumnChildren : rowChildren.row_columns) {
+					for (WorkFormItemModel itemChildren : rowColumnChildren.items){
+						if (!itemChildren.visible){
+							foundHiddenItem = true;
+							break;
+						}
 					}
+				}
 
-					if (TextUtils.isEmpty(label)) {
-						label = "item with no label";
-					}
+				if (!foundHiddenItem) {
+					x++;
+					DebugLog.d("\nchildren ke-" + x + " with id " + rowChildren.id);
+					DebugLog.d("checking item's header label..");
+					checkHeaderName(rowChildren);
+					publishProgress(x * 100 / rowModel.children.size());
+					finishInflate = false;
+					form = new ItemFormRenderModel();
+					form.setSchedule(schedule);
+					form.setColumn(column);
+					form.setWargaid(wargaId);
+					form.setBarangid(barangId);
+					form.setWorkTypeName(workTypeName);
+					form.setWorkFormGroupName(workFormGroupName);
+					form.setWorkFormGroupId(workFormGroupId);
+					form.setRowColumnModels(rowChildren.row_columns,parentLabel);
+					if (form.hasInput){
+						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
+						String label = form.getLabel();
+						while (labels.indexOf(label) != -1){
+							label = label+".";
+						}
 
-					labels.add(label);
-					DebugLog.d("indexes : " + indexes.get(indexes.size()-1));
-					DebugLog.d("label : " + label);
-					formModels.add(form);
+						if (TextUtils.isEmpty(label)) {
+							label = "item with no label";
+						}
 
-				}else
-					parentLabel = form.getLabel();
-//				setPercentage(childrenItem.id);
+						labels.add(label);
+						DebugLog.d("indexes : " + indexes.get(indexes.size()-1));
+						DebugLog.d("label : " + label);
+						formModels.add(form);
+
+					}else
+						parentLabel = form.getLabel();
+				}
 			}
+
 			return null;
 		}
 		

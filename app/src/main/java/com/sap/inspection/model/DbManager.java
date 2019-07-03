@@ -15,6 +15,7 @@ import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.model.migrate.BlankPatch;
 import com.sap.inspection.model.migrate.DBPatch;
 import com.sap.inspection.model.migrate.GeneralDropCreatePatch;
+import com.sap.inspection.model.migrate.GeneralPatch10;
 import com.sap.inspection.model.migrate.GeneralPatch5;
 import com.sap.inspection.model.migrate.GeneralPatch6;
 import com.sap.inspection.model.migrate.GeneralPatch7;
@@ -80,7 +81,8 @@ public class DbManager extends SQLiteOpenHelper {
 	public static final String colStatus 		= "status";
 	public static final String colSumTask 		= "sumTask";
 	public static final String colSumDone 		= "sumDone";
-	public static final String colOperatorNumber 		= "operatorNumber";
+	public static final String colOperatorNumber= "operatorNumber";
+	public static final String colHiddenItemIds	= "hiddenItemIds";
 
 	// work form
 	public static final String mWorkForm 		= "WorkForms";
@@ -285,7 +287,8 @@ public class DbManager extends SQLiteOpenHelper {
 			new GeneralPatch6(),				// 5
 			new GeneralPatch7(),				// 6
 			new GeneralPatch8(),				// 8
-			new GeneralPatch9()					// 9
+			new GeneralPatch9(),				// 9
+			new GeneralPatch10()				// 10
 	};
 
 	public static void dropTable(SQLiteDatabase db){

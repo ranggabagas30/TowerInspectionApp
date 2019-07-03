@@ -22,6 +22,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.listener.ActivityLifecycleHandler;
 import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.TextMarkDisplayOptionsModel;
@@ -45,7 +46,7 @@ import io.fabric.sdk.android.Fabric;
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
-public class MyApplication extends Application {
+public class MyApplication extends Application implements ActivityLifecycleHandler.LifecycleListener {
 
 	private UncaughtExceptionHandler defaultUEH;
 	private static MyApplication instance;
@@ -71,6 +72,104 @@ public class MyApplication extends Application {
 
 	public static Context getContext() {
 		return instance;
+	}
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+
+		registerActivityLifecycleCallbacks(new ActivityLifecycleHandler(this));
+
+		//1. initialization crashlytics
+		Fabric.with(this, new Crashlytics());
+
+		//2. initialization stetho facebook debug
+		if (BuildConfig.DEBUG) {
+			Stetho.initializeWithDefaults(this);
+			AESCrypt.DEBUG_LOG_ENABLED = true;
+		}
+
+		//3. initialization image loader configuration
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
+				.memoryCacheSize(20 * 1024 * 1024)
+				.discCacheSize(104857600)
+				.threadPoolSize(10)
+				.build();
+
+		// Initialize ImageLoader with configuration.
+		ImageLoader.getInstance().init(config);
+
+		//4. initialization text mark settings for photo item
+		TextMarkDisplayOptionsModel textOption = new TextMarkDisplayOptionsModel.Builder(getApplicationContext())
+				.setTextColor(Color.WHITE)
+				.setTextColorStyle(Paint.Style.FILL)
+				.setTextAlign(Paint.Align.LEFT)
+				.setTextStyle(Typeface.BOLD)
+				.setTextFamilyName("Helvetica")
+				.build();
+
+		TextMarkModel.getInstance().init(textOption);
+
+		//5. initialization firebase FCM
+		FirebaseInstanceId.getInstance().getInstanceId()
+				.addOnSuccessListener(instanceIdResult -> {
+
+					DebugLog.d("FIREBASE INSTANCE ID ; " + instanceIdResult.getId());
+					DebugLog.d("FIREBASE TOKEN : " + instanceIdResult.getToken());
+
+				}).addOnFailureListener(Throwable::printStackTrace);
+
+
+		//6.initialization SQLite DB manager
+		DbRepository.initializedInstance();
+		DbRepositoryValue.initializedInstance();
+
+		DebugLog.d("Storage dirs list : \n");
+		String[] storageDirectories = CommonUtil.getStorageDirectories(getApplicationContext());
+		for (String dir : storageDirectories) {
+			DebugLog.d(dir + "\n");
+		}
+
+		try {
+			keyGenerator = KeyGenerator.getInstance("AES");
+			keyGenerator.init(128);
+			key = keyGenerator.generateKey();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+
+		IN_CHECK_HASIL_PM = false;
+		SCHEDULE_NEED_CHECK_IN = false;
+		CHECK_APP_VERSION_STATE = false;
+		DEVICE_REGISTER_STATE = false;
+		IN_FORM_IMBAS_PETIR = false;
+		checkinDataModel = new CheckinDataModel();
+	}
+
+	@Override
+	public void onTerminate() {
+		super.onTerminate();
+		unregisterActivityLifecycleCallbacks(new ActivityLifecycleHandler(this));
+	}
+
+	@Override
+	public void onApplicationStopped() {
+		DebugLog.d("application stopped");
+	}
+
+	@Override
+	public void onApplicationStarted() {
+		DebugLog.d("application started");
+	}
+
+	@Override
+	public void onApplicationPaused() {
+		DebugLog.d("application paused");
+	}
+
+	@Override
+	public void onApplicationResumed() {
+		DebugLog.d("application resumed");
 	}
 
 	/**
@@ -156,75 +255,6 @@ public class MyApplication extends Application {
                 emailIntent, "Send mail..."));
     }
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-
-		//1. initialization crashlytics
-		Fabric.with(this, new Crashlytics());
-
-		//2. initialization stetho facebook debug
-		if (BuildConfig.DEBUG) {
-			Stetho.initializeWithDefaults(this);
-			AESCrypt.DEBUG_LOG_ENABLED = true;
-		}
-
-		//3. initialization image loader configuration
-		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-		.memoryCacheSize(20 * 1024 * 1024)
-		.discCacheSize(104857600)
-		.threadPoolSize(10)
-		.build();
-
-		// Initialize ImageLoader with configuration.
-		ImageLoader.getInstance().init(config);
-
-		//4. initialization text mark settings for photo item
-		TextMarkDisplayOptionsModel textOption = new TextMarkDisplayOptionsModel.Builder(getApplicationContext())
-				.setTextColor(Color.WHITE)
-				.setTextColorStyle(Paint.Style.FILL)
-				.setTextAlign(Paint.Align.LEFT)
-				.setTextStyle(Typeface.BOLD)
-				.setTextFamilyName("Helvetica")
-				.build();
-
-		TextMarkModel.getInstance().init(textOption);
-
-		//5. initialization firebase FCM
-		FirebaseInstanceId.getInstance().getInstanceId()
-				.addOnSuccessListener(instanceIdResult -> {
-
-					DebugLog.d("FIREBASE INSTANCE ID ; " + instanceIdResult.getId());
-					DebugLog.d("FIREBASE TOKEN : " + instanceIdResult.getToken());
-
-				}).addOnFailureListener(Throwable::printStackTrace);
-
-
-		//6.initialization SQLite DB manager
-		DbRepository.initializedInstance();
-		DbRepositoryValue.initializedInstance();
-
-		DebugLog.d("Storage dirs list : \n");
-		String[] storageDirectories = CommonUtil.getStorageDirectories(getApplicationContext());
-		for (String dir : storageDirectories) {
-			DebugLog.d(dir + "\n");
-		}
-
-		try {
-			keyGenerator = KeyGenerator.getInstance("AES");
-			keyGenerator.init(128);
-			key = keyGenerator.generateKey();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-
-		IN_CHECK_HASIL_PM = false;
-		SCHEDULE_NEED_CHECK_IN = false;
-		CHECK_APP_VERSION_STATE = false;
-		DEVICE_REGISTER_STATE = false;
-		IN_FORM_IMBAS_PETIR = false;
-		checkinDataModel = new CheckinDataModel();
-	}
 
 	/**
      * new analytics tracker from Firebase
