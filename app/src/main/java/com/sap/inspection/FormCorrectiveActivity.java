@@ -195,7 +195,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 		@Override
 		protected Void doInBackground(Void... params) {
 			CorrectiveValueModel lastModel = new CorrectiveValueModel();
-			correctiveValueModels = lastModel.getCorrectiveValue(schedule.id);
+			correctiveValueModels = lastModel.getCorrectiveValues(schedule.id);
 			lastModel = null;
 			
 			int x = 0;

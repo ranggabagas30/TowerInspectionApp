@@ -1,17 +1,21 @@
 package com.sap.inspection.task;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.MainActivity;
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.R;
 import com.sap.inspection.SettingActivity;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.PrefUtil;
 
 import de.greenrobot.event.EventBus;
 

@@ -16,8 +16,7 @@ public abstract class BaseTitleFragment extends BaseFragment {
 	private RelativeLayout header;
 	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_with_titleheader, null, false);
 		header = (RelativeLayout) root.findViewById(R.id.header);
 		View headerTitleLayout = inflater.inflate(R.layout.header_title, header, true);

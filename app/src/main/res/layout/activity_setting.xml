@@ -317,8 +317,9 @@
                     android:text="Muat Ulang Jadwal"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
+
                 <Button
-                    android:id="@+id/deleteSchedule"
+                    android:id="@+id/deleteAndUpdateSchedule"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_button_green_small_padding"
@@ -326,6 +327,17 @@
                     android:textColor="@android:color/white"
                     android:layout_marginTop="@dimen/padding_medium"
                     android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/updateCorrectiveSchedule"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selector_button_green_small_padding"
+                    android:text="Muat Ulang Jadwal Corrective"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="@dimen/padding_medium"
+                    android:textStyle="bold" />
+
             </LinearLayout>
 
             <LinearLayout

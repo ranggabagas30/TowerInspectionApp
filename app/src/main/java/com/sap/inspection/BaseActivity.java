@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -22,7 +23,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -31,7 +31,6 @@ import com.google.android.gms.analytics.Tracker;*/
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -45,23 +44,23 @@ import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
-import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
-import com.sap.inspection.model.config.formimbaspetir.Warga;
+import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
+import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.VersionModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.PrefUtil;
-import com.sap.inspection.util.StringUtil;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -72,8 +71,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -336,18 +335,16 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		showMessageDialog(getString(R.string.getScheduleFromServer));
 		APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
 
-		/*if (GlobalVar.getInstance().anyNetwork(this))
-			APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
-		else {
-			// network not available
-			DebugLog.d(context.getString(R.string.checkConnection));
-			MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
-		}*/
 	}
 
 	protected void downloadSchedules() {
 		showMessageDialog(getString(R.string.getScheduleFromServer));
 		APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+	}
+
+	protected void downloadCorrectiveSchedules() {
+		showMessageDialog("Mendapatkan Corrective Schedule dari server");
+		APIHelper.getCorrectiveSchedule(activity, correctiveScheduleHandler, getPreference(R.string.user_id, ""));
 	}
 
 	private void initFormOffline(){
@@ -473,12 +470,12 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		ft.commit();
 	}
 
-    protected void navigateToFragment(BaseFragment fragment, int viewContainerResId) {
+    protected void replaceFragmentWith(BaseFragment fragment, int viewContainerResId) {
 		FragmentManager fm = getSupportFragmentManager();
-		navigateToFragment(fm, fragment, viewContainerResId);
+		replaceFragmentWith(fm, fragment, viewContainerResId);
     }
 
-	protected void navigateToFragment(FragmentManager fragmentManager, BaseFragment fragment, int viewContainerResId) {
+	protected void replaceFragmentWith(FragmentManager fragmentManager, BaseFragment fragment, int viewContainerResId) {
 		FragmentTransaction ft = fragmentManager.beginTransaction();
 		ft.replace(viewContainerResId, fragment);
 		ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -491,8 +488,8 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		MyApplication.getContext().startActivity(i);
 	}
 
-	public static void navigateToFormActivity(Context context, String scheduleId, int siteId, int workTypeId, String workTypeName, String dayDate) {
-		Intent intent = new Intent(context, FormActivity.class);
+	public static void navigateToGroupActivity(Context context, String scheduleId, int siteId, int workTypeId, String workTypeName, String dayDate) {
+		Intent intent = new Intent(context, GroupActivity.class);
 		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 		intent.putExtra(Constants.KEY_SITEID, siteId);
 		intent.putExtra(Constants.KEY_DAYDATE, dayDate);
@@ -501,8 +498,8 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		context.startActivity(intent);
 	}
 
-	public static void navigateToFormActivityWarga(Context context, int dataIndex, String scheduleId, String parentId, int rowId, String workFormGroupId, String workFormGroupName, String workTypeName, String wargaId) {
-		Intent intent = new Intent(context, FormActivityWarga.class);
+	public static void navigateToGroupWargaActivity(Context context, int dataIndex, String scheduleId, String parentId, int rowId, String workFormGroupId, String workFormGroupName, String workTypeName, String wargaId) {
+		Intent intent = new Intent(context, GroupWargaActivity.class);
 		intent.putExtra(Constants.KEY_DATAINDEX, dataIndex);
 		intent.putExtra(Constants.KEY_SCHEDULEID, scheduleId);
 		intent.putExtra(Constants.KEY_PARENTID, parentId);
@@ -551,6 +548,43 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 	 * ===== list all handlers ======
 	 *
 	 * */
+	@SuppressLint("HandlerLeak")
+	public Handler correctiveScheduleHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+
+			hideDialog();
+
+			Bundle bundle = msg.getData();
+			Gson gson = new Gson();
+
+			boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+			if (isResponseOK) {
+
+				if (bundle.getString("json") != null) {
+					String jsonCorrectiveSchedule = bundle.getString("json");
+
+					CorrectiveScheduleResponseModel correctiveData = gson.fromJson(jsonCorrectiveSchedule, CorrectiveScheduleResponseModel.class);
+					if (correctiveData != null) {
+
+						CorrectiveScheduleConfig.setCorrectiveScheduleConfig(correctiveData);
+
+						DebugLog.d("save corrective schedule config");
+						MyApplication.getInstance().toast("Corrective schedules data berhasil diunduh", Toast.LENGTH_SHORT);
+					}
+				} else {
+
+					MyApplication.getInstance().toast("JSON == null. Gagal mengunduh data schedule Corrective", Toast.LENGTH_LONG);
+				}
+
+			} else {
+
+				MyApplication.getInstance().toast("Response not OK. Gagal mengunduh data schedule Corrective", Toast.LENGTH_LONG);
+			}
+		}
+	};
+
 	@SuppressLint("HandlerLeak")
 	Handler scheduleHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {

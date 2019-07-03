@@ -1,71 +1,47 @@
 package com.sap.inspection.views.adapter;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
-import android.text.InputType;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.rindang.zconfig.APIList;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.CheckInActivity;
-import com.sap.inspection.FormActivity;
-import com.sap.inspection.FormActivityWarga;
-import com.sap.inspection.FormFillActivity;
+import com.sap.inspection.GroupActivity;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
-import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.model.form.WorkFormGroupModel;
-import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteWargaAndBarangDialog;
-import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.StringUtil;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
-public class NavigationAdapter extends MyBaseAdapter {
+public class GroupsAdapter extends MyBaseAdapter {
 
 	private Context context;
-	private RowModel model;
+	private RowModel groupItems;
 	private Vector<RowModel> shown;
 	private String scheduleId;
 	private String workTypeName;
@@ -74,10 +50,10 @@ public class NavigationAdapter extends MyBaseAdapter {
     private int positionAncestry;
 	int dataIndex = -1;
 
-	public NavigationAdapter(Context context) {
+	public GroupsAdapter(Context context) {
 		this.context = context;
-		if (null == model)
-			model = new RowModel();
+		if (null == groupItems)
+			groupItems = new RowModel();
 		if (null == shown)
 			shown = new Vector<RowModel>();
 	}
@@ -89,6 +65,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 		this.scheduleId = scheduleId;
 		dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
 	}
+
 	public String getScheduleId() {
 		return scheduleId;
 	}
@@ -97,46 +74,46 @@ public class NavigationAdapter extends MyBaseAdapter {
 		this.workTypeName = workTypeName;
 	}
 
-	public void setItems(RowModel model){
-		this.model = model;
-		DebugLog.d("model size : " + model.children.size());
+	public void setItems(RowModel groupItems){
+		this.groupItems = groupItems;
+		DebugLog.d("groupItems size : " + groupItems.children.size());
 		notifyDataSetChanged();
 	}
 
 	public void removeItem(RowModel removeItem) {
 
-    	RowModel newRowItems = model;
-		Vector<RowModel> dummyRowItems = new Vector<>();
+    	RowModel newGroupItems = groupItems;
+		Vector<RowModel> dummyGroupItems = new Vector<>();
 
-    	DebugLog.d("initial new row items size = " + newRowItems.children.size());
+    	DebugLog.d("initial new row items size = " + newGroupItems.children.size());
 		DebugLog.d("shown size = " + shown.size());
 
 		DebugLog.d("\n\n === start iterating === ");
-		for (RowModel navItem : newRowItems.children) { // prefer using newRowItems.children not model.children
+		for (RowModel groupItem : newGroupItems.children) { // prefer using newGroupItems.children not groupItems.children
 														// avoid ConcurrentModificationException while looping over Java ArrayList
 
-			DebugLog.d("nav label : " + navItem.text);
-			if (!navItem.text.equalsIgnoreCase(removeItem.text)) {
+			DebugLog.d("nav label : " + groupItem.text);
+			if (!groupItem.text.equalsIgnoreCase(removeItem.text)) {
 
-				if (navItem.children != null && !navItem.children.isEmpty()) {
+				if (groupItem.children != null && !groupItem.children.isEmpty()) {
 
-					Vector<RowModel> newSubNavItems = new Vector<>();
-					for (RowModel subNavItem : navItem.children) {
+					Vector<RowModel> subGroupItems = new Vector<>();
+					for (RowModel subGroupItem : groupItem.children) {
 
-						DebugLog.d("== sub nav label : " + subNavItem.text);
-						if (!subNavItem.text.equalsIgnoreCase(removeItem.text)) {
+						DebugLog.d("== sub nav label : " + subGroupItem.text);
+						if (!subGroupItem.text.equalsIgnoreCase(removeItem.text)) {
 
-							newSubNavItems.add(subNavItem);
+							subGroupItems.add(subGroupItem);
 
 						} else {
 
 							DebugLog.d("--> sub nav excluded");
 						}
 					}
-					navItem.children = newSubNavItems;
+					groupItem.children = subGroupItems;
 				}
 
-				dummyRowItems.add(navItem);
+				dummyGroupItems.add(groupItem);
 
 			} else {
 
@@ -145,33 +122,29 @@ public class NavigationAdapter extends MyBaseAdapter {
 		}
 		DebugLog.d("\n\n === stop iterating === ");
 
-		newRowItems.children = dummyRowItems;
-		DebugLog.d("new row items size : " + newRowItems.children.size());
+		newGroupItems.children = dummyGroupItems;
+		DebugLog.d("new row items size : " + newGroupItems.children.size());
 
-		setItems(newRowItems);
+		setItems(newGroupItems);
 	}
 
 	@Override
 	public void notifyDataSetChanged() {
-		shown = model.getModels();
+		shown = groupItems.getModels();
 		DebugLog.d("shown size = "+shown.size());
 
         int position = 0;
-        for (RowModel rowModel : shown) {
+        for (RowModel groupItem : shown) {
 
-        	/*if (rowModel.text.contains(Constants.regexId) && !rowModel.text.matches("\\s*\\([A-Za-z]+\\)")) {
-
-        		rowModel.text = StringUtil.getIdWithName(scheduleId, rowModel.text, rowModel.work_form_group_id);
-			}*/
-			DebugLog.d("id : " + rowModel.id);
-			DebugLog.d("workFormGroupId : " + rowModel.work_form_group_id);
-			DebugLog.d("name : " + rowModel.text);
-			DebugLog.d("ancestry : " + rowModel.ancestry);
-			DebugLog.d("parentId : " + rowModel.parent_id);
-            if (rowModel.children != null) {
-                DebugLog.d("children size : " + rowModel.children.size());
+			DebugLog.d("id : " + groupItem.id);
+			DebugLog.d("workFormGroupId : " + groupItem.work_form_group_id);
+			DebugLog.d("name : " + groupItem.text);
+			DebugLog.d("ancestry : " + groupItem.ancestry);
+			DebugLog.d("parentId : " + groupItem.parent_id);
+            if (groupItem.children != null) {
+                DebugLog.d("children size : " + groupItem.children.size());
                 int childPosition = 0;
-                for (RowModel child : rowModel.children) {
+                for (RowModel child : groupItem.children) {
                     DebugLog.d("--- child id : " + child.id);
 					DebugLog.d("--- child workFormGroupId : " + child.work_form_group_id);
                     DebugLog.d("--- child name : " + child.text);
@@ -217,7 +190,8 @@ public class NavigationAdapter extends MyBaseAdapter {
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		View view = convertView;
 		final ViewHolder holder;
-		DebugLog.d(getItem(position).ancestry+"/"+getItem(position).id+" | "+getItem(position).text);
+		RowModel groupItem = getItem(position);
+		DebugLog.d(groupItem.ancestry+"/"+groupItem.id+" | "+groupItem.text);
 
 		if (convertView == null) {
 			holder = new ViewHolder();
@@ -227,7 +201,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 				break;
 			case 1:
 				view = LayoutInflater.from(context).inflate(R.layout.item_navigation_2,null);
-				holder.removeSubMenu = view.findViewById(R.id.removesubmenu);
+				holder.removeGroup = view.findViewById(R.id.removesubmenu);
 				break;
 			case 2:
 				view = LayoutInflater.from(context).inflate(R.layout.item_navigation_3,null);
@@ -252,35 +226,29 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 		holder.expandCollapse.setTag(position);
 		holder.uploadWorkFormGroup.setTag(position);
-		holder.title.setText(getItem(position).text);
+		holder.title.setText(groupItem.text);
 		holder.title.setTag(position);
 
 		switch (getItemViewType(position)) {
 		case 0:
 			holder.uploadWorkFormGroup.setVisibility(View.VISIBLE);
 
-			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR) && getItem(position).text.equalsIgnoreCase("Warga"))
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR) && groupItem.text.equalsIgnoreCase("Warga"))
 				holder.uploadWorkFormGroup.setVisibility(View.INVISIBLE);
 
-			holder.expandCollapse.setImageResource(getItem(position).isOpen ? R.drawable.ic_collapse : R.drawable.ic_expand);
+			holder.expandCollapse.setImageResource(groupItem.isOpen ? R.drawable.ic_collapse : R.drawable.ic_expand);
 			break;
 		case 1:
-			holder.expandCollapse.setImageResource(getItem(position).isOpen ? R.drawable.ic_collapse_2 : R.drawable.ic_expand_2);
+			holder.expandCollapse.setImageResource(groupItem.isOpen ? R.drawable.ic_collapse_2 : R.drawable.ic_expand_2);
 
-			RowModel rowModel = getItem(position);
+			holder.removeGroup.setVisibility(View.INVISIBLE);
 
-			DebugLog.d("view type = 1");
-			DebugLog.d("label name = " + rowModel.text);
-
-			holder.removeSubMenu.setVisibility(View.INVISIBLE);
-
-			if (rowModel.text.contains(Constants.regexId)) {
+			if (groupItem.text.contains(Constants.regexId)) {
 
 				DebugLog.d("remove submenu visibility is VISIBLE");
-
-				holder.removeSubMenu.setVisibility(View.VISIBLE);
-				holder.removeSubMenu.setTag(rowModel);
-				holder.removeSubMenu.setOnClickListener(removeSubMenuClickListener);
+				holder.removeGroup.setVisibility(View.VISIBLE);
+				holder.removeGroup.setTag(groupItem);
+				holder.removeGroup.setOnClickListener(removeSubGroupItemsClickListener);
 
 			}
 
@@ -309,18 +277,18 @@ public class NavigationAdapter extends MyBaseAdapter {
 
                     int position = (int) v.getTag();
 
-                    RowModel rowModel = getItem(position);
+                    RowModel groupItem = getItem(position);
 
 					String scheduleId = getScheduleId();
-					int workFormGroupId = rowModel.work_form_group_id;
+					int workFormGroupId = groupItem.work_form_group_id;
 
 					DebugLog.d("scheduleId : " + scheduleId);
 					DebugLog.d("workFormGroupId : " + workFormGroupId);
 
                     if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-						new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY).execute();
+						new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, Constants.EMPTY, Constants.EMPTY).execute();
                     else
-                    	new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, null, null).execute();
+                    	new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, null, null).execute();
 
 				} else {
 					MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
@@ -336,51 +304,52 @@ public class NavigationAdapter extends MyBaseAdapter {
 		itemClickAction(position);
 	};
 
-	OnClickListener removeSubMenuClickListener = v -> {
+	OnClickListener removeSubGroupItemsClickListener = v -> {
 
-		RowModel removeRowModel = (RowModel) v.getTag();
-		showConfirmDeleteWargaDialog(removeRowModel);
+		RowModel removedGroupRow = (RowModel) v.getTag();
+		showConfirmDeleteWargaDialog(removedGroupRow);
 
 	};
 
 	private void itemClickAction(int position) {
 
-		if (getItem(position).id == 0) {
+		RowModel groupItem = getItem(position);
+
+		if (groupItem.id == 0) {
 			positionAncestry = position;
 			DebugLog.d("positionAncestry : " + positionAncestry);
 		}
 
-		if (getItem(position).text.equalsIgnoreCase("others form")){
+		if (groupItem.text.equalsIgnoreCase("others form")){
 
 			DebugLog.d("----ini others form lho----- "+scheduleId);
 			BaseActivity.navigateToFormFillActivity(
 					context,
 					scheduleId,
-					getItem(position).id,
-					getItem(position).work_form_group_id,
+					groupItem.id,
+					groupItem.work_form_group_id,
 					shown.get(positionAncestry).text,
 					workTypeName);
 
-		} else if (getItem(position).hasForm){
+		} else if (groupItem.hasForm){
 
 			DebugLog.d("----schedule id----- "+scheduleId);
 
 			String workFormGroupName = shown.get(positionAncestry).text;
-			Intent intent;
 
 			// if the navigation item is "Warga Ke-"
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR)) {
 
-				if (getItem(position).text.contains(Constants.regexId)) {
+				if (groupItem.text.contains(Constants.regexId)) {
 
 					DebugLog.d("click warga id");
-					int parentId = getItem(position).id;
+					int parentId = groupItem.id;
 
 					ArrayList<Warga> wargas = FormImbasPetirConfig.getDataWarga(dataIndex);
 
 					if (wargas != null && !wargas.isEmpty()) {
 
-						String wargaIdFromLabel = StringUtil.getIdFromLabel(getItem(position).text);
+						String wargaIdFromLabel = StringUtil.getIdFromLabel(groupItem.text);
 						Warga warga = FormImbasPetirConfig.getWarga(wargas, wargaIdFromLabel);
 						String message = "warga is null";
 
@@ -389,13 +358,13 @@ public class NavigationAdapter extends MyBaseAdapter {
 							message = "warga is not null";
 							String wargaId = warga.getWargaid();
 
-							BaseActivity.navigateToFormActivityWarga(
+							BaseActivity.navigateToGroupWargaActivity(
 									context,
 									dataIndex,
 									scheduleId,
 									String.valueOf(parentId),
-									getItem(position).id,
-									String.valueOf(getItem(position).work_form_group_id),
+									groupItem.id,
+									String.valueOf(groupItem.work_form_group_id),
 									workFormGroupName,
 									workTypeName,
 									wargaId
@@ -404,23 +373,23 @@ public class NavigationAdapter extends MyBaseAdapter {
 						DebugLog.e(message);
 					}
 
-				} else if (getItem(position).text.contains(Constants.regexBeritaAcaraClosing) ||
-						getItem(position).text.contains(Constants.regexBeritaAcaraPenghancuran)) {
+				} else if (groupItem.text.contains(Constants.regexBeritaAcaraClosing) ||
+						groupItem.text.contains(Constants.regexBeritaAcaraPenghancuran)) {
 
 					proceedApprovalCheckingFirst(
 							scheduleId,
 							workFormGroupName,
 							workTypeName,
-							getItem(position).id,
-							getItem(position).work_form_group_id);
+							groupItem.id,
+							groupItem.work_form_group_id);
 
 				} else {
 
 					BaseActivity.navigateToFormFillActivity(
 							context,
 							scheduleId,
-							getItem(position).id,
-							getItem(position).work_form_group_id,
+							groupItem.id,
+							groupItem.work_form_group_id,
 							workFormGroupName,
 							workTypeName);
 				}
@@ -429,16 +398,16 @@ public class NavigationAdapter extends MyBaseAdapter {
 				BaseActivity.navigateToFormFillActivity(
 						context,
 						scheduleId,
-						getItem(position).id,
-						getItem(position).work_form_group_id,
+						groupItem.id,
+						groupItem.work_form_group_id,
 						workFormGroupName, workTypeName);
 
 			}
 		} else {
 
-			if (getItem(position).text.contains(Constants.regexTambah)) { // action tambah warga
+			if (groupItem.text.contains(Constants.regexTambah)) { // action tambah warga
 
-				((FormActivity) context).showInputAmountWargaDialog(dataIndex);
+				((GroupActivity) context).showInputAmountWargaDialog(dataIndex);
 
 			} else
 				toggleExpand(position);
@@ -477,7 +446,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 
 						if (isSuccessful) {
 
-							ItemValueModel.deleteAllBy(scheduleId, realWargaDeletedid, Constants.EMPTY);
+							FormValueModel.deleteAllBy(scheduleId, realWargaDeletedid, Constants.EMPTY);
 
 							removeItem(removedWargaItem);
 							DebugLog.d("remove wargaid berhasil dengan message : " + responseDeleteWargaModel.messages);
@@ -498,12 +467,13 @@ public class NavigationAdapter extends MyBaseAdapter {
 	}
 
 	private void toggleExpand(int position){
-		if (getItem(position).isOpen){
-			getItem(position).isOpen = false;
+		RowModel groupItem = getItem(position);
+		if (groupItem.isOpen){
+			groupItem.isOpen = false;
 			DebugLog.d("closed");
 		}
-		else if (getItem(position).children != null && getItem(position).children.size() > 0){
-			getItem(position).isOpen = true;
+		else if (groupItem.children != null && groupItem.children.size() > 0){
+			groupItem.isOpen = true;
 			DebugLog.d("open");
 		}else{
 			DebugLog.d("not open");
@@ -588,7 +558,7 @@ public class NavigationAdapter extends MyBaseAdapter {
 	private class ViewHolder {
 		ImageView expandCollapse;
 		ImageView uploadWorkFormGroup;
-		ImageView removeSubMenu;
+		ImageView removeGroup;
 		TextView title;
 	}
 }

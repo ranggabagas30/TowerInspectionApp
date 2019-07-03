@@ -9,25 +9,11 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.RowColumnModel;
-import com.sap.inspection.model.form.WorkFormItemModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.Key;
-import java.security.SecureRandom;
-import java.util.Vector;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 public class StringUtil {
 
@@ -179,7 +165,7 @@ public class StringUtil {
 
                 }
 
-                ItemValueModel itemInformasiDiri = ItemValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, wargaId, barangId);
+                FormValueModel itemInformasiDiri = FormValueModel.getItemValue(scheduleId, rowColumnWarga.row_id, wargaId, barangId);
                 if (itemInformasiDiri != null) {
 
                     DebugLog.d("full name : " + itemInformasiDiri.value);

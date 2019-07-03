@@ -1,16 +1,11 @@
 package com.sap.inspection.model.value;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
-import android.os.Debug;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -22,29 +17,21 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.BaseModel;
-import com.sap.inspection.model.DbManager;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
-import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
@@ -56,7 +43,7 @@ import static com.crashlytics.android.Crashlytics.log;
 //import static com.sap.inspection.model.value.DbManagerValue.material_request;
 
 
-public class ItemValueModel extends BaseModel {
+public class FormValueModel extends BaseModel {
 	public static final int UPLOAD_NONE = 0;
 	public static final int UPLOAD_ONGOING = 1;
 	public static final int UPLOAD_DONE = 2;
@@ -157,9 +144,9 @@ public class ItemValueModel extends BaseModel {
 		DbRepositoryValue.getInstance().close();
 	}
 
-	public static ArrayList<ItemValueModel> getAllItemValueByScheduleId (String scheduleId) {
+	public static ArrayList<FormValueModel> getAllItemValueByScheduleId (String scheduleId) {
 
-		ArrayList<ItemValueModel> listModel = null;
+		ArrayList<FormValueModel> listModel = null;
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
 		String where = DbManagerValue.colScheduleId+"=?";
@@ -171,7 +158,7 @@ public class ItemValueModel extends BaseModel {
 
 		if (cursor.moveToFirst()) {
 			do {
-				ItemValueModel model;
+				FormValueModel model;
 				model = getSiteFromCursor(cursor);
 				listModel.add(model);
 			} while (cursor.moveToNext());
@@ -193,12 +180,12 @@ public class ItemValueModel extends BaseModel {
 		return count;
 	}
 
-	public static ItemValueModel getItemValue(String scheduleId, int itemId, int operatorId) {
+	public static FormValueModel getItemValue(String scheduleId, int itemId, int operatorId) {
 
 		return getItemValue(scheduleId, itemId, operatorId, null, null);
 
 	}
-	public static ItemValueModel getItemValue(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {
+	public static FormValueModel getItemValue(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {
 
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
@@ -237,14 +224,14 @@ public class ItemValueModel extends BaseModel {
 			return null;
 		}
 
-		ItemValueModel model = getSiteFromCursor(cursor);
+		FormValueModel model = getSiteFromCursor(cursor);
 
 		cursor.close();
 		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
-	public static ArrayList<ItemValueModel> getItemValues(String scheduleId, int itemId, String wargaId, String barangId) {
+	public static ArrayList<FormValueModel> getItemValues(String scheduleId, int itemId, String wargaId, String barangId) {
 
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
@@ -281,11 +268,11 @@ public class ItemValueModel extends BaseModel {
 			return null;
 		}
 
-		ArrayList<ItemValueModel> results = new ArrayList<>();
+		ArrayList<FormValueModel> results = new ArrayList<>();
 
 		do {
 
-			ItemValueModel model = getSiteFromCursor(cursor);
+			FormValueModel model = getSiteFromCursor(cursor);
 			results.add(model);
 
 		} while (cursor.moveToNext());
@@ -295,7 +282,7 @@ public class ItemValueModel extends BaseModel {
 		return results;
 	}
 
-	public static ItemValueModel getItemValue(String scheduleId, int rowId, String wargaId, String barangId) {
+	public static FormValueModel getItemValue(String scheduleId, int rowId, String wargaId, String barangId) {
 
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
@@ -331,17 +318,17 @@ public class ItemValueModel extends BaseModel {
 			return null;
 		}
 
-		ItemValueModel model = getSiteFromCursor(cursor);
+		FormValueModel model = getSiteFromCursor(cursor);
 
 		cursor.close();
 		DbRepositoryValue.getInstance().close();
 		return model;
 	}
 
-	public static ArrayList<ItemValueModel> getItemValuesForUpload() {
+	public static ArrayList<FormValueModel> getItemValuesForUpload() {
 
 
-		ArrayList<ItemValueModel> model = new ArrayList<ItemValueModel>();
+		ArrayList<FormValueModel> model = new ArrayList<FormValueModel>();
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
 		String where = null;
@@ -375,7 +362,7 @@ public class ItemValueModel extends BaseModel {
 	}
 
 
-	public static ArrayList<ItemValueModel> getItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
+	public static ArrayList<FormValueModel> getItemValuesForUpload(String scheduleId, String wargaId, String barangId) {
 
 		String table = DbManagerValue.mFormValue;
 		String[] columns = null;
@@ -409,7 +396,7 @@ public class ItemValueModel extends BaseModel {
 			return null;
 		}
 
-		ArrayList<ItemValueModel> model = new ArrayList<>();
+		ArrayList<FormValueModel> model = new ArrayList<>();
 
 		do{
 			model.add(getSiteFromCursor(cursor));
@@ -422,15 +409,15 @@ public class ItemValueModel extends BaseModel {
 		return model;
 	}
 
-	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels) {
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels) {
 
 		return getItemValuesForUploadWithMandatoryCheck(scheduleId, groupModels, null, null);
     }
 
-	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels, String wargaId, String barangId) {
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels, String wargaId, String barangId) {
 
 		DebugLog.d("upload items by scheduleId = " + scheduleId);
-		ArrayList<ItemValueModel> uploadItems = new ArrayList<>();
+		ArrayList<FormValueModel> uploadItems = new ArrayList<>();
 
 		for (WorkFormGroupModel perGroup : groupModels) {
 
@@ -444,10 +431,10 @@ public class ItemValueModel extends BaseModel {
 		return uploadItems;
 	}
 
-	public static ArrayList<ItemValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
 
         DebugLog.d("upload items by scheduleid = " + scheduleId + " workFormGroupId = " + work_form_group_id);
-		ArrayList<ItemValueModel> results = new ArrayList<>();
+		ArrayList<FormValueModel> results = new ArrayList<>();
 
 		ArrayList<WorkFormItemModel> workFormItems = WorkFormItemModel.getWorkFormItems(work_form_group_id, "label");
 
@@ -462,7 +449,7 @@ public class ItemValueModel extends BaseModel {
 
 					if (workFormItem.scope_type.equalsIgnoreCase("all")) {
 
-						ArrayList<ItemValueModel> itemValues = getItemValues(scheduleId, workFormItem.id, wargaId, barangId);
+						ArrayList<FormValueModel> itemValues = getItemValues(scheduleId, workFormItem.id, wargaId, barangId);
 
 						if (itemValues == null && isMandatory) {
 
@@ -488,7 +475,7 @@ public class ItemValueModel extends BaseModel {
 						for (OperatorModel operator : schedule.operators) {
 
 							int operatorid = operator.id;
-							ItemValueModel itemValue = getItemValue(scheduleId, workFormItem.id, operatorid, wargaId, barangId);
+							FormValueModel itemValue = getItemValue(scheduleId, workFormItem.id, operatorid, wargaId, barangId);
 
 							if (workFormItem.mandatory) {
 
@@ -516,7 +503,7 @@ public class ItemValueModel extends BaseModel {
 		return results;
 	}
 
-	public static class AsyncCollectItemValuesForUpload extends AsyncTask<Void, String, ArrayList<ItemValueModel>> {
+	public static class AsyncCollectItemValuesForUpload extends AsyncTask<Void, String, ArrayList<FormValueModel>> {
 
 		private final String DONEPREPARINGITEMS = "DONEPREPARINGITEMS";
 		private String scheduleId;
@@ -562,7 +549,7 @@ public class ItemValueModel extends BaseModel {
 		}
 
 		@Override
-		protected ArrayList<ItemValueModel> doInBackground(Void... voids) {
+		protected ArrayList<FormValueModel> doInBackground(Void... voids) {
 
 		    if (workFormGroupId == UNSPECIFIED) {
 
@@ -580,7 +567,7 @@ public class ItemValueModel extends BaseModel {
 					}
 				} else {
 
-					Crashlytics.log(Log.ERROR, ItemValueModel.class.getSimpleName(), "Schedule " + scheduleId + " tidak memiliki daftar workformgroup");
+					Crashlytics.log(Log.ERROR, FormValueModel.class.getSimpleName(), "Schedule " + scheduleId + " tidak memiliki daftar workformgroup");
 					MyApplication.getInstance().toast("Schedule " + scheduleId + " tidak memiliki daftar workformgroup", Toast.LENGTH_SHORT);
 
 					return new ArrayList<>();
@@ -611,7 +598,7 @@ public class ItemValueModel extends BaseModel {
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<ItemValueModel> uploadItems) {
+		protected void onPostExecute(ArrayList<FormValueModel> uploadItems) {
 			super.onPostExecute(uploadItems);
 			publish(DONEPREPARINGITEMS);
 			ItemUploadManager.getInstance().addItemValues(uploadItems);
@@ -619,7 +606,7 @@ public class ItemValueModel extends BaseModel {
 		}
 	}
 
-	public static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
+	public static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, FormValueModel filledItem) {
 
         // checking for form's item type picture radio with mandatory applied only on "NOK" option
         if (TextUtils.isEmpty(filledItem.photoStatus)) {
@@ -639,7 +626,7 @@ public class ItemValueModel extends BaseModel {
 		return true;
 	}
 
-	public static boolean isItemValueValidated(WorkFormItemModel workFormItem, ItemValueModel filledItem) {
+	public static boolean isItemValueValidated(WorkFormItemModel workFormItem, FormValueModel filledItem) {
 
 	    if (!workFormItem.disable) {
 
@@ -685,7 +672,7 @@ public class ItemValueModel extends BaseModel {
 
                 }
 
-                return !workFormItem.field_type.equalsIgnoreCase("file") || ItemValueModel.isPictureRadioItemValidated(workFormItem, filledItem);
+                return !workFormItem.field_type.equalsIgnoreCase("file") || FormValueModel.isPictureRadioItemValidated(workFormItem, filledItem);
             }
         }
 
@@ -885,13 +872,13 @@ public class ItemValueModel extends BaseModel {
 	}
 
 
-	private static ItemValueModel getSiteFromCursor(Cursor c) {
-		ItemValueModel FormValueModel = null;
+	private static FormValueModel getSiteFromCursor(Cursor c) {
+		FormValueModel FormValueModel = null;
 
 		if (null == c)
 			return FormValueModel;
 
-		FormValueModel = new ItemValueModel();
+		FormValueModel = new FormValueModel();
 		switch (DbManagerValue.schema_version) {
 			case 1 : {
 				//continue 1 to 2
@@ -1109,35 +1096,35 @@ public class ItemValueModel extends BaseModel {
 
 		ContentValues cv = new ContentValues();
 		cv.put(DbManagerValue.colWargaId, newWargaId);
-		cv.put(DbManagerValue.colUploadStatus, ItemValueModel.UPLOAD_DONE);
+		cv.put(DbManagerValue.colUploadStatus, FormValueModel.UPLOAD_DONE);
 
 		DbRepositoryValue.getInstance().getDB().update(DbManagerValue.mFormValue, cv, where, args);
 		DbRepositoryValue.getInstance().close();
 	}
 
-	public static void updateWargaItems(String oldWargaId, String newWargaId, ArrayList<ItemValueModel> itemValuesModified) {
+	public static void updateWargaItems(String oldWargaId, String newWargaId, ArrayList<FormValueModel> itemValuesModified) {
 
-		for (ItemValueModel itemValueSaved : itemValuesModified) {
+		for (FormValueModel itemValueSaved : itemValuesModified) {
 
 			DebugLog.d(String.format("saving (scheduleid, itemid, oldwargaid, newwargaid) : (%s, %s, %s, %s)", itemValueSaved.scheduleId, itemValueSaved.itemId, oldWargaId, newWargaId));
 			itemValueSaved.wargaId = newWargaId;
 			itemValueSaved.save();
 
 			DebugLog.d("deleting old item...");
-			ItemValueModel.delete(itemValueSaved.scheduleId, itemValueSaved.itemId, itemValueSaved.operatorId, oldWargaId, Constants.EMPTY);
+			FormValueModel.delete(itemValueSaved.scheduleId, itemValueSaved.itemId, itemValueSaved.operatorId, oldWargaId, Constants.EMPTY);
 		}
 	}
 
-	public static void updateBarangItems(String wargaId, String oldBarangId, String newBarangId, ArrayList<ItemValueModel> itemValueModified) {
+	public static void updateBarangItems(String wargaId, String oldBarangId, String newBarangId, ArrayList<FormValueModel> itemValueModified) {
 
-		for (ItemValueModel itemValueSaved : itemValueModified) {
+		for (FormValueModel itemValueSaved : itemValueModified) {
 
 			DebugLog.d(String.format("saving (scheduleid, itemid, oldwargaid, newwargaid) : (%s, %s, %s, %s)", itemValueSaved.scheduleId, itemValueSaved.itemId, oldBarangId, newBarangId));
 			itemValueSaved.barangId = newBarangId;
 			itemValueSaved.save();
 
 			DebugLog.d("deleting old item...");
-			ItemValueModel.delete(itemValueSaved.scheduleId, itemValueSaved.itemId, itemValueSaved.operatorId, wargaId, oldBarangId);
+			FormValueModel.delete(itemValueSaved.scheduleId, itemValueSaved.itemId, itemValueSaved.operatorId, wargaId, oldBarangId);
 		}
 	}
 

@@ -2,7 +2,6 @@ package com.sap.inspection.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -18,14 +17,11 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.R;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.form.ItemFormRenderModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.rules.SavingRule;
 import com.sap.inspection.rules.saving.PreventiveSave;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.ImageUtil;
 
 import java.io.File;
 
@@ -49,7 +45,7 @@ public class PhotoItem extends RelativeLayout {
 	protected String scheduleId;
 	protected int itemId;
 	protected int operatorId;
-	protected ItemValueModel value;
+	protected FormValueModel value;
 	protected String labelText;
 	private ItemFormRenderModel itemFormRenderModel;
 	private boolean onInit = false;
@@ -131,7 +127,7 @@ public class PhotoItem extends RelativeLayout {
 
 //		remark.setVisibility(View.VISIBLE);
 		root.findViewById(R.id.radioGroup).setVisibility(View.GONE);
-		value = new ItemValueModel();
+		value = new FormValueModel();
 	}
 
 	public void setButtonTakePictureListener(OnClickListener buttonClickListener){
@@ -139,7 +135,7 @@ public class PhotoItem extends RelativeLayout {
 		//		imageView.setOnClickListener(buttonClickListener);
 	}
 
-	public void setItemValue(ItemValueModel value, boolean initValue) {
+	public void setItemValue(FormValueModel value, boolean initValue) {
 		if (initValue){
 			onInit = true;
 		}
@@ -150,7 +146,7 @@ public class PhotoItem extends RelativeLayout {
 		}
 	}
 
-	public void notifyDataChanged(ItemValueModel value) {
+	public void notifyDataChanged(FormValueModel value) {
 		this.value = value;
 		imageView.setImageResource(R.drawable.logo_app);
 		if (itemFormRenderModel.label != null)
@@ -206,11 +202,11 @@ public class PhotoItem extends RelativeLayout {
 		//		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
 		//			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
 		//				value.operatorId = operatorModel.id;
-		//				value.uploadStatus = ItemValueModel.UPLOAD_NONE;
+		//				value.uploadStatus = FormValueModel.UPLOAD_NONE;
 		//				value.save();
 		//			}
 		//		}else{
-		//			value.uploadStatus = ItemValueModel.UPLOAD_NONE;
+		//			value.uploadStatus = FormValueModel.UPLOAD_NONE;
 		//			value.save();
 		//		}
 	}
@@ -279,7 +275,7 @@ public class PhotoItem extends RelativeLayout {
 			photoRoot.setVisibility(View.GONE);
 	}
 
-	public ItemValueModel getValue() {
+	public FormValueModel getValue() {
 		return value;
 	}
 
@@ -374,7 +370,7 @@ public class PhotoItem extends RelativeLayout {
 
 	public void initValue(){
 		if (value == null){
-			value = new ItemValueModel();
+			value = new FormValueModel();
 			if (itemFormRenderModel != null){
 				value.itemId = itemFormRenderModel.workItemModel.id;
 				value.scheduleId = itemFormRenderModel.schedule.id;

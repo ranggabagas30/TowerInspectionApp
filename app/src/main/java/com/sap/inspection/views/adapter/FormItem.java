@@ -26,7 +26,7 @@ package com.sap.inspection.views.adapter;
 //import com.sap.inspection.model.form.RowColumnModel;
 //import com.sap.inspection.model.form.WorkFormItemModel;
 //import com.sap.inspection.model.form.WorkFormOptionsModel;
-//import com.sap.inspection.model.value.ItemValueModel;
+//import com.sap.inspection.model.value.FormValueModel;
 //import com.sap.inspection.tools.FormInputText;
 //
 //public class FormItem extends RelativeLayout {
@@ -229,7 +229,7 @@ package com.sap.inspection.views.adapter;
 //		}
 //
 //		log(schedule.id+" | "+item.id+" | "+operatorId+" | "+rowId);
-//		ItemValueModel initValue = new ItemValueModel();
+//		FormValueModel initValue = new FormValueModel();
 //		initValue = initValue.getItemValue(schedule.id,item.id,operatorId);
 //		log("================================================");
 //		log("================================================");
@@ -349,7 +349,7 @@ package com.sap.inspection.views.adapter;
 //			PhotoItem photo = new PhotoItem(context);
 //			photo.setButtonTakePictureListener(photoListener);
 //			if (initValue == null){
-//				initValue = new ItemValueModel();
+//				initValue = new FormValueModel();
 //				initValue.itemId = item.id;
 //				initValue.scheduleId = schedule.id;
 //				initValue.rowId = rowId;
@@ -380,7 +380,7 @@ package com.sap.inspection.views.adapter;
 //		}
 //		
 //		log(schedule.id+" | "+item.id+" | "+operatorId);
-//		ItemValueModel initValue = new ItemValueModel();
+//		FormValueModel initValue = new FormValueModel();
 //		initValue = initValue.getItemValue(schedule.id,item.id,operatorId);
 //		log("================================================");
 //		log("================================================");
@@ -478,7 +478,7 @@ package com.sap.inspection.views.adapter;
 //			PhotoItem photo = new PhotoItem(context);
 //			photo.setButtonTakePictureListener(photoListener);
 //			if (initValue == null){
-//				initValue = new ItemValueModel();
+//				initValue = new FormValueModel();
 //				initValue.itemId = item.id;
 //				initValue.scheduleId = schedule.id;
 //				initValue.rowId = rowId;

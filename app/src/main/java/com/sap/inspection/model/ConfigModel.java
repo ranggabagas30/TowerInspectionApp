@@ -31,7 +31,8 @@ public class ConfigModel extends BaseModel {
     }
 
     public enum CONFIG_ENUM {
-        IMBAS_PETIR_CONFIG
+        IMBAS_PETIR_CONFIG,
+        CORRECTIVE_SCHEDULES_AND_ITEMS_CONFIG
     }
 
     public static ConfigModel getConfig(String[] where, String[] args) {

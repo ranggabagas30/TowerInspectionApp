@@ -1,18 +1,14 @@
 package com.sap.inspection.model.config.formimbaspetir;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ConfigModel;
 import com.sap.inspection.model.DbManager;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
-public class FormImbasPetirConfig
-{
+public class FormImbasPetirConfig {
     private ArrayList<ImbasPetirData> data;
 
     public ArrayList<ImbasPetirData> getData ()
@@ -463,7 +459,7 @@ public class FormImbasPetirConfig
             if (indexRemove != -1) {
 
                 // remove FormValue with wargaId = {wargaId}, scheduleId = {scheduleId}
-                ItemValueModel.delete(scheduleId, ItemValueModel.UNSPECIFIED, ItemValueModel.UNSPECIFIED, wargaId, null);
+                FormValueModel.delete(scheduleId, FormValueModel.UNSPECIFIED, FormValueModel.UNSPECIFIED, wargaId, null);
 
                 // remove data warga config by {wargaId} and {scheduleId}
                 DebugLog.d("remove wargaid : " + wargaId);

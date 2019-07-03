@@ -9,7 +9,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import com.sap.inspection.CallendarActivity;
-import com.sap.inspection.FormActivity;
+import com.sap.inspection.GroupActivity;
 import com.sap.inspection.MainActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
@@ -111,7 +111,7 @@ public class ScheduleFragmentByOperator extends BaseListTitleFragment implements
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-		Intent intent = new Intent(activity, FormActivity.class);
+		Intent intent = new Intent(activity, GroupActivity.class);
 		intent.putExtra(Constants.KEY_SCHEDULEID, models.get(position).id);
 		startActivity(intent);
 	}

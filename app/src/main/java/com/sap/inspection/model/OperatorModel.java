@@ -43,7 +43,7 @@ public class OperatorModel extends BaseModel {
 		return model;
 	}
 	
-	public OperatorModel getOperatorById(int id) {
+	public static OperatorModel getOperatorById(int id) {
 
 		OperatorModel model = null;
 
@@ -99,7 +99,7 @@ public class OperatorModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
-	private OperatorModel getOperatorFromCursor(Cursor c) {
+	private static OperatorModel getOperatorFromCursor(Cursor c) {
 		OperatorModel operatorModel = null;
 
 		if (null == c)

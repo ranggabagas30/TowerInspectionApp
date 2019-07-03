@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.sap.inspection.model.value.CorrectiveValueModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.RowValueModel;
 import com.sap.inspection.tools.DebugLog;
 
@@ -56,7 +56,7 @@ public class DbManagerOthersValue extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		//		Form Model
-		db.execSQL(ItemValueModel.createDB());
+		db.execSQL(FormValueModel.createDB());
 		db.execSQL(CorrectiveValueModel.createDB());
 		db.execSQL(RowValueModel.createDB());
 	}

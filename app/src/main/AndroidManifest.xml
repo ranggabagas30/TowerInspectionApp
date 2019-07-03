@@ -47,7 +47,7 @@
         android:icon="@drawable/logo_app"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <activity android:name=".FormActivityWarga"></activity>
+        <activity android:name=".GroupWargaActivity"></activity>
 
         <provider
             android:authorities="${applicationId}.fileProvider"
@@ -81,7 +81,7 @@
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".FormActivity"
+            android:name=".GroupActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".FormFillActivity"

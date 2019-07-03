@@ -5,14 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
-import android.os.Debug;
 import android.os.Parcel;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
 
@@ -40,7 +39,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	//penambahan irwan
 	public WorkFormModel work_form;
 	public ProjectModel project;
-	public Vector<ItemValueModel> schedule_values;
+	public Vector<FormValueModel> schedule_values;
 	public Vector<DefaultValueScheduleModel> default_value_schedule = new Vector<>();
 	public String statusColor;
 	public String taskColor;
@@ -149,9 +148,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		}
 
 		if (schedule_values!=null)
-			for (ItemValueModel itemValueModel : schedule_values) {
-				if (downloadImage(itemValueModel.picture, itemValueModel.value))
-					itemValueModel.save();
+			for (FormValueModel formValueModel : schedule_values) {
+				if (downloadImage(formValueModel.picture, formValueModel.value))
+					formValueModel.save();
 			}
 
 		//check if any corective task
@@ -239,7 +238,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
-	public static void delete(Context ctx){
+	public static void delete(){
 
 		DbRepository.getInstance().open(MyApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mSchedule;

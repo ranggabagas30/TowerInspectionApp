@@ -10,7 +10,6 @@ import android.widget.Toast;
 import com.sap.inspection.R;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.util.PrefUtil;
-import com.sap.inspection.views.adapter.NavigationAdapter;
 
 public class DeleteWargaAndBarangDialog {
 

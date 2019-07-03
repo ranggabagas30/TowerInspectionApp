@@ -2,11 +2,9 @@ package com.sap.inspection;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,33 +15,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.sap.inspection.BaseActivity;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.manager.ItemUploadManager;
-import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteWargaAndBarangDialog;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.MyTextView;
-import com.sap.inspection.views.adapter.NavigationAdapter;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
-import java.util.ArrayList;
 import java.util.Vector;
-import java.util.function.Predicate;
 
-public class FormActivityWarga extends BaseActivity {
+public class GroupWargaActivity extends BaseActivity {
 
     private MyTextView mHeaderTitle, mHeaderSubtitle;
     private RecyclerView mNavigationMenu;
@@ -256,7 +246,7 @@ public class FormActivityWarga extends BaseActivity {
             } else{
 
                 BaseActivity.navigateToFormFillActivity(
-                        FormActivityWarga.this,
+                        GroupWargaActivity.this,
                         scheduleId,
                         rowModel.id,
                         rowModel.work_form_group_id,
@@ -321,7 +311,7 @@ public class FormActivityWarga extends BaseActivity {
                         FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
 
                         BaseActivity.navigateToFormFillActivity(
-                                FormActivityWarga.this,
+                                GroupWargaActivity.this,
                                 scheduleId,
                                 rowId,
                                 workFormGroupId,
@@ -500,10 +490,10 @@ public class FormActivityWarga extends BaseActivity {
                 int workFormGroupId = parentNavItem.work_form_group_id;
 
                 DebugLog.d("parent item click. upload items by (scheduleid, wargaid, workformgroupid) : (" + scheduleId + ", " + workFormGroupName + ", " + realWargaId + ")");
-                /*ArrayList<ItemValueModel> itemUploads = ItemValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, null);
+                /*ArrayList<FormValueModel> itemUploads = FormValueModel.getItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, null);
                 ItemUploadManager.getInstance().addItemValues(itemUploads);*/
 
-                new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, Constants.EMPTY).execute();
+                new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, Constants.EMPTY).execute();
             }
         }
 
@@ -604,7 +594,7 @@ public class FormActivityWarga extends BaseActivity {
 
             public void showConfirmDeleteBarangDialog(RowModel removedBarangItem) {
 
-                mDeleteBarangDialog = new DeleteWargaAndBarangDialog(FormActivityWarga.this, removedBarangItem);
+                mDeleteBarangDialog = new DeleteWargaAndBarangDialog(GroupWargaActivity.this, removedBarangItem);
                 mDeleteBarangDialog.setOnPositiveClickListener(this::removeBarangId);
                 mDeleteBarangDialog.show();
             }
@@ -619,7 +609,7 @@ public class FormActivityWarga extends BaseActivity {
 
                 DebugLog.d("remove barang with (id, label, wargaid, barangid) : (" + removedChildItem.id + ", " + removedChildItem.text + ", " + realWargaId + ", " + realBarangId + ")");
 
-                APIHelper.deleteBarang(FormActivityWarga.this, new Handler() {
+                APIHelper.deleteBarang(GroupWargaActivity.this, new Handler() {
                     @Override
                     public void handleMessage(Message msg) {
 
@@ -635,7 +625,7 @@ public class FormActivityWarga extends BaseActivity {
 
                         if (isResponseOK) {
 
-                            ItemValueModel.deleteAllBy(scheduleId, realWargaId, realBarangId);
+                            FormValueModel.deleteAllBy(scheduleId, realWargaId, realBarangId);
 
                             boolean isSuccessful = FormImbasPetirConfig.removeBarang(scheduleId, realWargaId, realBarangId);
                             if (isSuccessful) {
@@ -668,7 +658,7 @@ public class FormActivityWarga extends BaseActivity {
 
                 DebugLog.d("(real wargaid, real barangid) : (" + realWargaId + ", " + realBarangId + ")");
 
-                new ItemValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, realBarangId).execute();
+                new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, realWargaId, realBarangId).execute();
             }
         }
     }

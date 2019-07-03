@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Debug;
 import android.os.Parcel;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.sap.inspection.MyApplication;
@@ -276,93 +277,112 @@ public class RowModel extends BaseModel {
 		return result;
 	}
 	
-	public Vector<RowModel> getAllItemByWorkFormGroupIdAndLikeAncestry(int workFormGroupId, String ancestry) {
-
-		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
-		Vector<RowModel> result = new Vector<RowModel>();
-		String table = DbManager.mWorkFormRow;
-		String[] columns = null;
-		String where = null;
-		String[] args = null;
-		if (ancestry != null){
-			where =DbManager.colWorkFormGroupId + "=? AND " + DbManager.colAncestry +" LIKE '"+ancestry+"%'";
-			args = new String[] {String.valueOf(workFormGroupId)};
-		}
-		
-		else{
-			where =DbManager.colWorkFormGroupId + "=? AND " + DbManager.colAncestry +" IS NULL";
-			args = new String[] {String.valueOf(workFormGroupId)};
-		}
-		String order = DbManager.colPosition+" ASC";
-
-
-		DbRepository.getInstance().open(MyApplication.getInstance());
-		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
-
-		if (!cursor.moveToFirst())
-		{
-			cursor.close();
-			DbRepository.getInstance().close();
-			return result;
-		}
-
-		do {
-			RowModel model = getRowFromCursor(cursor); 
-			model.row_columns = getRowColumnModels(model.id);
-			for (RowColumnModel row_col : model.row_columns) {
-				for (WorkFormItemModel item : row_col.items) {
-					if (item.label != null){
-						model.text = item.label;
-						break;
-					}
-				}
-				if (model.text != null)
-					break;
-			}
-		    DebugLog.d("===== level : "+model.level+"  text : "+model.text+"  id : "+model.id+"   position : "+model.position+"   ancestry : "+model.ancestry+" row_col size : "+model.row_columns.size());
-			result.add(model);
-		} while(cursor.moveToNext());
-
-		cursor.close();
-		DbRepository.getInstance().close();
-		return result;
+	public Vector<RowModel> getChildrenItemsByGroupIdAndLikeAncestry(int workFormGroupId, String ancestry) {
+	    return getChildrenItemsByGroupIdAndLikeAncestry(workFormGroupId, ancestry, null);
 	}
-	public RowModel getItemById(int workFormGroupId,int rowId) {
-		return getItemById(workFormGroupId, rowId, false);
+
+	public static Vector<RowModel> getChildrenItemsByGroupIdAndLikeAncestry(int workFormGroupId, String ancestry, int ... rowIds) {
+
+        DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry + ", and rowIds");
+        Vector<RowModel> result = new Vector<RowModel>();
+        String table = DbManager.mWorkFormRow;
+        String[] columns = null;
+
+        ArrayList<String> argsList = new ArrayList<>();
+        argsList.add(String.valueOf(workFormGroupId));
+
+        String whereAncestry;
+
+		if (ancestry != null) {
+			whereAncestry = " AND " + DbManager.colAncestry +" LIKE '" + ancestry + "%'";
+		} else {
+			whereAncestry =  " AND " + DbManager.colAncestry +" IS NULL";
+		}
+
+		StringBuilder whereRowIdBuilder = new StringBuilder();
+		if (rowIds != null) {
+			whereRowIdBuilder.append(" AND " + DbManager.colID + " in (");
+			for (int i = 0; i < rowIds.length; i++) {
+				DebugLog.d("rowId : " + rowIds[i]);
+				whereRowIdBuilder.append(rowIds[i]);
+				if (rowIds[i] != rowIds[rowIds.length-1]) {
+					whereRowIdBuilder.append(",");
+				}
+			}
+			whereRowIdBuilder.append(")");
+		}
+
+		String[] args = new String[argsList.size()];
+		args = argsList.toArray(args);
+
+		String where = DbManager.colWorkFormGroupId + "=?" + whereAncestry + whereRowIdBuilder;
+		String order = DbManager.colPosition + " ASC";
+		DebugLog.d("where = " + where);
+        DbRepository.getInstance().open(MyApplication.getInstance());
+        Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
+
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            DbRepository.getInstance().close();
+            return result;
+        }
+
+		DebugLog.d("|\trow_id\t|\tparentId\t|\tancestry\t|\tlevel\t|\trow_col_id\t|\tlabel\t|\t");
+        do {
+            RowModel model = getRowFromCursor(cursor);
+            model.row_columns = getRowColumnModels(model.id);
+            for (RowColumnModel row_col : model.row_columns) {
+                for (WorkFormItemModel item : row_col.items) {
+                    if (item.label != null){
+                        model.text = item.label;
+                        break;
+                    }
+                }
+                if (model.text != null)
+                    break;
+            }
+			DebugLog.d("|\t" + model.id + "\t|\t" + model.parent_id + "\t|\t" + model.ancestry + "\t|\t" + model.level + "\t|\t" + model.text + "\t|");
+			result.add(model);
+        } while(cursor.moveToNext());
+
+        DebugLog.d("row children size : " + result.size());
+
+        cursor.close();
+        DbRepository.getInstance().close();
+        return result;
+    }
+
+	public RowModel getAllItemsByRowId(int workFormGroupId,int parentRowId) {
+		return getAllItemsByRowId(workFormGroupId, parentRowId, false);
 	}
 	
-	public RowModel getItemById(int workFormGroupId,int rowId, boolean allChild) {
+	public RowModel getAllItemsByRowId(int workFormGroupId,int parentRowId, boolean allChild) {
 
-		RowModel result = null;
+		DebugLog.d("workFormGroupId : " + workFormGroupId + ", and parentRowId : " + parentRowId + " ascending order");
 
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
-		String where = null;
-		String[] args = null;
-			where =DbManager.colWorkFormGroupId + "=? AND " + DbManager.colID + "=?";
-			args = new String[] {String.valueOf(workFormGroupId),String.valueOf(rowId)};
-		
-//		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
+		String where = DbManager.colWorkFormGroupId + "=? AND " + DbManager.colID + "=?";;
+		String[] args = new String[] {String.valueOf(workFormGroupId),String.valueOf(parentRowId)};
 		String order = DbManager.colPosition+" ASC";
-
 
 		DbRepository.getInstance().open(MyApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()){
 			DbRepository.getInstance().close();
-			return result;
-
+			return null;
 		}
+
+		RowModel result;
 
 		do {
 			result = getRowFromCursor(cursor); 
 			result.row_columns = getRowColumnModels(result.id);
 			for (RowColumnModel row_col : result.row_columns) {
-//				log("== row_col "+row_col.id);
 				for (WorkFormItemModel item : row_col.items) {
-//					log("== item "+item.label);
 					if (item.label != null){
+						DebugLog.d("found label --> " + item.label);
 						result.text = item.label;
 						break;
 					}
@@ -370,15 +390,62 @@ public class RowModel extends BaseModel {
 				if (result.text != null)
 					break;
 			}
-//			log("===== level : "+result.level+"  text : "+result.text+"  id : "+result.id+"   position : "+result.position+"   ancestry : "+result.ancestry+" row_col size : "+result.row_columns.size());
 		} while(cursor.moveToNext());
 		cursor.close();
 		DbRepository.getInstance().close();
 
 		if (result.ancestry != null)
-			result.children = getAllItemByWorkFormGroupIdAndLikeAncestry(workFormGroupId, result.ancestry+"/"+result.id);
+			result.children = getChildrenItemsByGroupIdAndLikeAncestry(workFormGroupId, result.ancestry+"/"+result.id);
 		else
-			result.children = getAllItemByWorkFormGroupIdAndLikeAncestry(workFormGroupId, String.valueOf(result.id));
+			result.children = getChildrenItemsByGroupIdAndLikeAncestry(workFormGroupId, String.valueOf(result.id));
+
+		return result;
+	}
+
+	public RowModel getAllItemsByRowId(int workFormGroupId, int parentRowId, int ... childRowIds) {
+
+		DebugLog.d("workFormGroupId : " + workFormGroupId + ", parentRowId : " + parentRowId + ", childrowIds and ascending order");
+		RowModel result = null;
+
+		String table = DbManager.mWorkFormRow;
+		String[] columns = null;
+		String where = null;
+		String[] args = null;
+		where = DbManager.colWorkFormGroupId + "=? AND " + DbManager.colID + "=?";
+		args = new String[] {String.valueOf(workFormGroupId),String.valueOf(parentRowId)};
+
+		String order = DbManager.colPosition+" ASC";
+
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
+
+		if (!cursor.moveToFirst()){
+			DbRepository.getInstance().close();
+			return result;
+		}
+
+		do {
+			result = getRowFromCursor(cursor);
+			result.row_columns = getRowColumnModels(result.id);
+			for (RowColumnModel row_col : result.row_columns) {
+				for (WorkFormItemModel item : row_col.items) {
+					if (item.label != null){
+						DebugLog.d("found label --> " + item.label);
+						result.text = item.label;
+						break;
+					}
+				}
+				if (result.text != null)
+					break;
+			}
+		} while(cursor.moveToNext());
+		cursor.close();
+		DbRepository.getInstance().close();
+
+		if (result.ancestry != null)
+			result.children = getChildrenItemsByGroupIdAndLikeAncestry(workFormGroupId, result.ancestry+"/"+result.id, childRowIds);
+		else
+			result.children = getChildrenItemsByGroupIdAndLikeAncestry(workFormGroupId, String.valueOf(result.id), childRowIds);
 
 		return result;
 	}
