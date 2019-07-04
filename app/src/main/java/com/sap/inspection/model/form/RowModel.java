@@ -327,7 +327,7 @@ public class RowModel extends BaseModel {
             return result;
         }
 
-		DebugLog.d("|\trow_id\t|\tparentId\t|\tancestry\t|\tlevel\t|\trow_col_id\t|\tlabel\t|\t");
+		DebugLog.d("|\trow_id\t|\tparentId\t|\tancestry\t|\tlevel\t|\tlabel\t|\t");
         do {
             RowModel model = getRowFromCursor(cursor);
             model.row_columns = getRowColumnModels(model.id);

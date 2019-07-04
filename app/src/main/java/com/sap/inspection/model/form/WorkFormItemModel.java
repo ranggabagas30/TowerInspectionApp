@@ -169,7 +169,6 @@ public class WorkFormItemModel extends BaseModel {
 		  * 2. if the 'new_default_value' not equal 'default_value', then overwrite the data
 		  * 3. else don't update the data
 		  * */
-
 		 WorkFormItemModel formitem;
 
 		 int workFormItemId  = Integer.valueOf(item_id);
@@ -179,14 +178,11 @@ public class WorkFormItemModel extends BaseModel {
 
 
 		 if (formitem.default_value == null || formitem.default_value.isEmpty()) {
-
 		 	DebugLog.d("column 'default_value' for workFormItemId " + item_id + " is null or empty");
 		 	updateDefaultValue(item_id, new_default_value);
-
 		 } else {
 
 		 	if (!formitem.default_value.equalsIgnoreCase(new_default_value)) {
-
 				DebugLog.d("old default_value = " + formitem.default_value);
 				DebugLog.d("new default_value = " + new_default_value);
 				updateDefaultValue(item_id, new_default_value);

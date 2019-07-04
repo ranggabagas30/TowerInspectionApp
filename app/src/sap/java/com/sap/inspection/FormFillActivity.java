@@ -57,7 +57,9 @@ import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
+import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
@@ -85,7 +87,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	public static final int REQUEST_CODE = 100;
 	private static final int MenuShootImage = 101;
-	private RowModel rowModel;
+	private RowModel parentRow;
 	private ArrayList<ColumnModel> column;
 
 	// bundle data
@@ -716,7 +718,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			rowModel = new RowModel(FormFillActivity.this);
+			parentRow = new RowModel(FormFillActivity.this);
 
 		    if (workTypeName.equalsIgnoreCase(getString(R.string.corrective))) {
 
@@ -728,13 +730,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						uniqueChildRowIds.add(correctiveItem.getRow_id());
 					}
 					int[] childRowIds = ArrayUtils.toPrimitiveArray(uniqueChildRowIds);
-					rowModel = rowModel.getAllItemsByRowId(workFormGroupId, rowId, childRowIds);
+					parentRow = parentRow.getAllItemsByRowId(workFormGroupId, rowId, childRowIds);
 
 				}
 
             } else {
 
-                rowModel = rowModel.getAllItemsByRowId(workFormGroupId, rowId);
+                parentRow = parentRow.getAllItemsByRowId(workFormGroupId, rowId);
 
 			}
 
@@ -744,11 +746,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 			//check if the head has a form
 			DebugLog.d("\nGet header form fill and its children items...");
-			for(int i = 0; i < rowModel.row_columns.size(); i++){
-				DebugLog.d(i + ". row col id : " + rowModel.row_columns.get(i).id);
-				if (rowModel.row_columns.get(i).items.size() > 0){
+			for(int i = 0; i < parentRow.row_columns.size(); i++){
+
+				RowColumnModel rowColHeader = parentRow.row_columns.get(i);
+				DebugLog.d(i + ". row col id : " + rowColHeader.id);
+
+				if (rowColHeader.items.size() > 0){
 					finishInflate = false;
-					checkHeaderName(rowModel);
+					checkHeaderName(parentRow);
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
 					form.setColumn(column);
@@ -756,7 +761,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					form.setBarangid(barangId);
 					form.setWorkFormGroupId(workFormGroupId);
 					form.setWorkTypeName(workTypeName);
-					form.setRowColumnModels(rowModel.row_columns, null);
+					form.setRowColumnModels(parentRow.row_columns, null);
 					if (form.hasInput){
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 						String label = form.getLabel();
@@ -782,14 +787,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			int x = 0;
 			//check if the child has a form
 			String parentLabel = null;
-			DebugLog.d("\n\nlooping children with size : " + rowModel.children.size());
-			for (RowModel childrenItem : rowModel.children) {
-
+			DebugLog.d("\n\nlooping children with size : " + parentRow.children.size());
+			for (RowModel rowChildren : parentRow.children) {
 				x++;
-				DebugLog.d("\nchildren ke-" + x + " with id " + childrenItem.id);
+				DebugLog.d("\nchildren ke-" + x + " with id " + rowChildren.id);
 				DebugLog.d("checking item's header label..");
-				checkHeaderName(childrenItem);
-				publishProgress(x * 100 / rowModel.children.size());
+				checkHeaderName(rowChildren);
+				publishProgress(x * 100 / parentRow.children.size());
 				finishInflate = false;
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
@@ -799,7 +803,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				form.setWorkTypeName(workTypeName);
 				form.setWorkFormGroupName(workFormGroupName);
 				form.setWorkFormGroupId(workFormGroupId);
-				form.setRowColumnModels(childrenItem.row_columns,parentLabel);
+				form.setRowColumnModels(rowChildren.row_columns,parentLabel);
 				if (form.hasInput){
 					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 					String label = form.getLabel();
@@ -818,20 +822,20 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				}else
 					parentLabel = form.getLabel();
-//				setPercentage(childrenItem.id);
 			}
+
 			return null;
 		}
 		
-		private void checkHeaderName(RowModel rowModel){
-			if (rowModel.row_columns != null && 
-					rowModel.row_columns.size() > 0 && 
-					rowModel.row_columns.get(0).items != null &&
-					rowModel.row_columns.get(0).items.size() > 0){
-				DebugLog.d("head row label : "+rowModel.row_columns.get(0).items.get(0).label);
-				if (rowModel.row_columns.get(0).items.get(0).label != null && !rowModel.row_columns.get(0).items.get(0).label.equalsIgnoreCase(""))
-					this.lastLable = rowModel.row_columns.get(0).items.get(0).label;
-				rowModel.row_columns.get(0).items.get(0).labelHeader = this.lastLable;
+		private void checkHeaderName(RowModel parentRow){
+			if (parentRow.row_columns != null &&
+					parentRow.row_columns.size() > 0 &&
+					parentRow.row_columns.get(0).items != null &&
+					parentRow.row_columns.get(0).items.size() > 0){
+				DebugLog.d("head row label : "+parentRow.row_columns.get(0).items.get(0).label);
+				if (parentRow.row_columns.get(0).items.get(0).label != null && !parentRow.row_columns.get(0).items.get(0).label.equalsIgnoreCase(""))
+					this.lastLable = parentRow.row_columns.get(0).items.get(0).label;
+				parentRow.row_columns.get(0).items.get(0).labelHeader = this.lastLable;
 				DebugLog.d("labelHeader : " + this.lastLable);
 			}
 		}
@@ -898,8 +902,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	
 	private void setPageTitle(){
 
-		if (rowModel.row_columns.size() > 0 && rowModel.row_columns.get(0).items.size() > 0)
-			pageTitle = rowModel.row_columns.get(0).items.get(0).label;
+		if (parentRow.row_columns.size() > 0 && parentRow.row_columns.get(0).items.size() > 0)
+			pageTitle = parentRow.row_columns.get(0).items.get(0).label;
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && pageTitle.contains(Constants.regexId)) {
 

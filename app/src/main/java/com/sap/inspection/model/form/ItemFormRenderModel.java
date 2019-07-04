@@ -138,7 +138,6 @@ public class ItemFormRenderModel extends BaseModel {
 
         for (int i = 0; i < rowColumnModels.size(); i++) {
             RowColumnModel rowcol = rowColumnModels.get(i);
-
             if (rowcol.column_id == firstColId) {
                 DebugLog.d("|\t" + rowcol.id + "\t\t|\t" + rowcol.row_id + "\t|\t" + rowcol.column_id + "\t\t|\t" + rowcol.work_form_group_id + "\t\t| --> found first item");
                 firstItem = rowColumnModels.remove(i);
@@ -149,58 +148,67 @@ public class ItemFormRenderModel extends BaseModel {
         if (firstItem == null)
             return;
 
-        //generate first cell
-        if (firstItem.items.size() != 0) {
-            DebugLog.d("> generate first cell (header) ");
-            this.type = TYPE_HEADER;                                        DebugLog.d("TYPE\t:\t" + this.type);
-            this.workItemModel = firstItem.items.get(0);                    DebugLog.d("-WORKFORMITEM id\t:\t" + this.workItemModel.id);
-            this.label = workItemModel.label;                               DebugLog.d("-WORKFORMITEM label\t:\t" + this.label);
-            this.hasPicture = workItemModel.pictureEndPoint != null;        DebugLog.d("HASPICTURE ?\t" + this.hasPicture);
-            if (parentLabel != null)
-                workItemModel.label = workItemModel.label + " \n " + parentLabel;
-            if (this.workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
-                firstItem.items.remove(0);
-            }
-            ItemFormRenderModel child = new ItemFormRenderModel();
-            child.type = TYPE_HEADER_DIVIDER;
-            child.parent = this;
-            add(child);
-        }
+        int hiddenItemId = checkHiddenHeadItem(firstItem.items);
 
-        if (!TextUtils.isEmpty(getColumn(firstItem.column_id).column_name)) {
-            if (checkAnyInputHead(firstItem.items)) {
-                ItemFormRenderModel child = new ItemFormRenderModel();
-                child.type = TYPE_COLUMN;
-                child.column = getColumn(firstItem.column_id);
-                child.parent = this;
-                add(child);
-            }
-        }
+        if (hiddenItemId == -1) {
+            //generate first cell
+            if (firstItem.items.size() != 0) {
 
-        boolean anyInput = checkAnyInput(firstItem.items);
-        if (!anyInput) {
-            operator = schedule.operators.get(schedule.operator_number);
-            generateItemsPerOperator(firstItem, schedule.operators.get(schedule.operator_number).id);
-        } else {
-            for (int i = 0; i < schedule.operators.size(); i++) {
-                DebugLog.d("operator id " + schedule.operators.get(i).id);
-                ItemFormRenderModel child = new ItemFormRenderModel();
-                child.type = TYPE_OPERATOR;
-                child.operator = schedule.operators.get(i);
-                child.parent = this;
-                add(child);
-                generateItemsPerOperator(firstItem, schedule.operators.get(i).id);
-                if (schedule.operators.size() - 2 >= 0 && i < schedule.operators.size() - 1) {
-                    child = new ItemFormRenderModel();
-                    child.type = TYPE_LINE_DEVIDER;
+                // add first item only if visible is true
+                if (firstItem.items.get(0).visible) {
+                    DebugLog.d("> generate first cell (header) ");
+                    this.type = TYPE_HEADER;                                        DebugLog.d("TYPE\t:\t" + this.type);
+                    this.workItemModel = firstItem.items.get(0);                    DebugLog.d("-WORKFORMITEM id\t:\t" + this.workItemModel.id);
+                    this.label = workItemModel.label;                               DebugLog.d("-WORKFORMITEM label\t:\t" + this.label);
+                    this.hasPicture = workItemModel.pictureEndPoint != null;        DebugLog.d("HASPICTURE ?\t" + this.hasPicture);
+                    if (parentLabel != null)
+                        workItemModel.label = workItemModel.label + " \n " + parentLabel;
+                    if (this.workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
+                        firstItem.items.remove(0);
+                    }
+                    ItemFormRenderModel child = new ItemFormRenderModel();
+                    child.type = TYPE_HEADER_DIVIDER;
                     child.parent = this;
                     add(child);
                 }
             }
+
+            if (!TextUtils.isEmpty(getColumn(firstItem.column_id).column_name)) {
+                if (checkAnyInputHead(firstItem.items)) {
+                    ItemFormRenderModel child = new ItemFormRenderModel();
+                    child.type = TYPE_COLUMN;
+                    child.column = getColumn(firstItem.column_id);
+                    child.parent = this;
+                    add(child);
+                }
+            }
+
+            boolean anyInput = checkAnyInput(firstItem.items);
+            if (!anyInput) {
+                operator = schedule.operators.get(schedule.operator_number);
+                generateItemsPerOperator(firstItem, schedule.operators.get(schedule.operator_number).id);
+            } else {
+                for (int i = 0; i < schedule.operators.size(); i++) {
+                    DebugLog.d("operator id " + schedule.operators.get(i).id);
+                    ItemFormRenderModel child = new ItemFormRenderModel();
+                    child.type = TYPE_OPERATOR;
+                    child.operator = schedule.operators.get(i);
+                    child.parent = this;
+                    add(child);
+                    generateItemsPerOperator(firstItem, schedule.operators.get(i).id);
+                    if (schedule.operators.size() - 2 >= 0 && i < schedule.operators.size() - 1) {
+                        child = new ItemFormRenderModel();
+                        child.type = TYPE_LINE_DEVIDER;
+                        child.parent = this;
+                        add(child);
+                    }
+                }
+            }
         }
 
+
         //generate other cell
-        DebugLog.d("> generate cell items for header " + this.label);
+        DebugLog.d("> generate other cell for header " + this.label);
         DebugLog.d("|\trow_col_id\t|\trow_id\t|\tcol_id\t|\twork_form_group_id\t|\titem size\t|");
         for (RowColumnModel rowcol : rowColumnModels) {
             DebugLog.d("|\t" + rowcol.id + "\t\t|\t" + rowcol.row_id + "\t|\t" + rowcol.column_id + "\t\t|\t" + rowcol.work_form_group_id + "\t\t|\t" + rowcol.items.size() + "\t|");
@@ -210,7 +218,7 @@ public class ItemFormRenderModel extends BaseModel {
                 child.column = getColumn(rowcol.column_id);
                 child.parent = this;
                 add(child);
-                anyInput = checkAnyInput(rowcol.items);
+                boolean anyInput = checkAnyInput(rowcol.items);
 
                 if (!anyInput) {
                     DebugLog.d("input type not found");
@@ -333,7 +341,7 @@ public class ItemFormRenderModel extends BaseModel {
         for (int i = 0; i < rowCol.items.size(); i++) {
             WorkFormItemModel item = rowCol.items.get(i);
             DebugLog.d("(id, label, field type, scope type, operatorId) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.scope_type + ", " + operatorId + ")");
-            if (rowCol.items.get(i).field_type == null)
+            if (rowCol.items.get(i).field_type == null || !rowCol.items.get(i).visible)
                 continue;
             generateViewItem(rowCol.row_id, item, operatorId);
         }
@@ -358,6 +366,17 @@ public class ItemFormRenderModel extends BaseModel {
                 return true;
         }
         return false;
+    }
+
+    private int checkHiddenHeadItem(Vector<WorkFormItemModel> items) {
+        for (WorkFormItemModel item : items) {
+            DebugLog.d("item (id, label, type, isVisible) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.visible + ")");
+            if (!item.visible){
+                DebugLog.d("item (id, label, type, isVisible) : (" + item.id + ", " + item.label + ", " + item.field_type + "," + item.visible + ") --> found hidden");
+                return item.id;
+            }
+        }
+        return -1;
     }
 
     private int getInputTypeItemId(Vector<WorkFormItemModel> items) {

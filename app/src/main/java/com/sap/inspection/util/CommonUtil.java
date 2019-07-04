@@ -332,7 +332,6 @@ public class CommonUtil {
      * */
     public static String getIMEI(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-
         String imei = telephonyManager.getDeviceId();
         DebugLog.d("imei : " + imei);
         return imei;

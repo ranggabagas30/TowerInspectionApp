@@ -23,8 +23,8 @@ public class GeneralPatch9 extends DBPatch {
         db.execSQL("ALTER TABLE " + DbManager.mSite + " RENAME TO " + DbManager.mSite +"temp");
         DbManager.createDB(db);
         db.execSQL("INSERT INTO " + DbManager.mSite + " SELECT "
-                + DbManager.colID
-                + DbManager.colName
+                + DbManager.colID + ", "
+                + DbManager.colName + ", "
                 + DbManager.colSiteLocation
                 + " FROM " + DbManager.mSite +"temp");
         db.execSQL("DROP TABLE " + DbManager.mSite+"temp");

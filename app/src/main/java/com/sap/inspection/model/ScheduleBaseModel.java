@@ -6,9 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.os.Parcel;
+import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.FormValueModel;
@@ -35,6 +37,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public ArrayList<Integer> general_corrective_item_ids;
 	public UserModel user;
 	public WorkTypeModel work_type;
+	public Vector<Integer> hidden;
 
 	//penambahan irwan
 	public WorkFormModel work_form;
@@ -48,6 +51,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public boolean isSeparator = false;
 	public boolean isAnimated = false;
 	public int operator_number = 0;
+	private int task = -1;
+
 
 	@Override
 	public int describeContents() {
@@ -57,6 +62,50 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	@Override
 	public void writeToParcel(Parcel arg0, int arg1) {
 
+	}
+
+	public static String createDB(){
+		switch (DbManager.schema_version) {
+			case 9: {
+				return "create table if not exists " + DbManager.mSchedule
+						+ " (" + DbManager.colID + " varchar, "
+						+ DbManager.colUserId + " varchar, "
+						+ DbManager.colSiteId + " integer, "
+						+ DbManager.colOperatorIds + " varchar, "
+						+ DbManager.colProjectId + " varchar, "
+						+ DbManager.colProjectName + " varchar, "
+						+ DbManager.colWorkTypeId + " integer, "
+						+ DbManager.colDayDate + " varchar, "
+						+ DbManager.colWorkDate + " varchar, "
+						+ DbManager.colWorkDateStr + " varchar, "
+						+ DbManager.colProgress + " varchar, "
+						+ DbManager.colStatus + " varchar, "
+						+ DbManager.colSumTask + " integer, "
+						+ DbManager.colSumDone + " integer, "
+						+ DbManager.colOperatorNumber + " integer, "
+						+ "PRIMARY KEY (" + DbManager.colID + "))";
+			}
+			case 10 :
+				return "create table if not exists " + DbManager.mSchedule
+						+ " (" + DbManager.colID + " varchar, "
+						+ DbManager.colUserId + " varchar, "
+						+ DbManager.colSiteId + " integer, "
+						+ DbManager.colOperatorIds + " varchar, "
+						+ DbManager.colProjectId + " varchar, "
+						+ DbManager.colProjectName + " varchar, "
+						+ DbManager.colWorkTypeId + " integer, "
+						+ DbManager.colDayDate + " varchar, "
+						+ DbManager.colWorkDate + " varchar, "
+						+ DbManager.colWorkDateStr + " varchar, "
+						+ DbManager.colProgress + " varchar, "
+						+ DbManager.colStatus + " varchar, "
+						+ DbManager.colSumTask + " integer, "
+						+ DbManager.colSumDone + " integer, "
+						+ DbManager.colOperatorNumber + " integer, "
+						+ DbManager.colHiddenItemIds + " varchar, "
+						+ "PRIMARY KEY (" + DbManager.colID + "))";
+			default: return null;
+		}
 	}
 
 	public String getPercent(){
@@ -142,9 +191,14 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	public void save(){
 
-		int task = -1;
 		for (OperatorModel operator : operators) {
 			operator.save();
+		}
+
+		for (int hiddenItemIds : hidden) {
+			WorkFormItemModel workFormItem = WorkFormItemModel.getItemById(hiddenItemIds);
+			workFormItem.visible = false;
+			workFormItem.save();
 		}
 
 		if (schedule_values!=null)
@@ -172,19 +226,35 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			sumTaskDone = getTaskDone(id);
 		}
 
-		String sql = String
-				//				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,  COALESCE((SELECT %s FROM %s WHERE %s = ?), ?))",
-				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-						DbManager.mSchedule , DbManager.colID,
-						DbManager.colUserId,DbManager.colSiteId,
-						DbManager.colOperatorIds,DbManager.colProjectId,
-						DbManager.colProjectName,DbManager.colWorkTypeId,
-						DbManager.colWorkDate,DbManager.colProgress,
-						DbManager.colStatus,DbManager.colDayDate,
-						DbManager.colWorkDateStr,DbManager.colSumTask,
-						DbManager.colSumDone, DbManager.colOperatorNumber);
+		insert();
+	}
+
+	private void insert() {
+
+		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+				DbManager.mSchedule , DbManager.colID,
+				DbManager.colUserId,DbManager.colSiteId,
+				DbManager.colOperatorIds,DbManager.colProjectId,
+				DbManager.colProjectName,DbManager.colWorkTypeId,
+				DbManager.colWorkDate,DbManager.colProgress,
+				DbManager.colStatus,DbManager.colDayDate,
+				DbManager.colWorkDateStr,DbManager.colSumTask,
+				DbManager.colSumDone, DbManager.colOperatorNumber);
 		//						DbManager.colWorkDateStr,DbManager.colSumTask,
 		//						DbManager.colSumTask,DbManager.mSchedule,DbManager.colID);
+
+		if (DbManager.schema_version >= 10) {
+			sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+					DbManager.mSchedule , DbManager.colID,
+					DbManager.colUserId,DbManager.colSiteId,
+					DbManager.colOperatorIds,DbManager.colProjectId,
+					DbManager.colProjectName,DbManager.colWorkTypeId,
+					DbManager.colWorkDate,DbManager.colProgress,
+					DbManager.colStatus,DbManager.colDayDate,
+					DbManager.colWorkDateStr,DbManager.colSumTask,
+					DbManager.colSumDone, DbManager.colOperatorNumber,
+					DbManager.colHiddenItemIds);
+		}
 
 		DbRepository.getInstance().open(MyApplication.getInstance());
 
@@ -233,9 +303,18 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		stmt.bindLong(14, sumTaskDone);
 		stmt.bindLong(15, operator_number);
 
+		if (DbManager.schema_version == 10) {
+			if (hidden == null || hidden.size() < 1) {
+				bindAndCheckNullString(stmt, 16, null);
+			} else {
+				bindAndCheckNullString(stmt, 16, toStringHiddenItemIds(hidden));
+			}
+		}
+
 		stmt.executeInsert();
 		stmt.close();
 		DbRepository.getInstance().close();
+
 	}
 
 	public static void delete(){
@@ -269,14 +348,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		cursor.close();
 		DbRepository.getInstance().close();
 		return result;
-	}
-
-
-	public static String getOperatorIds(Vector<OperatorModel> operators){
-		String s = "";
-		for (int i = 0; i < operators.size(); i++)
-			s += i == operators.size() - 1 ? operators.get(i).id : operators.get(i).id+",";
-			return s;
 	}
 
 	public Vector<ScheduleBaseModel> getAllSchedule(Context context) {
@@ -430,26 +501,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	protected abstract ScheduleBaseModel newObject();
 
-	public static String createDB(){
-		return "create table if not exists " + DbManager.mSchedule
-				+ " (" + DbManager.colID + " varchar, "
-				+ DbManager.colUserId + " varchar, "
-				+ DbManager.colSiteId + " integer, "
-				+ DbManager.colOperatorIds + " varchar, "
-				+ DbManager.colProjectId + " varchar, "
-				+ DbManager.colProjectName + " varchar, "
-				+ DbManager.colWorkTypeId + " integer, "
-				+ DbManager.colDayDate + " varchar, "
-				+ DbManager.colWorkDate + " varchar, "
-				+ DbManager.colWorkDateStr + " varchar, "
-				+ DbManager.colProgress + " varchar, "
-				+ DbManager.colStatus + " varchar, "
-				+ DbManager.colSumTask + " integer, "
-				+ DbManager.colSumDone + " integer, "
-				+ DbManager.colOperatorNumber + " integer, "
-				+ "PRIMARY KEY (" + DbManager.colID + "))";
-	}
-
 	protected ScheduleBaseModel getScheduleFromCursor(Cursor c, boolean fromInnerJoin) {
 		ScheduleBaseModel scheduleBase = newObject();
 
@@ -501,6 +552,11 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		scheduleBase.work_type.id = (c.getInt(c.getColumnIndex(DbManager.colWorkTypeId)));
 		scheduleBase.work_type = scheduleBase.work_type.getworkTypeById(scheduleBase.work_type.id);
 
+		// hidden item ids
+		if (DbManager.schema_version >= 10) {
+			scheduleBase.hidden = new Vector<>();
+			scheduleBase.hidden = toVectorHiddenItemIds(c.getString(c.getColumnIndex(DbManager.colHiddenItemIds)));
+		}
 		return scheduleBase;
 	}
 
@@ -514,6 +570,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		DbRepository.getInstance().getDB().update(DbManager.mSchedule, cv, null, null);
 		DbRepository.getInstance().close();
 	}
+
+
+	/**
+	 * Schedule utils
+	 *
+	 * */
 
 	private boolean downloadImage(String url, String path) {
 		if (url==null) return true;
@@ -551,4 +613,30 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		}
 	}
 
+
+	private static String getOperatorIds(Vector<OperatorModel> operators){
+		String s = "";
+		for (int i = 0; i < operators.size(); i++)
+			s += i == operators.size() - 1 ? operators.get(i).id : operators.get(i).id+",";
+		return s;
+	}
+
+	private static String toStringHiddenItemIds(Vector<Integer> hidden) {
+		StringBuilder hiddenItems = new StringBuilder();
+		for (int i = 0; i < hidden.size(); i++) {
+			hiddenItems.append( i == hidden.size()-1 ? hidden.get(i) : hidden.get(i) + ",");
+		}
+		return new String(hiddenItems);
+	}
+
+	private static Vector<Integer> toVectorHiddenItemIds(String hiddenItems) {
+		Vector<Integer> hidden = new Vector<>();
+		if (!TextUtils.isEmpty(hiddenItems)) {
+			String[] hiddenArray = hiddenItems.split(",");
+			for (String hiddenId : hiddenArray) {
+				hidden.add(Integer.valueOf(hiddenId));
+			}
+		}
+		return hidden;
+	}
 }
