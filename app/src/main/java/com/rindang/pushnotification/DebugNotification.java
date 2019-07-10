@@ -12,8 +12,8 @@ import com.sap.inspection.util.BundleToJson;
 public class DebugNotification extends BaseNotification {
 	
 
-	public DebugNotification(Context context, Bundle bundle) {
-		super(context, bundle);
+	public DebugNotification(Context context, Bundle bundle, String CHANNEL_ID, int PRIORITY) {
+		super(context, bundle, CHANNEL_ID, PRIORITY);
 	}
 	
 	@Override

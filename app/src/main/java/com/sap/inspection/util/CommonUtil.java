@@ -553,37 +553,6 @@ public class CommonUtil {
 
     }
 
-    // using AES
-    public static void encryptFile(File file, String filePathOutput) {
-
-        try {
-            byte[] fileBytes = FileUtils.readFileToByteArray(file);
-            byte[] encryptedBytes = encryptPdfFile(MyApplication.getKey(), fileBytes);
-            saveFile(encryptedBytes, filePathOutput);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Crashlytics.logException(e);
-            DebugLog.e(e.getMessage());
-        }
-    }
-
-    public static void decryptFile(File file, String filePathOutput) {
-
-        if (!filePathOutput.isEmpty()) {
-
-            try {
-                byte[] fileBytes = FileUtils.readFileToByteArray(file);
-                byte[] decryptedBytes = decryptPdfFile(MyApplication.getKey(), fileBytes);
-                saveFile(decryptedBytes, filePathOutput);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-                DebugLog.e(e.getMessage());
-            }
-        }
-    }
-
     public static void encryptFileBase64(File file, String fileOutput) {
 
         DebugLog.d("encrypt file");

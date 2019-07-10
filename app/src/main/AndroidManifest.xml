@@ -96,7 +96,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".SettingActivity"
-            android:screenOrientation="portrait" /> <!-- Needed for push notification -->
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/> <!-- Needed for push notification -->
         <!--
 <receiver
             android:name="com.rindang.pushnotification.GcmBroadcastReceiver"

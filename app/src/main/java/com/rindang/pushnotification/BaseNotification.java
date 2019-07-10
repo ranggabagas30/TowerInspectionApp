@@ -5,9 +5,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.LoginActivity;
@@ -19,14 +21,42 @@ public class BaseNotification {
 
     private NotificationCompat.Builder builder;
     private Notification notification;
+    private final String CHANNEL_ID;
+    private final int PRIORITY;
+    private final int NOTIFICATION_ID;
 
     protected Context context;
     protected Bundle bundle;
-    protected final int NOTIFICATION_ID = 2;
 
-    public BaseNotification(Context context, Bundle bundle) {
+    public BaseNotification(Context context, Bundle bundle, String CHANNEL_ID, int PRIORITY) {
+        this(context, bundle, CHANNEL_ID, PRIORITY, 0);
+    }
+
+    public BaseNotification(Context context, Bundle bundle, String CHANNEL_ID, int PRIORITY, int NOTIFICATION_ID) {
         this.context = context;
         this.bundle = bundle;
+        this.CHANNEL_ID = CHANNEL_ID;
+        this.PRIORITY = PRIORITY;
+        this.NOTIFICATION_ID = NOTIFICATION_ID;
+    }
+
+    protected NotificationCompat.Builder getNotifBuilder(final String CHANNEL_ID, final int PRIORITY) {
+
+        if (builder != null)
+            return builder;
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setPriority(PRIORITY)
+                .setContentTitle(getTitle())
+                .setContentText(getMessage())
+                .setContentIntent(getPendingIntent())
+                .setSmallIcon(R.drawable.logo_app)
+                .setTicker(getMessage())
+                .setAutoCancel(true)
+                .setDefaults(getNotifPattern());
+
+        this.builder = builder;
+        return builder;
     }
 
     public void sendNotification() {
@@ -37,9 +67,8 @@ public class BaseNotification {
     protected Notification getNotification() {
         if (notification != null)
             return notification;
-        DebugLog.d("notification: " + getMessage());
-        getNotifBuilder().setContentIntent(getPendingIntent());
-        notification = getNotifBuilder().build();
+        DebugLog.d("notification (title, message) : (" + getTitle() + ", " + getMessage() + ")");
+        notification = getNotifBuilder(CHANNEL_ID, PRIORITY).build();
         return notification;
     }
 
@@ -48,24 +77,8 @@ public class BaseNotification {
         int defaults = 0;
         defaults = defaults | Notification.DEFAULT_LIGHTS;
         defaults = defaults | Notification.DEFAULT_VIBRATE;
-//        defaults = defaults | Notification.DEFAULT_SOUND;
+        defaults = defaults | Notification.DEFAULT_SOUND;
         return defaults;
-    }
-
-    protected NotificationCompat.Builder getNotifBuilder() {
-        if (builder != null)
-            return builder;
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.logo_app)
-                .setContentTitle(getTitle())
-                .setDefaults(getNotifPattern())
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(getMessage()))
-                .setAutoCancel(true)
-                .setContentText(getMessage());
-        this.builder = builder;
-        return builder;
     }
 
     protected String getTitle() {

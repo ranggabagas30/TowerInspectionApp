@@ -9,9 +9,11 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rindang.pushnotification.NotificationProcessor;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.UploadListener;
 import com.sap.inspection.manager.AsyncDeleteAllFiles;
@@ -44,6 +46,8 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     Button deleteAndUpdateSchedule;
     Button updateSchedule;
     Button updateCorrectiveSchedule;
+    Button pushNotificationSchedule;
+    Button pushNotificationAPK;
     Button logout;
     TextView updateStatus;
     TextView uploadInfo;
@@ -53,6 +57,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     FormInputText inputtextmarksizelandscape;
     FormInputText inputlinespacepotrait;
     FormInputText inputlinespacelandscape;
+    LinearLayout layout_debug;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,7 +65,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         DebugLog.d("");
         setContentView(R.layout.activity_setting);
 
-        // watermark configuration
         title = findViewById(R.id.header_title);
         inputtextmarksizepotrait = findViewById(R.id.textmarksizepotrait);
         inputtextmarksizelandscape = findViewById(R.id.textmarksizelandscape);
@@ -68,7 +72,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         inputlinespacelandscape = findViewById(R.id.linespacelandscape);
         settextmark = findViewById(R.id.btntextmarksize);
         setlinespace = findViewById(R.id.btnlinespace);
-
         update = findViewById(R.id.update);
         updateForm = findViewById(R.id.update_form);
         updateFormImbasPetir = findViewById(R.id.update_form_imbas_petir);
@@ -80,6 +83,9 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         reupload = findViewById(R.id.reuploadData);
         updateSchedule = findViewById(R.id.updateSchedule);
         updateCorrectiveSchedule = findViewById(R.id.updateCorrectiveSchedule);
+        layout_debug = findViewById(R.id.layout_debug);
+        pushNotificationSchedule = findViewById(R.id.pushnot_schedule);
+        pushNotificationAPK = findViewById(R.id.pushnot_apk);
         logout = findViewById(R.id.setting_logout);
 
         String version = null;
@@ -157,7 +163,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         updateFormImbasPetir.setOnClickListener(updateFormImbasPetirClickListener);
         upload.setOnClickListener(uploadClickListener);
         reupload.setOnClickListener(reuploadClickListener);
-        logout.setOnClickListener(logoutClickListener);
         updateSchedule.setOnClickListener(v -> {
             trackEvent("user_refresh_schedule");
             downloadSchedules();
@@ -166,6 +171,14 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             trackEvent("user_update_corrective_schedule");
             downloadCorrectiveSchedules();
         });
+
+        if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
+            layout_debug.setVisibility(View.VISIBLE);
+            pushNotificationSchedule.setOnClickListener(pushNotificationClickListener);
+            pushNotificationAPK.setOnClickListener(pushNotificationClickListener);
+        }
+
+        logout.setOnClickListener(logoutClickListener);
 
         trackThisPage("Setting");
     }
@@ -323,6 +336,24 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                     });
             alertDialogBuilder.create().show();
         }
+    };
+
+    OnClickListener pushNotificationClickListener = view -> {
+
+        int id = view.getId();
+        Bundle extras = new Bundle();
+        switch (id) {
+            case R.id.pushnot_schedule :
+                extras.putString("type", "schedule");
+                extras.putString("message", "Testing schedule notification");
+                break;
+            case R.id.pushnot_apk :
+                extras.putString("type", "apk");
+                extras.putString("message", "Testing apk notification");
+                break;
+        }
+        NotificationProcessor.getNotification(extras, SettingActivity.this).sendNotification();
+
     };
 
     OnClickListener logoutClickListener = view -> new LovelyStandardDialog(SettingActivity.this,R.style.CheckBoxTintTheme)

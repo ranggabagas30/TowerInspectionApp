@@ -367,6 +367,48 @@
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_debug"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_medium"
+                android:background="@drawable/bg_edittext"
+                android:orientation="vertical"
+                android:padding="@dimen/padding_medium"
+                android:visibility="gone">
+
+                <!-- Download Button -->
+
+                <TextView
+                    style="@style/list_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingBottom="@dimen/padding_medium"
+                    android:text="Debug" />
+
+                <Button
+                    android:id="@+id/pushnot_schedule"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/selector_button_green_small_padding"
+                    android:text="Notifikasi Schedule"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/pushnot_apk"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/selector_button_green_small_padding"
+                    android:text="Notifikasi APK"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/setting_logout"
                 android:layout_width="match_parent"
