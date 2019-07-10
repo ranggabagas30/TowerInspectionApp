@@ -1,24 +1,13 @@
 package com.rindang.pushnotification;
 
-import android.app.IntentService;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
-import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.PrefUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class FCMListenerService extends FirebaseMessagingService {
 
@@ -51,18 +40,9 @@ public class FCMListenerService extends FirebaseMessagingService {
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
 
-            DebugLog.d("Message data payload : " + remoteMessage.getData());
-
             // data can be processed in long-running mode (using Firebase Job Dispatcher)
             // or just handle it directly which is short-running mode (under 10 secs)
-
-            try {
-                JSONObject jsonObject = new JSONObject(remoteMessage.getData().toString());
-                handleDataMessage(jsonObject);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                DebugLog.e("JSON ERROR : " + e.getMessage());
-            }
+            handleDataMessage(remoteMessage);
         }
 
         // Check if message contains a notification payload.
@@ -91,7 +71,6 @@ public class FCMListenerService extends FirebaseMessagingService {
          * 2. send token to server
          *
          * */
-
         DebugLog.d("NEW TOKEN : " + s);
         storeRegIdInpref(s);
     }
@@ -106,31 +85,16 @@ public class FCMListenerService extends FirebaseMessagingService {
         DebugLog.d("message notification : " + bundleMessage.getString("message"));
     }
 
-    private void handleDataMessage(JSONObject json) {
-        DebugLog.d("push json : " + json.toString());
+    private void handleDataMessage(RemoteMessage remoteMessage) {
 
-        try {
-            String type = json.getString("type");
-            String message = json.getString("message");
+        String type = remoteMessage.getData().get("type");
+        String message = remoteMessage.getData().get("message");
+        DebugLog.d("Message data payload : " + remoteMessage.getData());
 
-            //JSONObject jsonCollapseKey = json.getJSONObject("collapse_ke");
+        Bundle extras = new Bundle();
+        extras.putString("type", type);
+        extras.putString("message", message);
 
-            DebugLog.d("data : {");
-            DebugLog.d("--type : " + type);
-            DebugLog.d("--message : " + message);
-            DebugLog.d("}");
-           // DebugLog.d("collapse_key : " + jsonCollapseKey.toString());
-
-            Bundle extras = new Bundle();
-            extras.putString("type", type);
-            extras.putString("message", message);
-
-            BaseNotification notif = NotificationProcessor.getNotification(extras, this);
-            notif.sendNotification();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            DebugLog.e("JSON error : " + e.getMessage());
-        }
+        NotificationProcessor.getNotification(extras, this).sendNotification();
     }
 }

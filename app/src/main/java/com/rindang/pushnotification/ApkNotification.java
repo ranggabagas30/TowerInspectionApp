@@ -11,8 +11,8 @@ import com.sap.inspection.SettingActivity;
 public class ApkNotification extends BaseNotification {
 
 
-	public ApkNotification(Context context, Bundle bundle) {
-		super(context, bundle);
+	public ApkNotification(Context context, Bundle bundle, String CHANNEL_ID, int PRIORITY, int NOTIFICATION_ID) {
+		super(context, bundle, CHANNEL_ID, PRIORITY, NOTIFICATION_ID);
 	}
 	
 	@Override

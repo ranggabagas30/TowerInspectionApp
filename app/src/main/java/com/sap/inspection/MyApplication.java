@@ -21,6 +21,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.rindang.pushnotification.notificationchannel.DefaultNotificationChannel;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.listener.ActivityLifecycleHandler;
 import com.sap.inspection.model.CheckinDataModel;
@@ -56,7 +57,6 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	private boolean SCHEDULE_NEED_CHECK_IN;
 	private boolean CHECK_APP_VERSION_STATE;
 	private boolean DEVICE_REGISTER_STATE;
-	private KeyGenerator keyGenerator;
 
 	public static Key key;
 
@@ -77,8 +77,6 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-		registerActivityLifecycleCallbacks(new ActivityLifecycleHandler(this));
 
 		//1. initialization crashlytics
 		Fabric.with(this, new Crashlytics());
@@ -124,18 +122,17 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 		DbRepository.initializedInstance();
 		DbRepositoryValue.initializedInstance();
 
+		//7. register activity lifecycle callbacks
+		registerActivityLifecycleCallbacks(new ActivityLifecycleHandler(this));
+
+		//8. create notification channels
+		DefaultNotificationChannel defaultNotificationChannel = new DefaultNotificationChannel();
+		defaultNotificationChannel.createNotificationChannel(this);
+
 		DebugLog.d("Storage dirs list : \n");
 		String[] storageDirectories = CommonUtil.getStorageDirectories(getApplicationContext());
 		for (String dir : storageDirectories) {
 			DebugLog.d(dir + "\n");
-		}
-
-		try {
-			keyGenerator = KeyGenerator.getInstance("AES");
-			keyGenerator.init(128);
-			key = keyGenerator.generateKey();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
 		}
 
 		IN_CHECK_HASIL_PM = false;
@@ -324,9 +321,5 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 
 	public void setDEVICE_REGISTER_STATE(boolean DEVICE_REGISTER_STATE) {
 		this.DEVICE_REGISTER_STATE = DEVICE_REGISTER_STATE;
-	}
-
-	public static Key getKey() {
-		return key;
 	}
 }
