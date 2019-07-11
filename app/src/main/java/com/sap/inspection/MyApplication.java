@@ -52,8 +52,8 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	private UncaughtExceptionHandler defaultUEH;
 	private static MyApplication instance;
 	private HashMap< String, AbstractMap.SimpleEntry<String, String> > hashMapSiteLocation;
-	private boolean IN_CHECK_HASIL_PM;
-	private boolean IN_FORM_IMBAS_PETIR;
+	private boolean IS_CHECKING_HASIL_PM;
+	private boolean ON_FORM_IMBAS_PETIR;
 	private boolean SCHEDULE_NEED_CHECK_IN;
 	private boolean CHECK_APP_VERSION_STATE;
 	private boolean DEVICE_REGISTER_STATE;
@@ -135,11 +135,11 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 			DebugLog.d(dir + "\n");
 		}
 
-		IN_CHECK_HASIL_PM = false;
+		IS_CHECKING_HASIL_PM = false;
 		SCHEDULE_NEED_CHECK_IN = false;
 		CHECK_APP_VERSION_STATE = false;
 		DEVICE_REGISTER_STATE = false;
-		IN_FORM_IMBAS_PETIR = false;
+		ON_FORM_IMBAS_PETIR = false;
 		checkinDataModel = new CheckinDataModel();
 	}
 
@@ -283,20 +283,20 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 		}
 	}
 
-	public void setIN_FORM_IMBAS_PETIR(boolean IN_FORM_IMBAS_PETIR) {
-		this.IN_FORM_IMBAS_PETIR = IN_FORM_IMBAS_PETIR;
+	public void setON_FORM_IMBAS_PETIR(boolean onFormImbasPetir) {
+		this.ON_FORM_IMBAS_PETIR = onFormImbasPetir;
 	}
 
-	public boolean isIN_FORM_IMBAS_PETIR() {
-		return IN_FORM_IMBAS_PETIR;
+	public boolean isON_FORM_IMBAS_PETIR() {
+		return ON_FORM_IMBAS_PETIR;
 	}
 
-	public boolean isInCheckHasilPm() {
-		return IN_CHECK_HASIL_PM;
+	public boolean IS_CHECKING_HASIL_PM() {
+		return IS_CHECKING_HASIL_PM;
 	}
 
-	public void setIsInCheckHasilPm(boolean isInCheckHasilPm) {
-		IN_CHECK_HASIL_PM = isInCheckHasilPm;
+	public void setIS_CHECKING_HASIL_PM(boolean isCheckingHasilPm) {
+		this.IS_CHECKING_HASIL_PM = isCheckingHasilPm;
 	}
 
 	public boolean isScheduleNeedCheckIn() {
@@ -304,15 +304,15 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	}
 
 	public void setIsScheduleNeedCheckIn(boolean isScheduleNeedCheckIn) {
-		SCHEDULE_NEED_CHECK_IN = isScheduleNeedCheckIn;
+		this.SCHEDULE_NEED_CHECK_IN = isScheduleNeedCheckIn;
 	}
 
 	public boolean getCHECK_APP_VERSION_STATE() {
 		return CHECK_APP_VERSION_STATE;
 	}
 
-	public void setCHECK_APP_VERSION_STATE(boolean CHECK_APP_VERSION_STATE) {
-		this.CHECK_APP_VERSION_STATE = CHECK_APP_VERSION_STATE;
+	public void setCHECK_APP_VERSION_STATE(boolean checkAppVersionState) {
+		this.CHECK_APP_VERSION_STATE = checkAppVersionState;
 	}
 
 	public boolean getDEVICE_REGISTER_STATE() {

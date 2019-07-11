@@ -27,6 +27,7 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
@@ -218,7 +219,6 @@ public class GroupsAdapter extends MyBaseAdapter {
 			holder.uploadWorkFormGroup.setOnClickListener(uploadWorkFormGroupListener);
 			holder.title = (TextView) view.findViewById(R.id.title);
 			holder.title.setOnClickListener(ItemClickListener);
-
 			view.setTag(holder);
 
 		} else
@@ -335,7 +335,8 @@ public class GroupsAdapter extends MyBaseAdapter {
 
 			DebugLog.d("----schedule id----- "+scheduleId);
 
-			String workFormGroupName = shown.get(positionAncestry).text;
+			WorkFormGroupModel workFormGroup = WorkFormGroupModel.getWorkFormGroupById(String.valueOf(shown.get(position).work_form_group_id));
+			String workFormGroupName = workFormGroup.name;
 
 			// if the navigation item is "Warga Ke-"
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.matches(Constants.regexIMBASPETIR)) {

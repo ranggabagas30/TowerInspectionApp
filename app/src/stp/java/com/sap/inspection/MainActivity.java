@@ -136,7 +136,7 @@ public class MainActivity extends BaseActivity {
 	OnClickListener mainMenuClick = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			MyApplication.getInstance().setIsInCheckHasilPm(false);
+			MyApplication.getInstance().setIS_CHECKING_HASIL_PM(false);
 			int i = (Integer) v.getTag();
 			switch (i) {
 				case R.string.schedule:
