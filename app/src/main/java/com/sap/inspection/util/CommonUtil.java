@@ -44,8 +44,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -593,5 +595,14 @@ public class CommonUtil {
         }
 
         return null;
+    }
+
+    /**
+     * Time Util
+     * */
+    private String toDate(long timeInMillis) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd:MM:yyyy HH:mm:ss");
+        Date date = new Date(timeInMillis);
+        return sdf.format(date);
     }
 }

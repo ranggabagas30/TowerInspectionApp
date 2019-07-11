@@ -57,6 +57,7 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	private boolean SCHEDULE_NEED_CHECK_IN;
 	private boolean CHECK_APP_VERSION_STATE;
 	private boolean DEVICE_REGISTER_STATE;
+	private int checkoutTimeToStart;
 
 	public static Key key;
 
