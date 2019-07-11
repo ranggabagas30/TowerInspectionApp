@@ -113,21 +113,9 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		filterBy = resId;
 		if (resId == R.string.schedule){
 			ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
-
 			Vector<ScheduleBaseModel> modelsImbasPetir = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.foto_imbas_petir)));
 			checkImbasPetirConfig(modelsImbasPetir);
-
 			models = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getAllSchedule(activity));
-			/*models = new Vector<>();
-			models.addAll(scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.preventive))));
-			models.addAll(scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.newlocation))));
-			models.addAll(scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.colocation))));
-			models.addAll(scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.site_audit))));
-			models.addAll(scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.fiber_optic))));
-			models.addAll(scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.foto_imbas_petir))));
-			models.addAll(scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.corrective))));
-			models.addAll(modelsImbasPetir);*/
-
 		}else if (resId == R.string.preventive){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
@@ -151,7 +139,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.foto_imbas_petir)));
 			checkImbasPetirConfig(models);
 		} else if (resId == R.string.hasil_PM){
-			MyApplication.getInstance().setIsInCheckHasilPm(true);
+			MyApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
 		}
@@ -367,12 +355,12 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		log("-=-="+ scheduleId +"-=-=-=");
 		log("-=-="+ userId +"-=-=-=");
 
-		if (userId != null && !userId.equalsIgnoreCase("") && !MyApplication.getInstance().isInCheckHasilPm()) {
+		if (userId != null && !userId.equalsIgnoreCase("") && !MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 
 			setItemScheduleModelBy(scheduleId, userId);
 		}
 
-		if (workTypeName.matches(Constants.regexPREVENTIVE) && !MyApplication.getInstance().isInCheckHasilPm()) {
+		if (workTypeName.matches(Constants.regexPREVENTIVE) && !MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 		    MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
 
 			BaseActivity.navigateToCheckinActivity(

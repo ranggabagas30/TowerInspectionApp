@@ -144,7 +144,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory)
 			mandatory.setVisibility(VISIBLE);
 
-		if (!MyApplication.getInstance().isInCheckHasilPm())
+		if (!MyApplication.getInstance().IS_CHECKING_HASIL_PM())
 			enable();
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
@@ -590,7 +590,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	private void toggleEditable() {
-		if (MyApplication.getInstance().isInCheckHasilPm()) {
+		if (MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 			DebugLog.d("input is disabled");
 			disable();
 		} else {

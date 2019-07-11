@@ -27,6 +27,7 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.OperatorModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
+import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.rules.SavingRule;
@@ -83,8 +84,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	public void setWorkFormGroupName(String workFormGroupName) {
 		this.workFormGroupName = workFormGroupName;
-		isChecklistOrSiteInformation = workFormGroupName.toUpperCase().matches(Constants.regexCHECKLIST) ||
-									  workFormGroupName.toUpperCase().matches(Constants.regexSITEINFORMATION);
+		isChecklistOrSiteInformation = workFormGroupName.equalsIgnoreCase("checklist") ||
+									  workFormGroupName.equalsIgnoreCase("site information");
 	}
 
 	public void setSavingRule(SavingRule savingRule) {
@@ -431,26 +432,16 @@ public class FormFillAdapter extends MyBaseAdapter {
 					holder.input.setText(getItem(position).itemValue.value);
 
 				holder.input.setTextChange(formTextChange);
-				holder.input.setEnabled(!getItem(position).workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm());
+				holder.input.setEnabled(isInputItemEnabled(getItem(position).workItemModel));
 				setMandatoryVisibility(holder,getItem(position));
 				break;
 			case ItemFormRenderModel.TYPE_EXPAND:
 				DebugLog.d("TYPE_EXPAND");
 				holder.label.setText(getItem(position).workItemModel.label);
-				holder.label.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						processExpand(holder,position);
-					}
-				});
+				holder.label.setOnClickListener(view -> processExpand(holder,position));
 				DebugLog.d("position="+position+" state="+expandState.get(position));
 				holder.expandButton.setRotation(expandState.get(position) ? 180f : 0f);
-				holder.expandButton.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						processExpand(holder,position);
-					}
-				});
+				holder.expandButton.setOnClickListener(view -> processExpand(holder,position));
 				break;
 			default:
 				break;
@@ -478,13 +469,11 @@ public class FormFillAdapter extends MyBaseAdapter {
 	}
 
 	private void reviseCheckBox(LinearLayout linear,ItemFormRenderModel item, String[] split, int rowId, int operatorId){
-		boolean isHorizontal = true;
-		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
-		//boolean isEnabled = !item.workItemModel.disable && (!MyApplication.getInstance().isInCheckHasilPm() || isChecklistOrSiteInformation);
+		boolean isHorizontal;
+		boolean isEnabled = isInputItemEnabled(item.workItemModel);
 
 		isHorizontal = 3 >= item.workItemModel.options.size();
 		DebugLog.d("isHorizontal : " + isHorizontal);
-
 		DebugLog.d("linear child count after addview : " + linear.getChildCount());
 		for (int i = 0; i< linear.getChildCount(); i++){
 			CheckBox checkBox = (CheckBox) linear.getChildAt(i);
@@ -497,7 +486,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 		DebugLog.d("linear child count before addview : " + linear.getChildCount());
 		for (int i = 0; i< linear.getChildCount(); i++){
 			//binding checkbox
-			if (i < item.workItemModel.options.size()){
+			if (i < item.workItemModel.options.size()) {
 				CheckBox checkBox = (CheckBox) linear.getChildAt(i);
 				checkBox.setVisibility(View.VISIBLE);
 				checkBox.setText(item.workItemModel.options.get(i).label);
@@ -506,7 +495,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				checkBox.setTag(item);
 				checkBox.setOnCheckedChangeListener(null);
 				if (split != null)
-					for(int j = 0; j < split.length; j++){
+					for(int j = 0; j < split.length; j++) {
 						if (item.workItemModel.options.get(i).value.equalsIgnoreCase(split[j]))
 							checkBox.setChecked(true);
 					}
@@ -543,8 +532,8 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 	private void reviseRadio(RadioGroup radioGroup, ItemFormRenderModel item, String[] split, int rowId, int operatorId){
 
-		boolean isHorizontal = true;
-		boolean isEnabled = !item.workItemModel.disable && !MyApplication.getInstance().isInCheckHasilPm();
+		boolean isHorizontal;
+		boolean isEnabled = isInputItemEnabled(item.workItemModel);
 
 		for (int i = 0; i< radioGroup.getChildCount(); i++){
 			RadioButton radioButton = (RadioButton) radioGroup.getChildAt(i);
@@ -629,7 +618,26 @@ public class FormFillAdapter extends MyBaseAdapter {
 		}
 	};
 
-	private void saveValue(ItemFormRenderModel itemFormRenderModel, boolean isAdding, boolean isCompundButton, String value){
+	private boolean isInputItemEnabled(WorkFormItemModel workFormItem) {
+
+		boolean isEnabled = false;
+		if (!workFormItem.disable) {
+			if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+				if (MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation)
+					isEnabled = true;
+			}
+			if (!MyApplication.getInstance().IS_CHECKING_HASIL_PM())
+				isEnabled = true;
+		}
+		DebugLog.d("workItemDisable : " + workFormItem.disable);
+		DebugLog.d("is SAP ? : " + BuildConfig.FLAVOR.equalsIgnoreCase("sap"));
+		DebugLog.d("is checking hasil pm ? " + MyApplication.getInstance().IS_CHECKING_HASIL_PM());
+		DebugLog.d("is checklist or site information ? " + isChecklistOrSiteInformation);
+		DebugLog.d("is enabled ? " + isEnabled);
+		return isEnabled;
+	}
+
+	private void saveValue(ItemFormRenderModel itemFormRenderModel, boolean isAdding, boolean isCompundButton, String value) {
 
 		DebugLog.d("\n== SAVING VALUE ===");
 		if (itemFormRenderModel.itemValue == null){
@@ -689,7 +697,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 				DebugLog.d("item barangid : " + itemFormRenderModel.itemValue.barangId);
 				DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
 
-			}else{ // deleting on checkbox
+			} else { // deleting on checkbox
 
 				DebugLog.d("goto deleting");
 				String[] chkBoxValue = itemFormRenderModel.itemValue.value.split("[,]");

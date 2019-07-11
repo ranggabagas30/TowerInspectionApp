@@ -818,12 +818,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         list.add(ItemFormRenderModel.TYPE_EXPAND);
         adapter.notifyDataSetChanged();
 
-        if (adapter!=null && !adapter.isEmpty() && !MyApplication.getInstance().isInCheckHasilPm()) {
+        if (adapter!=null && !adapter.isEmpty() && !MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 
             DebugLog.d("\n\n ==== ON BACK PRESSED ====");
             DebugLog.d("scheduleId = " + scheduleId);
             DebugLog.d("workFormGroupName = " + workFormGroupName);
-            DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().isInCheckHasilPm());
+            DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().IS_CHECKING_HASIL_PM());
             DebugLog.d("Jumlah item adapter : " + adapter.getCount());
 
             String mandatoryLabel = "";

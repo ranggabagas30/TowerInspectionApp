@@ -113,6 +113,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private LatLng currentGeoPoint;
 	private int accuracy;
 	private boolean finishInflate;
+	private boolean isChecklistOrSiteInformation;
 
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
@@ -153,6 +154,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
             DebugLog.d("wargaId = " + wargaId);
             DebugLog.d("barangId = " + barangId);
 
+			isChecklistOrSiteInformation =  workFormGroupName.equalsIgnoreCase("checklist") ||
+											workFormGroupName.equalsIgnoreCase("site information");
 		}
 
 		if (indexes == null)
@@ -230,7 +233,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			        if (!listView.isFocused())
 			        {
 			            // listView.setItemsCanFocus(false);
-
 			            // Use beforeDescendants so that the EditText doesn't re-take focus
 			            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
 			            listView.requestFocus();
@@ -241,7 +243,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		        if (!listView.isFocused())
 		        {
 		            // listView.setItemsCanFocus(false);
-
 		            // Use beforeDescendants so that the EditText doesn't re-take focus
 		            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
 		            listView.requestFocus();
@@ -455,7 +456,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				FormValueModel itemUpload = itemFormRenderModel.itemValue;
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.workItemModel, itemFormRenderModel.itemValue);
-
 				DebugLog.d("isMandatory= " + itemFormRenderModel.workItemModel.mandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
 			} else {
 				Toast.makeText(activity, "Tidak ada foto", Toast.LENGTH_LONG).show();
@@ -964,12 +964,20 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		list.add(ItemFormRenderModel.TYPE_EXPAND);
 		adapter.notifyDataSetChanged();
 
-		if (adapter!=null && !adapter.isEmpty() && !MyApplication.getInstance().isInCheckHasilPm()) {
+		boolean isMandatoryCheckingActive = false;
+
+		if (adapter!=null && !adapter.isEmpty()) {
+			if (MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation){
+				isMandatoryCheckingActive = true;
+			}
+		}
+
+		if (isMandatoryCheckingActive) {
 
 			DebugLog.d("\n\n ==== ON BACK PRESSED ====");
 			DebugLog.d("scheduleId = " + scheduleId);
 			DebugLog.d("workFormGroupName = " + workFormGroupName);
-			DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().isInCheckHasilPm());
+			DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().IS_CHECKING_HASIL_PM());
 			DebugLog.d("Jumlah item adapter : " + adapter.getCount());
 
 			String mandatoryLabel = "";
@@ -996,13 +1004,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value)) DebugLog.d("\titem value = " +item.itemValue.value);
 
 				if (list.contains(item.type) && item.workItemModel != null) {
-
 					if (!FormValueModel.isItemValueValidated(item.workItemModel, item.itemValue)) {
 						mandatoryLabel = item.workItemModel.label;
 						mandatoryFound = true;
 						break;
 					}
-
 				}
 			}
 
