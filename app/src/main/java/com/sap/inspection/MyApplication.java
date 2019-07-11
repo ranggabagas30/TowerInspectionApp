@@ -1,6 +1,7 @@
 package com.sap.inspection;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -57,7 +58,6 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	private boolean SCHEDULE_NEED_CHECK_IN;
 	private boolean CHECK_APP_VERSION_STATE;
 	private boolean DEVICE_REGISTER_STATE;
-	private int checkoutTimeToStart;
 
 	public static Key key;
 

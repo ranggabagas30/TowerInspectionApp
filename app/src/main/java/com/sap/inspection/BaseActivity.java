@@ -3,6 +3,7 @@ package com.sap.inspection;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -104,6 +105,7 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 	private boolean isReadStorageAllowed = false;
 	private boolean isWriteStorageAllowed = false;
 	protected boolean isUpdateAvailable = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -127,23 +129,23 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 	@Override
 	protected void onStart() {
 		super.onStart();
+		EventBus.getDefault().register(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		EventBus.getDefault().register(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		EventBus.getDefault().unregister(this);
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
+		EventBus.getDefault().unregister(this);
 	}
 	@Override
 	protected void onDestroy() {
@@ -212,10 +214,8 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		if (event.done) {
 			hideDialog();
 			Toast.makeText(activity, event.progressString, Toast.LENGTH_SHORT).show();
-
 			if (event.shouldRelogin)
 				navigateToLoginActivity();
-
 		} else {
 			showMessageDialog(event.progressString);
 		}
