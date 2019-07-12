@@ -380,7 +380,7 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 		}
 	}
 
-    private void initFormImbasPetir(String json) {
+    private void initFormImbasPetir(String json){
         Gson gson = new Gson();
         FormResponseModel formResponseModel = gson.fromJson(json, FormResponseModel.class);
         if (formResponseModel.status == 200) {
@@ -596,13 +596,13 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 
 			if (isResponseOK) {
 
-				if (bundle.getString("json") != null){
+				if (bundle.getString("json") != null) {
 					ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
 					if (scheduleResponseModel.status == 200){
 						ScheduleSaver scheduleSaver = new ScheduleSaver();
 						scheduleSaver.execute(scheduleResponseModel.data.toArray());
 					}
-				} else{
+				} else {
 					hideDialog();
 					setFlagScheduleSaved(true);
 					Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet),Toast.LENGTH_LONG).show();

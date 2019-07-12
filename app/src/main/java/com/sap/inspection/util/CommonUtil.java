@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -349,6 +350,8 @@ public class CommonUtil {
             tempFile = context.getFilesDir();
         }
         tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(context.getString(R.string.latest_version), "") + ".apk");
+        DebugLog.d(tempFile.getAbsolutePath());
+
         if (tempFile.exists()) {
             return tempFile;
         }
@@ -359,11 +362,19 @@ public class CommonUtil {
     public static void installAPK(Activity activity, Context context) {
 
         File tempFile = getNewAPKpath(context);
-        if (tempFile.exists()) {
-            Intent intent = new Intent(Intent.ACTION_VIEW)
-                    .setDataAndType(Uri.fromFile(tempFile), "application/vnd.android.package-archive");
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            activity.startActivityForResult(intent, Constants.RC_INSTALL_APK);
+        if (tempFile != null && tempFile.exists()) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Uri uriAPK = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileProvider", tempFile);
+                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uriAPK, "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                activity.startActivityForResult(intent, Constants.RC_INSTALL_APK);
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.fromFile(tempFile), "application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.startActivityForResult(intent, Constants.RC_INSTALL_APK);
+            }
+
         } else {
             MyApplication.getInstance().toast(context.getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
             activity.finish();
@@ -483,7 +494,7 @@ public class CommonUtil {
      * encryption
      *
      * */
-    public static String getEncryotedMD5Hex(String source) {
+    public static String getEncryptedMD5Hex(String source) {
 
         return new String(Hex.encodeHex(DigestUtils.md5(source)));
     }

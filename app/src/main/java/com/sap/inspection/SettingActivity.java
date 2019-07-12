@@ -62,7 +62,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DebugLog.d("");
         setContentView(R.layout.activity_setting);
 
         title = findViewById(R.id.header_title);
@@ -121,7 +120,8 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         DebugLog.d("latest_version" + mPref.getString(this.getString(R.string.latest_version), ""));
         DebugLog.d("url_update" + mPref.getString(this.getString(R.string.url_update), ""));
 
-        if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
+        if (false) {
+        //if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
             update.setVisibility(View.VISIBLE);
             update.setEnabled(false);
             update.setText(getString(R.string.noNewUpdateAvail));
@@ -130,7 +130,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             //new update available
             update.setVisibility(View.VISIBLE);
             updateStatus.setText(getString(R.string.newUpdateAvail));
-
             isUpdateAvailable = true;
         }
 
@@ -202,7 +201,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
      * EVENT CLICK LISTENERS
      *
      * */
-
     OnClickListener setTextMarkClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {

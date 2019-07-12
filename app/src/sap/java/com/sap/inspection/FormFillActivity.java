@@ -514,7 +514,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String part			   = "picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-";
 
 				// temporary image file
-				photo = createTemporaryFile(CommonUtil.getEncryotedMD5Hex(part), ".jpg");
+				photo = createTemporaryFile(CommonUtil.getEncryptedMD5Hex(part), ".jpg");
 
 			}
 			catch(Exception e)
@@ -967,7 +967,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		boolean isMandatoryCheckingActive = false;
 
 		if (adapter!=null && !adapter.isEmpty()) {
-			if (MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation){
+			if ((MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation) || !MyApplication.getInstance().IS_CHECKING_HASIL_PM()){
 				isMandatoryCheckingActive = true;
 			}
 		}
