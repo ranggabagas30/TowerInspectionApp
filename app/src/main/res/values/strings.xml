@@ -21,7 +21,7 @@
     <string name="settings">Pengaturan</string>
     <string name="fiber_optic">Fiber Optic</string>
     <string name="hasil_PM">Hasil PM</string>
-    <string name="foto_imbas_petir">Imbas Petir</string> <!-- STP ONLY-->
+    <string name="foto_imbas_petir">Imbas Petir</string>
 
     <string name="app_reg_id">app_reg_id</string>
     <string name="app_fcm_reg_id">app_fcm_reg_id</string>
@@ -116,6 +116,8 @@
     <string name="textmarksizelandscape">text_mark_size_landscape</string>
     <string name="linespacepotrait">line_space_potrait</string>
     <string name="linespacelandscape">line_space_landscape</string>
+    <string name="heightbackgroundwatermarkportrait">height_background_watermark_portrait</string>
+    <string name="heightbackgroundwatermarklandscape">height_background_watermark_landscape</string>
 
     <!-- persistent site location string value-->
     <string name="keypersistentsitelocation">Persistent Site Location</string>

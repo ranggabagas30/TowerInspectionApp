@@ -102,6 +102,8 @@ public class Constants {
 	public static final int TEXT_SIZE_LANDSCAPE = 18;
 	public static final int TEXT_LINE_SPACE_POTRAIT = 30;
 	public static final int TEXT_LINE_SPACE_LANDSCAPE = 36;
+	public static final int HEIGHT_BACKGROUND_WATERMARK_PORTRAIT = 170;
+	public static final int HEIGHT_BACKGROUND_WATERMARK_LANDSCAPE = 300;
 
 	/**
 	 * ============================= CHECKIN ACTIVITY =================================================

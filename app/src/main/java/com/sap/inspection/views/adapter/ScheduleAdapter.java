@@ -187,13 +187,10 @@ public class ScheduleAdapter extends MyBaseAdapter {
 		DebugLog.d("start deleting schedule " + deletedScheduleItem.id + " with pos " + deletedSchedulePosition);
 
 		DeleteAllDataDialog deleteDialog = new DeleteAllDataDialog(context, deletedScheduleItem.id);
-		deleteDialog.setOnPositiveClickListener(new DeleteAllDataDialog.OnPositiveClickListener() {
-			@Override
-			public void onPositiveClick(String scheduleId) {
-				DebugLog.d("delete all files by scheduleid " + scheduleId);
-				AsyncDeleteAllFiles task = new AsyncDeleteAllFiles(scheduleId);
-				task.execute();
-			}
+		deleteDialog.setOnPositiveClickListener(scheduleId -> {
+			DebugLog.d("delete all files by scheduleid " + scheduleId);
+			AsyncDeleteAllFiles task = new AsyncDeleteAllFiles(scheduleId);
+			task.execute();
 		});
 
 		deleteDialog.show();
