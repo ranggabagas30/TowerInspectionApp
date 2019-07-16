@@ -12,16 +12,22 @@
     <string name="push_sender_id_key">push_sender_id_key</string>
     <string name="pref_push_notification_key">pref_push_notification_key</string>
 
+    <!-- COMMON SCHEDULE -->
     <string name="schedule">Jadwal</string>
     <string name="preventive">Preventive</string>
     <string name="corrective">Corrective</string>
     <string name="newlocation">Lokasi Baru</string>
     <string name="colocation">CoLocation</string>
-    <string name="site_audit">Site Audit</string> <!-- SAP ONLY-->
     <string name="settings">Pengaturan</string>
     <string name="fiber_optic">Fiber Optic</string>
     <string name="hasil_PM">Hasil PM</string>
-    <string name="foto_imbas_petir">Imbas Petir</string> <!-- STP ONLY-->
+
+    <!-- SAP ONLY-->
+    <string name="site_audit">Site Audit</string>
+    <string name="routing">Routing</string>
+
+    <!-- STP ONLY-->
+    <string name="foto_imbas_petir">Imbas Petir</string>
 
     <string name="app_reg_id">app_reg_id</string>
     <string name="app_fcm_reg_id">app_fcm_reg_id</string>

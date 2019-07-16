@@ -59,6 +59,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.drawable.ic_imbas_petir,
 					R.drawable.ic_settings,
 					R.drawable.ic_hasilpm,
+					R.drawable.ic_calendar // temporary icon for routing
 			};
 			this.icons = getArrayList(icons);
 		}
@@ -73,7 +74,8 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.string.site_audit,
 					R.string.foto_imbas_petir,
 					R.string.settings,
-					R.string.hasil_PM
+					R.string.hasil_PM,
+					R.string.routing
 			};
 			this.titles = getArrayList(titles);
 		}

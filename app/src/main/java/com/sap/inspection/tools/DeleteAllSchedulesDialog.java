@@ -67,8 +67,9 @@ public class DeleteAllSchedulesDialog {
 		}
 	};
 
-	public void setPositive(OnClickListener positive) {
+	public DeleteAllSchedulesDialog setOnPositiveClickListener(OnClickListener positive) {
 		this.positive = positive;
+		return this;
 	}
 
 	public void setNegative(OnClickListener negative) {

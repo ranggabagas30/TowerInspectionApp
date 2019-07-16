@@ -3,6 +3,7 @@ package com.sap.inspection.tools;
 
 
 import android.app.AlertDialog;
+import android.arch.persistence.room.Delete;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,7 +16,6 @@ import com.sap.inspection.R;
 import com.sap.inspection.util.PrefUtil;
 
 public class DeleteAllDataDialog {
-
 
 	private OnClickListener positive;
 	private OnClickListener negative;
@@ -74,8 +74,9 @@ public class DeleteAllDataDialog {
 		}
 	};
 
-	public void setOnPositiveClickListener(OnPositiveClickListener onPositiveClickListener) {
+	public DeleteAllDataDialog setOnPositiveClickListener(OnPositiveClickListener onPositiveClickListener) {
 		this.onPositiveClickListener = onPositiveClickListener;
+		return this;
 	}
 
 	public interface OnPositiveClickListener {

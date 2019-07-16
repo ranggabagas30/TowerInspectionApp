@@ -21,11 +21,10 @@ import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.DeleteAllDataDialog;
-import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.view.FormInputText;
+import com.sap.inspection.view.dialog.DialogUtil;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
@@ -219,39 +218,21 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         }
     };
 
-    OnClickListener deleteClickListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            DeleteAllDataDialog dialog = new DeleteAllDataDialog(activity, null);
-            dialog.setOnPositiveClickListener(new DeleteAllDataDialog.OnPositiveClickListener() {
-                @Override
-                public void onPositiveClick(String scheduleId) {
-
-                    if (TextUtils.isEmpty(scheduleId)) {
-                        trackEvent("user_delete_all_data");
-                        AsyncDeleteAllFiles task = new AsyncDeleteAllFiles();
-                        task.execute();
-                    }
+    OnClickListener deleteClickListener = v -> DialogUtil.deleteAllDataDialog(activity, null)
+            .setOnPositiveClickListener(scheduleId -> {
+                if (TextUtils.isEmpty(scheduleId)) {
+                    trackEvent("user_delete_all_data");
+                    AsyncDeleteAllFiles task = new AsyncDeleteAllFiles();
+                    task.execute();
                 }
-            });
-            dialog.show();
-        }
-    };
+            }).show();
 
-    OnClickListener deleteAndUpdateScheduleClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            DeleteAllSchedulesDialog dialog = new DeleteAllSchedulesDialog(activity);
-            dialog.setPositive(positiveDeleteScheduleClickListener);
-            dialog.show();
-        }
-    };
-
-    OnClickListener positiveDeleteScheduleClickListener = v -> {
-        trackEvent("user_delete_schedule");
-        downloadAndDeleteSchedules();
-    };
+    OnClickListener deleteAndUpdateScheduleClickListener = view -> DialogUtil.deleteAllSchedulesDialog(activity)
+            .setOnPositiveClickListener(view1 -> {
+                trackEvent("user_delete_schedule");
+                downloadAndDeleteSchedules();
+            })
+            .show();
 
     OnClickListener updateClickListener = v -> {
         trackEvent("user_update_apk");

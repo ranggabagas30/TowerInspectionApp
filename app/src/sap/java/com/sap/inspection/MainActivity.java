@@ -45,6 +45,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.view.dialog.DialogUtil;
 import com.slidinglayer.SlidingLayer;
 
 import java.io.File;
@@ -171,6 +172,11 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					DebugLog.d("hasil PM");
 					trackEvent(getResources().getString(R.string.hasil_PM));
 					scheduleFragment.setScheduleBy(R.string.hasil_PM);
+					break;
+				case R.string.routing: // R.id.s8
+					DebugLog.d("routing");
+					trackEvent("routing");
+					DialogUtil.singleChoiceScheduleRoutingDialog(MainActivity.this);
 					break;
 
 				default:

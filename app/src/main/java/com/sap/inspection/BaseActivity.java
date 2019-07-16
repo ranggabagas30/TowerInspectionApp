@@ -22,6 +22,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Window;
@@ -82,7 +83,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 //import com.sap.inspection.gcm.GCMService;
 
-public abstract class BaseActivity extends FragmentActivity implements EasyPermissions.PermissionCallbacks {
+public abstract class BaseActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
 	protected FragmentActivity activity;
 	public static final int ACTIVITY_REQUEST_CODE = 311; 
@@ -415,45 +416,6 @@ public abstract class BaseActivity extends FragmentActivity implements EasyPermi
 	public void setFlagScheduleSaved(boolean flagScheduleSaved) {
 		this.flagScheduleSaved = flagScheduleSaved;
 		hideDialog();
-	}
-
-	/** Dialog for asking GPS permission to user **/
-	protected LovelyStandardDialog gpsDialog() {
-		return new LovelyStandardDialog(this, R.style.CheckBoxTintTheme)
-				.setTopColor(color(R.color.theme_color))
-				.setButtonsColor(color(R.color.theme_color))
-				.setIcon(R.drawable.logo_app)
-				//string title information GPS
-				.setTitle(getString(R.string.informationGPS))
-				.setMessage("Silahkan aktifkan GPS")
-				.setCancelable(false)
-				.setPositiveButton(android.R.string.yes, v -> {
-					Intent gpsOptionsIntent = new Intent(
-							Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-					startActivity(gpsOptionsIntent);
-				});
-	}
-
-	/** checking any network is available or not **/
-	protected boolean isNetworkAvailable() {
-		return GlobalVar.getInstance().anyNetwork(this);
-	}
-
-	/** Showing network permission dialog if network is not available **/
-	protected void networkPermissionDialog() {
-		if (!isNetworkAvailable()){
-			new LovelyStandardDialog(this, R.style.CheckBoxTintTheme)
-					.setTopColor(color(R.color.theme_color))
-					.setButtonsColor(color(R.color.theme_color))
-					.setIcon(R.drawable.logo_app)
-					.setTitle("Information")
-					.setMessage("No internet connection. Please connect your network.")
-					.setCancelable(false)
-					.setPositiveButton(android.R.string.yes, v -> {
-						startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-					})
-					.show();
-		}
 	}
 
 	/**

@@ -49,6 +49,7 @@ import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PermissionUtil;
+import com.sap.inspection.view.dialog.DialogUtil;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
@@ -116,7 +117,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 		DebugLog.d("");
 		trackThisPage("Login");
 
-		networkPermissionDialog();
+		DialogUtil.networkPermissionDialog(this);
 
 		developmentLayout = findViewById(R.id.devLayout);
 		developmentLayout.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
@@ -188,7 +189,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	protected void onResume() {
 		super.onResume();
 		if (!CommonUtil.checkGpsStatus(this) && !CommonUtil.checkNetworkStatus(this)) {
-			gpsDialog().show();
+			DialogUtil.gpsDialog(this).show();
 		} else {
 			getLoginSessionFromPreference();
 		}
@@ -682,7 +683,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 
 		setFileName(loginLogModel.fileName);
 
-		if (isNetworkAvailable()){
+		if (GlobalVar.getInstance().anyNetwork(this)){
 			DebugLog.d("any network");
 			onlineLogin(userModel);
 		}else{

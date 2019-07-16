@@ -22,6 +22,7 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
+import com.sap.inspection.view.dialog.DialogUtil;
 
 import java.util.Vector;
 
@@ -183,19 +184,12 @@ public class ScheduleAdapter extends MyBaseAdapter {
 
 		int deletedSchedulePosition = (int) v.getTag();
 		ScheduleBaseModel deletedScheduleItem = getItem(deletedSchedulePosition);
-
 		DebugLog.d("start deleting schedule " + deletedScheduleItem.id + " with pos " + deletedSchedulePosition);
-
-		DeleteAllDataDialog deleteDialog = new DeleteAllDataDialog(context, deletedScheduleItem.id);
-		deleteDialog.setOnPositiveClickListener(new DeleteAllDataDialog.OnPositiveClickListener() {
-			@Override
-			public void onPositiveClick(String scheduleId) {
-				DebugLog.d("delete all files by scheduleid " + scheduleId);
-				AsyncDeleteAllFiles task = new AsyncDeleteAllFiles(scheduleId);
-				task.execute();
-			}
-		});
-
-		deleteDialog.show();
+		DialogUtil.deleteAllDataDialog(context, deletedScheduleItem.id)
+				.setOnPositiveClickListener(scheduleId -> {
+					DebugLog.d("delete all files by scheduleid " + scheduleId);
+					AsyncDeleteAllFiles task = new AsyncDeleteAllFiles(scheduleId);
+					task.execute();
+				}).show();
 	};
 }
