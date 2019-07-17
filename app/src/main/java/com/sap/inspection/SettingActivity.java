@@ -119,8 +119,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         DebugLog.d("latest_version" + mPref.getString(this.getString(R.string.latest_version), ""));
         DebugLog.d("url_update" + mPref.getString(this.getString(R.string.url_update), ""));
 
-        if (false) {
-        //if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
+        if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
             update.setVisibility(View.VISIBLE);
             update.setEnabled(false);
             update.setText(getString(R.string.noNewUpdateAvail));
