@@ -245,7 +245,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			noPicture.setVisibility(VISIBLE);
 			if (!TextUtils.isEmpty(value.value)) {
 				photoRoot.setVisibility(VISIBLE);
-				noPicture.setVisibility(GONE);
+				noPicture.setVisibility(INVISIBLE);
 
 				DebugLog.d("value : " + value.value);
 
@@ -297,7 +297,7 @@ public class PhotoItemRadio extends RelativeLayout {
                         na.setChecked(true);
                         imageView.setVisibility(GONE);
                         photoRoot.setVisibility(GONE);
-                        noPicture.setVisibility(GONE);
+                        noPicture.setVisibility(INVISIBLE);
                         btnTakePicture.setVisibility(GONE);
                         break;
                 }
