@@ -48,14 +48,14 @@ import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.PermissionUtil;
+import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.dialog.DialogUtil;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,7 +76,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	//skipper
 	private Class jumto = MainActivity.class;
 	private boolean isJump = false;
-	AlertDialogManager alert = new AlertDialogManager();
+	private AlertDialogManager alert = new AlertDialogManager();
 
 	private ImageView imagelogo;
 	private Button login;
@@ -114,49 +114,38 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		DebugLog.d("");
-		trackThisPage("Login");
 
 		DialogUtil.networkPermissionDialog(this);
 
 		developmentLayout = findViewById(R.id.devLayout);
 		developmentLayout.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
-
-		imagelogo = (ImageView) findViewById(R.id.imagelogo);
+		imagelogo = findViewById(R.id.imagelogo);
 		imagelogo.setVisibility(View.VISIBLE);
-		endpoint = (EditText) findViewById(R.id.endPoint);
+		endpoint = findViewById(R.id.endPoint);
 		endpoint.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
 		endpoint.setText(AppConfig.getInstance().config.getHost());
-		change = (Button) findViewById(R.id.change);
+		change = findViewById(R.id.change);
 		change.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
 		change.setOnClickListener(v -> {
-			Toast.makeText(activity, "Endpoint diganti!!!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity, "Endpoint diganti", Toast.LENGTH_SHORT).show();
 			AppConfig.getInstance().config.setHost(endpoint.getText().toString());
 		});
-		copy = (Button) findViewById(R.id.copy);
+		copy = findViewById(R.id.copy);
 		copy.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
 		copy.setOnClickListener(v -> {
-			copyDB(getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
-			copyDB(getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
+			FileUtil.copyDB(this, getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
+			FileUtil.copyDB(this, getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
 		});
 
 		writePreference("cook", "value");
 		login = findViewById(R.id.login);
-		login.setOnClickListener(onClickListener);
+		login.setOnClickListener(onBtnLoginClickListener);
 		username = (EditText) findViewById(R.id.username);
 		password = (EditText) findViewById(R.id.password);
 		version =  (TextView) findViewById(R.id.app_version);
-		version.setText(getVersionName());
-
-		DebugLog.d("tester" + getVersionName());
-
+		version.setText(StringUtil.getVersionName(this));
 		cbKeep = (CheckBox)findViewById(R.id.cbkeep);
-		cbKeep.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-				DebugLog.d("checked="+b);
-			}
-		});
+		cbKeep.setOnCheckedChangeListener((compoundButton, b) -> DebugLog.d("checked="+b));
 
 		if (getPreference(R.string.user_name, null) != null)
 			username.setText(getPreference(R.string.user_name, null));
@@ -182,6 +171,8 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 				startActivity(intent);
 			}
 		});
+
+		trackThisPage("Login");
 	}
 
 	/** Ensure that Location GPS and Location Networkf had been enabled when app is resumed **/
@@ -192,67 +183,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 			DialogUtil.gpsDialog(this).show();
 		} else {
 			getLoginSessionFromPreference();
-		}
-	}
-
-	/** Backup local SQLite Database **/
-	private void copyDB(String dbname,String dstName){
-		try {
-			File sd = Environment.getExternalStorageDirectory();
-			File data = Environment.getDataDirectory();
-			if (sd.canWrite()) {
-				String currentDBPath = "//data//"+ BuildConfig.APPLICATION_ID+ "//databases//"+dbname;
-				String backupDBPath = dstName;
-				File currentDB = new File(data, currentDBPath);
-				File backupDB = new File(sd, backupDBPath);
-				DebugLog.d("external dir : "+backupDB.getPath());
-				DebugLog.d("database path : "+currentDB.getPath());
-
-				if (currentDB.exists()) {
-					FileChannel src = new FileInputStream(currentDB).getChannel();
-					FileChannel dst = new FileOutputStream(backupDB).getChannel();
-					dst.transferFrom(src, 0, src.size());
-					src.close();
-					dst.close();
-				}
-			}
-			//string copy database sukses
-			Toast.makeText(activity, getString(R.string.copydatabasesuccess), Toast.LENGTH_SHORT).show();
-
-		} catch (Exception e) {
-			DebugLog.e(e.getMessage());
-			DebugLog.e(e.getCause().getMessage());
-
-			//string copy database gagal
-			Toast.makeText(activity, getString(R.string.copydatabasefailed), Toast.LENGTH_SHORT).show();
-		}
-	}
-
-	private void copyDB2(String dbname,String dstName){
-		try {
-//	        File sd = Environment.getExternalStorageDirectory();
-//	        File data = Environment.getDataDirectory();
-			File sd = Environment.getExternalStorageDirectory();
-			File data = Environment.getDataDirectory();
-			if (sd.canWrite()) {
-				String currentDBPath = "//data//"+ BuildConfig.APPLICATION_ID+ "//databases//"+dbname;
-				String backupDBPath = dstName;
-				File currentDB = new File(data, currentDBPath);
-				File backupDB = new File(sd, backupDBPath);
-				DebugLog.d("external dir : "+backupDB.getPath());
-				DebugLog.d("database path : "+currentDB.getPath());
-
-				if (currentDB.exists()) {
-					FileChannel src = new FileInputStream(currentDB).getChannel();
-					FileChannel dst = new FileOutputStream(backupDB).getChannel();
-					dst.transferFrom(src, 0, src.size());
-					src.close();
-					dst.close();
-				}
-			}
-		} catch (Exception e) {
-			DebugLog.e(e.getMessage());
-			DebugLog.e(e.getCause().getMessage());
 		}
 	}
 
@@ -280,55 +210,17 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 		}
 		CommonUtil.fixVersion(getApplicationContext());
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		update = (Button) findViewById(R.id.update);
+		update = findViewById(R.id.update);
+		update.setVisibility(View.GONE);
 		DebugLog.d("version Name = " + version+" versionCode = "+versionCode);
 		DebugLog.d("pref version Name = " + getPreference(R.string.latest_version,""));
-		//rangga
-		update.setVisibility(View.GONE);
-		/*if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
-			update.setVisibility(View.GONE);
-		}
-		else{
-			update.setVisibility(View.VISIBLE);
-		}*/
-	}
-
-	private void initForm(){
-		WorkFormModel form = new WorkFormModel();
-		//DbRepository.getInstance().open(this);
-		if (form.countItem() != 0){
-			//DbRepository.getInstance().close();
-			return;
-		}
-		byte[] buffer = null;
-		InputStream is;
-		try {
-			is = this.getAssets().open("work_forms_full.txt");
-			int size = is.available();
-			buffer = new byte[size];
-			is.read(buffer);
-			is.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String bufferString = new String(buffer);
-
-		showMessageDialog("initialize default form template");
-
-		Gson gson = new Gson();
-		FormResponseModel formResponseModel = gson.fromJson(bufferString,FormResponseModel.class);
-		if (formResponseModel.status == 200){
-			FormSaver formSaver = new FormSaver();
-			formSaver.execute(formResponseModel.data.toArray());
-		}
 	}
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
 
-	private OnClickListener onClickListener = v -> {
+	private OnClickListener onBtnLoginClickListener = v -> {
 
 		switch (v.getId()) {
 		case R.id.login:
@@ -336,36 +228,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 			break;
 		default:
 			break;
-		}
-	};
-
-	ShutterCallback shutterCallback = new ShutterCallback() {
-		public void onShutter() {
-		}
-	};
-
-	/** Handles data for raw picture */
-	PictureCallback rawCallback = new PictureCallback() {
-		public void onPictureTaken(byte[] data, Camera camera) {
-		}
-	};
-
-	/** Handles data for jpeg picture */
-	PictureCallback jpegCallback = new PictureCallback() {
-		public void onPictureTaken(byte[] data, Camera camera) {
-			FileOutputStream outStream = null;
-			try {
-				String root = Environment.getExternalStorageDirectory().toString();
-				outStream = new FileOutputStream(String.format(
-						root+"/%s.jpg", fileName));
-
-				Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
-				bitmap.compress(CompressFormat.JPEG, 75, outStream);
-
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-
 		}
 	};
 
@@ -425,7 +287,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	}
 
 	private void onlineLogin(UserModel userModel){
-
 		showMessageDialog("Masuk ke server, silahkan tunggu");
 		APIHelper.login(activity, loginHandler, userModel.username, userModel.password);
 	}
@@ -586,18 +447,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 				finish();
 			}
 		}
-	}
-	
-	private String getVersionName(){
-		String version = null;
-		try {
-			version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-			DebugLog.d(version);
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return version;
 	}
 
 	/**

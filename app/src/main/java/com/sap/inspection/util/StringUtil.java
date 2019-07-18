@@ -1,6 +1,7 @@
 package com.sap.inspection.util;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
@@ -16,6 +17,18 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class StringUtil {
+
+    public static String getVersionName(Context context){
+        String version = null;
+        try {
+            version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+            DebugLog.d(version);
+        } catch (PackageManager.NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return version;
+    }
 
     public static byte[] readFile(Context context, String filename) {
 

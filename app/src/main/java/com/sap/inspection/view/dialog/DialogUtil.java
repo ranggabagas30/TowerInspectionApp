@@ -1,6 +1,8 @@
 package com.sap.inspection.view.dialog;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
@@ -9,6 +11,8 @@ import android.widget.Toast;
 import com.haarman.listviewanimations.ArrayAdapter;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.model.value.CorrectiveValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;
@@ -77,5 +81,14 @@ public class DialogUtil {
 
     public static DeleteAllSchedulesDialog deleteAllSchedulesDialog(Context context) {
         return new DeleteAllSchedulesDialog(context);
+    }
+
+    public static void showUploadAllDataDialog(Context context, DialogInterface.OnClickListener positiveClickListener, DialogInterface.OnClickListener negativeClickListener) {
+        new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.reuploadAllData))
+                .setMessage(context.getString(R.string.areyousurereuploaddata))
+                .setPositiveButton("Upload", positiveClickListener)
+                .setNegativeButton("Batal", negativeClickListener)
+                .create().show();
     }
 }

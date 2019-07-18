@@ -67,16 +67,16 @@ android {
         sap {
             applicationId 'com.sap.inspection'
             dimension "default"
-            buildConfigField ("int", DBMANAGERVALUE_SCHEMA_VERSION, "9")
-            buildConfigField ("int", DBMANAGER_SCHEMA_VERSION, "10")
+            buildConfigField("int", DBMANAGERVALUE_SCHEMA_VERSION, "9")
+            buildConfigField("int", DBMANAGER_SCHEMA_VERSION, "10")
         }
         stp {
             applicationId 'com.stp.inspection'
             versionCode 19020401
             versionName "2.4.1"
             dimension "default"
-            buildConfigField ("int", DBMANAGERVALUE_SCHEMA_VERSION, "8")
-            buildConfigField ("int", DBMANAGER_SCHEMA_VERSION, "9")
+            buildConfigField("int", DBMANAGERVALUE_SCHEMA_VERSION, "8")
+            buildConfigField("int", DBMANAGER_SCHEMA_VERSION, "9")
         }
     }
     compileOptions {

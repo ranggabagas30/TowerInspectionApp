@@ -142,6 +142,15 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			MyApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
+		} else if (resId == R.string.routing_segment) {
+			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity, getString(R.string.routing_segment)));
+		} else if (resId == R.string.handhole) {
+			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity, getString(R.string.handhole)));
+		} else if (resId == R.string.hdpe) {
+			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity, getString(R.string.hdpe)));
 		}
 		adapter.setItems(models);
 	}

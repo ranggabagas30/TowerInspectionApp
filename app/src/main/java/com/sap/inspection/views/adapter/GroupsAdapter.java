@@ -23,7 +23,6 @@ import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
-import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.model.form.RowModel;
@@ -34,7 +33,6 @@ import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteWargaAndBarangDialog;
 import com.sap.inspection.util.StringUtil;
-import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -46,10 +44,8 @@ public class GroupsAdapter extends MyBaseAdapter {
 	private Vector<RowModel> shown;
 	private String scheduleId;
 	private String workTypeName;
-	private ScheduleBaseModel scheduleBaseModel;
-	private LovelyTextInputDialog mConfirmDeleteWargaDialog;
     private int positionAncestry;
-	int dataIndex = -1;
+	private int dataIndex = -1;
 
 	public GroupsAdapter(Context context) {
 		this.context = context;
@@ -59,9 +55,6 @@ public class GroupsAdapter extends MyBaseAdapter {
 			shown = new Vector<RowModel>();
 	}
 
-	public void setSchedule(ScheduleBaseModel scheduleBaseModel) {
-		this.scheduleBaseModel = scheduleBaseModel;
-	}
 	public void setScheduleId(String scheduleId) {
 		this.scheduleId = scheduleId;
 		dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
@@ -334,7 +327,6 @@ public class GroupsAdapter extends MyBaseAdapter {
 		} else if (groupItem.hasForm){
 
 			DebugLog.d("----schedule id----- "+scheduleId);
-
 			WorkFormGroupModel workFormGroup = WorkFormGroupModel.getWorkFormGroupById(String.valueOf(shown.get(position).work_form_group_id));
 			String workFormGroupName = workFormGroup.name;
 
@@ -401,7 +393,8 @@ public class GroupsAdapter extends MyBaseAdapter {
 						scheduleId,
 						groupItem.id,
 						groupItem.work_form_group_id,
-						workFormGroupName, workTypeName);
+						workFormGroupName,
+						workTypeName);
 
 			}
 		} else {
@@ -485,7 +478,6 @@ public class GroupsAdapter extends MyBaseAdapter {
 	private void proceedApprovalCheckingFirst(String scheduleId, String workFormGroupName, String workTypeName, int rowId, int workFormGroupId) {
 
 		DebugLog.d("proceed approval checking ... ");
-
 		CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(context, scheduleId, workFormGroupName, workTypeName, rowId, workFormGroupId);
 		APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
 

@@ -288,31 +288,15 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
         @Override
         public void onClick(View v) {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
-            // set title
-            //String reupload all data
-            alertDialogBuilder.setTitle(getString(R.string.reuploadAllData));
-            // set dialog message
-            alertDialogBuilder
-                    //String Are you sure want to re-upload all data
-                    .setMessage(getString(R.string.areyousurereuploaddata))
-                    .setPositiveButton("Upload", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            //String Resetting upload
-                            uploadInfo.setText(getString(R.string.reSettingUpload));
-                            FormValueModel.resetAllUploadStatus();
-                            CorrectiveValueModel.resetAllUploadStatus();
-                            trackEvent("user_reupload");
-                            upload.performClick();
-                        }
-                    })
-                    .setNegativeButton("Batal", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialogBuilder.create().show();
+
+            DialogUtil.showUploadAllDataDialog(activity, (dialog, id) -> {
+                dialog.dismiss();
+                uploadInfo.setText(getString(R.string.reSettingUpload));
+                FormValueModel.resetAllUploadStatus();
+                CorrectiveValueModel.resetAllUploadStatus();
+                upload.performClick();
+                trackEvent("user_reupload");
+            }, (dialog, id) -> dialog.dismiss());
         }
     };
 

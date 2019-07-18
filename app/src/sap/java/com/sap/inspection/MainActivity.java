@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,10 +48,12 @@ import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.view.dialog.DialogUtil;
 import com.slidinglayer.SlidingLayer;
+import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -102,7 +105,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		 * */
 		checkAPKVersion();
 
-		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
+		mSlidingLayer = findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
 		LayoutParams rlp = (LayoutParams) mSlidingLayer.getLayoutParams();
 		rlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -141,26 +144,31 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					DebugLog.d("schedule");
 					trackThisPage(getResources().getString(R.string.schedule));
 					scheduleFragment.setScheduleBy(R.string.schedule);
+					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.site_audit: // R.id.s2
 					DebugLog.d("site audit");
 					trackThisPage(getResources().getString(R.string.site_audit));
 					scheduleFragment.setScheduleBy(R.string.site_audit);
+					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.preventive: // R.id.s3
 					DebugLog.d("preventive");
 					trackThisPage(getResources().getString(R.string.preventive));
 					scheduleFragment.setScheduleBy(R.string.preventive);
+					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.corrective: // R.id.s4
 					DebugLog.d("corrective");
 					trackThisPage(getResources().getString(R.string.corrective));
 					scheduleFragment.setScheduleBy(R.string.corrective);
+					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.foto_imbas_petir: //R.id.s5
 					DebugLog.d("foto imbas petir");
 					trackEvent(getString(R.string.foto_imbas_petir));
 					scheduleFragment.setScheduleBy(R.string.foto_imbas_petir);
+					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.settings: // R.id.s6
 					DebugLog.d("settings");
@@ -172,17 +180,43 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					DebugLog.d("hasil PM");
 					trackEvent(getResources().getString(R.string.hasil_PM));
 					scheduleFragment.setScheduleBy(R.string.hasil_PM);
+					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.routing: // R.id.s8
 					DebugLog.d("routing");
 					trackEvent("routing");
-					DialogUtil.singleChoiceScheduleRoutingDialog(MainActivity.this);
+
+					ArrayList<String> routingSchedules = new ArrayList<>();
+					routingSchedules.add(getString(R.string.routing_segment));
+					routingSchedules.add(getString(R.string.handhole));
+					routingSchedules.add(getString(R.string.hdpe));
+
+					new LovelyChoiceDialog(MainActivity.this)
+							.setTopColor(ContextCompat.getColor(MainActivity.this, R.color.theme_color))
+							.setIcon(R.drawable.logo_app)
+							.setTitle("Choose schedule")
+							.setMessage("Please select one of routing schedules")
+							.setItems(routingSchedules, (position, item) -> {
+								String result = "(pos, item) : (" + position + ", " + item + ")";
+								DebugLog.d(result);
+
+								int resId;
+								switch (position) {
+									case 0 : resId = R.string.routing_segment; break;
+									case 1 : resId = R.string.handhole; break;
+									case 2 : resId = R.string.hdpe; break;
+									default: resId = R.string.routing_segment;
+								}
+
+								scheduleFragment.setScheduleBy(resId);
+								mSlidingLayer.openLayer(true);
+								Toast.makeText(MainActivity.this, result, Toast.LENGTH_SHORT).show();
+							}).show();
 					break;
 
 				default:
 					break;
 			}
-			mSlidingLayer.openLayer(true);
 		}
 	};
 }

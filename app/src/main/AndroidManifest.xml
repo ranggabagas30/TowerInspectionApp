@@ -33,7 +33,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission
         android:name="android.permission.CLEAR_APP_CACHE"
         tools:ignore="ProtectedPermissions" />
@@ -47,19 +47,25 @@
         android:allowBackup="true"
         android:icon="@drawable/logo_app"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
-        <activity android:name=".GroupWargaActivity"></activity>
+        android:theme="@style/TowerAppTheme"
+        tools:replace="android:theme">
+        <activity android:name=".views.adapter.Dummy2Activity">
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+        <activity android:name=".GroupWargaActivity" />
 
         <provider
-            android:authorities="${applicationId}.fileProvider"
             android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.fileProvider"
             android:exported="false"
-            android:grantUriPermissions="true" >
-
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_provider_paths"/>
-
+                android:resource="@xml/file_provider_paths" />
         </provider>
 
         <service android:name="com.rindang.pushnotification.FCMListenerService">
@@ -97,8 +103,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".SettingActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"/> <!-- Needed for push notification -->
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" /> <!-- Needed for push notification -->
         <!--
 <receiver
             android:name="com.rindang.pushnotification.GcmBroadcastReceiver"
@@ -126,7 +132,7 @@
 
         <activity
             android:name=".CheckInActivity"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
     </application>
 
 </manifest>

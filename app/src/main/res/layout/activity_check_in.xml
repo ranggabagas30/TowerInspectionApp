@@ -165,7 +165,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:text="Check In"
-                style="@style/AppTheme.MyButtonTheme"/>
+                style="@style/TowerAppTheme.MyButtonTheme"/>
 
             <TextView
                 android:id="@+id/textcheckincriteria"
