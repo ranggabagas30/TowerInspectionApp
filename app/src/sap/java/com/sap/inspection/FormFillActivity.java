@@ -441,25 +441,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         @Override
         public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				//string checkConnection
 				MyApplication.getInstance().toast(getString(R.string.checkConnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
 			DebugLog.d("pos="+pos);
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			if (itemFormRenderModel.workItemModel.disable) {
-				//item is disable
-				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
-			}
-			else if (itemFormRenderModel.itemValue!=null) {
+			FormValueModel uploadItem = itemFormRenderModel.itemValue;
 
-				FormValueModel itemUpload = itemFormRenderModel.itemValue;
-				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.workItemModel, itemFormRenderModel.itemValue);
-				DebugLog.d("isMandatory= " + itemFormRenderModel.workItemModel.mandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
-			} else {
-				Toast.makeText(activity, "Tidak ada foto", Toast.LENGTH_LONG).show();
-			}
+			if (uploadItem != null)
+				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
+			else
+				MyApplication.getInstance().toast(getString(R.string.tidakadaitem), Toast.LENGTH_LONG);
         }
     };
 
@@ -1004,7 +997,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value)) DebugLog.d("\titem value = " +item.itemValue.value);
 
 				if (list.contains(item.type) && item.workItemModel != null) {
-					if (!FormValueModel.isItemValueValidated(item.workItemModel, item.itemValue)) {
+					if (!FormValueModel.isItemValueValidated(item.workItemModel, item.itemValue, workTypeName)) {
 						mandatoryLabel = item.workItemModel.label;
 						mandatoryFound = true;
 						break;

@@ -174,7 +174,7 @@ public class WorkFormItemModel extends BaseModel {
 		 int workFormItemId  = Integer.valueOf(item_id);
 		 int workFormGroupId = Integer.valueOf(group_id);
 
-		 formitem = getItemById(workFormItemId, workFormGroupId);
+		 formitem = getWorkFormItemById(workFormItemId, workFormGroupId);
 
 
 		 if (formitem.default_value == null || formitem.default_value.isEmpty()) {
@@ -246,7 +246,7 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 	
-	public static WorkFormItemModel getItemById(int id) {
+	public static WorkFormItemModel getWorkFormItemById(int id) {
 
 		WorkFormItemModel result = new WorkFormItemModel();
 
@@ -273,7 +273,7 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 
-	public static WorkFormItemModel getItemById(int id, int workFormGroupId) {
+	public static WorkFormItemModel getWorkFormItemById(int id, int workFormGroupId) {
 
 
 		String table = DbManager.mWorkFormItem;

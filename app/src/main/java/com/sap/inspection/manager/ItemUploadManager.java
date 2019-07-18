@@ -59,8 +59,6 @@ import de.greenrobot.event.EventBus;
 
 import static com.sap.inspection.model.value.FormValueModel.isPictureRadioItemValidated;
 
-//import android.util.Log;
-
 public class ItemUploadManager {
 
     private static ItemUploadManager instance;

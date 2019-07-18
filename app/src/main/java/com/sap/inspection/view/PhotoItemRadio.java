@@ -65,6 +65,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	protected ImageView imageView;
 	protected ProgressBar progress;
 	protected String scheduleId;
+	protected String workTypeName;
 	protected int itemId;
 	protected int operatorId;
 	protected FormValueModel value;
@@ -72,6 +73,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	private ItemFormRenderModel itemFormRenderModel;
 	private boolean onInit = false;
 	private boolean isAudit;
+	private boolean isRoutingSchedule = false;
     private Uri imageUri;
 
 	public PhotoItemRadio(Context context) {
@@ -133,6 +135,13 @@ public class PhotoItemRadio extends RelativeLayout {
 			value.scheduleId = scheduleId;
 	}
 
+	public void setWorkTypeName(String workTypeName) {
+	    this.workTypeName = workTypeName;
+	    isRoutingSchedule = workTypeName.equalsIgnoreCase(context.getString(R.string.routing_segment)) ||
+                            workTypeName.equalsIgnoreCase(context.getString(R.string.handhole)) ||
+                            workTypeName.equalsIgnoreCase(context.getString(R.string.hdpe));
+    }
+
 	public void setItemFormRenderModel(ItemFormRenderModel argsItemFormRenderModel) {
 		this.itemFormRenderModel = argsItemFormRenderModel;
 
@@ -155,24 +164,11 @@ public class PhotoItemRadio extends RelativeLayout {
 			itemFormRenderModel.workItemModel.disable = true;
 			itemFormRenderModel.workItemModel.save();
 
-
 			disable();
 
 			DebugLog.d("proceed approval checking ... ");
 			CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
 			APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
-
-			/*if (!FormImbasPetirConfig.isScheduleApproved(scheduleId)) {
-
-				disable();
-
-				DebugLog.d("proceed approval checking ... ");
-				CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
-				APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
-
-			} else {
-				enable();
-			}*/
 		}
 		DebugLog.d("itemFormRenderModel.wargaId = " + itemFormRenderModel.getWargaId());
 		DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
@@ -253,48 +249,6 @@ public class PhotoItemRadio extends RelativeLayout {
 
 				DebugLog.d("value : " + value.value);
 
-				//CommonUtil.decryptFile(new File(value.value), value.value);
-				//CommonUtil.decryptFileBase64(new File(value.value), value.value);
-
-				/*imageUri = FileProvider.getUriForFile(this.context, BuildConfig.APPLICATION_ID + ".fileProvider", new File(value.value));
-				BaseActivity.imageLoader.displayImage(imageUri.toString(),imageView, new ImageLoadingListener() {
-
-					@Override
-					public void onLoadingStarted(String arg0, View arg1) {
-						progress.setVisibility(View.VISIBLE);
-						photoRoot.setVisibility(View.VISIBLE);
-						noPicture.setVisibility(View.GONE);
-					}
-
-					@Override
-					public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
-						progress.setVisibility(View.GONE);
-						photoRoot.setVisibility(View.GONE);
-						noPicture.setVisibility(View.VISIBLE);
-					}
-
-					@Override
-					public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
-						progress.setVisibility(View.GONE);
-						photoRoot.setVisibility(View.VISIBLE);
-						if (value != null){
-							if (value.value == null)
-								noPicture.setVisibility(View.VISIBLE);
-							if (value.photoStatus == null){
-								radioGroup.check(R.id.radioOK);
-							}
-						}
-					}
-
-					@Override
-					public void onLoadingCancelled(String arg0, View arg1) {
-						progress.setVisibility(View.GONE);
-						photoRoot.setVisibility(View.VISIBLE);
-						noPicture.setVisibility(View.GONE);
-					}
-
-				});*/
-
 				Bitmap photoBmp = ImageUtil.loadDecryptedImage(value.value);
 
 				if (photoBmp != null) {
@@ -320,37 +274,6 @@ public class PhotoItemRadio extends RelativeLayout {
 					noPicture.setVisibility(View.VISIBLE);
 
 				}
-				/*
-				byte[] decryptedBytes = CommonUtil.getDecryptedByteBase64(new File(value.value));
-
-				if (decryptedBytes != null) {
-
-					BitmapFactory.Options options = new BitmapFactory.Options();
-					options.inJustDecodeBounds = false;
-					options.inMutable = true;
-					Bitmap bmp = BitmapFactory.decodeByteArray(decryptedBytes, 0, decryptedBytes.length, options);
-
-					DebugLog.d("load decrypted image");
-					imageView.setImageBitmap(bmp);
-
-					progress.setVisibility(View.GONE);
-					photoRoot.setVisibility(View.VISIBLE);
-					if (value != null){
-						if (value.value == null)
-							noPicture.setVisibility(View.VISIBLE);
-						if (value.photoStatus == null){
-							radioGroup.check(R.id.radioOK);
-						}
-					}
-
-				} else {
-
-					// on loading failed
-					progress.setVisibility(View.GONE);
-					photoRoot.setVisibility(View.GONE);
-					noPicture.setVisibility(View.VISIBLE);
-
-				}*/
 
 			}
 
@@ -381,14 +304,16 @@ public class PhotoItemRadio extends RelativeLayout {
             } else radioGroup.clearCheck();
 
             // notify button take picture and textview mandatory
-
 			mandatory.setVisibility(VISIBLE);
             if (!itemFormRenderModel.workItemModel.mandatory) {
 
+                // init mandatory label visibility to GONE while it's not a mandatory item
             	mandatory.setVisibility(GONE);
 
                 if (!TextUtils.isEmpty(value.photoStatus)) {
 
+                    // for all common case, if not ok is checked, then shows mandatory label
+                    // if remark is empty
                     if (nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) {
 
                         if (TextUtils.isEmpty(value.remark))
@@ -396,8 +321,23 @@ public class PhotoItemRadio extends RelativeLayout {
 
                     }
 
+                    if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+                        if (isRoutingSchedule) {
+                            // for routing schedule, if ok or not ok is checked, then shows mandatory label
+                            // if remark is empty
+                            if ((nok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.NOK)) ||
+                                    (ok.isChecked() || value.photoStatus.equalsIgnoreCase(Constants.OK))) {
+
+                                if (TextUtils.isEmpty(value.remark))
+                                    mandatory.setVisibility(VISIBLE);
+
+                            }
+                        }
+                    }
+
                 } else {
 
+                    // notice user to fill photo status if remark is not empty
                     if (!TextUtils.isEmpty(value.remark)) {
                         mandatory.setVisibility(VISIBLE);
                     }
@@ -577,7 +517,6 @@ public class PhotoItemRadio extends RelativeLayout {
 		progress.setVisibility(View.GONE);
 		photoRoot.setVisibility(View.GONE);
 		remark.setText("");
-		//noPicture.setVisibility(View.VISIBLE);
 		radioGroup.clearCheck();
 	}
 

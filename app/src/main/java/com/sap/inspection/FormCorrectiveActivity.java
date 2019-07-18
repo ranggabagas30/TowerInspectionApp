@@ -202,7 +202,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 			for (CorrectiveValueModel correctiveValueModel : correctiveValueModels) {
 				x++;
 				WorkFormItemModel item = new WorkFormItemModel();
-				item = item.getItemById(correctiveValueModel.itemId);
+				item = item.getWorkFormItemById(correctiveValueModel.itemId);
 				DebugLog.d( "-------------------- ");
 				if (!ruleAddItem(correctiveValueModel, lastModel, item)){
 					DebugLog.d( "not permited to add item");

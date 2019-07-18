@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Parcel;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.manager.ItemUploadManager;
@@ -25,6 +27,8 @@ import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -409,34 +413,47 @@ public class FormValueModel extends BaseModel {
 		return model;
 	}
 
-	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels) {
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, Vector<WorkFormGroupModel> groupModels) {
 
-		return getItemValuesForUploadWithMandatoryCheck(scheduleId, groupModels, null, null);
+		return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, groupModels, null, null);
     }
 
-	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels, String wargaId, String barangId) {
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, Vector<WorkFormGroupModel> groupModels, String wargaId, String barangId) {
 
 		DebugLog.d("upload items by scheduleId = " + scheduleId);
 		ArrayList<FormValueModel> uploadItems = new ArrayList<>();
 
+		// obtain all items from each group
 		for (WorkFormGroupModel perGroup : groupModels) {
 
-			if (getItemValuesForUploadWithMandatoryCheck(scheduleId, perGroup.id, wargaId, barangId) == null)
+			ArrayList<FormValueModel> uploadItemsPerGroup = getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, perGroup.id, wargaId, barangId);
+			if (uploadItemsPerGroup == null)
 				return null;
 
-			uploadItems.addAll(getItemValuesForUploadWithMandatoryCheck(scheduleId, perGroup.id, wargaId, barangId));
+			uploadItems.addAll(uploadItemsPerGroup);
 
 		}
 
 		return uploadItems;
 	}
 
-	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, int work_form_group_id, String wargaId, String barangId) {
+		return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, -1, work_form_group_id, wargaId, barangId);
+	}
 
-        DebugLog.d("upload items by scheduleid = " + scheduleId + " workFormGroupId = " + work_form_group_id);
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, int itemId, int work_form_group_id, String wargaId, String barangId) {
+
+		DebugLog.d("upload items by scheduleid = " + scheduleId + " workFormGroupId = " + work_form_group_id);
 		ArrayList<FormValueModel> results = new ArrayList<>();
 
-		ArrayList<WorkFormItemModel> workFormItems = WorkFormItemModel.getWorkFormItems(work_form_group_id, "label");
+		ArrayList<WorkFormItemModel> workFormItems = new ArrayList<>();
+
+		if (itemId == FormValueModel.UNSPECIFIED) {
+			workFormItems = WorkFormItemModel.getWorkFormItems(work_form_group_id, "label");
+		} else {
+			WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(itemId, work_form_group_id);
+			workFormItems.add(workFormItem);
+		}
 
 		if (workFormItems != null) {
 
@@ -456,10 +473,10 @@ public class FormValueModel extends BaseModel {
 							// mandatory item is not filled
 							DebugLog.e("Item " + workFormItem.label + " kosong, cancel upload");
 							return null;
-						}
-						else if (itemValues != null) { // there are some filled items
 
-							if (!isItemValueValidated(workFormItem, itemValues.get(0)))
+						} else if (itemValues != null) { // there are some filled items
+
+							if (!isItemValueValidated(workFormItem, itemValues.get(0), workTypeName))
 								return null;
 
 							// otherwise just add all the items
@@ -479,7 +496,7 @@ public class FormValueModel extends BaseModel {
 
 							if (workFormItem.mandatory) {
 
-								if (!isItemValueValidated(workFormItem, itemValue))
+								if (!isItemValueValidated(workFormItem, itemValue, workTypeName))
 									return null;
 
 								results.add(itemValue);
@@ -496,9 +513,9 @@ public class FormValueModel extends BaseModel {
 			}
 
 		} else {
-		    DebugLog.e("workitems is null");
-		    return null;
-        }
+			DebugLog.e("workitems is null");
+			return null;
+		}
 
 		return results;
 	}
@@ -507,18 +524,24 @@ public class FormValueModel extends BaseModel {
 
 		private final String DONEPREPARINGITEMS = "DONEPREPARINGITEMS";
 		private String scheduleId;
+		private String workTypeName;
 		private String wargaId;
 		private String barangId;
 		private int workFormGroupId;
+		private int itemId;
 
 		private ScheduleBaseModel scheduleBaseModel;
 		private WorkFormModel workFormModel;
-		private WorkFormGroupModel groupModel;
 		private Vector<WorkFormGroupModel> workFormGroupModels;
 
-		public AsyncCollectItemValuesForUpload(String scheduleId, int work_form_group_id, String wargaId, String barangId) {
+		public AsyncCollectItemValuesForUpload(String scheduleId, int workFormGroupId, String wargaId, String barangId) {
+			this(scheduleId, workFormGroupId, -1, wargaId, barangId);
+		}
+
+		public AsyncCollectItemValuesForUpload(String scheduleId, int workFormGroupId, int itemId, String wargaId, String barangId) {
 			this.scheduleId = scheduleId;
-			this.workFormGroupId = work_form_group_id;
+			this.workFormGroupId = workFormGroupId;
+			this.itemId = itemId;
 			this.wargaId = wargaId;
 			this.barangId = barangId;
 		}
@@ -532,19 +555,19 @@ public class FormValueModel extends BaseModel {
 			super.onPreExecute();
 			publish("Menyiapkan item untuk diupload");
 
+			scheduleBaseModel = new ScheduleGeneral();
+			scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
+			this.workTypeName = scheduleBaseModel.work_type.name;
+
+			DebugLog.d("scheduleBase id : " + scheduleBaseModel.id);
+			DebugLog.d("scheduleBase worktype id : " + scheduleBaseModel.work_type.id);
+
 			if (workFormGroupId == UNSPECIFIED) {
-
-				scheduleBaseModel = new ScheduleGeneral();
-				scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
-
-				DebugLog.d("scheduleBase id : " + scheduleBaseModel.id);
-				DebugLog.d("scheduleBase worktype id : " + scheduleBaseModel.work_type.id);
 
 				workFormModel = new WorkFormModel();
 				workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModel.work_type.id);
 
-				groupModel = new WorkFormGroupModel();
-				workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
+				workFormGroupModels = WorkFormGroupModel.getAllItemByWorkFormId(workFormModel.id);
 			}
 		}
 
@@ -558,12 +581,11 @@ public class FormValueModel extends BaseModel {
 					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
 						DebugLog.d("SAP upload by (" + scheduleId + ",  UNSPECIFIED, " + wargaId + ", " + barangId + ")");
-						return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupModels, wargaId, wargaId);
-					}
-					else {
+						return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupModels, wargaId, wargaId);
+					} else {
 
 						DebugLog.d("STP upload by (" + scheduleId + ",  UNSPECIFIED)");
-						return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupModels);
+						return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupModels);
 					}
 				} else {
 
@@ -575,15 +597,26 @@ public class FormValueModel extends BaseModel {
 
 			} else {
 
-		    	if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+		    	if (itemId == UNSPECIFIED) {
 
-		    		DebugLog.d("SAP upload by (" + scheduleId + ", " + workFormGroupId + ", " + wargaId + ", " + barangId + ")");
-					return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupId, wargaId, barangId);
-				}
-		    	else {
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 
-		    		DebugLog.d("STP upload by (" + scheduleId + ", " + workFormGroupId + ")");
-					return getItemValuesForUploadWithMandatoryCheck(scheduleId, workFormGroupId, null, null);
+						DebugLog.d("SAP upload by (" + scheduleId + ", " + workFormGroupId + ", " + wargaId + ", " + barangId + ")");
+						return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupId, wargaId, barangId);
+					} else {
+
+						DebugLog.d("STP upload by (" + scheduleId + ", " + workFormGroupId + ")");
+						return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupId, null, null);
+					}
+
+				} else {
+
+		    		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+
+		    			return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, itemId, workFormGroupId, wargaId, barangId);
+					} else {
+		    			return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, itemId, workFormGroupId, null, null);
+					}
 				}
 			}
 
@@ -606,38 +639,19 @@ public class FormValueModel extends BaseModel {
 		}
 	}
 
-	public static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, FormValueModel filledItem) {
-
-        // checking for form's item type picture radio with mandatory applied only on "NOK" option
-        if (TextUtils.isEmpty(filledItem.photoStatus)) {
-        	DebugLog.e("Photo status item " + workFormItem.label + " harus diisi");
-            MyApplication.getInstance().toast("Photo status item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
-            return false;
-        }
-
-        if (!TextUtils.isEmpty(filledItem.photoStatus) &&
-                filledItem.photoStatus.equalsIgnoreCase(Constants.NOK) &&
-                TextUtils.isEmpty(filledItem.remark)) {
-        		DebugLog.e("Remark item " + workFormItem.label + " harus diisi");
-                MyApplication.getInstance().toast("Remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
-            return false;
-        }
-
-		return true;
-	}
-
 	public static boolean isItemValueValidated(WorkFormItemModel workFormItem, FormValueModel filledItem) {
+	    return isItemValueValidated(workFormItem, filledItem, null);
+    }
 
-	    if (!workFormItem.disable) {
+    public static boolean isItemValueValidated(WorkFormItemModel workFormItem, FormValueModel filledItem, String workTypeName) {
+
+        if (!workFormItem.disable) {
 
             if (filledItem == null && workFormItem.mandatory) {
 
                 // mandatory item is not filled
-                //DebugLog.e("Item " + workFormItem.label + " kosong harus diisi");
-                //MyApplication.getInstance().toast("Item " + workFormItem.label + " kosong harus diisi", Toast.LENGTH_SHORT);
-
-				DebugLog.d("Mandatory item ada yang kosong");
-				MyApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
+                DebugLog.d("Mandatory item ada yang kosong");
+                MyApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
                 return false;
 
             } else if (filledItem != null) {
@@ -660,11 +674,8 @@ public class FormValueModel extends BaseModel {
 
                         } else {
 
-                            /*DebugLog.e("Item " + workFormItem.label + " kosong, cancel upload");
-                            MyApplication.getInstance().toast("Item " + workFormItem.label + " kosong harus diisi", Toast.LENGTH_SHORT);*/
-
-							DebugLog.d("Mandatory item ada yang kosong");
-							MyApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
+                            DebugLog.d("Mandatory item ada yang kosong");
+                            MyApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
                             return false; // and not photo item radio, then return null
                         }
 
@@ -672,13 +683,56 @@ public class FormValueModel extends BaseModel {
 
                 }
 
-                return !workFormItem.field_type.equalsIgnoreCase("file") || FormValueModel.isPictureRadioItemValidated(workFormItem, filledItem);
+                return !workFormItem.field_type.equalsIgnoreCase("file") || FormValueModel.isPictureRadioItemValidated(workFormItem, filledItem, workTypeName);
             }
         }
 
         return true;
     }
 
+    public static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, FormValueModel filledItem) {
+        return isPictureRadioItemValidated(workFormItem, filledItem, null);
+    }
+
+    public static boolean isPictureRadioItemValidated(WorkFormItemModel workFormItem, FormValueModel filledItem, String workTypeName) {
+
+        // checking for form's item type picture radio with mandatory applied only on "NOK" option
+        if (TextUtils.isEmpty(filledItem.photoStatus)) {
+            DebugLog.e("Photo status item " + workFormItem.label + " harus diisi");
+            MyApplication.getInstance().toast("Photo status item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+            return false;
+        } else {
+            if (TextUtils.isEmpty(filledItem.remark)) {
+
+                boolean isValidated = true;
+
+                if (filledItem.photoStatus.equalsIgnoreCase(Constants.NOK))
+                    isValidated = false;
+
+                if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
+                    if (!TextUtils.isEmpty(workTypeName)) {
+                        boolean isRoutingSchedule = workTypeName.equalsIgnoreCase(MyApplication.getInstance().getString(R.string.routing_segment)) ||
+                                                    workTypeName.equalsIgnoreCase(MyApplication.getInstance().getString(R.string.handhole)) ||
+                                                    workTypeName.equalsIgnoreCase(MyApplication.getInstance().getString(R.string.hdpe));
+
+                        if (isRoutingSchedule) {
+                            if (filledItem.photoStatus.equalsIgnoreCase(Constants.NOK) || filledItem.photoStatus.equalsIgnoreCase(Constants.OK))
+                                isValidated = false;
+                        }
+                    }
+                }
+
+                if (!isValidated) {
+                    DebugLog.e("Remark item " + workFormItem.label + " harus diisi");
+                    MyApplication.getInstance().toast("Remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+                }
+
+                return isValidated;
+            }
+        }
+
+        return true;
+    }
 
 	public void save(Context context){
 

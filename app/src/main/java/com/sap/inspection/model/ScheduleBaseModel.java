@@ -196,7 +196,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		}
 
 		for (int hiddenItemIds : hidden) {
-			WorkFormItemModel workFormItem = WorkFormItemModel.getItemById(hiddenItemIds);
+			WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
 			workFormItem.visible = false;
 			workFormItem.save();
 		}

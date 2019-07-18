@@ -388,6 +388,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 			case ItemFormRenderModel.TYPE_PICTURE_RADIO:
 				DebugLog.d("TYPE_PICTURE_RADIO");
 				holder.photoRadio.setScheduleId(scheduleId);
+				holder.photoRadio.setWorkTypeName(workTypeName);
 				holder.photoRadio.setItemFormRenderModel(getItem(position));
 				holder.photoRadio.setItemValue(getItem(position).itemValue,true);
 				holder.upload.setTag(position);
