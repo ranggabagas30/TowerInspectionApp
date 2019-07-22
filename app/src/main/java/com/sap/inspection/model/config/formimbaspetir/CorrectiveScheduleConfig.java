@@ -19,7 +19,6 @@ public class CorrectiveScheduleConfig {
     public static CorrectiveScheduleResponseModel getCorrectiveScheduleConfig() {
 
         ConfigModel config = ConfigModel.getConfig(new String[]{DbManager.colConfigName}, new String[]{ConfigModel.CONFIG_ENUM.CORRECTIVE_SCHEDULES_AND_ITEMS_CONFIG.name()});
-
         if (config != null)
             return new Gson().fromJson(config.configData, CorrectiveScheduleResponseModel.class);
         return null;
@@ -37,9 +36,11 @@ public class CorrectiveScheduleConfig {
     public static CorrectiveScheduleResponseModel.CorrectiveSchedule getCorrectiveSchedule(int scheduleId) {
 
         Vector<CorrectiveScheduleResponseModel.CorrectiveSchedule> correctiveSchedules = getListCorrectiveSchedule();
-        for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveSchedules) {
-            if (correctiveSchedule.getId().equals(scheduleId)){
-                return correctiveSchedule;
+        if (correctiveSchedules != null) {
+            for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveSchedules) {
+                if (correctiveSchedule.getId().equals(scheduleId)){
+                    return correctiveSchedule;
+                }
             }
         }
         return null;
