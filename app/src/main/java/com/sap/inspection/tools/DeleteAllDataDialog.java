@@ -3,9 +3,7 @@ package com.sap.inspection.tools;
 
 
 import android.app.AlertDialog;
-import android.arch.persistence.room.Delete;
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
