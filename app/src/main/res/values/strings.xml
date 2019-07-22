@@ -125,6 +125,8 @@
     <string name="textmarksizelandscape">text_mark_size_landscape</string>
     <string name="linespacepotrait">line_space_potrait</string>
     <string name="linespacelandscape">line_space_landscape</string>
+    <string name="heightbackgroundwatermarkportrait">height_background_watermark_portrait</string>
+    <string name="heightbackgroundwatermarklandscape">height_background_watermark_landscape</string>
 
     <!-- persistent site location string value-->
     <string name="keypersistentsitelocation">Persistent Site Location</string>

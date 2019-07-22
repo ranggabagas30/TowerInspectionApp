@@ -36,6 +36,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
     Button settextmark;
     Button setlinespace;
+    Button setheightwatermark;
     Button update;
     Button updateForm;
     Button updateFormImbasPetir;
@@ -56,6 +57,8 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     FormInputText inputtextmarksizelandscape;
     FormInputText inputlinespacepotrait;
     FormInputText inputlinespacelandscape;
+    FormInputText inputheightwatermarkportrait;
+    FormInputText inputheightwatermarklandscape;
     LinearLayout layout_debug;
 
     @Override
@@ -68,8 +71,11 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         inputtextmarksizelandscape = findViewById(R.id.textmarksizelandscape);
         inputlinespacepotrait = findViewById(R.id.linespacepotrait);
         inputlinespacelandscape = findViewById(R.id.linespacelandscape);
+        inputheightwatermarkportrait = findViewById(R.id.heightbackgroundwatermarkportrait);
+        inputheightwatermarklandscape = findViewById(R.id.heightbackgroundwatermarklandscape);
         settextmark = findViewById(R.id.btntextmarksize);
         setlinespace = findViewById(R.id.btnlinespace);
+        setheightwatermark = findViewById(R.id.btnheightbackgroundwatermark);
         update = findViewById(R.id.update);
         updateForm = findViewById(R.id.update_form);
         updateFormImbasPetir = findViewById(R.id.update_form_imbas_petir);
@@ -106,14 +112,19 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         int textSizeLandscape = PrefUtil.getIntPref(R.string.textmarksizelandscape, Constants.TEXT_SIZE_LANDSCAPE);
         int linespacePotrait = PrefUtil.getIntPref(R.string.linespacepotrait, Constants.TEXT_LINE_SPACE_POTRAIT);
         int linespaceLandscape =  PrefUtil.getIntPref(R.string.linespacelandscape, Constants.TEXT_LINE_SPACE_LANDSCAPE);
+        int heightbackgroundwatermarkportrait = PrefUtil.getIntPref(R.string.heightbackgroundwatermarkportrait, Constants.HEIGHT_BACKGROUND_WATERMARK_PORTRAIT);
+        int heightbackgroundwatermarklandscape = PrefUtil.getIntPref(R.string.heightbackgroundwatermarklandscape, Constants.HEIGHT_BACKGROUND_WATERMARK_LANDSCAPE);
 
         inputtextmarksizepotrait.setText(String.valueOf(textSizePotrait));
         inputtextmarksizelandscape.setText(String.valueOf(textSizeLandscape));
         inputlinespacepotrait.setText(String.valueOf(linespacePotrait));
         inputlinespacelandscape.setText(String.valueOf(linespaceLandscape));
+        inputheightwatermarkportrait.setText(String.valueOf(heightbackgroundwatermarkportrait));
+        inputheightwatermarklandscape.setText(String.valueOf(heightbackgroundwatermarklandscape));
 
         settextmark.setOnClickListener(setTextMarkClickListener);
         setlinespace.setOnClickListener(setLinespaceClickListener);
+        setheightwatermark.setOnClickListener(setHeightBackgroundWatermarkClickListener);
 
         CommonUtil.fixVersion(getApplicationContext());
         DebugLog.d("latest_version" + mPref.getString(this.getString(R.string.latest_version), ""));
@@ -217,6 +228,14 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         }
     };
 
+    OnClickListener setHeightBackgroundWatermarkClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            MyApplication.getInstance().toast("height background watermark size saved", Toast.LENGTH_SHORT);
+            writePreference(R.string.heightbackgroundwatermarkportrait, Integer.parseInt(inputheightwatermarkportrait.getText().toString()));
+            writePreference(R.string.heightbackgroundwatermarklandscape, Integer.parseInt(inputheightwatermarklandscape.getText().toString()));
+        }
+    };
     OnClickListener deleteClickListener = v -> DialogUtil.deleteAllDataDialog(activity, null)
             .setOnPositiveClickListener(scheduleId -> {
                 if (TextUtils.isEmpty(scheduleId)) {

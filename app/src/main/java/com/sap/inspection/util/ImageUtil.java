@@ -448,10 +448,18 @@ public class ImageUtil {
         greyPaint.setColor(mContext.getResources().getColor(R.color.transparent_gray));
 
         DebugLog.d("bitmapRotation : " + bitmapRotation);
+
+        int height_portrait = PrefUtil.getIntPref(R.string.heightbackgroundwatermarkportrait, Constants.HEIGHT_BACKGROUND_WATERMARK_PORTRAIT);
+        int height_landscape = PrefUtil.getIntPref(R.string.heightbackgroundwatermarklandscape, Constants.HEIGHT_BACKGROUND_WATERMARK_LANDSCAPE);
+
+        int top_portrait  = canvas.getHeight() - height_portrait;
+        int top_landscape = canvas.getHeight() - height_landscape;
         if (isPortrait(outputWidth, outputHeight)) { // portrait
-            canvas.drawRect(0, canvas.getHeight() * 83f/100f, canvas.getWidth(), canvas.getHeight(), greyPaint);
+            canvas.drawRect(0, top_portrait, canvas.getWidth(), canvas.getHeight(), greyPaint);
+            DebugLog.d("background rect(left, top, right, bottom) : (" + 0 + ", " + top_portrait + ", " + canvas.getWidth() + ", " + canvas.getHeight() + ")");
         } else {                                    // landscape
-            canvas.drawRect(0, canvas.getHeight() * 60f/100f, canvas.getWidth(), canvas.getHeight(), greyPaint);
+            canvas.drawRect(0, top_landscape, canvas.getWidth(), canvas.getHeight(), greyPaint);
+            DebugLog.d("background rect(left, top, right, bottom) : (" + 0 + ", " + top_landscape + ", " + canvas.getWidth() + ", " + canvas.getHeight() + ")");
         }
 
         TextMarkModel textMark = TextMarkModel.getInstance();
@@ -479,7 +487,7 @@ public class ImageUtil {
                 textPaint.setTextSize(px);
 
                 xPos = convertToPixels(mContext, 10);
-                yPos = (canvas.getHeight() * 90f/100) + dy_potrait * i;
+                yPos = (top_portrait + canvas.getHeight() * 7f/100f) + dy_potrait * i;
 
                 DebugLog.d("text size portrait : " + textSize);
                 DebugLog.d("line space portrait : " + dy_potrait);
@@ -491,7 +499,7 @@ public class ImageUtil {
 
                 textPaint.setTextSize(px);
                 xPos = convertToPixels(mContext, 10);
-                yPos = (canvas.getHeight() * 70f/100) + dy_landscape * i;
+                yPos = (top_landscape + canvas.getHeight() * 10f/100) + dy_landscape * i;
 
                 DebugLog.d("text size landscape : " + textSize);
                 DebugLog.d("line space landscape : " + dy_landscape);
