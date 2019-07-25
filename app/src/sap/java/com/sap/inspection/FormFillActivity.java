@@ -494,23 +494,21 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 	}
 
-	public boolean takePicture(int itemId){
+	public boolean  takePicture(int itemId){
 
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
 		if (intent.resolveActivity(this.getPackageManager()) != null) {
 
 			photo = null;
-			try
-			{
+			try {
 				// place where to store camera taken picture
 				String part			   = "picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-";
 
 				// temporary image file
 				photo = createTemporaryFile(CommonUtil.getEncryptedMD5Hex(part), ".jpg");
 
-			}
-			catch(Exception e)
+			} catch(Exception e)
 			{
 				Crashlytics.logException(e);
 				DebugLog.d(e.getMessage());

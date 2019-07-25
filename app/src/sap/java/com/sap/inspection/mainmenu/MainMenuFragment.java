@@ -59,7 +59,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.drawable.ic_imbas_petir,
 					R.drawable.ic_settings,
 					R.drawable.ic_hasilpm,
-					R.drawable.ic_calendar // temporary icon for routing
+					R.drawable.foo// temporary icon for routing
 			};
 			this.icons = getArrayList(icons);
 		}

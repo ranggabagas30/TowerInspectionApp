@@ -502,7 +502,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
 
 		DebugLog.d("onPermissionsDenied:" + requestCode + ":" + perms.size());
-
 		// (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
 		// This will display a dialog directing them to enable the permission in app settings.
 		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
