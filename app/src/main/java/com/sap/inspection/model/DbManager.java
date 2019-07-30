@@ -16,6 +16,7 @@ import com.sap.inspection.model.migrate.BlankPatch;
 import com.sap.inspection.model.migrate.DBPatch;
 import com.sap.inspection.model.migrate.GeneralDropCreatePatch;
 import com.sap.inspection.model.migrate.GeneralPatch10;
+import com.sap.inspection.model.migrate.GeneralPatch11;
 import com.sap.inspection.model.migrate.GeneralPatch5;
 import com.sap.inspection.model.migrate.GeneralPatch6;
 import com.sap.inspection.model.migrate.GeneralPatch7;
@@ -56,6 +57,8 @@ public class DbManager extends SQLiteOpenHelper {
 	// site table
 	public static final String mSite 			 = "Sites";
 	public static final String colSiteIdCustomer = "siteIdCustomer";
+	public static final String colColorRTPO		 = "colorRTPO";  // SAP only
+
 	// operator table
 	public static final String mOperator 		= "Operators";
 
@@ -145,80 +148,6 @@ public class DbManager extends SQLiteOpenHelper {
 	public static final String colConfigName		= "configName";
 	public static final String colConfigData		= "configData";
 
-	// Site table
-	//	public static final String mSites 			= "Sites";
-	//	public static final String colSiteName 		= "siteName";
-	//	public static final String colCode 			= "code";
-	//	public static final String colLocationId	= "locationId";
-	//	public static final String colLongitude		= "longitude";
-	//	public static final String colLatitude		= "latitude";
-	//	public static final String colLicense		= "license";
-	
-
-	// Performing a database existence check
-//	private boolean checkDataBase() {
-//	    SQLiteDatabase checkDb = null;
-//	    try {
-//	        String path = DATABASE_PATH + DATABASE_NAME;
-//	        checkDb = SQLiteDatabase.openDatabase(path, null,
-//	                SQLiteDatabase.OPEN_READONLY);
-//	    } catch (SQLException e) {
-//	        Log.e(this.getClass().toString(), context.getString(R.string.str_error_while_checking_db));
-//	    }
-//
-//	    if (checkDb != null) {
-//	        checkDb.close();
-//	    }
-//	    return checkDb != null;
-//	}
-//
-//	// Method for copying the database
-//	private void copyDataBase() throws IOException {
-//	    //Log.i(this.getClass().toString(), "... in copyDataBase ");
-//	    InputStream externalDbStream = context.getAssets().open(DATABASE_NAME);
-//
-//	    String outFileName = DATABASE_PATH + DATABASE_NAME;
-//
-//	    OutputStream localDbStream = new FileOutputStream(outFileName);
-//
-//	    byte[] buffer = new byte[1024];
-//	    int bytesRead;
-//	    while ((bytesRead = externalDbStream.read(buffer)) > 0) {
-//	        localDbStream.write(buffer, 0, bytesRead);
-//	    }
-//
-//	    localDbStream.close();
-//	    externalDbStream.close();
-//	}
-//
-//	public void createDataBase() {
-//	    //Log.i(this.getClass().toString(), "... in createDataBase ");
-//	    boolean dbExist = checkDataBase();
-//	    if (!dbExist) {
-//	        this.getReadableDatabase();
-//	        try {
-//	            copyDataBase();
-//	        } catch (IOException e) {
-//	            Log.e(this.getClass().toString(), context.getString(R.string.str_copying_error));
-//	            throw new Error(context.getString(R.string.str_error_copying_database_exclamation));
-//	        }
-//	    } else {
-//	        //Log.i(this.getClass().toString(), "Database already exists");
-//	    }
-//	}
-//
-//	public SQLiteDatabase openDataBase() throws SQLException {
-//	    String path = DATABASE_PATH + DATABASE_NAME;
-//	    // Log.i(this.getClass().toString(), "Starting openDatabase " + path);
-//	    if (db == null) {
-//	        createDataBase();
-//	        db = SQLiteDatabase.openDatabase(path, null,
-//	                SQLiteDatabase.OPEN_READWRITE);
-//	    }
-//
-//	    return db;
-//	}
-
 	public DbManager(Context context,String userName) {
 		super(context, userName+"_"+dbName, null, schema_version);
 	}
@@ -288,7 +217,8 @@ public class DbManager extends SQLiteOpenHelper {
 			new GeneralPatch7(),				// 6
 			new GeneralPatch8(),				// 8
 			new GeneralPatch9(),				// 9
-			new GeneralPatch10()				// 10
+			new GeneralPatch10(),				// 10
+			new GeneralPatch11()				// 11
 	};
 
 	public static void dropTable(SQLiteDatabase db){

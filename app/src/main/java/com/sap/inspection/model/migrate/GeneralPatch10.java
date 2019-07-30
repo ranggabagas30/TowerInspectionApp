@@ -8,8 +8,8 @@ import com.sap.inspection.model.DbManager;
 public class GeneralPatch10 extends DBPatch {
 
     /**
-     * 8 May 2018
-     * add column site_id_customer to Site table
+     * 4 July 2019
+     * add column colHiddenItemIds to Schedule table
      * */
     @Override
     public void apply(SQLiteDatabase db) {

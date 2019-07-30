@@ -1,6 +1,8 @@
 package com.sap.inspection.model;
 
 
+import com.sap.inspection.BuildConfig;
+import com.sap.inspection.constant.Constants;
 
 public class ScheduleGeneral extends ScheduleBaseModel {
 
@@ -53,17 +55,22 @@ public class ScheduleGeneral extends ScheduleBaseModel {
 
 	@Override
 	public String getTaskColor() {
-		if (taskColor != null)
-			return taskColor;
-		else if (getTask().equalsIgnoreCase("preventive")) 
-			return "#16d7b2";
-		else if (getTask().equalsIgnoreCase("corrective"))
-			return "#f75b54";
-		else if (getTask().equalsIgnoreCase("new location"))
-			return "#4cbcf3";
-		else if (getTask().equalsIgnoreCase("colocation"))
-			return "#f75b54";
-		return "#d0d0d0";
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			return site.color_rtpo;
+		} else {
+			if (taskColor != null)
+				return taskColor;
+			else if (getTask().equalsIgnoreCase("preventive"))
+				return "#16d7b2";
+			else if (getTask().equalsIgnoreCase("corrective"))
+				return "#f75b54";
+			else if (getTask().equalsIgnoreCase("new location"))
+				return "#4cbcf3";
+			else if (getTask().equalsIgnoreCase("colocation"))
+				return "#f75b54";
+			return "#d0d0d0";
+		}
 	}
 
 }

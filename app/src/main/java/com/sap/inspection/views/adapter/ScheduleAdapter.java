@@ -181,7 +181,6 @@ public class ScheduleAdapter extends MyBaseAdapter {
 	};
 
 	View.OnClickListener delete = v -> {
-
 		int deletedSchedulePosition = (int) v.getTag();
 		ScheduleBaseModel deletedScheduleItem = getItem(deletedSchedulePosition);
 		DebugLog.d("start deleting schedule " + deletedScheduleItem.id + " with pos " + deletedSchedulePosition);
