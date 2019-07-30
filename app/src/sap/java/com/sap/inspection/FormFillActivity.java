@@ -494,7 +494,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 	}
 
-	public boolean  takePicture(int itemId){
+	public boolean takePicture(int itemId){
 
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -508,8 +508,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				// temporary image file
 				photo = createTemporaryFile(CommonUtil.getEncryptedMD5Hex(part), ".jpg");
 
-			} catch(Exception e)
-			{
+			} catch(Exception e) {
 				Crashlytics.logException(e);
 				DebugLog.d(e.getMessage());
 				DebugLog.d("Can't create file to take picture!");

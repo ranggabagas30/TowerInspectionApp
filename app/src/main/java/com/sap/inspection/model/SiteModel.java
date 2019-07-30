@@ -16,6 +16,9 @@ public class SiteModel extends BaseModel {
     public String site_id_customer;
     public LocationModel location;
 
+    // SAP ONLY
+	public String color_rtpo;
+
 	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
@@ -87,6 +90,25 @@ public class SiteModel extends BaseModel {
 				DbRepository.getInstance().close();
 				break;
 			}
+			case 11 : {
+
+				DebugLog.d("id="+id+" name="+name+" locationStr="+locationStr+ " color rtpo=" + color_rtpo);
+				String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s) VALUES(?,?,?,?)",
+						DbManager.mSite , DbManager.colID,
+						DbManager.colName,DbManager.colSiteLocation, DbManager.colColorRTPO);
+
+				DbRepository.getInstance().open(MyApplication.getInstance());
+				SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+
+				stmt.bindLong(1, id);
+				bindAndCheckNullString(stmt, 2, name);
+				bindAndCheckNullString(stmt, 3, locationStr);
+				bindAndCheckNullString(stmt, 4, color_rtpo);
+				stmt.executeInsert();
+				stmt.close();
+				DbRepository.getInstance().close();
+				break;
+			}
 			default: {
 
 				DebugLog.d("id="+id+" name="+name+" locationStr="+locationStr);
@@ -131,6 +153,8 @@ public class SiteModel extends BaseModel {
 
 		if (DbManager.schema_version == 9) {
 			siteModel.site_id_customer = (c.getString(c.getColumnIndex(DbManager.colSiteIdCustomer)));
+		} else if (DbManager.schema_version == 11) {
+			siteModel.color_rtpo = (c.getString(c.getColumnIndex(DbManager.colColorRTPO)));
 		}
 
 		return siteModel;
@@ -147,6 +171,17 @@ public class SiteModel extends BaseModel {
 						+ DbManager.colSiteIdCustomer + " varchar, " // added in patch 9
 						+ "PRIMARY KEY (" + DbManager.colID + "))";
 			}
+
+			case 11 : {
+
+				return "create table if not exists " + DbManager.mSite
+						+ " (" + DbManager.colID + " integer, "
+						+ DbManager.colName + " varchar, "
+						+ DbManager.colSiteLocation + " varchar, "
+						+ DbManager.colColorRTPO + " varchar, "
+						+ "PRIMARY KEY (" + DbManager.colID + "))";
+			}
+
 			default: {
 
 				return "create table if not exists " + DbManager.mSite
