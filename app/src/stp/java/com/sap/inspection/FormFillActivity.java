@@ -525,7 +525,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                 DebugLog.d("external storage available");
 
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
-                tempDir = new File(tempDir, Constants.FOLDER_TOWER_INSPECTION); // create temp folder
+                tempDir = new File(tempDir, BuildConfig.FOLDER_TOWER_INSPECTION); // create temp folder
                 tempDir = new File(tempDir, schedule.id); // create schedule folder
 
                 if (!tempDir.exists()) {

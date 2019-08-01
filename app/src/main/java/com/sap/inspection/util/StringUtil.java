@@ -15,8 +15,13 @@ import com.sap.inspection.tools.DebugLog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 
 public class StringUtil {
+
+    public static String getNewPhotoFileName(String scheduleId, int itemId) {
+        return "picture-" + scheduleId + "-" + itemId + "-" + Calendar.getInstance().getTimeInMillis()+"-";
+    }
 
     public static String getVersionName(Context context){
         String version = null;
@@ -83,7 +88,6 @@ public class StringUtil {
         String workTypeName = scheduleBaseModel.work_type.name;
         return workTypeName.matches(Constants.regexPREVENTIVE);
     }
-
 
     /**
      *

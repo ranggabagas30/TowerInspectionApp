@@ -28,10 +28,9 @@
     <string name="routing_segment">Routing Segment</string>
     <string name="handhole">Handhole</string>
     <string name="hdpe">HDPE</string>
-
-    <!-- STP ONLY-->
     <string name="foto_imbas_petir">Imbas Petir</string>
 
+    <!-- STP ONLY-->
     <string name="app_reg_id">app_reg_id</string>
     <string name="app_fcm_reg_id">app_fcm_reg_id</string>
     <string name="action_settings">Pengaturan</string>
@@ -42,10 +41,8 @@
     <string name="submit">Submit</string>
     <string name="cancel">Cancel</string>
 
-
     <!-- USER DATA -->
     <string name="offline_form">Offline Form</string>
-
     <string name="user_name">nama</string>
     <string name="user_fullname">nama lengkap</string>
     <string name="password">sandi</string>
@@ -65,21 +62,19 @@
     <string name="measurement">Measurement</string>
     <string name="criteria">Criteria :</string>
 
-    <!-- Error Message -->
+    <!-- Log / Report message  -->
     <string name="login_unauthorized">Username and Password salah</string>
     <string name="feature_not_supported_or_removed_from_server">Fitur ini belum didukung oleh server atau dihapus dari server</string>
     <string name="pasword_doesnt_match">Password salah</string>
     <string name="network_connection_problem">Masalah pada jaringan</string>
     <string name="disconnected">Jaringan terputus. Periksa jaringan Anda</string>
     <string name="comment_can_not_blank">Pesan tidak boleh kosong</string>
-    <string name="search_product_not_found">maaf, kami tidak menemui produk apapun yang sesuai</string>
-    <string name="search_people_not_found">maaf, kami tidak menemui orang yang sesuai</string>
-    <string name="notjsontype">Not json type</string>
-
-    <!-- penambahan String Irwan -->
-    <!-- update String Irwan -->
-    <string name="copydatabasesuccess">Copy database successful</string>
-    <string name="copydatabasefailed">Copy database fail</string>
+    <string name="search_product_not_found">Maaf, kami tidak menemui produk apapun yang sesuai</string>
+    <string name="search_people_not_found">Maaf, kami tidak menemui orang yang sesuai</string>
+    <string name="notjsontype">Respon bukan tipe json</string>
+    <string name="apkforupdateisnotfound">Update aplikasi gagal! File APK tidak terunduh atau tidak ditemukan</string>
+    <string name="copydatabasesuccess">Berhasil salin database</string>
+    <string name="copydatabasefailed">Gagal salin database</string>
     <string name="informationGPS">Information</string>
     <string name="enableGPS">Silahkan aktifkan GPS</string>
     <string name="getScheduleFromServer">Mendapatkan Schedule dari server</string>
@@ -91,7 +86,6 @@
     <string name="checkConnection">Tidak ada koneksi internet, silahkan periksa jaringan anda.</string>
     <string name="progressUpload">Upload dalam proses. Silahkan tunggu</string>
     <string name="downloadfile">Mengunduh file. Silahkan tunggu..</string>
-    <string name="apkforupdateisnotfound">Update aplikasi gagal ! File APK tidak terunduh atau tidak ditemukan</string>
     <string name="gettingnewform">Mendapatkan form terbaru dari server..</string>
     <string name="gettingnewformimbaspetir">Mendapatkan form imbas petir dari server</string>
     <string name="formUpdateFailedFastInternet">Pembaharuan form gagal\nsilahkan login ulang untuk mendapatkan internet yang cepat</string>
@@ -105,8 +99,14 @@
     <string name="masuk">Masuk</string>
     <string name="checkversionapplication">Memeriksa versi aplikasi</string>
     <string name="tidakadaitem">Tidak ada item</string>
+    <string name="storageisreadonly">Gagal menyimpan file. (Storage is read-only)</string>
+    <string name="storageisnotavailble">Gagal menyimpan file. (Storage is not available)</string>
+    <string name="filenametooshort">Nama file terlalu pendek. Minimum 3 karakter</string>
+    <string name="failed_take_picture">Pengambilan foto gagal</string>
+
     <!--"There is new update for STP Mobile Application\nPlease update the aplication from setting"-->
     <string name="newUpdateSTPapplication">Pembaharuan STP Mobile Application\nSilahkan perbaharui dari menu pengaturan</string>
+
     <!--"Check application update failed\nPlease do relogin and have fast internet connection"-->
     <string name="memriksaUpdateGagal">Memeriksa update gagal\nsilahkan login kembali dengan koneksi yang internet yang baik</string>
     <string name="waitingUpload">Menunggu untuk upload</string>
@@ -114,6 +114,8 @@
     <string name="newUpdateAvail">Update terbaru</string>
     <string name="noNewUpdateAvail">Tidak ada pembaharuan</string>
     <string name="pengaturan">Pengaturan</string>
+
+    <!-- permission -->
     <string name="rationale_allpermissions">Mohon berikan izin agar bisa menggunakan aplikasi</string>
     <string name="rationale_readphonestate">Mohon berikan izin agar bisa meregister device ke server</string>
     <string name="rationale_externalstorage">Mohon berikan izin agar bisa mengakses direktori</string>
