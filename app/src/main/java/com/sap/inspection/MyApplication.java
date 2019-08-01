@@ -20,6 +20,7 @@ import com.facebook.stetho.Stetho;
 import com.google.android.gms.analytics.Tracker;*/
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.rindang.pushnotification.notificationchannel.DefaultNotificationChannel;
@@ -29,6 +30,7 @@ import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.TextMarkDisplayOptionsModel;
 import com.sap.inspection.model.TextMarkModel;
+import com.sap.inspection.model.responsemodel.DeviceRegisterResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.PrefUtil;
@@ -201,17 +203,39 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 		bundle.putString("message", message);
 		bundle.putInt("duration", duration);
 		msg.setData(bundle);
-		handler.sendMessage(msg);
+		toastHandler.sendMessage(msg);
 	}
 
+	// handler listeners
 	@SuppressLint("HandlerLeak")
-	Handler handler = new Handler(){
+	private static Handler toastHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			Toast.makeText(instance, msg.getData().getString("message"), msg.getData().getInt("duration")).show();
 		};
 	};
 
-	// handler listener
+	@SuppressLint("HandlerLeak")
+	private static Handler deviceRegisterHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+
+			Bundle bundle = msg.getData();
+			boolean isResponseOK = bundle.getBoolean("isresponseok");
+
+			DebugLog.d("response status : " + isResponseOK);
+			if (isResponseOK) {
+				if (bundle.getString("json") != null) {
+					DeviceRegisterResponseModel responseModel = new Gson().fromJson(bundle.getString("json"), DeviceRegisterResponseModel.class);
+					PrefUtil.putBoolPref(R.string.key_should_update, responseModel.should_update);
+					DebugLog.d(responseModel.toString());
+				}
+			} else {
+				DebugLog.e("response not ok");
+			}
+		}
+	};
+
+
 	private Thread.UncaughtExceptionHandler _unCaughtExceptionHandler =
 			new Thread.UncaughtExceptionHandler() {
 		@Override
@@ -269,12 +293,13 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
         return mFirebaseAnalytics;
     }
 
-	public static void sendRegIdtoServer(String token) {
+
+    public static void sendRegIdtoServer(String token) {
 		try {
 			if (!PrefUtil.getStringPref(R.string.user_authToken, "").equalsIgnoreCase("")){
 
 				DebugLog.d("send FCM TOKEN to server : " + token);
-				APIHelper.registerFCMToken(MyApplication.getInstance(), new Handler(),  token);
+				APIHelper.registerFCMToken(MyApplication.getInstance(), deviceRegisterHandler, token);
 			}
 		} catch (Exception e){
 			e.printStackTrace();

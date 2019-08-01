@@ -135,7 +135,7 @@ public class ItemUploadManager {
             MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
         else {
                 if (itemvalues.isEmpty()) {
-                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_noitem), Toast.LENGTH_SHORT);
                     return;
                 }
 
@@ -251,17 +251,11 @@ public class ItemUploadManager {
                 publish(itemValues.size() + " item yang tersisa");
                 latestStatus = itemValues.size() + " item yang tersisa";
 
-                /*if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-                    FormValueModel itemChanged = checkWargaAndBarangID(itemValues.get(0));
-                    itemValues.set(0, itemChanged);
-                }*/
-
                 /** upload Photo **/
                 response = uploadItem2(itemValues.get(0));
                 DebugLog.d("response=" + response);
 
                 if (response != null) {
-
                     scheduleId = itemValues.get(0).scheduleId;
                     processUploadResponse();
 
@@ -332,7 +326,6 @@ public class ItemUploadManager {
         }
 
         private FormValueModel checkWargaAndBarangID(FormValueModel item) {
-
             item.wargaId    = StringUtil.getRegisteredWargaId(item.scheduleId, item.wargaId);
             item.barangId   = StringUtil.getRegisteredBarangId(item.scheduleId, item.wargaId, item.barangId);
             return item;

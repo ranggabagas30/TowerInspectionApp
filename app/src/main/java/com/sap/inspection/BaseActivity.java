@@ -567,7 +567,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				} else {
 					hideDialog();
 					setFlagScheduleSaved(true);
-					Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet),Toast.LENGTH_LONG).show();
+					Toast.makeText(activity, getString(R.string.failed_downloadschedule),Toast.LENGTH_LONG).show();
 				}
 
 			} else {
@@ -592,7 +592,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				}
 			} else {
 				hideDialog();
-				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.failed_downloadschedule), Toast.LENGTH_LONG).show();
 			}
 		}
 	};
@@ -682,7 +682,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                         DebugLog.d("form doesn't need to be updated");
                         if (!MyApplication.getInstance().getDEVICE_REGISTER_STATE()) {
 
-                            // haven't yet register device, do device registration
+                            // have never register the device, then register it now
                             requestReadPhoneStatePermission();
 
                         }
@@ -893,7 +893,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		if (GlobalVar.getInstance().isNetworkOnline(this)) {
 			new SettingActivity.DownloadFileFromURL().execute(file_url);
 		} else {
-			Toast.makeText(this, getString(R.string.disconnected), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.failed_disconnected), Toast.LENGTH_LONG).show();
 		}
 	}
 

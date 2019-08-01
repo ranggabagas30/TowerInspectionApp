@@ -70,16 +70,15 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 
 	@Override
 	protected void onPreExecute() {
+		DebugLog.d("POST : " + url);
 		super.onPreExecute();
-		DebugLog.d("=============== post preexecute do BG");
 	}
 
 	@Override
 	protected String doInBackground(Void... arg0) {
 		try {
-			DebugLog.d("=============== post do BG");
-			HttpParams httpParameters = new BasicHttpParams();
 
+			HttpParams httpParameters = new BasicHttpParams();
 
 			// Set the timeout in milliseconds until a connection is established.
 			// The default value is zero, that means the timeout is not used.
@@ -179,7 +178,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 
 		if (notJson && result == null) {
 
-			//Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, R.string.failed_feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
 			Crashlytics.log("response from server is not json format and result is null");
 		}
 		else if (result != null) {

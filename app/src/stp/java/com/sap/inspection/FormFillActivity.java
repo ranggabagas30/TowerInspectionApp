@@ -439,7 +439,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         public void onClick(View v) {
 			DebugLog.d("");
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast(getResources().getString(R.string.checkConnection), Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(getResources().getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();

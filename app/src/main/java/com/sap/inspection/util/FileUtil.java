@@ -51,7 +51,7 @@ public class FileUtil {
             DebugLog.e(e.getCause().getMessage());
 
             //string copy database gagal
-            Toast.makeText(context, context.getString(R.string.copydatabasefailed), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.failed_copydatabase), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -118,9 +118,9 @@ public class FileUtil {
             isAvailable = isWriteable = true;
         } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
             isAvailable = true;
-            Toast.makeText(context, context.getString(R.string.storageisreadonly), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, context.getString(R.string.failed_storageisreadonly), Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(context, context.getString(R.string.storageisnotavailble), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, context.getString(R.string.failed_storageisnotavailble), Toast.LENGTH_LONG).show();
         }
         return isAvailable & isWriteable;
     }

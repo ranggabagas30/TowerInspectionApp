@@ -378,7 +378,7 @@ public class CommonUtil {
             }
 
         } else {
-            MyApplication.getInstance().toast(context.getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
+            MyApplication.getInstance().toast(context.getResources().getString(R.string.failed_apknotfound), Toast.LENGTH_LONG);
             activity.finish();
         }
     }

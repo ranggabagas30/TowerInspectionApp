@@ -403,7 +403,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         @Override
         public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast(getString(R.string.checkConnection), Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
@@ -413,7 +413,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (uploadItem != null)
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
 			else
-				MyApplication.getInstance().toast(getString(R.string.tidakadaitem), Toast.LENGTH_LONG);
+				MyApplication.getInstance().toast(getString(R.string.failed_noitem), Toast.LENGTH_LONG);
         }
     };
 

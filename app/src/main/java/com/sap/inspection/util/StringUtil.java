@@ -15,9 +15,26 @@ import com.sap.inspection.tools.DebugLog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Calendar;
 
 public class StringUtil {
+
+    /* Returns true if url is valid */
+    public static boolean isValid(String url)
+    {
+        /* Try creating a valid URL */
+        try {
+            new URL(url).toURI();
+            return true;
+        }
+
+        // If there was an Exception
+        // while creating URL object
+        catch (Exception e) {
+            return false;
+        }
+    }
 
     public static String getNewPhotoFileName(String scheduleId, int itemId) {
         return "picture-" + scheduleId + "-" + itemId + "-" + Calendar.getInstance().getTimeInMillis()+"-";

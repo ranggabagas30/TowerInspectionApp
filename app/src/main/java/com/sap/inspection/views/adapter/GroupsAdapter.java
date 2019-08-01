@@ -263,7 +263,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 		@Override
 		public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(context)){
-				MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.checkConnection), Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
 			} else {
 
 				if (!ItemUploadManager.getInstance().isRunning()) {
