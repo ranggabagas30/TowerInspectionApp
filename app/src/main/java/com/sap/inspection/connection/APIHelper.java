@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.tools.DebugLog;
@@ -36,7 +36,7 @@ public class APIHelper {
 
 			// network not available
 			DebugLog.d(context.getString(R.string.checkConnection));
-			MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+			TowerApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
 
 		}*/
 	}
@@ -52,7 +52,7 @@ public class APIHelper {
 
 			// network not available
 			DebugLog.d(context.getString(R.string.checkConnection));
-			MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+			TowerApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
 
 		}
 	}
@@ -68,7 +68,7 @@ public class APIHelper {
 
             // network not available
             DebugLog.d(context.getString(R.string.checkConnection));
-            MyApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
 
         }
     }

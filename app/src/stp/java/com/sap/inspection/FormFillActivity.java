@@ -439,7 +439,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         public void onClick(View v) {
 			DebugLog.d("");
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast(getResources().getString(R.string.checkConnection), Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast(getResources().getString(R.string.checkConnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
@@ -515,7 +515,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
             DebugLog.d("external storage is read only");
             Crashlytics.log("storage is read only");
 
-            MyApplication.getInstance().toast("Storage is read-only. Make sure it is writeble", Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast("Storage is read-only. Make sure it is writeble", Toast.LENGTH_LONG);
 
             return null;
         } else {
@@ -551,7 +551,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
             } else {
 
                 Crashlytics.log("storage is not available");
-                MyApplication.getInstance().toast("Storage is not available", Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("Storage is not available", Toast.LENGTH_LONG);
                 return null;
             }
 
@@ -572,7 +572,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		{
 			if (photoItem != null && mImageUri != null){
 
-				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
+				if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
 					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 					if (photoLocation != null) {
 						siteLatitude  = photoLocation.first();
@@ -590,7 +590,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
 				//textMarks[1] = "Accurate up to : "+accuracy+" meters";
-				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
+				textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
 				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), schedule.id, textMarks);
@@ -617,14 +617,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					} else {
 
 						DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-						MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+						TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
 					}
 
 					return;
 				}
 
 				DebugLog.e("file = null. Pengambilan foto gagal. Silahkan ulangi kembali");
-				MyApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -793,7 +793,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = new GoogleApiClient.OnConnectionFailedListener() {
 		@Override
 		public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-			MyApplication.getInstance().toast("Koneksi google api client gagal", Toast.LENGTH_LONG);
+			TowerApplication.getInstance().toast("Koneksi google api client gagal", Toast.LENGTH_LONG);
 			DebugLog.d("connectionResult="+connectionResult.toString());
 		}
 	};
@@ -818,12 +818,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         list.add(ItemFormRenderModel.TYPE_EXPAND);
         adapter.notifyDataSetChanged();
 
-        if (adapter!=null && !adapter.isEmpty() && !MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
+        if (adapter!=null && !adapter.isEmpty() && !TowerApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 
             DebugLog.d("\n\n ==== ON BACK PRESSED ====");
             DebugLog.d("scheduleId = " + scheduleId);
             DebugLog.d("workFormGroupName = " + workFormGroupName);
-            DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().IS_CHECKING_HASIL_PM());
+            DebugLog.d("is in check hasil pm ? " + TowerApplication.getInstance().IS_CHECKING_HASIL_PM());
             DebugLog.d("Jumlah item adapter : " + adapter.getCount());
 
             String mandatoryLabel = "";
@@ -863,7 +863,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                                 if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !TextUtils.isEmpty(item.itemValue.photoStatus) && !item.itemValue.photoStatus.equalsIgnoreCase(Constants.NA)) {
                                     mandatoryLabel = item.workItemModel.label;
                                     mandatoryFound = true;
-                                    MyApplication.getInstance().toast("Photo item" + mandatoryLabel + " harus ada", Toast.LENGTH_SHORT);
+                                    TowerApplication.getInstance().toast("Photo item" + mandatoryLabel + " harus ada", Toast.LENGTH_SHORT);
                                     break;
                                 } else if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
                                     mandatoryLabel = item.workItemModel.label;

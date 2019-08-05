@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.value.DbRepositoryValue;
 

@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity {
 		if (isLoadSchedule) {
 
 			DebugLog.d("load schedule");
-			if (!MyApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+			if (!TowerApplication.getInstance().getDEVICE_REGISTER_STATE()) {
 
 				// haven't yet register device, do device registration
 				DebugLog.d("start device registration....");
@@ -136,7 +136,7 @@ public class MainActivity extends BaseActivity {
 	OnClickListener mainMenuClick = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			MyApplication.getInstance().setIS_CHECKING_HASIL_PM(false);
+			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(false);
 			int i = (Integer) v.getTag();
 			switch (i) {
 				case R.string.schedule:

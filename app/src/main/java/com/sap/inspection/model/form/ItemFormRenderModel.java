@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
@@ -114,7 +114,7 @@ public class ItemFormRenderModel extends BaseModel {
 
         if (schedule.operators == null || schedule.operators.size() == 0) {
             DebugLog.d("operator none");
-            MyApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
             return;
         }
 
@@ -226,7 +226,7 @@ public class ItemFormRenderModel extends BaseModel {
                 } else {
                     DebugLog.d("input type found");
                     Vector<OperatorModel> operatorItems = schedule.operators;
-                    if (workTypeName.equalsIgnoreCase(MyApplication.getContext().getString(R.string.corrective))) {
+                    if (workTypeName.equalsIgnoreCase(TowerApplication.getContext().getString(R.string.corrective))) {
                         int inputTypeItemId = getInputTypeItemId(rowcol.items);
                         if (inputTypeItemId != -1) {
                             CorrectiveScheduleResponseModel.CorrectiveItem correctiveItem = CorrectiveScheduleConfig.getCorrectiveItem(Integer.valueOf(schedule.id), workFormGroupId, inputTypeItemId);

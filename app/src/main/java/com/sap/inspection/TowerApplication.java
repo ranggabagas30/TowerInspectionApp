@@ -1,7 +1,6 @@
 package com.sap.inspection;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -24,6 +23,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.rindang.pushnotification.notificationchannel.DefaultNotificationChannel;
 import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.connection.rest.TowerAPIClient;
+import com.sap.inspection.connection.rest.TowerAPI;
 import com.sap.inspection.listener.ActivityLifecycleHandler;
 import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.DbRepository;
@@ -37,21 +38,18 @@ import com.scottyab.aescrypt.AESCrypt;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap;
 import java.util.HashMap;
-
-import javax.crypto.KeyGenerator;
 
 import io.fabric.sdk.android.Fabric;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
-public class MyApplication extends Application implements ActivityLifecycleHandler.LifecycleListener {
+public class TowerApplication extends Application implements ActivityLifecycleHandler.LifecycleListener {
 
 	private UncaughtExceptionHandler defaultUEH;
-	private static MyApplication instance;
+	private static TowerApplication instance;
 	private HashMap< String, AbstractMap.SimpleEntry<String, String> > hashMapSiteLocation;
 	private boolean IS_CHECKING_HASIL_PM;
 	private boolean ON_FORM_IMBAS_PETIR;
@@ -60,14 +58,13 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	private boolean DEVICE_REGISTER_STATE;
 
 	public static Key key;
-
 	public CheckinDataModel checkinDataModel;
 
-	public MyApplication() {
+	public TowerApplication() {
 		instance = this;
 	}
 
-	public static MyApplication getInstance() {
+	public static TowerApplication getInstance() {
 		return instance;
 	}
 
@@ -253,7 +250,6 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
                 emailIntent, "Send mail..."));
     }
 
-
 	/**
      * new analytics tracker from Firebase
      * @return firebaseAnalytics instance
@@ -274,7 +270,7 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 			if (!PrefUtil.getStringPref(R.string.user_authToken, "").equalsIgnoreCase("")){
 
 				DebugLog.d("send FCM TOKEN to server : " + token);
-				APIHelper.registerFCMToken(MyApplication.getInstance(), new Handler(),  token);
+				APIHelper.registerFCMToken(TowerApplication.getInstance(), new Handler(),  token);
 			}
 		} catch (Exception e){
 			e.printStackTrace();

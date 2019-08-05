@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -45,7 +45,7 @@ public class RowColumnModel extends BaseModel {
 
 	public static void delete(){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormRowCol;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -62,7 +62,7 @@ public class RowColumnModel extends BaseModel {
 						DbManager.colWorkFormGroupId, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt);
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -99,7 +99,7 @@ public class RowColumnModel extends BaseModel {
 		String query = "SELECT t1."+DbManager.colID + ", t1."+DbManager.colRowId + ", t1."+DbManager.colColId+",t1."+DbManager.colWorkFormGroupId+",t1."+DbManager.colCreatedAt+",t1."+DbManager.colUpdatedAt+" FROM " + DbManager.mWorkFormRowCol + " t1 INNER JOIN " + DbManager.mWorkFormColumn + " t2 ON t1." + DbManager.colColId + "=t2." + DbManager.colID + " WHERE t1." + DbManager.colRowId + "=? ORDER BY t2." + DbManager.colPosition + " ASC";
 		String[] args = new String[] {String.valueOf(workFormRowId)};
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, args);
 
 		if (!cursor.moveToFirst()) {
@@ -139,7 +139,7 @@ public class RowColumnModel extends BaseModel {
 		DebugLog.d("Get row col model : " + query);
 		DebugLog.d("by : " + DbManager.colWorkFormGroupId + " = " + work_form_group_id + " AND " + DbManager.colLable + " = " + lable);
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().rawQuery(query, args);
 
 		if (!cursor.moveToFirst()) {

@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.tools.DebugLog;
@@ -76,7 +76,7 @@ public class JSONConnectionDelete extends AsyncTask<Void, Void, String>{
 				httpRequest = new HttpDelete(url);
 			} catch (Exception e) {
 				e.printStackTrace();
-				MyApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
 
 				isResponseOK = false;
 				response = e.getMessage();
@@ -154,19 +154,19 @@ public class JSONConnectionDelete extends AsyncTask<Void, Void, String>{
 			BaseResponseModel responseModel = new Gson().fromJson(result, BaseResponseModel.class);
 			if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
 				Crashlytics.log(Log.ERROR, "jsonconnection", "error status code : " + responseModel.status);
-				MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
 			}
 
 		} else {
 
 			if (notJson) {
 
-				MyApplication.getInstance().toast(context.getString(R.string.notjsontype), Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(context.getString(R.string.notjsontype), Toast.LENGTH_LONG);
 				Crashlytics.log(context.getString(R.string.notjsontype) + " = " + result);
 
 			} else {
 
-				MyApplication.getInstance().toast("error : " + result, Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast("error : " + result, Toast.LENGTH_LONG);
 				Crashlytics.log(Log.ERROR, TAG, result);
 
 			}

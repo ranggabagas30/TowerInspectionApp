@@ -51,29 +51,29 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 				file.delete();
 			}
 		/*
-		TokenModel.delete(MyApplication.getInstance());
-		UserModel.delete(MyApplication.getInstance());
-		RoleModel.delete(MyApplication.getInstance());
-//		LoginLogModel.delete(MyApplication.getInstance());
-		ScheduleBaseModel.delete(MyApplication.getInstance());
-		SiteModel.delete(MyApplication.getInstance());
-		OperatorModel.delete(MyApplication.getInstance());
-		WorkTypeModel.delete(MyApplication.getInstance());
-		WorkFormModel.delete(MyApplication.getInstance());
-		WorkFormGroupModel.delete(MyApplication.getInstance());
-		RowModel.delete(MyApplication.getInstance());
-		ColumnModel.delete(MyApplication.getInstance());
-		RowColumnModel.delete(MyApplication.getInstance());
-		WorkFormItemModel.delete(MyApplication.getInstance());
-		WorkFormOptionsModel.delete(MyApplication.getInstance());
-		FormValueModel.deleteAll(MyApplication.getInstance());
-		CorrectiveValueModel.deleteAll(MyApplication.getInstance());
-//		RowValueModel.deleteAll(MyApplication.getInstance());
+		TokenModel.delete(TowerApplication.getInstance());
+		UserModel.delete(TowerApplication.getInstance());
+		RoleModel.delete(TowerApplication.getInstance());
+//		LoginLogModel.delete(TowerApplication.getInstance());
+		ScheduleBaseModel.delete(TowerApplication.getInstance());
+		SiteModel.delete(TowerApplication.getInstance());
+		OperatorModel.delete(TowerApplication.getInstance());
+		WorkTypeModel.delete(TowerApplication.getInstance());
+		WorkFormModel.delete(TowerApplication.getInstance());
+		WorkFormGroupModel.delete(TowerApplication.getInstance());
+		RowModel.delete(TowerApplication.getInstance());
+		ColumnModel.delete(TowerApplication.getInstance());
+		RowColumnModel.delete(TowerApplication.getInstance());
+		WorkFormItemModel.delete(TowerApplication.getInstance());
+		WorkFormOptionsModel.delete(TowerApplication.getInstance());
+		FormValueModel.deleteAll(TowerApplication.getInstance());
+		CorrectiveValueModel.deleteAll(TowerApplication.getInstance());
+//		RowValueModel.deleteAll(TowerApplication.getInstance());
 		ScheduleBaseModel.resetAllSchedule();
 
 */
 		/*
-		Resources r = MyApplication.getContext().getResources();
+		Resources r = TowerApplication.getContext().getResources();
 		mPref.edit().putBoolean(Constants.LOADAFTERLOGIN, false).commit();
 		mPref.edit().putString(r.getString(R.string.user_name), "").commit();
 		mPref.edit().putString(r.getString(R.string.password), "").commit();
@@ -82,7 +82,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 		mPref.edit().putString(r.getString(R.string.user_authToken), "").commit();*/
 
 		if (TextUtils.isEmpty(mScheduleId)) {// if there is no specific dir by scheduleId, then clear all application data
-			/*SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+			/*SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
 			mPref.edit().clear().commit();
 			CommonUtil.clearApplicationData();*/
 			ScheduleBaseModel.delete();

@@ -199,8 +199,8 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 			mSlidingLayer.closeLayer(true);
 		else {
 			DebugLog.d("back button pressed");
-			if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
-				MyApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
+			if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
+				TowerApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
 			}
 
 			if (inputJumlahWargaDialog != null) {
@@ -271,7 +271,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 		inputJumlahWargaDialog.setConfirmButton("Tambah", amountOfWarga -> {
 
 			// insert new data warga as many as amount inputted
-			MyApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
+			TowerApplication.getInstance().toast("Tambahan jumlah warga : " + amountOfWarga, Toast.LENGTH_LONG);
 			FormImbasPetirConfig.insertDataWarga(dataIndex, Integer.valueOf(amountOfWarga));
 			generateImbasPetirGroups(dataIndex);
 			updateGroupItems();

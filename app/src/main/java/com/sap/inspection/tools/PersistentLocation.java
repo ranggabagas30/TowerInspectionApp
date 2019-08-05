@@ -4,7 +4,7 @@ import android.location.Location;
 import android.os.Debug;
 import android.widget.Toast;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.model.LocationModel;
 import com.sap.inspection.util.PrefUtil;
@@ -58,7 +58,7 @@ public class PersistentLocation{
         DebugLog.d("stringSavedFromPref : " + stringSavedFromPref);
         if (!stringSavedFromPref.equalsIgnoreCase("")){
             if (stringSavedFromPref.length() > Integer.MAX_VALUE) {
-                MyApplication.getInstance().toast("ImbasPetirData yang tersimpan penuh. Silahkan muat ulang dan hapus jadwal", Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("ImbasPetirData yang tersimpan penuh. Silahkan muat ulang dan hapus jadwal", Toast.LENGTH_LONG);
                 return null;
             } else  {
                 stringSavedFromPref = stringWithoutColons(stringSavedFromPref);
@@ -88,8 +88,8 @@ public class PersistentLocation{
         String stringHashMap;
         persistentLatLng = new AbstractMap.SimpleEntry<>(getPersistent_latitude(), getPersistent_longitude());
 
-        MyApplication.getInstance().getHashMapSiteLocation().put(scheduleId, persistentLatLng);
-        stringHashMap = stringWithoutColons(MyApplication.getInstance().getHashMapSiteLocation().toString());
+        TowerApplication.getInstance().getHashMapSiteLocation().put(scheduleId, persistentLatLng);
+        stringHashMap = stringWithoutColons(TowerApplication.getInstance().getHashMapSiteLocation().toString());
         DebugLog.d("savePersistentLatLng, stringHashMap : " + stringHashMap);
         PrefUtil.putStringPref(R.string.keypersistentsitelocation, stringHashMap);
     }
@@ -102,7 +102,7 @@ public class PersistentLocation{
 
     public boolean isScheduleIdPersistentLocationExist(String scheduleId) {
         //retreiveHashMap();
-        boolean result =  MyApplication.getInstance().getHashMapSiteLocation().containsKey(scheduleId);
+        boolean result =  TowerApplication.getInstance().getHashMapSiteLocation().containsKey(scheduleId);
         DebugLog.d("result = " + result);
         return result;
     }

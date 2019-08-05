@@ -7,7 +7,7 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.ImbasPetirData;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
@@ -60,7 +60,7 @@ public class ConfigModel extends BaseModel {
 
         whereSelection = new String(selection);
 
-        DbRepository.getInstance().open(MyApplication.getInstance());
+        DbRepository.getInstance().open(TowerApplication.getInstance());
         cursor = DbRepository.getInstance().getDB().query(true, table, columns, whereSelection, arguments, null, null, null, null);
 
         if (!cursor.moveToFirst()) {
@@ -86,7 +86,7 @@ public class ConfigModel extends BaseModel {
 
         String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s) VALUES(?,?)", DbManager.mConfig, DbManager.colConfigName, DbManager.colConfigData);
 
-        DbRepository.getInstance().open(MyApplication.getInstance());
+        DbRepository.getInstance().open(TowerApplication.getInstance());
         SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
         stmt.bindString(1, configName);
@@ -99,7 +99,7 @@ public class ConfigModel extends BaseModel {
 
     public static void delete(){
 
-        DbRepository.getInstance().open(MyApplication.getInstance());
+        DbRepository.getInstance().open(TowerApplication.getInstance());
         String sql = "DELETE FROM " + DbManager.mConfig;
         SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
         stmt.executeUpdateDelete();

@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.manager.ItemUploadManager;
@@ -53,7 +53,7 @@ public class CorrectiveValueModel extends FormValueModel {
 
 	public static void delete(String scheduleId, int itemId, int operatorId){
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mCorrectiveValue + " WHERE "+DbManagerValue.colScheduleId+"="+scheduleId+" AND "+DbManagerValue.colItemId+"="+itemId+" AND "+DbManagerValue.colOperatorId+"="+operatorId;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -63,7 +63,7 @@ public class CorrectiveValueModel extends FormValueModel {
 	
 	public static void deleteAll(Context ctx){
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mCorrectiveValue;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -77,7 +77,7 @@ public class CorrectiveValueModel extends FormValueModel {
 	}
 
 	public static int countTaskDone(String scheduleId){
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		Cursor mCount= DbRepositoryValue.getInstance().getDB().rawQuery("select count(*) from "+DbManagerValue.mCorrectiveValue+" where "+DbManagerValue.colScheduleId+"='" + scheduleId + "' and "+DbManagerValue.colValue+" IS NOT NULL", null);
 		mCount.moveToFirst();
 		int count= mCount.getInt(0);
@@ -95,7 +95,7 @@ public class CorrectiveValueModel extends FormValueModel {
 
 		Cursor cursor;
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -121,7 +121,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		String order =  DbManagerValue.colItemId + " ASC,"+ DbManagerValue.colOperatorId + " ASC,"+DbManagerValue.colPhotoStatus + " DESC";
 		Cursor cursor;
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,order, null);
 
 		if (!cursor.moveToFirst()){
@@ -160,7 +160,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		String[] args = new String[argsList.size()];
 		args = argsList.toArray(args);
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);;
 
 		if (!cursor.moveToFirst()) {
@@ -199,7 +199,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		}
 		Cursor cursor;
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -358,7 +358,7 @@ public class CorrectiveValueModel extends FormValueModel {
 				} else {
 
 					Crashlytics.log(Log.ERROR, CorrectiveValueModel.class.getSimpleName(), "Schedule " + scheduleId + " tidak memiliki daftar workformgroup");
-					MyApplication.getInstance().toast("Schedule " + scheduleId + " tidak memiliki daftar workformgroup", Toast.LENGTH_SHORT);
+					TowerApplication.getInstance().toast("Schedule " + scheduleId + " tidak memiliki daftar workformgroup", Toast.LENGTH_SHORT);
 
 					return new ArrayList<>();
 				}
@@ -393,7 +393,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		// checking for form's item type picture radio with mandatory applied only on "NOK" option
 		if (TextUtils.isEmpty(filledItem.photoStatus)) {
 			DebugLog.e("Photo status item " + workFormItem.label + " harus diisi");
-			MyApplication.getInstance().toast("Photo status item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+			TowerApplication.getInstance().toast("Photo status item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
 			return false;
 		}
 
@@ -401,7 +401,7 @@ public class CorrectiveValueModel extends FormValueModel {
 				filledItem.photoStatus.equalsIgnoreCase(Constants.NOK) &&
 				TextUtils.isEmpty(filledItem.remark)) {
 			DebugLog.e("Remark item " + workFormItem.label + " harus diisi");
-			MyApplication.getInstance().toast("Remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
+			TowerApplication.getInstance().toast("Remark item " + workFormItem.label + " harus diisi", Toast.LENGTH_LONG);
 			return false;
 		}
 
@@ -416,10 +416,10 @@ public class CorrectiveValueModel extends FormValueModel {
 
 				// mandatory item is not filled
 				//DebugLog.e("Item " + workFormItem.label + " kosong harus diisi");
-				//MyApplication.getInstance().toast("Item " + workFormItem.label + " kosong harus diisi", Toast.LENGTH_SHORT);
+				//TowerApplication.getInstance().toast("Item " + workFormItem.label + " kosong harus diisi", Toast.LENGTH_SHORT);
 
 				DebugLog.d("Mandatory item ada yang kosong");
-				MyApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
 				return false;
 
 			} else if (filledItem != null) {
@@ -436,17 +436,17 @@ public class CorrectiveValueModel extends FormValueModel {
 							// and photo status is not null or empty and photo status not equal "NA"
 							if (!TextUtils.isEmpty(filledItem.photoStatus) && !filledItem.photoStatus.equalsIgnoreCase(Constants.NA)) {
 								DebugLog.e("Photo item" + workFormItem.label + " harus ada");
-								MyApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
+								TowerApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
 								return false;
 							}
 
 						} else {
 
                             /*DebugLog.e("Item " + workFormItem.label + " kosong, cancel upload");
-                            MyApplication.getInstance().toast("Item " + workFormItem.label + " kosong harus diisi", Toast.LENGTH_SHORT);*/
+                            TowerApplication.getInstance().toast("Item " + workFormItem.label + " kosong harus diisi", Toast.LENGTH_SHORT);*/
 
 							DebugLog.d("Mandatory item ada yang kosong");
-							MyApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
+							TowerApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
 							return false; // and not photo item radio, then return null
 						}
 
@@ -490,7 +490,7 @@ public class CorrectiveValueModel extends FormValueModel {
 				DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
 				DbManagerValue.colUploadStatus);
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, scheduleId);
@@ -522,7 +522,7 @@ public class CorrectiveValueModel extends FormValueModel {
 					DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
 					DbManagerValue.colUploadStatus);
 
-			DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+			DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 			SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 			bindAndCheckNullString(stmt, 1, scheduleId);
@@ -567,7 +567,7 @@ public class CorrectiveValueModel extends FormValueModel {
 				DbManagerValue.colPhotoStatus,DbManagerValue.colGPSAccuracy,
 				DbManagerValue.colUploadStatus);
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, scheduleId);
@@ -631,7 +631,7 @@ public class CorrectiveValueModel extends FormValueModel {
 	
 	public static void resetAllUploadStatus(){
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		ContentValues cv = new ContentValues();
 		cv.put(DbManagerValue.colUploadStatus, UPLOAD_NONE);
 

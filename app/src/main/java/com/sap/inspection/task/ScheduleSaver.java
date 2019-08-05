@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.MainActivity;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.SettingActivity;
 import com.sap.inspection.connection.APIHelper;

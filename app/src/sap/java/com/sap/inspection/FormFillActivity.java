@@ -403,7 +403,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         @Override
         public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast(getString(R.string.checkConnection), Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast(getString(R.string.checkConnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
@@ -413,7 +413,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (uploadItem != null)
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
 			else
-				MyApplication.getInstance().toast(getString(R.string.tidakadaitem), Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(getString(R.string.tidakadaitem), Toast.LENGTH_LONG);
         }
     };
 
@@ -456,7 +456,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
 
 			if (photoItem != null && mImageUri != null){
-				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
+				if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
 					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 					if (photoLocation != null) {
 						siteLatitude  = photoLocation.first();
@@ -472,7 +472,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String longitude = siteLongitude;
 
 				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
+				textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
 				ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
@@ -491,7 +491,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                         photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
                     } else {
                         DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-                        MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+                        TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
                     }
                 }
             }
@@ -770,7 +770,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		boolean isMandatoryCheckingActive = false;
 
 		if (adapter!=null && !adapter.isEmpty()) {
-			if ((MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation) || !MyApplication.getInstance().IS_CHECKING_HASIL_PM()){
+			if ((TowerApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation) || !TowerApplication.getInstance().IS_CHECKING_HASIL_PM()){
 				isMandatoryCheckingActive = true;
 			}
 		}
@@ -780,7 +780,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			DebugLog.d("\n\n ==== ON BACK PRESSED ====");
 			DebugLog.d("scheduleId = " + scheduleId);
 			DebugLog.d("workFormGroupName = " + workFormGroupName);
-			DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().IS_CHECKING_HASIL_PM());
+			DebugLog.d("is in check hasil pm ? " + TowerApplication.getInstance().IS_CHECKING_HASIL_PM());
 			DebugLog.d("Jumlah item adapter : " + adapter.getCount());
 
 			String mandatoryLabel = "";

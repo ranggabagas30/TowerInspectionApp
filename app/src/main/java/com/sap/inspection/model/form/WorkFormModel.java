@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -65,7 +65,7 @@ public class WorkFormModel extends BaseModel {
 		String order = null;
 
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -99,7 +99,7 @@ public class WorkFormModel extends BaseModel {
 						DbManager.colWorkTypeId,DbManager.colCreatedAt, 
 						DbManager.colUpdatedAt,DbManager.colSumInput);
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
@@ -118,7 +118,7 @@ public class WorkFormModel extends BaseModel {
 	public static void delete(Context ctx){
 
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkForm;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -134,7 +134,7 @@ public class WorkFormModel extends BaseModel {
 		String[] args = null;
 		String order = null;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -166,7 +166,7 @@ public class WorkFormModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(workTypeId)};
 		String order = null;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {

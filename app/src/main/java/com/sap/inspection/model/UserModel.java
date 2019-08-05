@@ -7,7 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.Toast;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.MD5;
 
@@ -127,7 +127,7 @@ public class UserModel extends BaseModel {
 
 	public void save(Context context) {
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 
 		String md5 = MD5.md5(password);
 		if (md5 == null){
@@ -154,7 +154,7 @@ public class UserModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mUsers;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -179,7 +179,7 @@ public class UserModel extends BaseModel {
 		String[] args = {userName , md5};
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
@@ -207,7 +207,7 @@ public class UserModel extends BaseModel {
 		String[] args = null;
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -236,7 +236,7 @@ public class UserModel extends BaseModel {
 
 		int result;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {

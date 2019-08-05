@@ -11,7 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
@@ -98,7 +98,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 			} catch (Exception e) {
 				isUrlOk = false;
 				e.printStackTrace();
-				MyApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
 			}
             DebugLog.d("POST "+url);
 

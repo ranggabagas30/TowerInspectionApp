@@ -21,7 +21,7 @@ import android.widget.TextView;
 import com.github.aakira.expandablelayout.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.FormTextChange;
@@ -624,15 +624,15 @@ public class FormFillAdapter extends MyBaseAdapter {
 		boolean isEnabled = false;
 		if (!workFormItem.disable) {
 			if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
-				if (MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation)
+				if (TowerApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation)
 					isEnabled = true;
 			}
-			if (!MyApplication.getInstance().IS_CHECKING_HASIL_PM())
+			if (!TowerApplication.getInstance().IS_CHECKING_HASIL_PM())
 				isEnabled = true;
 		}
 		DebugLog.d("workItemDisable : " + workFormItem.disable);
 		DebugLog.d("is SAP ? : " + BuildConfig.FLAVOR.equalsIgnoreCase("sap"));
-		DebugLog.d("is checking hasil pm ? " + MyApplication.getInstance().IS_CHECKING_HASIL_PM());
+		DebugLog.d("is checking hasil pm ? " + TowerApplication.getInstance().IS_CHECKING_HASIL_PM());
 		DebugLog.d("is checklist or site information ? " + isChecklistOrSiteInformation);
 		DebugLog.d("is enabled ? " + isEnabled);
 		return isEnabled;

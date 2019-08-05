@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.value.Pair;
@@ -103,17 +103,17 @@ public class CommonUtil {
 
         //uncomment statement below to delete existed persistent lat lng data in SharedPref
         //PersistentLocation.getInstance().deletePersistentLatLng();
-        if (!MyApplication.getInstance().isHashMapInitialized()) {
+        if (!TowerApplication.getInstance().isHashMapInitialized()) {
             // if hashMap had not been initialized yet
             // ... then inizialize it and retreiveMap from sharedPref
             DebugLog.d("hasMap site Location had not been initialized yet");
-            MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
+            TowerApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
         }
 
         if (PersistentLocation.getInstance().isScheduleIdPersistentLocationExist(scheduleId)) {
             //if persistent location of scheduleId has been existed
             // ... then assign the pair location value to siteLatitude and siteLongitude
-            //MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
+            //TowerApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
             siteLatitude = PersistentLocation.getInstance().getPersistent_latitude();
             siteLongitude = PersistentLocation.getInstance().getPersistent_longitude();
             DebugLog.d("Use saved persistent site location with loc : " + siteLatitude + "," + siteLongitude);
@@ -121,7 +121,7 @@ public class CommonUtil {
             //else if not
             // ... then assign current geo point to site location. photoItem.setImage() will insert
             //these new site location to local sqlite database
-            //MyApplication.getInstance().toast("Persistent lat lng doesn't exist", Toast.LENGTH_SHORT);
+            //TowerApplication.getInstance().toast("Persistent lat lng doesn't exist", Toast.LENGTH_SHORT);
             siteLatitude = String.valueOf(currentLocation.latitude);
             siteLongitude = String.valueOf(currentLocation.longitude);
             DebugLog.d( "location from current geo points : " + siteLatitude + " , " + siteLongitude);
@@ -133,18 +133,18 @@ public class CommonUtil {
                 PersistentLocation.getInstance().setPersistent_longitude(siteLongitude);
                 PersistentLocation.getInstance().savePersistentLatLng(scheduleId);
             } else {
-                MyApplication.getInstance().toast(context.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast(context.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
             }
         }
         return new Pair<>(siteLatitude, siteLongitude);
     }
 
     public static void setPersistentLocation(String scheduleId, String latitude, String longitude) {
-        if (!MyApplication.getInstance().isHashMapInitialized()) {
+        if (!TowerApplication.getInstance().isHashMapInitialized()) {
             // if hashMap had not been initialized yet
             // ... then inizialize it and retreiveMap from sharedPref
             DebugLog.d("hasMap site Location had not been initialized yet");
-            MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
+            TowerApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
         }
 
         PersistentLocation.getInstance().setPersistent_latitude(latitude);
@@ -156,17 +156,17 @@ public class CommonUtil {
         String persistent_latitude;
         String persistent_longitude;
 
-        if (!MyApplication.getInstance().isHashMapInitialized()) {
+        if (!TowerApplication.getInstance().isHashMapInitialized()) {
             // if hashMap had not been initialized yet
             // ... then inizialize it and retreiveMap from sharedPref
             DebugLog.d("hasMap site Location had not been initialized yet");
-            MyApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
+            TowerApplication.getInstance().setHashMapSiteLocation(PersistentLocation.getInstance().retreiveHashMap());
         }
 
         if (PersistentLocation.getInstance().isScheduleIdPersistentLocationExist(scheduleId)) {
             //if persistent location of scheduleId has been existed
             // ... then assign the pair location value to persistent_latitude and persistent_longitude
-            //MyApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
+            //TowerApplication.getInstance().toast("Persistent lat lng exist", Toast.LENGTH_SHORT);
             persistent_latitude = PersistentLocation.getInstance().getPersistent_latitude();
             persistent_longitude = PersistentLocation.getInstance().getPersistent_longitude();
             DebugLog.d("Use saved persistent location with loc : ( " + persistent_latitude + "," + persistent_longitude + " ) ");
@@ -200,8 +200,8 @@ public class CommonUtil {
             // rangga
             // see : https://stackoverflow.com/questions/47787577/unable-to-save-image-file-in-android-oreo-update-how-to-do-it?rq=1
 
-            if (ContextCompat.checkSelfPermission(MyApplication.getContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(MyApplication.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(TowerApplication.getContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(TowerApplication.getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                 DebugLog.v("on SDK > 26, READ and WRITE Permission is granted");
                 return true;
@@ -378,7 +378,7 @@ public class CommonUtil {
             }
 
         } else {
-            MyApplication.getInstance().toast(context.getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast(context.getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
             activity.finish();
         }
     }
@@ -411,7 +411,7 @@ public class CommonUtil {
     }
 
     public static void clearApplicationData() {
-        File cache = MyApplication.getContext().getCacheDir();
+        File cache = TowerApplication.getContext().getCacheDir();
         File appDir = new File(cache.getParent());
         if (appDir.exists()) {
             String[] children = appDir.list();

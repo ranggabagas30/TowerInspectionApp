@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -49,7 +49,7 @@ public class WorkFormOptionsModel extends BaseModel {
 
 	public static void delete(Context ctx){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormOption;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -66,7 +66,7 @@ public class WorkFormOptionsModel extends BaseModel {
 						DbManager.colWorkFormItemId,DbManager.colCreatedAt,
 						DbManager.colUpdatedAt);
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB()
 				.compileStatement(sql);
 
@@ -101,7 +101,7 @@ public class WorkFormOptionsModel extends BaseModel {
 		String order = null;
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {

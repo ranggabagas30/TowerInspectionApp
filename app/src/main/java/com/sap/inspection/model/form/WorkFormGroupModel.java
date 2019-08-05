@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -58,7 +58,7 @@ public class WorkFormGroupModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(id)};
 		String order = null;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -91,7 +91,7 @@ public class WorkFormGroupModel extends BaseModel {
 						DbManager.colAncestry, DbManager.colCreatedAt,
 						DbManager.colUpdatedAt,DbManager.colSumInput);
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
@@ -111,7 +111,7 @@ public class WorkFormGroupModel extends BaseModel {
 
 	public static void delete(Context ctx){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormGroup;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -132,7 +132,7 @@ public class WorkFormGroupModel extends BaseModel {
 		String where = DbManager.colID + "=?";
 		String[] args = new String[] { workFormGroupId };
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -149,7 +149,7 @@ public class WorkFormGroupModel extends BaseModel {
 	}
 
 	public Vector<WorkFormGroupModel> getAllItemByWorkFormGroupId(Context context, int workFormId) {
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Vector<WorkFormGroupModel> result = getAllItemByWorkFormId(workFormId);
 		DbRepository.getInstance().close();
 		return result;
@@ -164,7 +164,7 @@ public class WorkFormGroupModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(workFormId)};
 		String order = DbManager.colID+" ASC";
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {

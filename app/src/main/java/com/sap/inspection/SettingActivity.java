@@ -213,7 +213,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     OnClickListener setTextMarkClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            MyApplication.getInstance().toast("text mark size saved", Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast("text mark size saved", Toast.LENGTH_SHORT);
             writePreference(R.string.textmarksizepotrait, Integer.parseInt(inputtextmarksizepotrait.getText().toString()));
             writePreference(R.string.textmarksizelandscape, Integer.parseInt(inputtextmarksizelandscape.getText().toString()));
         }
@@ -222,7 +222,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     OnClickListener setLinespaceClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            MyApplication.getInstance().toast("line space size saved", Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast("line space size saved", Toast.LENGTH_SHORT);
             writePreference(R.string.linespacepotrait, Integer.parseInt(inputlinespacepotrait.getText().toString()));
             writePreference(R.string.linespacelandscape, Integer.parseInt(inputlinespacelandscape.getText().toString()));
         }
@@ -231,7 +231,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     OnClickListener setHeightBackgroundWatermarkClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            MyApplication.getInstance().toast("height background watermark size saved", Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast("height background watermark size saved", Toast.LENGTH_SHORT);
             writePreference(R.string.heightbackgroundwatermarkportrait, Integer.parseInt(inputheightwatermarkportrait.getText().toString()));
             writePreference(R.string.heightbackgroundwatermarklandscape, Integer.parseInt(inputheightwatermarklandscape.getText().toString()));
         }

@@ -12,7 +12,7 @@ import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -132,10 +132,10 @@ public class ItemUploadManager {
 
     public void addItemValues(ArrayList<FormValueModel> itemvalues) {
         if (itemvalues == null)
-            MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
         else {
                 if (itemvalues.isEmpty()) {
-                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
+                    TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
                     return;
                 }
 
@@ -165,7 +165,7 @@ public class ItemUploadManager {
             if (TextUtils.isEmpty(filledItem.value)) {
 
                 if (workFormItem.field_type.equalsIgnoreCase("file") && !TextUtils.isEmpty(filledItem.photoStatus) && !filledItem.photoStatus.equalsIgnoreCase(Constants.NA))
-                    MyApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
                 else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
                     DebugLog.d("item file picture radio not validated");
 
@@ -193,7 +193,7 @@ public class ItemUploadManager {
             uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             //There is upload process, please wait until finish
-            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast(TowerApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
         }
 
     }
@@ -228,7 +228,7 @@ public class ItemUploadManager {
         protected void onPreExecute() {
             super.onPreExecute();
             running = true;
-            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast(TowerApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
         }
 
         private void publish(String msg) {
@@ -274,7 +274,7 @@ public class ItemUploadManager {
 
             if (scheduleId != null && StringUtil.isPreventive(scheduleId)) {
                 DebugLog.d("hit corrective");
-                APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() + scheduleId + "/update");
+                APIHelper.getJsonFromUrl(TowerApplication.getContext(), null, APIList.uploadConfirmUrl() + scheduleId + "/update");
             }
 
             // save failed item's status
@@ -303,7 +303,7 @@ public class ItemUploadManager {
             DebugLog.d("latest status : " + latestStatus);
 
             publish(latestStatus);
-            MyApplication.getInstance().toast(latestStatus + "\n" + simpleResponseMessage, Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast(latestStatus + "\n" + simpleResponseMessage, Toast.LENGTH_LONG);
 
 
             // SAP only
@@ -548,12 +548,12 @@ public class ItemUploadManager {
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
-                HttpPost request = new HttpPost(APIList.uploadUrl() + "?access_token=" + APIHelper.getAccessToken(MyApplication.getInstance()));
+                HttpPost request = new HttpPost(APIList.uploadUrl() + "?access_token=" + APIHelper.getAccessToken(TowerApplication.getInstance()));
                 DebugLog.d(request.getURI().toString());
 
-                SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-                if (mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), null) != null) {
-                    request.setHeader("Cookie", mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), ""));
+                SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
+                if (mPref.getString(TowerApplication.getContext().getString(R.string.user_cookie), null) != null) {
+                    request.setHeader("Cookie", mPref.getString(TowerApplication.getContext().getString(R.string.user_cookie), ""));
                 }
 
                 MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -584,7 +584,7 @@ public class ItemUploadManager {
 
                 Header cookie = response.getFirstHeader("Set-Cookie");
                 if (cookie != null) {
-                    mPref.edit().putString(MyApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
+                    mPref.edit().putString(TowerApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
                 }
 
                 data = response.getEntity().getContent();
@@ -606,11 +606,11 @@ public class ItemUploadManager {
                         statusCode == 405) {
 
                         Crashlytics.log(Log.ERROR, "uploadItem2", "Not json type with code : " + statusCode + " and string response : " + stringResponse);
-                        MyApplication.getInstance().toast("Not json type with code : " + statusCode  + " and string response : " + stringResponse, Toast.LENGTH_LONG);
+                        TowerApplication.getInstance().toast("Not json type with code : " + statusCode  + " and string response : " + stringResponse, Toast.LENGTH_LONG);
                         return stringResponse;
                     } else {
                         Crashlytics.log(Log.ERROR, "uploadItem2", "Not json type with string response : " + stringResponse);
-                        MyApplication.getInstance().toast("Not json type with string response : " + stringResponse, Toast.LENGTH_LONG);
+                        TowerApplication.getInstance().toast("Not json type with string response : " + stringResponse, Toast.LENGTH_LONG);
                         return null;
                     }
                 }
@@ -620,25 +620,25 @@ public class ItemUploadManager {
                 errMsg = e.getMessage();
                 e.printStackTrace();
                 Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "SE " + "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "SE Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "SE Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_LONG);
                 return null;
             } catch(ClientProtocolException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
                 Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "CPE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "CPE " + e.getMessage(), Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "CPE " + e.getMessage(), Toast.LENGTH_LONG);
                 return null;
             } catch (IOException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
                 Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "IOE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "IOE " + e.getMessage(), Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "IOE " + e.getMessage(), Toast.LENGTH_LONG);
                 return null;
             } catch (NullPointerException e) {
                 errMsg = e.getMessage();
                 e.printStackTrace();
                 Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "NPE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "NPE " + e.getMessage(), Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "NPE " + e.getMessage(), Toast.LENGTH_LONG);
                 return null;
             }
 
@@ -669,9 +669,9 @@ public class ItemUploadManager {
                 HttpClient client = new DefaultHttpClient(httpParameters);
                 HttpPost request = new HttpPost(APIList.uploadUrl());
                 request.setHeader("Content-Type", "application/x-www-form-urlencoded");
-                SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-                if (mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), null) != null) {
-                    request.setHeader("Cookie", mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), ""));
+                SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
+                if (mPref.getString(TowerApplication.getContext().getString(R.string.user_cookie), null) != null) {
+                    request.setHeader("Cookie", mPref.getString(TowerApplication.getContext().getString(R.string.user_cookie), ""));
                 }
 
                 UrlEncodedFormEntity entity = null;
@@ -688,7 +688,7 @@ public class ItemUploadManager {
                 // pull cookie
                 Header cookie = response.getFirstHeader("Set-Cookie");
                 if (cookie != null) {
-                    mPref.edit().putString(MyApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
+                    mPref.edit().putString(TowerApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
                 }
 
                 DebugLog.d("=============== after response");
@@ -740,7 +740,7 @@ public class ItemUploadManager {
                 HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 
                 HttpClient client = new DefaultHttpClient(httpParameters);
-                HttpPost request = new HttpPost(APIList.uploadStatusUrl() + "?access_token=" + APIHelper.getAccessToken(MyApplication.getInstance()));
+                HttpPost request = new HttpPost(APIList.uploadStatusUrl() + "?access_token=" + APIHelper.getAccessToken(TowerApplication.getInstance()));
                 DebugLog.d(request.getURI().toString());
                 LinkedList<NameValuePair> params = getParamUploadStatus(schedule_id, messageToServer);
                 request.setEntity(new UrlEncodedFormEntity(params));

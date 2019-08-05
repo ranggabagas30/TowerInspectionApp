@@ -9,7 +9,7 @@ import android.os.Parcel;
 import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
@@ -260,7 +260,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 						DbManager.colHiddenItemIds);
 		}
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
@@ -323,7 +323,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	public static void delete(){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mSchedule;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -340,7 +340,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(scheduleId)};
 		String order = null;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -364,7 +364,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		String[] args = null;
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" DESC", null);
 
 		if (!cursor.moveToFirst()) {
@@ -397,7 +397,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		DebugLog.d(query);
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		//		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" ASC", null);
 		cursor = DbRepository.getInstance().getDB().rawQuery(query, null);
 
@@ -432,7 +432,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		String[] args = new String[]{id};
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null, DbManager.colWorkDate+" DESC", null);
 
 		if (!cursor.moveToFirst()) {
@@ -566,7 +566,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	public static void resetAllSchedule(){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		ContentValues cv = new ContentValues();
 		cv.put(DbManager.colProgress, -1);
 		cv.put(DbManager.colSumDone, 0);

@@ -443,7 +443,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
 			} else {
-				MyApplication.getInstance().toast(getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
 				finish();
 			}
 		}

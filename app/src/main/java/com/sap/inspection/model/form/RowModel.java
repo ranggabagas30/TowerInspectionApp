@@ -8,7 +8,7 @@ import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
@@ -107,7 +107,7 @@ public class RowModel extends BaseModel {
 
 	public static void delete(Context ctx){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormRow;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -126,7 +126,7 @@ public class RowModel extends BaseModel {
 						DbManager.colUpdatedAt, DbManager.colLevel);
 
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
@@ -170,7 +170,7 @@ public class RowModel extends BaseModel {
 	 */
 	public int getMaxLevel(String workFormGroupId){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().rawQuery("SELECT MAX("+DbManager.colLevel+") FROM "+DbManager.mWorkFormRow+" WHERE "+DbManager.colWorkFormGroupId+"="+workFormGroupId, null);
 		if (!cursor.moveToFirst()){
 			cursor.close();
@@ -242,7 +242,7 @@ public class RowModel extends BaseModel {
 //		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
 		String order = DbManager.colPosition+" ASC";
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -318,7 +318,7 @@ public class RowModel extends BaseModel {
 		String where = DbManager.colWorkFormGroupId + "=?" + whereAncestry + whereRowIdBuilder;
 		String order = DbManager.colPosition + " ASC";
 		DebugLog.d("where = " + where);
-        DbRepository.getInstance().open(MyApplication.getInstance());
+        DbRepository.getInstance().open(TowerApplication.getInstance());
         Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
         if (!cursor.moveToFirst()) {
@@ -366,7 +366,7 @@ public class RowModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(workFormGroupId),String.valueOf(parentRowId)};
 		String order = DbManager.colPosition+" ASC";
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()){
@@ -416,7 +416,7 @@ public class RowModel extends BaseModel {
 
 		String order = DbManager.colPosition+" ASC";
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()){
@@ -458,7 +458,7 @@ public class RowModel extends BaseModel {
 	    String where = DbManager.colParentId + "=?";
 	    String[] args = new String[]{parentId};
 
-        DbRepository.getInstance().open(MyApplication.getInstance());
+        DbRepository.getInstance().open(TowerApplication.getInstance());
         Cursor cursor = DbRepository.getInstance().getDB().query(true, table, null, where, args, null, null, null, null);
 
         if (!cursor.moveToFirst()) {
