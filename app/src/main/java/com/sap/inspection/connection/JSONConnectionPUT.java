@@ -152,7 +152,7 @@ public class JSONConnectionPUT extends AsyncTask<Void, Void, String>{
 		//		setJson(result);
 		if (notJson && result == null) {
 
-			//Toast.makeText(context, R.string.feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, R.string.failed_feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
 			Crashlytics.log("response from server is not json format and result is null");
 		}
 		else if (result != null) {

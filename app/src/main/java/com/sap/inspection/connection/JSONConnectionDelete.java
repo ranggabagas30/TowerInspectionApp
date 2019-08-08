@@ -161,8 +161,8 @@ public class JSONConnectionDelete extends AsyncTask<Void, Void, String>{
 
 			if (notJson) {
 
-				MyApplication.getInstance().toast(context.getString(R.string.notjsontype), Toast.LENGTH_LONG);
-				Crashlytics.log(context.getString(R.string.notjsontype) + " = " + result);
+				MyApplication.getInstance().toast(context.getString(R.string.failed_notjsontype), Toast.LENGTH_LONG);
+				Crashlytics.log(context.getString(R.string.failed_notjsontype) + " = " + result);
 
 			} else {
 

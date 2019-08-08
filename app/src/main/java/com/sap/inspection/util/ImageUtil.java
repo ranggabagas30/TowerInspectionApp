@@ -16,6 +16,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
@@ -24,6 +25,7 @@ import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
@@ -287,9 +289,9 @@ public class ImageUtil {
 
             String path;
             if (url.contains("?"))
-            	path = tempDir.getAbsolutePath() + "/" + Constants.FOLDER_TOWER_INSPECTION + "/" + url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
+            	path = tempDir.getAbsolutePath() + File.separator + BuildConfig.FOLDER_TOWER_INSPECTION + File.separator + url.substring(url.lastIndexOf('/')+1,url.indexOf('?'));
             else
-            	path = tempDir.getAbsolutePath() + "/" + Constants.FOLDER_TOWER_INSPECTION + "/" + url.substring(url.lastIndexOf('/')+1);
+            	path = tempDir.getAbsolutePath() + File.separator + BuildConfig.FOLDER_TOWER_INSPECTION + File.separator + url.substring(url.lastIndexOf('/')+1);
 
             File file;
             file = new File(path);
@@ -357,11 +359,11 @@ public class ImageUtil {
         boolean createDirStatus;
 
         if (CommonUtil.isExternalStorageAvailable())
-            tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), Constants.FOLDER_CAMERA);
+            tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), BuildConfig.FOLDER_CAMERA);
         else
-            tempDir = new File(MyApplication.getContext().getFilesDir(), Constants.FOLDER_CAMERA);
+            tempDir = new File(MyApplication.getContext().getFilesDir(), BuildConfig.FOLDER_CAMERA);
 
-		tempDir = new File(tempDir.getAbsolutePath(), Constants.FOLDER_TOWER_INSPECTION);
+		tempDir = new File(tempDir.getAbsolutePath(), BuildConfig.FOLDER_TOWER_INSPECTION);
 
 		if(!tempDir.exists())
 		{

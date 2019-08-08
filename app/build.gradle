@@ -20,8 +20,8 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19020601
-        versionName "2.6.1"
+        versionCode 19020602
+        versionName "2.6.2"
         setProperty("archivesBaseName", "sap" + "-v" + "(" + versionName + ")")
     }
 
@@ -60,23 +60,22 @@ android {
 
     flavorDimensions "default"
 
-    def DBMANAGERVALUE_SCHEMA_VERSION = "DBMANAGERVALUE_SCHEMA_VERSION"
-    def DBMANAGER_SCHEMA_VERSION = "DBMANAGER_SCHEMA_VERSION"
-
     productFlavors {
         sap {
             applicationId 'com.sap.inspection'
             dimension "default"
-            buildConfigField("int", DBMANAGERVALUE_SCHEMA_VERSION, "9")
-            buildConfigField("int", DBMANAGER_SCHEMA_VERSION, "11")
+            buildConfigField("int", "DBMANAGERVALUE_SCHEMA_VERSION", "9")
+            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "11")
+            buildConfigField("String", "FOLDER_CAMERA", '"Camera"')
+            buildConfigField("String", "FOLDER_TOWER_INSPECTION", '".TowerInspection"')
         }
         stp {
             applicationId 'com.stp.inspection'
+            dimension "default"
             versionCode 19020401
             versionName "2.4.1"
-            dimension "default"
-            buildConfigField("int", DBMANAGERVALUE_SCHEMA_VERSION, "8")
-            buildConfigField("int", DBMANAGER_SCHEMA_VERSION, "9")
+            buildConfigField("String", "FOLDER_CAMERA", '"Camera"')
+            buildConfigField("String", "FOLDER_TOWER_INSPECTION", "TowerInspection")
         }
     }
     compileOptions {

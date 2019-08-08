@@ -282,8 +282,8 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                 hideDialog();
 
                 //there is not any items to be uploaded
-                Toast.makeText(activity, getString(R.string.noItemNewToUpload), Toast.LENGTH_LONG).show();
-                uploadInfo.setText(getString(R.string.noItemNewToUpload));
+                Toast.makeText(activity, getString(R.string.failed_nonewuploaditem), Toast.LENGTH_LONG).show();
+                uploadInfo.setText(getString(R.string.failed_nonewuploaditem));
                 return;
             }
             int i = 0;

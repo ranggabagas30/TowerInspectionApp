@@ -13,6 +13,8 @@ package com.sap.inspection.tools;
 
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
+
 /**
  * Create a simple and more understandable Android logs.
  * */
@@ -59,6 +61,7 @@ public class DebugLog {
 		// Throwable instance must be created before any methods  
 		getMethodNames(new Throwable().getStackTrace());
 		Log.e(className, createLog(message));
+		Crashlytics.log(Log.ERROR, className, createLog(message));
 	}
 
 	public static void i(String message){

@@ -3,9 +3,11 @@ package com.sap.inspection.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.sap.inspection.BaseActivity;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
@@ -35,6 +38,7 @@ import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
 
 import java.io.File;
@@ -249,13 +253,19 @@ public class PhotoItemRadio extends RelativeLayout {
 
 				DebugLog.d("value : " + value.value);
 
-				Bitmap photoBmp = ImageUtil.loadDecryptedImage(value.value);
+				Bitmap photoBmp;
+
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+					photoBmp = ImageUtil.loadDecryptedImage(value.value);
+				} else {
+					Uri photoUri = FileUtil.getUriFromFile(context, new File(value.value));
+					photoBmp = BaseActivity.imageLoader.loadImageSync(photoUri.toString());
+				}
 
 				if (photoBmp != null) {
 
 					DebugLog.d("load decrypted image");
 					imageView.setImageBitmap(photoBmp);
-
 					progress.setVisibility(View.GONE);
 					photoRoot.setVisibility(View.VISIBLE);
 					if (value != null){

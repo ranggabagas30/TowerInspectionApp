@@ -85,26 +85,25 @@ public abstract class ScheduleBaseModel extends BaseModel {
 						+ DbManager.colOperatorNumber + " integer, "
 						+ "PRIMARY KEY (" + DbManager.colID + "))";
 			}
-			case 10 :
+			default:
 				return "create table if not exists " + DbManager.mSchedule
-						+ " (" + DbManager.colID + " varchar, "
-						+ DbManager.colUserId + " varchar, "
-						+ DbManager.colSiteId + " integer, "
-						+ DbManager.colOperatorIds + " varchar, "
-						+ DbManager.colProjectId + " varchar, "
-						+ DbManager.colProjectName + " varchar, "
-						+ DbManager.colWorkTypeId + " integer, "
-						+ DbManager.colDayDate + " varchar, "
-						+ DbManager.colWorkDate + " varchar, "
-						+ DbManager.colWorkDateStr + " varchar, "
-						+ DbManager.colProgress + " varchar, "
-						+ DbManager.colStatus + " varchar, "
-						+ DbManager.colSumTask + " integer, "
-						+ DbManager.colSumDone + " integer, "
-						+ DbManager.colOperatorNumber + " integer, "
-						+ DbManager.colHiddenItemIds + " varchar, "
-						+ "PRIMARY KEY (" + DbManager.colID + "))";
-			default: return null;
+					+ " (" + DbManager.colID + " varchar, "
+					+ DbManager.colUserId + " varchar, "
+					+ DbManager.colSiteId + " integer, "
+					+ DbManager.colOperatorIds + " varchar, "
+					+ DbManager.colProjectId + " varchar, "
+					+ DbManager.colProjectName + " varchar, "
+					+ DbManager.colWorkTypeId + " integer, "
+					+ DbManager.colDayDate + " varchar, "
+					+ DbManager.colWorkDate + " varchar, "
+					+ DbManager.colWorkDateStr + " varchar, "
+					+ DbManager.colProgress + " varchar, "
+					+ DbManager.colStatus + " varchar, "
+					+ DbManager.colSumTask + " integer, "
+					+ DbManager.colSumDone + " integer, "
+					+ DbManager.colOperatorNumber + " integer, "
+					+ DbManager.colHiddenItemIds + " varchar, "
+					+ "PRIMARY KEY (" + DbManager.colID + "))";
 		}
 	}
 
@@ -231,29 +230,34 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	private void insert() {
 
-		String sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-				DbManager.mSchedule , DbManager.colID,
-				DbManager.colUserId,DbManager.colSiteId,
-				DbManager.colOperatorIds,DbManager.colProjectId,
-				DbManager.colProjectName,DbManager.colWorkTypeId,
-				DbManager.colWorkDate,DbManager.colProgress,
-				DbManager.colStatus,DbManager.colDayDate,
-				DbManager.colWorkDateStr,DbManager.colSumTask,
-				DbManager.colSumDone, DbManager.colOperatorNumber);
-		//						DbManager.colWorkDateStr,DbManager.colSumTask,
-		//						DbManager.colSumTask,DbManager.mSchedule,DbManager.colID);
+		String sql;
+		switch (DbManager.schema_version) {
 
-		if (DbManager.schema_version >= 10) {
-			sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-					DbManager.mSchedule , DbManager.colID,
-					DbManager.colUserId,DbManager.colSiteId,
-					DbManager.colOperatorIds,DbManager.colProjectId,
-					DbManager.colProjectName,DbManager.colWorkTypeId,
-					DbManager.colWorkDate,DbManager.colProgress,
-					DbManager.colStatus,DbManager.colDayDate,
-					DbManager.colWorkDateStr,DbManager.colSumTask,
-					DbManager.colSumDone, DbManager.colOperatorNumber,
-					DbManager.colHiddenItemIds);
+			case 9 :
+				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+						DbManager.mSchedule , DbManager.colID,
+						DbManager.colUserId,DbManager.colSiteId,
+						DbManager.colOperatorIds,DbManager.colProjectId,
+						DbManager.colProjectName,DbManager.colWorkTypeId,
+						DbManager.colWorkDate,DbManager.colProgress,
+						DbManager.colStatus,DbManager.colDayDate,
+						DbManager.colWorkDateStr,DbManager.colSumTask,
+						DbManager.colSumDone, DbManager.colOperatorNumber);
+				//						DbManager.colWorkDateStr,DbManager.colSumTask,
+				//						DbManager.colSumTask,DbManager.mSchedule,DbManager.colID);
+				break;
+
+			default :
+				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+						DbManager.mSchedule , DbManager.colID,
+						DbManager.colUserId,DbManager.colSiteId,
+						DbManager.colOperatorIds,DbManager.colProjectId,
+						DbManager.colProjectName,DbManager.colWorkTypeId,
+						DbManager.colWorkDate,DbManager.colProgress,
+						DbManager.colStatus,DbManager.colDayDate,
+						DbManager.colWorkDateStr,DbManager.colSumTask,
+						DbManager.colSumDone, DbManager.colOperatorNumber,
+						DbManager.colHiddenItemIds);
 		}
 
 		DbRepository.getInstance().open(MyApplication.getInstance());
@@ -303,7 +307,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		stmt.bindLong(14, sumTaskDone);
 		stmt.bindLong(15, operator_number);
 
-		if (DbManager.schema_version == 10) {
+		if (DbManager.schema_version >= 10) {
 			if (hidden == null || hidden.size() < 1) {
 				bindAndCheckNullString(stmt, 16, null);
 			} else {

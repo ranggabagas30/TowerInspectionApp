@@ -261,7 +261,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 			}else{
 
 				hideDialog();
-				Toast.makeText(activity, R.string.network_connection_problem, Toast.LENGTH_SHORT).show();
+				Toast.makeText(activity, R.string.failed_network_connection_problem, Toast.LENGTH_SHORT).show();
 			}
 		}
 	};
@@ -275,7 +275,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 		}
 		else{
 			loginLogModel.statusLogin = "failed";
-			Toast.makeText(LoginActivity.this, R.string.pasword_doesnt_match, Toast.LENGTH_SHORT).show();
+			Toast.makeText(LoginActivity.this, R.string.failed_pasword_doesnt_match, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -443,7 +443,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
 			} else {
-				MyApplication.getInstance().toast(getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
+				MyApplication.getInstance().toast(getResources().getString(R.string.failed_apknotfound), Toast.LENGTH_LONG);
 				finish();
 			}
 		}
@@ -537,7 +537,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 		}else{
 			DebugLog.d("no network");
 			hideDialog();
-			Toast.makeText(activity, R.string.network_connection_problem, Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity, R.string.failed_network_connection_problem, Toast.LENGTH_SHORT).show();
 		}
 	}
 }

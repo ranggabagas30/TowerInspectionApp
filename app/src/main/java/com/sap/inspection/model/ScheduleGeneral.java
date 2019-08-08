@@ -57,6 +57,7 @@ public class ScheduleGeneral extends ScheduleBaseModel {
 	public String getTaskColor() {
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			if (site.color_rtpo == null) site.color_rtpo = "#cccccc";
 			return site.color_rtpo;
 		} else {
 			if (taskColor != null)

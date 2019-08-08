@@ -66,11 +66,13 @@ import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ExifUtil;
+import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
+import com.sap.inspection.view.dialog.DialogUtil;
 import com.sap.inspection.views.adapter.FormFillAdapter;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
@@ -85,8 +87,6 @@ import java.util.Set;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
-	public static final int REQUEST_CODE = 100;
-	private static final int MenuShootImage = 101;
 	private RowModel parentRow;
 	private ArrayList<ColumnModel> column;
 
@@ -106,7 +106,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	public ArrayList<String> labels;
 	public ArrayList<FormItem> formItems;
 	private ArrayList<ItemFormRenderModel> formModels;
-	private File photo;
+	private File photoFile;
 	private FormFillAdapter adapter;
 
 	private String pageTitle;
@@ -387,52 +387,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	}
 
 	OnClickListener photoClickListener = new OnClickListener() {
-
 		@Override
 		public void onClick(View v) {
-
 			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
-
-				if (CommonUtil.isReadWriteStoragePermissionGranted(FormFillActivity.this)) {
-
-					takePicture(photoItem.getItemId());
-
-				} else {
-
-					if (ActivityCompat.shouldShowRequestPermissionRationale(FormFillActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-							&& ActivityCompat.shouldShowRequestPermissionRationale(FormFillActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-						// Show an explanation to the user *asynchronously* -- don't block
-						// this thread waiting for the user's response! After the user
-						// sees the explanation, try again to request the permission.
-
-					} else {
-
-						ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.RC_STORAGE_PERMISSION);
-
-					}
-				}
-
-			} else {
-				new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
-						.setTopColor(color(R.color.theme_color))
-						.setButtonsColor(color(R.color.theme_color))
-						.setIcon(R.drawable.logo_app)
-						//String informasi GPS
-						.setTitle(getString(R.string.informationGPS))
-						.setMessage(getString(R.string.enableGPS))
-						.setPositiveButton(android.R.string.yes, new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								Intent gpsOptionsIntent = new Intent(
-										Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-								startActivity(gpsOptionsIntent);
-							}
-						})
-						.setNegativeButton(android.R.string.no, null)
-						.show();
-			}
+				if (!takePicture(photoItem.getItemId()))
+					Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
+			} else
+				DialogUtil.gpsDialog(FormFillActivity.this).show();
 		}
 	};
 
@@ -441,87 +403,29 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         @Override
         public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast(getString(R.string.checkConnection), Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
-			DebugLog.d("pos="+pos);
+			DebugLog.d("pos = "+pos);
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
 			FormValueModel uploadItem = itemFormRenderModel.itemValue;
-
 			if (uploadItem != null)
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
 			else
-				MyApplication.getInstance().toast(getString(R.string.tidakadaitem), Toast.LENGTH_LONG);
+				MyApplication.getInstance().toast(getString(R.string.failed_noitem), Toast.LENGTH_LONG);
         }
     };
 
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-		if (requestCode == Constants.RC_STORAGE_PERMISSION) {
-
-			boolean isStoragePermissionAllowed = true;
-
-			for (int i = 0; i < permissions.length; i++) {
-
-				String permission = permissions[i];
-				int grantResult = grantResults[i];
-
-				if (    (permission.equalsIgnoreCase(Manifest.permission.READ_EXTERNAL_STORAGE)
-						&& grantResult == PackageManager.PERMISSION_DENIED) ||
-
-						(permission.equalsIgnoreCase(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-						&& grantResult == PackageManager.PERMISSION_DENIED)
-					) {
-
-					isStoragePermissionAllowed = false;
-					break;
-				}
-			}
-
-			if (isStoragePermissionAllowed)
-
-				Toast.makeText(this, "Silahkan ambil gambar (foto)", Toast.LENGTH_LONG).show();
-
-			else {
-
-				DebugLog.e("Permission storage failed");
-				Crashlytics.log("Permissiong storage failed");
-			}
-		}
-	}
-
 	public boolean takePicture(int itemId){
-
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-		if (intent.resolveActivity(this.getPackageManager()) != null) {
-
-			photo = null;
+		if (intent.resolveActivity(this.getPackageManager()) != null && FileUtil.isStorageAvailableAndWriteable(this)) {
+			photoFile = null;
 			try {
-				// place where to store camera taken picture
-				String part			   = "picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-";
-
-				// temporary image file
-				photo = createTemporaryFile(CommonUtil.getEncryptedMD5Hex(part), ".jpg");
-
-			} catch(Exception e) {
-				Crashlytics.logException(e);
-				DebugLog.d(e.getMessage());
-				DebugLog.d("Can't create file to take picture!");
-				return false;
-			}
-
-			if (photo != null) {
-				mImageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileProvider", photo);
-				DebugLog.d("photo url : " + photo.getName());
-				DebugLog.d("mimage url : " + mImageUri.getPath());
-
+				String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
+				photoFile = FileUtil.createTemporaryPhotoFile(CommonUtil.getEncryptedMD5Hex(photoFileName), ".jpg", Constants.DIR_PHOTOS);
+				mImageUri = FileUtil.getUriFromFile(this, photoFile);
 				intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-				//        intent.putExtra("crop", "true");
 				intent.putExtra("outputX", 480);
 				intent.putExtra("outputY", 480);
 				intent.putExtra("aspectX", 1);
@@ -529,82 +433,29 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				intent.putExtra("scale", true);
 				intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
 				intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-				activity.startActivityForResult(intent, MenuShootImage);
-
+				startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
 				return true;
+			} catch (NullPointerException npe) {
+				DebugLog.e("take picture: " + npe.getMessage());
+			} catch (IOException e ) {
+				DebugLog.e("take picture: " + e.getMessage());
+			} catch (IllegalArgumentException ilae) {
+				DebugLog.e( "take pciture: " + ilae.getMessage());
 			}
 		}
-
 		return false;
-	}
-
-	private File createTemporaryFile(String part, String ext) throws Exception {
-
-		File tempDir;
-		boolean createDirStatus;
-
-		if (CommonUtil.isExternalStorageReadOnly()) {
-
-			DebugLog.d("external storage is read only");
-			Crashlytics.log("storage is read only");
-
-			MyApplication.getInstance().toast("Storage is read-only. Make sure it is writeble", Toast.LENGTH_LONG);
-
-			return null;
-		} else {
-
-			if (CommonUtil.isExternalStorageAvailable()) {
-
-				DebugLog.d("external storage available");
-
-				tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), Constants.FOLDER_CAMERA);
-				tempDir = new File(tempDir, Constants.FOLDER_TOWER_INSPECTION); // create temp folder
-				tempDir = new File(tempDir, schedule.id); // create schedule folder
-
-				if (!tempDir.exists()) {
-					createDirStatus = tempDir.mkdir();
-					if (!createDirStatus) {
-						createDirStatus = tempDir.mkdirs();
-						if (!createDirStatus) {
-							DebugLog.e("failed to create dir : " + tempDir.getPath());
-							Crashlytics.log("failed to create dir : " + tempDir.getPath());
-						} else {
-							DebugLog.d("success create dir : " + tempDir.getPath());
-						}
-					}
-				}
-
-				DebugLog.d("tempDir path : " + tempDir.getPath());
-				DebugLog.d("tempDir absolute path : " + tempDir.getAbsolutePath());
-				DebugLog.d("tempDir canonical path : " + tempDir.getCanonicalPath());
-				DebugLog.d("tempDir string path : " + tempDir.toString());
-
-				return File.createTempFile(part, ext, tempDir);
-
-			} else {
-
-				Crashlytics.log("storage is not available");
-				MyApplication.getInstance().toast("Storage is not available", Toast.LENGTH_LONG);
-				return null;
-			}
-
-		}
-
 	}
 
 	//called after camera intent finished
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent)
-	{
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		String siteLatitude = String.valueOf(currentGeoPoint.latitude);;
 		String siteLongitude = String.valueOf(currentGeoPoint.longitude);
 		Pair<String, String> photoLocation;
 
-		if(requestCode==MenuShootImage && resultCode==RESULT_OK)
-		{
-			if (photoItem != null && mImageUri != null){
+		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
 
+			if (photoItem != null && mImageUri != null){
 				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
 					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 					if (photoLocation != null) {
@@ -621,37 +472,28 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String longitude = siteLongitude;
 
 				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				//textMarks[1] = "Accurate up to : "+accuracy+" meters";
 				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
-				ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.toString(), textMarks);
-				ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photo.toString());
-                CommonUtil.encryptFileBase64(photo, photo.toString());
+				ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
+				ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photoFile.toString());
+                CommonUtil.encryptFileBase64(photoFile, photoFile.toString());
 
                 // reget filePhotoResult
-                File filePhotoResult = new File(photo.toString());
+                File filePhotoResult = new File(photoFile.toString());
 
                 if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
-
                     photoItem.deletePhoto();
                     photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
-
                 } else {
-
                     if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
                         photoItem.deletePhoto();
                         photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
-
                     } else {
-
                         DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
                         MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
                     }
                 }
-
-                return;
-
             }
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -660,34 +502,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	/*
 	 * called when image is stored
 	 */
-	public boolean storeByteImage(byte[] data){
-		// Create the <timestamp>.jpg file and modify the exif data
-		String filename = "/sdcard"+String.format("/%d.jpg", System.currentTimeMillis());
-		try {
-			FileOutputStream fileOutputStream = new FileOutputStream(filename);
-			try {
-				fileOutputStream.write(data);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			fileOutputStream.flush();
-			fileOutputStream.close();
-			ExifInterface exif = new ExifInterface(filename);
-			ExifUtil.createExifData(this, exif, currentGeoPoint.latitude, currentGeoPoint.longitude);
-			exif.saveAttributes();
-			return true;
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
-
 	public void setCurrentGeoPoint(LatLng currentGeoPoint) {
 		this.currentGeoPoint = currentGeoPoint;
 	}
@@ -896,7 +710,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			pageTitle = parentRow.row_columns.get(0).items.get(0).label;
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && pageTitle.contains(Constants.regexId)) {
-
 			String barangLabel = pageTitle;
 			String barangID = barangId;
 			String barangName = StringUtil.getName(scheduleId, wargaId, barangId, workFormGroupId);

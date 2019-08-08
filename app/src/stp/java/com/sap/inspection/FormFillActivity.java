@@ -439,7 +439,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         public void onClick(View v) {
 			DebugLog.d("");
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast(getResources().getString(R.string.checkConnection), Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(getResources().getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
@@ -525,7 +525,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                 DebugLog.d("external storage available");
 
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
-                tempDir = new File(tempDir, Constants.FOLDER_TOWER_INSPECTION); // create temp folder
+                tempDir = new File(tempDir, BuildConfig.FOLDER_TOWER_INSPECTION); // create temp folder
                 tempDir = new File(tempDir, schedule.id); // create schedule folder
 
                 if (!tempDir.exists()) {

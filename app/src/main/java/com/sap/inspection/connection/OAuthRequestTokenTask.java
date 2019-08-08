@@ -74,7 +74,7 @@ package com.sap.inspection.connection;
 //				model.save(context);
 //			}else {
 //				Looper.prepare();
-//				Toast.makeText(context,R.string.login_unauthorized ,Toast.LENGTH_LONG);
+//				Toast.makeText(context,R.string.failed_login_unauthorized ,Toast.LENGTH_LONG);
 //			}
 //		} catch (Exception e) {
 //			Log.e(TAG, "Error during OAUth retrieve request token", e);

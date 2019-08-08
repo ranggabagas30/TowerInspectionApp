@@ -40,8 +40,6 @@ import java.net.SocketTimeoutException;
 
 public class JSONConnection extends AsyncTask<Void, Void, String>{
 
-	//	private Activity activity;
-	private final String TAG = JSONConnection.class.getSimpleName();
 	private String url;
 	private Handler handler;
 	private String response;
@@ -62,24 +60,21 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 
 	@Override
 	protected void onPreExecute() {
-		DebugLog.d("url = " + url);
 		super.onPreExecute();
+		DebugLog.d("GET : " + url);
 	}
 
 	@Override
 	protected String doInBackground(Void... arg0) {
 		try {
-			DebugLog.d("GET JSON URL");
-			HttpParams httpParameters = new BasicHttpParams();
 
+			HttpParams httpParameters = new BasicHttpParams();
 			client = new DefaultHttpClient(httpParameters);
 			try {
-
 				httpRequest = new HttpGet(url);
 			} catch (Exception e) {
+				MyApplication.getInstance().toast(context.getString(R.string.failed_url_bad_format), Toast.LENGTH_SHORT);
 				e.printStackTrace();
-				MyApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
-
 				isResponseOK = false;
 				response = e.getMessage();
 				return response;
@@ -110,8 +105,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 
 				isResponseOK = false;
 				notJson = true;
-
-				DebugLog.d("not json type");
+				DebugLog.e("not json type");
 			}
 
 			response = StringUtil.ConvertInputStreamToString(data);
@@ -141,7 +135,6 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			isResponseOK = false;
 			response = e.getMessage();
 			e.printStackTrace();
-
 		}
 
 		return response;
@@ -155,22 +148,19 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 
 			BaseResponseModel responseModel = new Gson().fromJson(result, BaseResponseModel.class);
 			if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
-				Crashlytics.log(Log.ERROR, "jsonconnection", "error status code : " + responseModel.status);
+				DebugLog.e("error status code : " + responseModel.status);
 				MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
 			}
 
 		} else {
 
 			if (notJson) {
-
-				MyApplication.getInstance().toast(context.getString(R.string.notjsontype), Toast.LENGTH_LONG);
-				Crashlytics.log(context.getString(R.string.notjsontype) + " = " + result);
+				DebugLog.e(context.getString(R.string.failed_notjsontype) + " = " + result);
+				MyApplication.getInstance().toast(context.getString(R.string.failed_notjsontype), Toast.LENGTH_LONG);
 
 			} else {
-
+				DebugLog.e(result);
 				MyApplication.getInstance().toast("error : " + result, Toast.LENGTH_LONG);
-				Crashlytics.log(Log.ERROR, TAG, result);
-
 			}
 		}
 
@@ -186,6 +176,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 		if (handler!=null) {
 
 			DebugLog.d("handler is not null");
+			DebugLog.d("handler bundle response status : " + isResponseOK);
 			handler.sendMessage(msg);
 		} else {
 			DebugLog.d("handler is null");

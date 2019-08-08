@@ -1,4 +1,4 @@
-package com.sap.inspection.model.responsemodel;
+package com.sap.inspection.model;
 
 import android.os.Parcel;
 
