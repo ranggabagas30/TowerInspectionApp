@@ -1,26 +1,16 @@
 package com.sap.inspection;
 
-import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -32,8 +22,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
@@ -41,58 +29,42 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormTextChange;
-import com.sap.inspection.manager.ItemUploadManager;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PersistentLocation;
-import com.sap.inspection.util.ExifUtil;
-import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.CommonUtil;
-import com.sap.inspection.util.PermissionUtil;
+import com.sap.inspection.util.FileUtil;
+import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
+import com.sap.inspection.view.dialog.DialogUtil;
 import com.sap.inspection.views.adapter.FormFillAdapter;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-
-import de.greenrobot.event.EventBus;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
-	public static final int REQUEST_CODE = 100;
-	private static final int MenuShootImage = 101;
 	private LinearLayout root;
 	private RowModel rowModel;
 	private ArrayList<ColumnModel> column;
@@ -101,8 +73,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private String workFormGroupName;
 	private int rowId;
 	private ScheduleBaseModel schedule;
-	private ItemValueModel itemValueForShare;
-	public ItemValueModel PhotographModel;
+	private FormValueModel itemValueForShare;
 	private Uri mImageUri;
 	private HashMap<Integer, ItemUpdateResultViewModel> itemValuesProgressView;
 	public ArrayList<Integer> indexes;
@@ -114,14 +85,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private AutoCompleteTextView search;
 	private ListView list;
 	private View searchView;
-	private File photo;
+	private File photoFile;
 	private FormFillAdapter adapter;
 
 	private LatLng currentGeoPoint;
 	private int accuracy;
-	private String make;
-	private String model;
-	private String imei;
 	private TextView title;
 	private String pageTitle;
 	private boolean finishInflate;
@@ -219,10 +187,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		        if (radioGroup.getCheckedRadioButtonId() == R.id.radioNOK)
 		        	view.findViewById(R.id.remark).requestFocus();
 		        else {
-			        if (!listView.isFocused())
-			        {
+			        if (!listView.isFocused()) {
 			            // listView.setItemsCanFocus(false);
-
 			            // Use beforeDescendants so that the EditText doesn't re-take focus
 			            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
 			            listView.requestFocus();
@@ -230,8 +196,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			    }
 
 		    } else {
-		        if (!listView.isFocused())
-		        {
+		        if (!listView.isFocused()) {
 		            // listView.setItemsCanFocus(false);
 		            // Use beforeDescendants so that the EditText doesn't re-take focus
 		            listView.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
@@ -276,13 +241,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		//
 		if (itemValueForShare == null) {
-			itemValueForShare = new ItemValueModel();
+			itemValueForShare = new FormValueModel();
 		}
 
 		itemValueForShare = itemValueForShare.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
 		if (itemValueForShare == null){
 
-			itemValueForShare = new ItemValueModel();
+			itemValueForShare = new FormValueModel();
 			itemValueForShare.scheduleId = schedule.id;
 			itemValueForShare.rowId = Integer.parseInt(itemProperties[0]);
 			itemValueForShare.itemId = Integer.parseInt(itemProperties[1]);
@@ -310,7 +275,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							itemValueForShare.value += ","+itemProperties[3];
 					}
 				}
-				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 				itemValueForShare.save();
 			}else{ // deleting on checkbox
 				DebugLog.d("goto deleting");
@@ -328,7 +293,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				if (itemValueForShare.value.equalsIgnoreCase(""))
 					itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 				else{
-					itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+					itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 					itemValueForShare.save();
 				}
 			}
@@ -338,7 +303,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 			else{
 				itemValueForShare.value = itemProperties[3];
-				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 				itemValueForShare.save();
 			}
 		}
@@ -386,245 +351,110 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		googleApiClient.connect();
 	}
 
-    OnClickListener photoClickListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-
-            if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
-                photoItem = (PhotoItemRadio) v.getTag();
-
-                if (CommonUtil.isReadWriteStoragePermissionGranted(FormFillActivity.this)) {
-
-                    takePicture(photoItem.getItemId());
-
-                } else {
-
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(FormFillActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                            && ActivityCompat.shouldShowRequestPermissionRationale(FormFillActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                        // Show an explanation to the user *asynchronously* -- don't block
-                        // this thread waiting for the user's response! After the user
-                        // sees the explanation, try again to request the permission.
-
-                    } else {
-
-                        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.RC_STORAGE_PERMISSION);
-
-                    }
-                }
-
-            } else {
-                new LovelyStandardDialog(FormFillActivity.this,R.style.CheckBoxTintTheme)
-                        .setTopColor(color(R.color.theme_color))
-                        .setButtonsColor(color(R.color.theme_color))
-                        .setIcon(R.drawable.logo_app)
-                        //String informasi GPS
-                        .setTitle(getString(R.string.informationGPS))
-                        .setMessage(getString(R.string.enableGPS))
-                        .setPositiveButton(android.R.string.yes, v1 -> {
-                            Intent gpsOptionsIntent = new Intent(
-                                    Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(gpsOptionsIntent);
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .show();
-            }
-        }
-    };
+	OnClickListener photoClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
+				photoItem = (PhotoItemRadio) v.getTag();
+				takePicture(photoItem.getItemId());
+			} else
+				DialogUtil.gpsDialog(FormFillActivity.this).show();
+		}
+	};
 
     OnClickListener uploadClickListener = new OnClickListener() {
 
         @Override
         public void onClick(View v) {
-			DebugLog.d("");
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast(getResources().getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
 				return;
 			}
-			int pos = (int)v.getTag();
+			int pos = (int)v.getTag(); DebugLog.d("pos = "+pos);
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			if (itemFormRenderModel.workItemModel.disable){
-				Toast.makeText(activity, "Item di kunci", Toast.LENGTH_LONG).show();
-			}
-			else if (itemFormRenderModel.itemValue!=null) {
-
-				ItemValueModel itemUpload = itemFormRenderModel.itemValue;
-				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.workItemModel, itemFormRenderModel.itemValue);
-
-				DebugLog.d("isMandatory= " + itemFormRenderModel.workItemModel.mandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
-
-			} else {
-				Toast.makeText(activity, "Tidak ada foto", Toast.LENGTH_LONG).show();
-			}
+			FormValueModel uploadItem = itemFormRenderModel.itemValue;
+			if (uploadItem != null)
+				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
+			else
+				MyApplication.getInstance().toast(getString(R.string.failed_noitem), Toast.LENGTH_LONG);
         }
     };
 
+    public void takePicture(int itemId){
+    	trackEvent(getString(R.string.event_take_picture));
+    	DebugLog.d(getString(R.string.event_take_picture));
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		if (intent.resolveActivity(this.getPackageManager()) != null && FileUtil.isStorageAvailableAndWriteable(this)) {
+			photoFile = null;
+			try {
+				String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
+				String savedPath = Constants.DIR_PHOTOS + File.separator + schedule.id;
+				photoFile = FileUtil.createTemporaryPhotoFile(photoFileName, ".jpg", savedPath);
+				mImageUri = FileUtil.getUriFromFile(this, photoFile);
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+				intent.putExtra("outputX", 480);
+				intent.putExtra("outputY", 480);
+				intent.putExtra("aspectX", 1);
+				intent.putExtra("aspectY", 1);
+				intent.putExtra("scale", true);
+				intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
+				intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
+				return;
+			} catch (NullPointerException npe) {
+				DebugLog.e("take picture: " + npe.getMessage());
+			} catch (IOException e ) {
+				DebugLog.e("take picture: " + e.getMessage());
+			} catch (IllegalArgumentException ilae) {
+				DebugLog.e( "take pciture: " + ilae.getMessage());
+			}
+		}
 
-    public boolean takePicture(int itemId){
-
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        if (intent.resolveActivity(this.getPackageManager()) != null) {
-
-            photo = null;
-            try
-            {
-                // place where to store camera taken picture
-                photo = createTemporaryFile("picture-"+schedule.id+"-"+itemId+"-"+Calendar.getInstance().getTimeInMillis()+"-", ".jpg");
-
-            }
-            catch(Exception e)
-            {
-                Crashlytics.logException(e);
-                DebugLog.d(e.getMessage());
-                DebugLog.d("Can't create file to take picture!");
-                return false;
-            }
-
-            if (photo != null) {
-                mImageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileProvider", photo);
-                DebugLog.d("photo url : " + photo.getName());
-                DebugLog.d("mimage url : " + mImageUri.getPath());
-
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-                //        intent.putExtra("crop", "true");
-                intent.putExtra("outputX", 480);
-                intent.putExtra("outputY", 480);
-                intent.putExtra("aspectX", 1);
-                intent.putExtra("aspectY", 1);
-                intent.putExtra("scale", true);
-                intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
-                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-                activity.startActivityForResult(intent, MenuShootImage);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private File createTemporaryFile(String part, String ext) throws Exception {
-        File tempDir;
-        boolean createDirStatus;
-
-        if (CommonUtil.isExternalStorageReadOnly()) {
-
-            DebugLog.d("external storage is read only");
-            Crashlytics.log("storage is read only");
-
-            MyApplication.getInstance().toast("Storage is read-only. Make sure it is writeble", Toast.LENGTH_LONG);
-
-            return null;
-        } else {
-
-            if (CommonUtil.isExternalStorageAvailable()) {
-
-                DebugLog.d("external storage available");
-
-                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
-                tempDir = new File(tempDir, BuildConfig.FOLDER_TOWER_INSPECTION); // create temp folder
-                tempDir = new File(tempDir, schedule.id); // create schedule folder
-
-                if (!tempDir.exists()) {
-                    createDirStatus = tempDir.mkdir();
-                    if (!createDirStatus) {
-                        createDirStatus = tempDir.mkdirs();
-                        if (!createDirStatus) {
-                            DebugLog.e("failed to create dir : " + tempDir.getPath());
-                            Crashlytics.log("failed to create dir : " + tempDir.getPath());
-                        } else {
-                            DebugLog.d("success create dir : " + tempDir.getPath());
-                        }
-                    }
-                }
-
-                DebugLog.d("tempDir path : " + tempDir.getPath());
-                DebugLog.d("tempDir absolute path : " + tempDir.getAbsolutePath());
-                DebugLog.d("tempDir canonical path : " + tempDir.getCanonicalPath());
-                DebugLog.d("tempDir string path : " + tempDir.toString());
-
-                return File.createTempFile(part, ext, tempDir);
-
-            } else {
-
-                Crashlytics.log("storage is not available");
-                MyApplication.getInstance().toast("Storage is not available", Toast.LENGTH_LONG);
-                return null;
-            }
-
-        }
+		// if failed, then show toast with failed message
+		Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
 
     }
 
-	//called after camera intent finished
 	//called after camera intent finished
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent intent)
-	{
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		String siteLatitude = String.valueOf(currentGeoPoint.latitude);;
 		String siteLongitude = String.valueOf(currentGeoPoint.longitude);
 		Pair<String, String> photoLocation;
 
-		if(requestCode==MenuShootImage && resultCode==RESULT_OK)
-		{
-			if (photoItem != null && mImageUri != null){
+		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
 
+			if (photoItem != null && mImageUri != null){
 				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
 					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 					if (photoLocation != null) {
 						siteLatitude  = photoLocation.first();
 						siteLongitude = photoLocation.second();
 					} else {
-						Crashlytics.log(Log.ERROR, "photolocation", "Persistent photo location error (null)");
+						DebugLog.e("Persistent photo location error (null)");
 					}
 				}
 
 				String[] textMarks = new String[3];
-				//String photoDate = photoItem.getPhotoDate();
 				String photoDate = DateTools.getCurrentDate();
 				String latitude = siteLatitude;
 				String longitude = siteLongitude;
 
 				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				//textMarks[1] = "Accurate up to : "+accuracy+" meters";
 				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
-				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), schedule.id, textMarks);
+				ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
 
-				if (null != file) {
+				File filePhotoResult = new File(photoFile.toString());
 
-					if (CommonUtil.isExternalStorageAvailable()) {
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-							Intent mediaScanIntent = new Intent(
-									Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-							Uri contentUri = Uri.fromFile(file);
-							mediaScanIntent.setData(contentUri);
-							this.sendBroadcast(mediaScanIntent);
-						} else {
-							sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-									Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
-						}
-					}
-
-					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
-						photoItem.deletePhoto();
-						photoItem.setImage(photo, latitude, longitude, accuracy);
-
-					} else {
-
-						DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-						MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
-					}
-
-					return;
+				if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
+					photoItem.deletePhoto();
+					photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
+				} else {
+					DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
+					MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
 				}
-
-				DebugLog.e("file = null. Pengambilan foto gagal. Silahkan ulangi kembali");
-				MyApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -844,43 +674,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
                 if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value)) DebugLog.d("\titem value = " +item.itemValue.value);
 
-                if (list.contains(item.type) && item.workItemModel != null) {
-                    boolean isMandatory = item.workItemModel.mandatory;
-                    if (item.itemValue == null && isMandatory) {
-                        mandatoryLabel = item.workItemModel.label;
-                        mandatoryFound = true;
-						Toast.makeText(activity, mandatoryLabel + " wajib diisi", Toast.LENGTH_SHORT).show();
-                        break;
-                    } else if (item.itemValue != null) {
-
-                        ItemValueModel filledItem = item.itemValue;
-
-                        if (isMandatory) {
-
-                            if (TextUtils.isEmpty(filledItem.value)) {
-
-                                // no photo file and photo status not equal "NA"
-                                if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !TextUtils.isEmpty(item.itemValue.photoStatus) && !item.itemValue.photoStatus.equalsIgnoreCase(Constants.NA)) {
-                                    mandatoryLabel = item.workItemModel.label;
-                                    mandatoryFound = true;
-                                    MyApplication.getInstance().toast("Photo item" + mandatoryLabel + " harus ada", Toast.LENGTH_SHORT);
-                                    break;
-                                } else if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
-                                    mandatoryLabel = item.workItemModel.label;
-                                    mandatoryFound = true;
-                                    break;
-                                }
-                            }
-                        } else {
-
-                            if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
-                                mandatoryLabel = item.workItemModel.label;
-                                mandatoryFound = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+				if (list.contains(item.type) && item.workItemModel != null) {
+					if (!FormValueModel.isItemValueValidated(item.workItemModel, item.itemValue)) {
+						mandatoryLabel = item.workItemModel.label;
+						mandatoryFound = true;
+						break;
+					}
+				}
             }
 
             //if (!BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {

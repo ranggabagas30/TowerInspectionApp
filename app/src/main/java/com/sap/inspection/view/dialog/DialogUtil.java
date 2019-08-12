@@ -8,11 +8,8 @@ import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import com.haarman.listviewanimations.ArrayAdapter;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.model.value.CorrectiveValueModel;
-import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.tools.DeleteAllSchedulesDialog;

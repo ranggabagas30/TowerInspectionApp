@@ -21,7 +21,6 @@ import com.sap.inspection.manager.AsyncDeleteAllFiles;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.DeleteAllDataDialog;
 import com.sap.inspection.view.dialog.DialogUtil;
 
 import java.util.Vector;

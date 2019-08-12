@@ -1,20 +1,14 @@
 package com.sap.inspection.views.adapter;
 
-import java.util.ArrayList;
-
-import org.apache.http.NameValuePair;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.sap.inspection.R;
+import org.apache.http.NameValuePair;
+
+import java.util.ArrayList;
 
 public class CopyOfSearchAdapter extends MyBaseAdapter {
 

@@ -1,60 +1,18 @@
 package com.sap.inspection;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
-import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-import com.google.gson.Gson;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.event.DeleteAllScheduleEvent;
-import com.sap.inspection.event.ScheduleTempProgressEvent;
-import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
-import com.sap.inspection.manager.AlertDialogManager;
-import com.sap.inspection.model.DbManager;
-import com.sap.inspection.model.DbRepository;
-import com.sap.inspection.model.form.ColumnModel;
-import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.model.form.WorkFormGroupModel;
-import com.sap.inspection.model.form.WorkFormModel;
-import com.sap.inspection.model.responsemodel.FormResponseModel;
-import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
-import com.sap.inspection.model.responsemodel.VersionModel;
-import com.sap.inspection.task.ScheduleSaver;
-import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.CommonUtil;
-import com.sap.inspection.util.PrefUtil;
-import com.sap.inspection.util.PermissionUtil;
 import com.slidinglayer.SlidingLayer;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import de.greenrobot.event.EventBus;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.AppSettingsDialog;
-import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends BaseActivity {
 
@@ -95,14 +53,6 @@ public class MainActivity extends BaseActivity {
 			setFlagScheduleSaved(true);
 		}
 
-		/**
-		 * added by : Rangga
-		 * date : 26/02/2019
-		 * reason : every time application is started, should check app's latest version
-		 *          in order to make sure that using only the latest version
-		 * */
-		checkAPKVersion();
-
 		mSlidingLayer = findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
 
@@ -114,7 +64,8 @@ public class MainActivity extends BaseActivity {
 
 		replaceFragmentWith(mainMenuFragment, R.id.fragment_behind);
 		replaceFragmentWith(scheduleFragment, R.id.fragment_front);
-		trackThisPage("Main");
+
+		checkLatestAPKVersion();
 	}
 
 	@Override

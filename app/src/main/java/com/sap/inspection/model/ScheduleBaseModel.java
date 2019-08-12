@@ -9,7 +9,9 @@ import android.os.Parcel;
 import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
@@ -194,10 +196,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			operator.save();
 		}
 
-		for (int hiddenItemIds : hidden) {
-			WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
-			workFormItem.visible = false;
-			workFormItem.save();
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			for (int hiddenItemIds : hidden) {
+				WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
+				workFormItem.visible = false;
+				workFormItem.save();
+			}
 		}
 
 		if (schedule_values!=null)
@@ -224,7 +228,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		if (sumTaskDone == 0){
 			sumTaskDone = getTaskDone(id);
 		}
-
 		insert();
 	}
 

@@ -3,9 +3,7 @@ package com.sap.inspection.model.form;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Debug;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.sap.inspection.MyApplication;
@@ -15,14 +13,11 @@ import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.config.formimbaspetir.Barang;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
-import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Vector;
-
-import static com.crashlytics.android.Crashlytics.log;
 
 public class RowModel extends BaseModel {
 

@@ -1,12 +1,10 @@
 package com.sap.inspection.model.form;
 
-import android.os.Debug;
 import android.os.Parcel;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;

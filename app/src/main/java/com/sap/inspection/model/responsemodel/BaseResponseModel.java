@@ -1,9 +1,9 @@
 package com.sap.inspection.model.responsemodel;
 
+import android.os.Parcel;
+
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.PageModel;
-
-import android.os.Parcel;
 
 
 public class BaseResponseModel extends BaseModel {

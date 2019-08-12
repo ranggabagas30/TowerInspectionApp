@@ -37,21 +37,19 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -555,10 +553,13 @@ public class ItemUploadManager {
 
                 if (itemValue.photoStatus != null && itemValue.value != null) {
 
-                    //reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
                     File fileUpload = new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""));
                     String fileName = fileUpload.getName();
-                    reqEntity.addPart("picture", new ByteArrayBody(Objects.requireNonNull(CommonUtil.getDecryptedByteBase64(fileUpload)), fileName));
+
+                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+                        reqEntity.addPart("picture", new ByteArrayBody(Objects.requireNonNull(CommonUtil.getDecryptedByteBase64(fileUpload)), fileName));
+                    else if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_STP))
+                        reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
                 }
 
                 for (int i = 0; i < params.size(); i++) {
@@ -642,77 +643,6 @@ public class ItemUploadManager {
             params.add(new BasicNameValuePair("schedule_id", schedule_id));
             params.add(new BasicNameValuePair("message", messageToServer));
             return params;
-        }
-
-        private String uploadItem(FormValueModel itemValue) {
-            try {
-                DebugLog.d("=============== post do BG");
-                HttpParams httpParameters = new BasicHttpParams();
-
-
-                // Set the timeout in milliseconds until a connection is established.
-                // The default value is zero, that means the timeout is not used.
-                int timeoutConnection = 3000;
-                HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-                // Set the default socket timeout (SO_TIMEOUT)
-                // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 5000;
-                HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-
-                HttpClient client = new DefaultHttpClient(httpParameters);
-                HttpPost request = new HttpPost(APIList.uploadUrl());
-                request.setHeader("Content-Type", "application/x-www-form-urlencoded");
-                SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-                if (mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), null) != null) {
-                    request.setHeader("Cookie", mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), ""));
-                }
-
-                UrlEncodedFormEntity entity = null;
-                entity = new UrlEncodedFormEntity(getParams(itemValue), HTTP.UTF_8);
-                request.setEntity(entity);
-
-                DebugLog.d("=============== before response");
-                HttpResponse response = client.execute(request);
-
-                for (Header header : response.getAllHeaders()) {
-                    DebugLog.d(header.getName() + " ||| " + header.getValue());
-                }
-
-                // pull cookie
-                Header cookie = response.getFirstHeader("Set-Cookie");
-                if (cookie != null) {
-                    mPref.edit().putString(MyApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
-                }
-
-                DebugLog.d("=============== after response");
-                InputStream data = response.getEntity().getContent();
-                DebugLog.d("=============== after get content");
-                statusCode = response.getStatusLine().getStatusCode();
-                DebugLog.d("content type name  : " + response.getEntity().getContentType().getName());
-                DebugLog.d("content type value : " + response.getEntity().getContentType().getValue());
-                if (!StringUtil.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
-                    DebugLog.d("not json type");
-                    DebugLog.d(ConvertInputStreamToString(data));
-                    return null;
-                }
-                String stringResponse = ConvertInputStreamToString(data);
-                DebugLog.d("json /n" + stringResponse);
-                return stringResponse;
-            } catch (SocketTimeoutException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                DebugLog.d("err ||||| " + errMsg);
-            } catch (ClientProtocolException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                DebugLog.d("err ||||| " + errMsg);
-            } catch (IOException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                DebugLog.d("err ||||| " + errMsg);
-            }
-
-            return null;
         }
 
         private String uploadStatus(String schedule_id, String messageToServer) {

@@ -4,12 +4,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 
-import com.sap.inspection.LoginActivity;
 import com.sap.inspection.MainActivity;
 import com.sap.inspection.R;
-import com.sap.inspection.constant.Constants;
 
 public class ScheduleNotification extends BaseNotification {
 

@@ -13,7 +13,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.rindang.zconfig.APIList;
 import com.sap.inspection.BaseActivity;
 import com.sap.inspection.CallendarActivity;
 import com.sap.inspection.MainActivity;
@@ -34,7 +33,6 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.views.adapter.ScheduleAdapter;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 import de.greenrobot.event.EventBus;

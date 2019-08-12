@@ -7,7 +7,6 @@ import android.os.Parcel;
 
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.model.BaseModel;
-import com.sap.inspection.model.DbRepository;
 
 
 public class RowValueModel extends BaseModel {

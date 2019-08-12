@@ -1,9 +1,5 @@
 package com.sap.inspection.model.value;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,7 +11,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.sap.inspection.BuildConfig;
 import com.sap.inspection.MyApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -27,7 +22,10 @@ import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
 

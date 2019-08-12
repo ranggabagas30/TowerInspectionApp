@@ -1,11 +1,9 @@
 package com.appmogli.widget;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import android.database.Cursor;
 import android.database.MatrixCursor;
+
+import java.util.LinkedHashMap;
 
 public class CopyOfDataset {
 

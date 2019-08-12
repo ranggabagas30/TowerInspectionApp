@@ -1,22 +1,17 @@
 package com.sap.inspection;
 
-
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -28,8 +23,6 @@ import android.util.DisplayMetrics;
 import android.view.Window;
 import android.widget.Toast;
 
-/*import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;*/
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
@@ -46,8 +39,6 @@ import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
-import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.RowModel;
@@ -63,7 +54,6 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.PrefUtil;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -71,31 +61,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
-import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-//import com.sap.inspection.gcm.GCMService;
-
 public abstract class BaseActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
 	protected FragmentActivity activity;
-	public static final int ACTIVITY_REQUEST_CODE = 311; 
 	protected SharedPreferences mPref;
 
 	public static ImageLoader imageLoader = ImageLoader.getInstance();
 
 	// Progress dialog type (0 - for Horizontal progress bar)
 	public static final int progress_bar_type = 0;
-
-	// File url to download
-	private static String file_url;
 
 	private ProgressDialog progressDialog, pDialog;
 	private String formVersion;
@@ -112,12 +96,10 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		super.onCreate(savedInstanceState);
 
 		activity = this;
-
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setCancelable(false);
 
 		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		file_url = mPref.getString(this.getString(R.string.url_update), "");
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		DisplayMetrics metrics = new DisplayMetrics();
@@ -254,24 +236,12 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		return mPref.getString(key, defaultValue);
 	}
 	
-	public int getPreference(int key, int defaultValue) {
-		return mPref.getInt(getString(key), defaultValue);
-	}
-	
 	public boolean getPreference(int key, boolean defaultValue) {
 		return mPref.getBoolean(getString(key), defaultValue);
 	}
 
 	protected int color(int colorRes) {
 		return ContextCompat.getColor(this, colorRes);
-	}
-
-	protected void trackThisPage(String name) {
-		Bundle bundle = new Bundle();
-		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
-		MyApplication myApplication = (MyApplication) getApplication();
-		FirebaseAnalytics mFirebaseAnalytics = myApplication.getDefaultAnalytics();
-		mFirebaseAnalytics.logEvent("track_page", bundle);
 	}
 
 	protected void trackEvent(String name) {
@@ -389,7 +359,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         }
     }
 
-	protected void checkAPKVersion(){
+	protected void checkLatestAPKVersion(){
 		DebugLog.d("check apk version");
 		showMessageDialog(getString(R.string.checkversionapplication));
 		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
@@ -608,23 +578,11 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 
             if (isResponseOK) {
 
-                CommonUtil.fixVersion(getApplicationContext());
                 if (bundle.getString("json") != null){
-                    VersionModel model = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
-                    DebugLog.d("latest_version from server : " + model.version);
-                    writePreference(R.string.latest_version, model.version);
-                    writePreference(R.string.url_update, model.download);
-                    String version;
-                    try {
-                        version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-                        DebugLog.d(version);
-                    } catch (PackageManager.NameNotFoundException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                        Crashlytics.logException(e);
-                        hideDialog();
-                        Toast.makeText(activity, "check apk version error : " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
+                    VersionModel versionModel = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
+                    DebugLog.d("latest_version from server : " + versionModel.version);
+                    writePreference(R.string.latest_version, versionModel.version);
+                    writePreference(R.string.url_update, versionModel.download);
 
                     if (CommonUtil.isUpdateAvailable(getApplicationContext())) {
 
@@ -634,7 +592,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 
                     } else {
 
-                        // lakukan cek dan unduh form ketka belum update apk
+                        // lakukan cek dan unduh form ketika belum update apk
                         checkFormVersion();
                     }
 
@@ -643,9 +601,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                     hideDialog();
                     Toast.makeText(activity, getString(R.string.memriksaUpdateGagal), Toast.LENGTH_LONG).show();
                 }
-                // jangan lakukan cek dan unduh form ketika belum update apk
-                //checkFormVersion();
-                //checkFormVersionOffline();
+
             } else {
 
                 hideDialog();
@@ -756,7 +712,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	 *
 	 **/
 	@AfterPermissionGranted(Constants.RC_STORAGE_PERMISSION)
-	 void requestStoragePermission() {
+	 void updateAPKwithStoragePermission() {
 
 		String[] perms = new String[]{PermissionUtil.READ_EXTERNAL_STORAGE, PermissionUtil.WRITE_EXTERNAL_STORAGE};
 		if (PermissionUtil.hasPermission(this, perms)) {
@@ -825,13 +781,10 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 			isAccessStorageAllowed = isReadStorageAllowed & isWriteStorageAllowed;
 
 			if (isAccessStorageAllowed) {
-
 				updateAPK();
-
 			} else {
-
-				Toast.makeText(this, "Gagal mengunduh APK karena tidak ada izin akses storage", Toast.LENGTH_LONG).show();
-
+				DebugLog.e(getString(R.string.failed_update_apk));
+				Toast.makeText(this, getString(R.string.failed_update_apk), Toast.LENGTH_LONG).show();
 			}
 		}
 	}
@@ -888,10 +841,10 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		}
 	}
 
-	private void updateAPK() {
+	protected void updateAPK() {
 
 		if (GlobalVar.getInstance().isNetworkOnline(this)) {
-			new SettingActivity.DownloadFileFromURL().execute(file_url);
+			new DownloadFileFromURL().execute(Constants.URL_APK);
 		} else {
 			Toast.makeText(this, getString(R.string.failed_disconnected), Toast.LENGTH_LONG).show();
 		}
@@ -905,7 +858,6 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-
 			showMessageDialog("Persiapan menyimpan forms");
 			DbRepository.getInstance().open(MyApplication.getInstance());
 			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
@@ -914,7 +866,6 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
 			DbRepository.getInstance().close();
-
 		}
 
 		@Override
@@ -1070,63 +1021,45 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		 */
 		@Override
 		protected Boolean doInBackground(String... f_url) {
-			int count;
 			try {
 				URL url = new URL(f_url[0]);
 				URLConnection conection = url.openConnection();
 				conection.connect();
+
 				// this will be useful so that you can show a tipical 0-100% progress bar
 				int lenghtOfFile = conection.getContentLength();
 
+				File apkFile = new File(Constants.PATH_APK);
+				File apkDir = new File(Constants.DIR_APK);
+				if (!apkDir.exists()) apkDir.mkdirs();
+
 				// download the file
-				InputStream input = new BufferedInputStream(url.openStream(), 8192);
-
-				File tempDir;
-				if (CommonUtil.isExternalStorageAvailable()) {
-					DebugLog.d("external storage available");
-					tempDir = Environment.getExternalStorageDirectory();
-					DebugLog.d("temp dir present");
-				} else {
-					DebugLog.d("external storage not available");
-					tempDir = getFilesDir();
-				}
-
-				DebugLog.d("asign temp dir");
-				tempDir = new File(tempDir.getAbsolutePath() + "/Download");
-				DebugLog.d("get tempratur dir");
-				if (!tempDir.exists()) {
-					tempDir.mkdir();
-				}
-				DebugLog.d("get exist dir");
-				// Output stream
-				OutputStream output = new FileOutputStream(tempDir.getAbsolutePath() + "/sapInspection" + mPref.getString(BaseActivity.this.getString(R.string.latest_version), "") + ".apk");
-				DebugLog.d("get output sream");
+				BufferedInputStream input = new BufferedInputStream(url.openStream(), 8192);
+				OutputStream output = new FileOutputStream(apkFile);
 				byte data[] = new byte[1024];
-
 				long total = 0;
-				DebugLog.d("start download");
-				while ((count = input.read(data)) != -1) {
+
+				DebugLog.d("start download with size " + lenghtOfFile);
+				int count;
+				while ((count = input.read(data, 0, 1024)) != -1) {
 					total += count;
 					// publishing the progress....
 					// After this onProgressUpdate will be called
 					publishProgress("" + (int) ((total * 100) / lenghtOfFile));
-
+					DebugLog.d("(count, total, progress) : (" + count + ", " + total + ", " + (int) ((total * 100) / lenghtOfFile) + ")");
 					// writing data to file
 					output.write(data, 0, count);
 				}
 				DebugLog.d("finish download");
-				// flushing output
 				output.flush();
-
-				// closing streams
 				output.close();
 				input.close();
 				return true;
-
-			} catch (Exception e) {
-				DebugLog.e(e.getMessage());
+			} catch (MalformedURLException mae) {
+				DebugLog.e(mae.getMessage(), mae);
+			} catch (IOException ioe) {
+				DebugLog.e(ioe.getMessage(), ioe);
 			}
-
 			return false;
 		}
 
@@ -1148,7 +1081,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 			dismissDialog(progress_bar_type);
 
 			if (!isSuccessful) {
-				Toast.makeText(BaseActivity.this, "Gagal mengunduh APK terbaru. Periksa jaringan Anda", Toast.LENGTH_LONG).show();
+				Toast.makeText(BaseActivity.this, BaseActivity.this.getString(R.string.failed_update_apk), Toast.LENGTH_LONG).show();
 			} else {
 
 				// just install the new APK

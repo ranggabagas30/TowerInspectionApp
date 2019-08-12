@@ -72,10 +72,12 @@ android {
         stp {
             applicationId 'com.stp.inspection'
             dimension "default"
-            versionCode 19020401
-            versionName "2.4.1"
+            versionCode 19020100
+            versionName "2.1.0"
+            buildConfigField("int", "DBMANAGERVALUE_SCHEMA_VERSION", "8")
+            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "9")
             buildConfigField("String", "FOLDER_CAMERA", '"Camera"')
-            buildConfigField("String", "FOLDER_TOWER_INSPECTION", "TowerInspection")
+            buildConfigField("String", "FOLDER_TOWER_INSPECTION", '"TowerInspection"')
         }
     }
     compileOptions {

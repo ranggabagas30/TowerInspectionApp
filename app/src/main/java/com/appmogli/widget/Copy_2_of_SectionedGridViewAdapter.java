@@ -1,9 +1,5 @@
 package com.appmogli.widget;
 
-import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.Vector;
-
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -19,6 +15,10 @@ import android.widget.TextView;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.CallendarModel;
+
+import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.Vector;
 
 public class Copy_2_of_SectionedGridViewAdapter extends BaseAdapter implements
 View.OnClickListener {

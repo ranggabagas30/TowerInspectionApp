@@ -7,7 +7,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.sap.inspection.MyApplication;
-import com.sap.inspection.model.value.DbRepositoryValue;
 
 public class RoleModel extends BaseModel {
 

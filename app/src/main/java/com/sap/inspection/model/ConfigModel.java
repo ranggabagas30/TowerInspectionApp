@@ -1,19 +1,12 @@
 package com.sap.inspection.model;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import com.google.gson.Gson;
 import com.sap.inspection.MyApplication;
-import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
-import com.sap.inspection.model.config.formimbaspetir.ImbasPetirData;
-import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.tools.DebugLog;
-
-import java.util.ArrayList;
 
 public class ConfigModel extends BaseModel {
 

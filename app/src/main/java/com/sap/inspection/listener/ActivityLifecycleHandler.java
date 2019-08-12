@@ -3,8 +3,9 @@ package com.sap.inspection.listener;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import android.os.Debug;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.sap.inspection.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 
 /**
@@ -24,12 +25,12 @@ public class ActivityLifecycleHandler implements Application.ActivityLifecycleCa
 
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {
-        DebugLog.d(activity.getLocalClassName() + " created");
+        trackThisPage(activity.getLocalClassName() + " created");
     }
 
     @Override
     public void onActivityStarted(Activity activity) {
-        DebugLog.d(activity.getLocalClassName() + " started");
+        trackThisPage(activity.getLocalClassName() + " started");
         if (started == 0 && listener != null) {
             listener.onApplicationStarted();
         }
@@ -38,7 +39,7 @@ public class ActivityLifecycleHandler implements Application.ActivityLifecycleCa
 
     @Override
     public void onActivityResumed(Activity activity) {
-        DebugLog.d(activity.getLocalClassName() + " resumed");
+        trackThisPage(activity.getLocalClassName() + " resumed");
         if (resumed == 0 && !transitionPossible && listener != null) {
             listener.onApplicationResumed();
         }
@@ -48,14 +49,14 @@ public class ActivityLifecycleHandler implements Application.ActivityLifecycleCa
 
     @Override
     public void onActivityPaused(Activity activity) {
-        DebugLog.d(activity.getLocalClassName() + " paused");
+        trackThisPage(activity.getLocalClassName() + " paused");
         transitionPossible = true;
         resumed--;
     }
 
     @Override
     public void onActivityStopped(Activity activity) {
-        DebugLog.d(activity.getLocalClassName() + " stopped");
+        trackThisPage(activity.getLocalClassName() + " stopped");
         if (started == 1 && listener != null) {
             // We only know the application was paused when it's stopped (because transitions always pause activities)
             // http://developer.android.com/guide/components/activities.html#CoordinatingActivities
@@ -75,8 +76,16 @@ public class ActivityLifecycleHandler implements Application.ActivityLifecycleCa
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        DebugLog.d(activity.getLocalClassName() + " destroyed");
+        trackThisPage(activity.getLocalClassName() + " destroyed");
 
+    }
+
+    private void trackThisPage(String message) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, message);
+        FirebaseAnalytics mFirebaseAnalytics = MyApplication.getDefaultAnalytics();
+        mFirebaseAnalytics.logEvent("track_page", bundle);
+        DebugLog.d(message);
     }
 
     /** Informs the listener about application lifecycle events. */

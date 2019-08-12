@@ -1,8 +1,5 @@
 package com.sap.inspection;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -92,22 +89,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         pushNotificationAPK = findViewById(R.id.pushnot_apk);
         logout = findViewById(R.id.setting_logout);
 
-        String version = null;
-        int versionCode = 0;
-        try {
-            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-            versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-            TextView title = findViewById(R.id.versioninfo);
-            title.setVisibility(View.VISIBLE);
-            title.setText("Version "+version+" Build "+versionCode);
-        } catch (NameNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        DebugLog.d("version Name = " + version + " versionCode = " + versionCode);
-
-        title.setText(getString(R.string.pengaturan));
-
         int textSizePotrait = PrefUtil.getIntPref(R.string.textmarksizepotrait, Constants.TEXT_SIZE_POTRAIT);
         int textSizeLandscape = PrefUtil.getIntPref(R.string.textmarksizelandscape, Constants.TEXT_SIZE_LANDSCAPE);
         int linespacePotrait = PrefUtil.getIntPref(R.string.linespacepotrait, Constants.TEXT_LINE_SPACE_POTRAIT);
@@ -126,9 +107,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         setlinespace.setOnClickListener(setLinespaceClickListener);
         setheightwatermark.setOnClickListener(setHeightBackgroundWatermarkClickListener);
 
-        CommonUtil.fixVersion(getApplicationContext());
-        DebugLog.d("latest_version" + mPref.getString(this.getString(R.string.latest_version), ""));
-        DebugLog.d("url_update" + mPref.getString(this.getString(R.string.url_update), ""));
+        title.setText(getString(R.string.pengaturan));
 
         if (!CommonUtil.isUpdateAvailable(getApplicationContext())) {
             update.setVisibility(View.VISIBLE);
@@ -150,7 +129,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         } else
             uploadInfo.setText(getString(R.string.waitingUpload));
 
-
         delete.setOnClickListener(deleteClickListener);
         deleteAndUpdateSchedule.setOnClickListener(deleteAndUpdateScheduleClickListener);
 
@@ -171,14 +149,9 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         updateFormImbasPetir.setOnClickListener(updateFormImbasPetirClickListener);
         upload.setOnClickListener(uploadClickListener);
         reupload.setOnClickListener(reuploadClickListener);
-        updateSchedule.setOnClickListener(v -> {
-            trackEvent("user_refresh_schedule");
-            downloadSchedules();
-        });
-        updateCorrectiveSchedule.setOnClickListener(v -> {
-            trackEvent("user_update_corrective_schedule");
-            downloadCorrectiveSchedules();
-        });
+        updateSchedule.setOnClickListener(updateScheduleListener);
+        updateCorrectiveSchedule.setOnClickListener(updateCorrectiveScheduleListener);
+        logout.setOnClickListener(logoutClickListener);
 
         if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
             layout_debug.setVisibility(View.VISIBLE);
@@ -186,11 +159,11 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             pushNotificationAPK.setOnClickListener(pushNotificationClickListener);
         }
 
-        logout.setOnClickListener(logoutClickListener);
-
-        trackThisPage("Setting");
+        if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_STP)) {
+            updateFormImbasPetir.setVisibility(View.GONE);
+            updateCorrectiveSchedule.setVisibility(View.GONE);
+        }
     }
-
 
     @Override
     public void onBackPressed() {
@@ -204,6 +177,51 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (CommonUtil.isExternalStorageAvailable()) {
+            DebugLog.d("external storage available");
+            tempFile = Environment.getExternalStorageDirectory();
+        } else {
+            DebugLog.d("external storage not available");
+            tempFile = getFilesDir();
+        }
+        tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + mPref.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
+
+        if (tempFile.exists())
+            update.setText(getString(R.string.install));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onUpdate(String status) {
+        DebugLog.d("====================================================");
+        DebugLog.d("====================================================");
+        DebugLog.d(status);
+        DebugLog.d("====================================================");
+        DebugLog.d("====================================================");
+        uploadInfo.setText(status);
+    }
+
+    @Override
+    public void onFailed() {
+        uploadInfo.setText(ItemUploadManager.getInstance().syncFail);
+    }
+
+    @Override
+    public void onSuccess() {
+        uploadInfo.setText(ItemUploadManager.getInstance().syncDone);
+    }
 
     /**
      *
@@ -254,7 +272,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
     OnClickListener updateClickListener = v -> {
         trackEvent("user_update_apk");
-        requestStoragePermission(); // check storage permission first
+        updateAPKwithStoragePermission(); // check storage permission first
     };
 
     OnClickListener updateFormClickListener = v -> {
@@ -303,11 +321,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         }
     };
 
-    OnClickListener reuploadClickListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-
+    OnClickListener reuploadClickListener = view ->
             DialogUtil.showUploadAllDataDialog(activity, (dialog, id) -> {
                 dialog.dismiss();
                 uploadInfo.setText(getString(R.string.reSettingUpload));
@@ -316,7 +330,15 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                 upload.performClick();
                 trackEvent("user_reupload");
             }, (dialog, id) -> dialog.dismiss());
-        }
+
+    OnClickListener updateScheduleListener = view -> {
+        trackEvent("user_refresh_schedule");
+        downloadSchedules();
+    };
+
+    OnClickListener updateCorrectiveScheduleListener = view -> {
+        trackEvent("user_update_corrective_schedule");
+        downloadCorrectiveSchedules();
     };
 
     OnClickListener pushNotificationClickListener = view -> {
@@ -343,60 +365,11 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             .setIcon(R.drawable.logo_app)
             .setTitle("Konfirmasi")
             .setMessage("Apa anda yakin ingin keluar?")
-            .setPositiveButton(android.R.string.yes, new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    trackEvent("user_logout");
-                    writePreference(R.string.keep_login,false);
-                    navigateToLoginActivity();
-                }
+            .setPositiveButton(android.R.string.yes, v -> {
+                trackEvent("user_logout");
+                writePreference(R.string.keep_login,false);
+                navigateToLoginActivity();
             })
             .setNegativeButton(android.R.string.no, null)
             .show();
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (CommonUtil.isExternalStorageAvailable()) {
-            DebugLog.d("external storage available");
-            tempFile = Environment.getExternalStorageDirectory();
-        } else {
-            DebugLog.d("external storage not available");
-            tempFile = getFilesDir();
-        }
-        tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + mPref.getString(SettingActivity.this.getString(R.string.latest_version), "") + ".apk");
-
-        if (tempFile.exists())
-            update.setText(getString(R.string.install));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onUpdate(String status) {
-        DebugLog.d("====================================================");
-        DebugLog.d("====================================================");
-        DebugLog.d(status);
-        DebugLog.d("====================================================");
-        DebugLog.d("====================================================");
-        uploadInfo.setText(status);
-    }
-
-    @Override
-    public void onFailed() {
-        uploadInfo.setText(ItemUploadManager.getInstance().syncFail);
-    }
-
-    @Override
-    public void onSuccess() {
-        uploadInfo.setText(ItemUploadManager.getInstance().syncDone);
-    }
 }

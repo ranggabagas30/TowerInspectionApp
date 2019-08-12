@@ -7,8 +7,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.sap.inspection.util.PrefUtil;
+
 import com.sap.inspection.R;
+import com.sap.inspection.util.PrefUtil;
 
 public class DeleteAllSchedulesDialog {
 

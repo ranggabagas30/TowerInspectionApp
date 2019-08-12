@@ -7,7 +7,6 @@ import com.sap.inspection.MainActivity;
 import com.sap.inspection.SettingActivity;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 
 import de.greenrobot.event.EventBus;

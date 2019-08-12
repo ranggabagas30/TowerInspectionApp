@@ -27,23 +27,18 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
-import com.scottyab.aescrypt.AESCrypt;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -55,8 +50,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 public class CommonUtil {
 
@@ -441,54 +434,54 @@ public class CommonUtil {
     }
 
     public static void fixVersion(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String versionPref = prefs.getString(context.getString(R.string.latest_version), "");
-        ContextWrapper contextWrapper = (ContextWrapper)context;
-        try {
-            String versionApp = context.getPackageManager().getPackageInfo(contextWrapper.getPackageName(), 0).versionName;
-            DebugLog.d("(latest version) versionPref="+versionPref+" versionApp="+versionApp);
-            if (!versionPref.isEmpty()) {
-                versionPref = versionPref.replace(".","");
-                int versionPrefInt = Integer.parseInt(versionPref);
-                String ver = versionApp.replace(".","");
-                int versionAppInt = Integer.parseInt(ver);
-                DebugLog.d("versionPrefInt="+versionPrefInt+" verApp="+versionAppInt);
-                if (versionAppInt>versionPrefInt) {
-                    DebugLog.d("app>pref, fix pref version!!");
-                    prefs.edit().putString(context.getString(R.string.latest_version), versionApp).commit();
-                }
-            } else {
-                prefs.edit().putString(context.getString(R.string.latest_version), versionApp).commit();
+        String latestVersion = PrefUtil.getStringPref(R.string.latest_version, "");
+        String appVersion = Constants.APPLICATION_VERSION;
+        DebugLog.d("latestVersion : " + latestVersion);
+        DebugLog.d("appVersion : " + appVersion);
+        if (!TextUtils.isEmpty(latestVersion)) {
+
+            latestVersion = latestVersion.replace(".","");
+            int latestVersionInt = Integer.parseInt(latestVersion);
+
+            appVersion = appVersion.replace(".","");
+            int appVersionInt = Integer.parseInt(appVersion);
+
+            if (appVersionInt > latestVersionInt) {
+                StringBuilder message = new StringBuilder(context.getString(R.string.failed_check_apk_version));
+                message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
+                DebugLog.e(new String(message));
             }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } else {
+            DebugLog.e(context.getString(R.string.failed_latest_version_not_found));
         }
     }
 
     public static boolean isUpdateAvailable(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String versionPref = prefs.getString(context.getString(R.string.latest_version), "");
-        ContextWrapper contextWrapper = (ContextWrapper)context;
-        try {
-            String versionApp = context.getPackageManager().getPackageInfo(contextWrapper.getPackageName(), 0).versionName;
-            DebugLog.d("versionPref="+versionPref+" versionApp="+versionApp);
-            if (!versionPref.isEmpty()) {
-                versionPref = versionPref.replace(".","");
-                int versionPrefInt = Integer.parseInt(versionPref);
-                String ver = versionApp.replace(".","");
-                int versionAppInt = Integer.parseInt(ver);
-                DebugLog.d("versionPrefInt="+versionPrefInt+" verApp="+versionAppInt);
-                if (versionAppInt<versionPrefInt) {
-                    DebugLog.d("update available!!");
-                    return true;
-                }
+
+        boolean isUpdateAvailable = true;
+        String latestVersion = PrefUtil.getStringPref(R.string.latest_version, "");
+        String appVersion = Constants.APPLICATION_VERSION;
+        DebugLog.d("latestVersion\t: " + latestVersion);
+        DebugLog.d("appVersion\t\t: " + appVersion);
+        if (!TextUtils.isEmpty(latestVersion)) {
+
+            latestVersion = latestVersion.replace(".","");
+            int latestVersionInt = Integer.parseInt(latestVersion);
+
+            appVersion = appVersion.replace(".","");
+            int appVersionInt = Integer.parseInt(appVersion);
+
+            if (appVersionInt > latestVersionInt) {
+                StringBuilder message = new StringBuilder(context.getString(R.string.failed_check_apk_version));
+                message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
+                DebugLog.e(new String(message));
+                isUpdateAvailable = false;
             }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } else {
+            DebugLog.e(context.getString(R.string.failed_latest_version_not_found));
+            isUpdateAvailable = false;
         }
-        return false;
+        return isUpdateAvailable;
     }
 
     /**
@@ -497,7 +490,6 @@ public class CommonUtil {
      *
      * */
     public static String getEncryptedMD5Hex(String source) {
-
         return new String(Hex.encodeHex(DigestUtils.md5(source)));
     }
 

@@ -9,8 +9,6 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
-import com.sap.inspection.tools.DebugLog;
-
 public class DefaultNotificationChannel extends BaseNotificationChannel{
 
     private static String CHANNEL_ID = "DEFAULT_CHANNEL_ID";

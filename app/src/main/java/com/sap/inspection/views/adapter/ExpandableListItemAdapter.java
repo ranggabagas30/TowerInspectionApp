@@ -1,8 +1,5 @@
 package com.sap.inspection.views.adapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -13,6 +10,9 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.haarman.listviewanimations.ArrayAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A ListAdapter which allows items to be expanded using an animation.

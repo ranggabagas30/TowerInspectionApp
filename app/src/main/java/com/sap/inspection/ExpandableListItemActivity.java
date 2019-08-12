@@ -1,8 +1,5 @@
 package com.sap.inspection;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.ListActivity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,6 +10,9 @@ import android.view.ViewGroup;
 
 import com.haarman.listviewanimations.itemmanipulation.ExpandableListItemAdapter;
 import com.haarman.listviewanimations.swinginadapters.prepared.AlphaInAnimationAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExpandableListItemActivity extends ListActivity {
 

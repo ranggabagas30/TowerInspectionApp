@@ -168,7 +168,6 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 		addFragment(fm, groupFragment, R.id.fragment_behind);
 
 		hideDialog();
-		trackThisPage("Form");
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package com.sap.inspection.mainmenu.fragmentadapter;
 
-import android.os.Debug;
 import android.support.v4.app.FragmentManager;
 import android.view.View.OnClickListener;
 

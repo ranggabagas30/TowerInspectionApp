@@ -1,7 +1,6 @@
 package com.sap.inspection;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -16,8 +15,6 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
-/*import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;*/
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
@@ -33,19 +30,20 @@ import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.model.responsemodel.DeviceRegisterResponseModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.scottyab.aescrypt.AESCrypt;
 
+import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap;
 import java.util.HashMap;
 
-import javax.crypto.KeyGenerator;
-
 import io.fabric.sdk.android.Fabric;
+
+/*import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;*/
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
@@ -56,13 +54,11 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	private static MyApplication instance;
 	private HashMap< String, AbstractMap.SimpleEntry<String, String> > hashMapSiteLocation;
 	private boolean IS_CHECKING_HASIL_PM;
-	private boolean ON_FORM_IMBAS_PETIR;
 	private boolean SCHEDULE_NEED_CHECK_IN;
-	private boolean CHECK_APP_VERSION_STATE;
 	private boolean DEVICE_REGISTER_STATE;
 
 	public static Key key;
-
+	public static File newAPKFile;
 	public CheckinDataModel checkinDataModel;
 
 	public MyApplication() {
@@ -132,6 +128,7 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 		DefaultNotificationChannel defaultNotificationChannel = new DefaultNotificationChannel();
 		defaultNotificationChannel.createNotificationChannel(this);
 
+		//9. enlist storage dirs
 		DebugLog.d("Storage dirs list : \n");
 		String[] storageDirectories = CommonUtil.getStorageDirectories(getApplicationContext());
 		for (String dir : storageDirectories) {
@@ -140,9 +137,7 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 
 		IS_CHECKING_HASIL_PM = false;
 		SCHEDULE_NEED_CHECK_IN = false;
-		CHECK_APP_VERSION_STATE = false;
 		DEVICE_REGISTER_STATE = false;
-		ON_FORM_IMBAS_PETIR = false;
 		checkinDataModel = new CheckinDataModel();
 	}
 
@@ -282,14 +277,13 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
      * new analytics tracker from Firebase
      * @return firebaseAnalytics instance
      * */
-	private FirebaseAnalytics mFirebaseAnalytics;
+	private static FirebaseAnalytics mFirebaseAnalytics;
 
-	synchronized public FirebaseAnalytics getDefaultAnalytics() {
+	synchronized public static FirebaseAnalytics getDefaultAnalytics() {
 
 	    if (mFirebaseAnalytics == null) {
-	        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+	        mFirebaseAnalytics = FirebaseAnalytics.getInstance(MyApplication.getInstance());
         }
-
         return mFirebaseAnalytics;
     }
 
@@ -309,14 +303,6 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 		}
 	}
 
-	public void setON_FORM_IMBAS_PETIR(boolean onFormImbasPetir) {
-		this.ON_FORM_IMBAS_PETIR = onFormImbasPetir;
-	}
-
-	public boolean isON_FORM_IMBAS_PETIR() {
-		return ON_FORM_IMBAS_PETIR;
-	}
-
 	public boolean IS_CHECKING_HASIL_PM() {
 		return IS_CHECKING_HASIL_PM;
 	}
@@ -331,14 +317,6 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 
 	public void setIsScheduleNeedCheckIn(boolean isScheduleNeedCheckIn) {
 		this.SCHEDULE_NEED_CHECK_IN = isScheduleNeedCheckIn;
-	}
-
-	public boolean getCHECK_APP_VERSION_STATE() {
-		return CHECK_APP_VERSION_STATE;
-	}
-
-	public void setCHECK_APP_VERSION_STATE(boolean checkAppVersionState) {
-		this.CHECK_APP_VERSION_STATE = checkAppVersionState;
 	}
 
 	public boolean getDEVICE_REGISTER_STATE() {

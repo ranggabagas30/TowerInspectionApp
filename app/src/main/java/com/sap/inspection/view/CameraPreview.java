@@ -1,15 +1,13 @@
 package com.sap.inspection.view;
 
-import java.io.IOException;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import java.io.IOException;
 
 @SuppressLint("NewApi")
 public class CameraPreview  extends SurfaceView implements SurfaceHolder.Callback {

@@ -1,11 +1,11 @@
 package com.sap.inspection.model.value;
 
-import java.util.Vector;
-
 import android.os.Parcel;
 
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.form.RowModel;
+
+import java.util.Vector;
 
 public class FormModel extends BaseModel {
 

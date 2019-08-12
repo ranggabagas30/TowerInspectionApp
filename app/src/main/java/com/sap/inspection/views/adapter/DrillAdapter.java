@@ -3,10 +3,9 @@ package com.sap.inspection.views.adapter;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 

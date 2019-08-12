@@ -1,6 +1,10 @@
 package com.sap.inspection.constant;
+
 import android.os.Environment;
+
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.R;
+import com.sap.inspection.util.PrefUtil;
 
 import java.io.File;
 
@@ -10,6 +14,7 @@ public class Constants {
 	 * ============================= GENERAL CONSTANTS =================================================
 	 * */
 	public static final String APPLICATION_FILE_PROVIDER = BuildConfig.APPLICATION_ID + ".fileProvider";
+	public static final String APPLICATION_VERSION = BuildConfig.VERSION_NAME;
 	public static final String APPLICATION_SAP = "sap";
 	public static final String APPLICATION_STP = "stp";
 	public static final String EMPTY = "EMPTY";
@@ -103,7 +108,11 @@ public class Constants {
 
 
 	/**
-	 * ============================= FORM IMBAS PETIR =================================================
+	 * ============================= GLOBAL URL/URI =================================================
 	 * */
 	public static final String DIR_PHOTOS = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator + BuildConfig.FOLDER_CAMERA + File.separator + BuildConfig.FOLDER_TOWER_INSPECTION;
+	public static final String DIR_APK = Environment.getExternalStorageDirectory() + File.separator + "Download";
+	public static final String PATH_APK = DIR_APK + File.separator + "sapInspection" + PrefUtil.getStringPref(R.string.latest_version, "")+".apk";
+	public static final String URL_APK = PrefUtil.getStringPref(R.string.url_update, "");
+
 } 

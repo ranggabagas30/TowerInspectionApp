@@ -1,12 +1,12 @@
 package com.sap.inspection.constant;
 
-import java.util.HashMap;
-
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.os.AsyncTask;
+
+import java.util.HashMap;
 
 public class GlobalVar {
 

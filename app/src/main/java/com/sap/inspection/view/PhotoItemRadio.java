@@ -3,11 +3,9 @@ package com.sap.inspection.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -78,7 +76,6 @@ public class PhotoItemRadio extends RelativeLayout {
 	private boolean onInit = false;
 	private boolean isAudit;
 	private boolean isRoutingSchedule = false;
-    private Uri imageUri;
 
 	public PhotoItemRadio(Context context) {
 		super(context);
@@ -146,8 +143,8 @@ public class PhotoItemRadio extends RelativeLayout {
                             workTypeName.equalsIgnoreCase(context.getString(R.string.hdpe));
     }
 
-	public void setItemFormRenderModel(ItemFormRenderModel argsItemFormRenderModel) {
-		this.itemFormRenderModel = argsItemFormRenderModel;
+	public void setItemFormRenderModel(ItemFormRenderModel itemFormRenderModel) {
+		this.itemFormRenderModel = itemFormRenderModel;
 
 		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
 			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
@@ -173,9 +170,9 @@ public class PhotoItemRadio extends RelativeLayout {
 			DebugLog.d("proceed approval checking ... ");
 			CheckApprovalHandler checkApprovalHandler = new CheckApprovalHandler(scheduleId);
 			APIHelper.getCheckApproval(context, checkApprovalHandler, scheduleId);
+			DebugLog.d("itemFormRenderModel.wargaId = " + itemFormRenderModel.getWargaId());
+			DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
 		}
-		DebugLog.d("itemFormRenderModel.wargaId = " + itemFormRenderModel.getWargaId());
-		DebugLog.d("itemFormRenderModel.barangId = " + itemFormRenderModel.getBarangId());
 	}
 
 	public void setItemValue(FormValueModel value, boolean initValue) {
@@ -232,10 +229,8 @@ public class PhotoItemRadio extends RelativeLayout {
 				value.operatorId = itemFormRenderModel.operatorId;
 
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
 					value.wargaId  = itemFormRenderModel.getWargaId();
 					value.barangId = itemFormRenderModel.getBarangId();
-
 				}
 			}
 		}
@@ -263,8 +258,7 @@ public class PhotoItemRadio extends RelativeLayout {
 				}
 
 				if (photoBmp != null) {
-
-					DebugLog.d("load decrypted image");
+					DebugLog.d("load image");
 					imageView.setImageBitmap(photoBmp);
 					progress.setVisibility(View.GONE);
 					photoRoot.setVisibility(View.VISIBLE);
@@ -277,12 +271,11 @@ public class PhotoItemRadio extends RelativeLayout {
 					}
 
 				} else {
-
 					// on loading failed
 					progress.setVisibility(View.GONE);
 					photoRoot.setVisibility(View.GONE);
 					noPicture.setVisibility(View.VISIBLE);
-
+					DebugLog.e(context.getString(R.string.failed_load_image));
 				}
 
 			}
@@ -466,26 +459,21 @@ public class PhotoItemRadio extends RelativeLayout {
 	};
 
 	public void deletePhoto(){
-
-		DebugLog.d( "delete photo");
-
 		if (value != null && !TextUtils.isEmpty(value.value)) {
-
-			File fileTemp=new File(value.value.replaceFirst("^file\\:\\/\\/", ""));
+			DebugLog.d("file to be deleted : " + value.value);
+			File fileTemp = new File(value.value.replaceFirst("^file\\:\\/\\/", ""));
 			if (fileTemp.exists()) {
-
 				try{
 					fileTemp.delete();
-					DebugLog.d( "file deleted : "+value.value);
+					DebugLog.d(context.getString(R.string.success_delete_file));
 				}catch(Exception e){
-					DebugLog.d( "file not deleted");
 					e.printStackTrace();
+					DebugLog.e(context.getString(R.string.failed_delete_file));
 				}
 				value.value = "";
 				value.uploadStatus = FormValueModel.UPLOAD_NONE;
 				save();
 				notifyDataChanged();
-				return;
 			}
 		}
 	}
@@ -496,14 +484,14 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	public void setImage(File photoPath, String latitude, String longitude,int accuracy){
 
+		DebugLog.d("set image from " + photoPath.toString());
+
 		initValue();
 
 		if (value == null) {
 			reset();
 			return;
 		}
-
-		DebugLog.d("image path : " + photoPath.toString());
 
 		// updating item value
 		value.value = photoPath.getPath();

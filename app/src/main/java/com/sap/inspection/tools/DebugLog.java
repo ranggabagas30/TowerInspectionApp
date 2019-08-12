@@ -55,13 +55,22 @@ public class DebugLog {
 	}
 
 	public static void e(String message){
+		e(message, null);
+	}
+
+	public static void e(String message, Throwable throwable) {
 		if (!isDebuggable())
 			return;
 
-		// Throwable instance must be created before any methods  
+		// Throwable instance must be created before any methods
 		getMethodNames(new Throwable().getStackTrace());
-		Log.e(className, createLog(message));
 		Crashlytics.log(Log.ERROR, className, createLog(message));
+		if (throwable != null) {
+			Log.e(className, createLog(message), throwable);
+			Crashlytics.logException(throwable);
+		} else {
+			Log.e(className, createLog(message));
+		}
 	}
 
 	public static void i(String message){
@@ -78,6 +87,7 @@ public class DebugLog {
 
 		getMethodNames(new Throwable().getStackTrace());
 		Log.d(className, createLog(message));
+		Crashlytics.log(Log.DEBUG, className, createLog(message));
 	}
 	
 	public static void v(String message){

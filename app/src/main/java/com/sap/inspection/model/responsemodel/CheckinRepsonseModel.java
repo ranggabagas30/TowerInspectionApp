@@ -1,7 +1,5 @@
 package com.sap.inspection.model.responsemodel;
 
-import android.os.Debug;
-
 import com.sap.inspection.tools.DebugLog;
 
 public class CheckinRepsonseModel extends BaseResponseModel {

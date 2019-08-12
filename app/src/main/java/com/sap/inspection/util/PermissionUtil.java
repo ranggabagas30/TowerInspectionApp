@@ -4,11 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 
-import com.sap.inspection.R;
-import com.sap.inspection.constant.Constants;
-
-import java.util.ArrayList;
-
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class PermissionUtil {

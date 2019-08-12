@@ -1,15 +1,15 @@
 package com.sap.inspection.dblisting;
 
-import java.util.Vector;
-
-import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.ScheduleGeneral;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.AsyncTaskLoader;
+
+import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
+
+import java.util.Vector;
 
 public class ScheduleListing extends AsyncTaskLoader<Vector<ScheduleBaseModel>>{
 
