@@ -23,7 +23,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:enabled="false"
             android:text="copy db"
             android:visibility="invisible"/>
 
@@ -152,7 +151,6 @@
                 android:layout_marginLeft="@dimen/padding_large"
                 android:layout_marginRight="@dimen/padding_large"
                 android:layout_marginTop="@dimen/padding_large"
-                android:enabled="false"
                 android:background="@drawable/bg_button_plain_blue"
                 android:text="@string/signin"
                 android:textColor="@android:color/white" />
@@ -173,7 +171,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/padding_large"
-                android:enabled="false"
                 android:background="@drawable/selector_button_green_small_padding"
                 android:text="Update Now"
                 android:textColor="@android:color/white"

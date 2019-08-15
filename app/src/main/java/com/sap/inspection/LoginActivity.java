@@ -56,6 +56,13 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	private CheckBox cbKeep;
 	private LoginLogModel loginLogModel;
 	private View developmentLayout;
+	private ACTION_AFTER_GRANTED ACTION = ACTION_AFTER_GRANTED.NONE;
+	private enum ACTION_AFTER_GRANTED {
+		NONE,
+		LOGIN,
+		UPDATE,
+		COPYDB
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -96,9 +103,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 
 		if (!PermissionUtil.hasAllPermissions(this))
 			requestAllPermissions();
-		else
-		    permissionGranted();
-
 	}
 
 	/** Ensure that Location GPS and Location Networkf had been enabled when app is resumed **/
@@ -211,14 +215,19 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	}
 
 	private void permissionGranted() {
-		DebugLog.d("permission granted");
-		Toast.makeText(LoginActivity.this, this.getString(R.string.success_permissions_granted), Toast.LENGTH_SHORT).show();
-		login.setEnabled(true);
+		switch (ACTION) {
+			case LOGIN: login(); break;
+			case UPDATE: updateAPK(); break;
+			case COPYDB: copyDB(); break;
+			case NONE: DebugLog.d("permission granted");
+				Toast.makeText(LoginActivity.this, this.getString(R.string.success_permissions_granted), Toast.LENGTH_SHORT).show(); break;
+		}
+		/*login.setEnabled(true);
 		update.setEnabled(true);
-		copy.setEnabled(true);
+		copy.setEnabled(true);*/
 	}
 
-	private void doLogin() {
+	private void login() {
 		DebugLog.d("user_login");
 		trackEvent("user_login");
 		UserModel userModel = new UserModel();
@@ -251,6 +260,11 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 		}
 	}
 
+	private void copyDB() {
+		FileUtil.copyDB(this, getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
+		FileUtil.copyDB(this, getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
+	}
+
 	/**
 	 *
 	 * EVENT CLICK LISTENERS
@@ -262,13 +276,29 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	};
 
 	OnClickListener copyClickListener = view -> {
-		FileUtil.copyDB(this, getPreference(R.string.user_id, "")+"_"+DbManagerValue.dbName, "value.db");
-		FileUtil.copyDB(this, getPreference(R.string.user_id, "")+"_"+DbManager.dbName,"general.db");
+		ACTION = ACTION_AFTER_GRANTED.COPYDB;
+		if (!PermissionUtil.hasAllPermissions(this))
+			requestAllPermissions();
+		else
+			copyDB();
 	};
 
-	OnClickListener loginClickListener = view -> doLogin();
+	OnClickListener loginClickListener = view -> {
+		ACTION = ACTION_AFTER_GRANTED.LOGIN;
+		if (!PermissionUtil.hasAllPermissions(this))
+			requestAllPermissions();
+		else
+			login();
+	};
+
+	OnClickListener updateClickListener = view -> {
+		ACTION = ACTION_AFTER_GRANTED.UPDATE;
+		if (!PermissionUtil.hasAllPermissions(this))
+			requestAllPermissions();
+		else
+			updateAPK();
+	};
 
 	OnCheckedChangeListener cbKeepClickListener = (compoundButton, b) -> DebugLog.d("checked="+b);
 
-	OnClickListener updateClickListener = view -> updateAPK();
 }
