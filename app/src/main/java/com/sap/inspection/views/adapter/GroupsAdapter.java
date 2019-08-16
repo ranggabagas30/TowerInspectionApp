@@ -14,10 +14,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.sap.inspection.BaseActivity;
+import com.sap.inspection.view.ui.BaseActivity;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.GroupActivity;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.GroupActivity;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -25,13 +25,13 @@ import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
-import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.DeleteWargaAndBarangDialog;
+import com.sap.inspection.view.dialog.DeleteWargaAndBarangDialog;
 import com.sap.inspection.util.StringUtil;
 
 import java.util.ArrayList;
@@ -40,8 +40,8 @@ import java.util.Vector;
 public class GroupsAdapter extends MyBaseAdapter {
 
 	private Context context;
-	private RowModel groupItems;
-	private Vector<RowModel> shown;
+	private WorkFormRowModel groupItems;
+	private Vector<WorkFormRowModel> shown;
 	private String scheduleId;
 	private String workTypeName;
     private int positionAncestry;
@@ -50,9 +50,9 @@ public class GroupsAdapter extends MyBaseAdapter {
 	public GroupsAdapter(Context context) {
 		this.context = context;
 		if (null == groupItems)
-			groupItems = new RowModel();
+			groupItems = new WorkFormRowModel();
 		if (null == shown)
-			shown = new Vector<RowModel>();
+			shown = new Vector<WorkFormRowModel>();
 	}
 
 	public void setScheduleId(String scheduleId) {
@@ -68,22 +68,22 @@ public class GroupsAdapter extends MyBaseAdapter {
 		this.workTypeName = workTypeName;
 	}
 
-	public void setItems(RowModel groupItems){
+	public void setItems(WorkFormRowModel groupItems){
 		this.groupItems = groupItems;
 		DebugLog.d("groupItems size : " + groupItems.children.size());
 		notifyDataSetChanged();
 	}
 
-	public void removeItem(RowModel removeItem) {
+	public void removeItem(WorkFormRowModel removeItem) {
 
-    	RowModel newGroupItems = groupItems;
-		Vector<RowModel> dummyGroupItems = new Vector<>();
+    	WorkFormRowModel newGroupItems = groupItems;
+		Vector<WorkFormRowModel> dummyGroupItems = new Vector<>();
 
     	DebugLog.d("initial new row items size = " + newGroupItems.children.size());
 		DebugLog.d("shown size = " + shown.size());
 
 		DebugLog.d("\n\n === start iterating === ");
-		for (RowModel groupItem : newGroupItems.children) { // prefer using newGroupItems.children not groupItems.children
+		for (WorkFormRowModel groupItem : newGroupItems.children) { // prefer using newGroupItems.children not groupItems.children
 														// avoid ConcurrentModificationException while looping over Java ArrayList
 
 			DebugLog.d("nav label : " + groupItem.text);
@@ -91,8 +91,8 @@ public class GroupsAdapter extends MyBaseAdapter {
 
 				if (groupItem.children != null && !groupItem.children.isEmpty()) {
 
-					Vector<RowModel> subGroupItems = new Vector<>();
-					for (RowModel subGroupItem : groupItem.children) {
+					Vector<WorkFormRowModel> subGroupItems = new Vector<>();
+					for (WorkFormRowModel subGroupItem : groupItem.children) {
 
 						DebugLog.d("== sub nav label : " + subGroupItem.text);
 						if (!subGroupItem.text.equalsIgnoreCase(removeItem.text)) {
@@ -128,7 +128,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 		DebugLog.d("shown size = "+shown.size());
 
         int position = 0;
-        for (RowModel groupItem : shown) {
+        for (WorkFormRowModel groupItem : shown) {
 
 			DebugLog.d("id : " + groupItem.id);
 			DebugLog.d("workFormGroupId : " + groupItem.work_form_group_id);
@@ -138,7 +138,7 @@ public class GroupsAdapter extends MyBaseAdapter {
             if (groupItem.children != null) {
                 DebugLog.d("children size : " + groupItem.children.size());
                 int childPosition = 0;
-                for (RowModel child : groupItem.children) {
+                for (WorkFormRowModel child : groupItem.children) {
                     DebugLog.d("--- child id : " + child.id);
 					DebugLog.d("--- child workFormGroupId : " + child.work_form_group_id);
                     DebugLog.d("--- child name : " + child.text);
@@ -176,7 +176,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 	}
 
 	@Override
-	public RowModel getItem(int position) {
+	public WorkFormRowModel getItem(int position) {
 		return shown.get(position);
 	}
 
@@ -184,7 +184,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		View view = convertView;
 		final ViewHolder holder;
-		RowModel groupItem = getItem(position);
+		WorkFormRowModel groupItem = getItem(position);
 		DebugLog.d(groupItem.ancestry+"/"+groupItem.id+" | "+groupItem.text);
 
 		if (convertView == null) {
@@ -270,7 +270,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 
                     int position = (int) v.getTag();
 
-                    RowModel groupItem = getItem(position);
+                    WorkFormRowModel groupItem = getItem(position);
 
 					String scheduleId = getScheduleId();
 					int workFormGroupId = groupItem.work_form_group_id;
@@ -299,14 +299,14 @@ public class GroupsAdapter extends MyBaseAdapter {
 
 	OnClickListener removeSubGroupItemsClickListener = v -> {
 
-		RowModel removedGroupRow = (RowModel) v.getTag();
+		WorkFormRowModel removedGroupRow = (WorkFormRowModel) v.getTag();
 		showConfirmDeleteWargaDialog(removedGroupRow);
 
 	};
 
 	private void itemClickAction(int position) {
 
-		RowModel groupItem = getItem(position);
+		WorkFormRowModel groupItem = getItem(position);
 
 		if (groupItem.id == 0) {
 			positionAncestry = position;
@@ -409,7 +409,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 	}
 
 	@SuppressLint("HandlerLeak")
-	private void showConfirmDeleteWargaDialog(RowModel removedWargaItem) {
+	private void showConfirmDeleteWargaDialog(WorkFormRowModel removedWargaItem) {
 
 		DebugLog.d("remove item with id " + removedWargaItem.id + " and label " + removedWargaItem.text);
 
@@ -461,7 +461,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 	}
 
 	private void toggleExpand(int position){
-		RowModel groupItem = getItem(position);
+		WorkFormRowModel groupItem = getItem(position);
 		if (groupItem.isOpen){
 			groupItem.isOpen = false;
 			DebugLog.d("closed");

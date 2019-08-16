@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.sap.inspection.FormFillActivity;
+import com.sap.inspection.view.ui.FormFillActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.Vector;
@@ -21,8 +21,8 @@ import java.util.Vector;
 public class NavigationAdapterByOperator extends MyBaseAdapter {
 
 	private Context context;
-	private RowModel model;
-	private Vector<RowModel> shown;
+	private WorkFormRowModel model;
+	private Vector<WorkFormRowModel> shown;
 	private ScheduleBaseModel scheduleModel;
 	private String workFormGroupId;
 	
@@ -37,12 +37,12 @@ public class NavigationAdapterByOperator extends MyBaseAdapter {
 	public NavigationAdapterByOperator(Context context) {
 		this.context = context;
 		if (null == model)
-			model = new RowModel();
+			model = new WorkFormRowModel();
 		if (null == shown)
-			shown = new Vector<RowModel>();
+			shown = new Vector<WorkFormRowModel>();
 	}
 
-	public void setItems(RowModel model){
+	public void setItems(WorkFormRowModel model){
 		this.model = model;
 		notifyDataSetChanged();
 	}
@@ -74,7 +74,7 @@ public class NavigationAdapterByOperator extends MyBaseAdapter {
 	}
 
 	@Override
-	public RowModel getItem(int position) {
+	public WorkFormRowModel getItem(int position) {
 		return shown.get(position);
 	}
 

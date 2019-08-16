@@ -11,8 +11,6 @@ import android.widget.Toast;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.DeleteAllDataDialog;
-import com.sap.inspection.tools.DeleteAllSchedulesDialog;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 

@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.sap.inspection.FormFillActivity;
+import com.sap.inspection.view.ui.FormFillActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ScheduleBaseModel;

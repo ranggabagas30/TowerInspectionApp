@@ -56,6 +56,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>-->
         </activity>
+
         <activity android:name=".view.ui.GroupWargaActivity" />
 
         <provider
@@ -85,13 +86,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".view.ui.MainActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.ui.GroupActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".FormFillActivity"
+            android:name=".view.ui.FormFillActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
@@ -104,20 +105,8 @@
         <activity
             android:name=".view.ui.SettingActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" /> <!-- Needed for push notification -->
-        <!--
-<receiver
-            android:name="com.rindang.pushnotification.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+            android:screenOrientation="portrait" />
 
-                <category android:name="com.sap.inspection" />
-            </intent-filter>
-        </receiver>
-        -->
-        <!-- <service android:name="com.rindang.pushnotification.GcmIntentService" /> -->
         <uses-library android:name="com.google.android.maps" />
 
         <meta-data

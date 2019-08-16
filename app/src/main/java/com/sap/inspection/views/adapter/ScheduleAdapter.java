@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
@@ -21,6 +20,7 @@ import com.sap.inspection.manager.AsyncDeleteAllFiles;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.view.dialog.DialogUtil;
 
 import java.util.Vector;

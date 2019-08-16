@@ -1,4 +1,4 @@
-package com.sap.inspection;
+package com.sap.inspection.view.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,12 +7,10 @@ import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
+import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.view.ui.BaseActivity;
-import com.sap.inspection.view.ui.MyApplication;
-import com.sap.inspection.view.ui.SettingActivity;
 import com.sap.inspection.view.ui.fragments.ScheduleFragment;
 import com.slidinglayer.SlidingLayer;
 

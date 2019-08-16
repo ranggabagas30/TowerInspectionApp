@@ -3,7 +3,7 @@ package com.sap.inspection.task;
 import android.app.Activity;
 import android.os.AsyncTask;
 
-import com.sap.inspection.MainActivity;
+import com.sap.inspection.view.ui.MainActivity;
 import com.sap.inspection.view.ui.SettingActivity;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;

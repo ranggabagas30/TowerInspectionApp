@@ -15,8 +15,8 @@ import com.sap.inspection.R;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.view.FormInputText;
-import com.sap.inspection.view.PhotoItemRadio;
+import com.sap.inspection.view.customview.FormInputText;
+import com.sap.inspection.view.customview.PhotoItemRadio;
 
 import java.util.ArrayList;
 

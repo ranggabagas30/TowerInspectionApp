@@ -22,7 +22,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.rindang.pushnotification.notificationchannel.DefaultNotificationChannel;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MainActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.listener.ActivityLifecycleHandler;

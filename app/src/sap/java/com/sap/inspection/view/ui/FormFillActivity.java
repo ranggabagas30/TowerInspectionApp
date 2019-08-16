@@ -1,4 +1,4 @@
-package com.sap.inspection;
+package com.sap.inspection.view.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +40,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.sap.inspection.BuildConfig;
+import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -64,9 +66,6 @@ import com.sap.inspection.view.customview.FormItem;
 import com.sap.inspection.view.customview.PhotoItemRadio;
 import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.view.adapter.FormFillAdapter;
-import com.sap.inspection.view.ui.BaseActivity;
-import com.sap.inspection.view.ui.MyApplication;
-import com.sap.inspection.view.ui.SettingActivity;
 
 import java.io.File;
 import java.io.IOException;

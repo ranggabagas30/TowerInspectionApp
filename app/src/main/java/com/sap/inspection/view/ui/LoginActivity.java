@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.rindang.zconfig.AppConfig;
-import com.sap.inspection.MainActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;

@@ -172,6 +172,7 @@ public class WorkFormItemModel extends BaseModel {
 		 WorkFormItemModel formitem;
 
 		 int workFormItemId  = Integer.valueOf(item_id);
+		 int workFormGroupId = Integer.valueOf(group_id);
 
 		 formitem = getWorkFormItemById(workFormItemId, workFormGroupId);
 
@@ -209,8 +210,6 @@ public class WorkFormItemModel extends BaseModel {
 	}
 
 	public Vector<WorkFormItemModel> getAllItemByWorkFormRowColumnId(Context context, int workFormRowColumnId) {
-
-
 		Vector<WorkFormItemModel> result = getAllItemByWorkFormRowColumnId(workFormRowColumnId);
 		return result;
 	}
@@ -393,32 +392,6 @@ public class WorkFormItemModel extends BaseModel {
 		return WorkFormOptionsModel.getAllItemByWorkFormItemId(workFormItemId);
 
 	}
-
-	//	public Vector<WorkFormItemModel> getAllItemByWorkFormId(Context context, String workFormId) {
-	//
-	//		DbRepository.getInstance().open(context);
-	//		Vector<WorkFormItemModel> result = new Vector<WorkFormItemModel>();
-	//
-	//		String table = DbManager.mWorkFormItem;
-	//		String[] columns = null;
-	//		String where =DbManager.colWorkFormGroupId + "=?";
-	//		String[] args = new String[] {workFormId};
-	//		String order = DbManager.colPosition+" ASC";
-	//		Cursor cursor;
-	//
-	//		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
-	//
-	//		if (!cursor.moveToFirst())
-	//			return result;
-	//		do {
-	//			result.add(getItemFromCursor(cursor));
-	//		} while(cursor.moveToNext());
-	//
-	//		cursor.close();
-	//		DbRepository.getInstance().close();
-	//
-	//		return result;
-	//	}
 
 	private static WorkFormItemModel getItemFromCursor(Cursor c) {
 		WorkFormItemModel item= new WorkFormItemModel();

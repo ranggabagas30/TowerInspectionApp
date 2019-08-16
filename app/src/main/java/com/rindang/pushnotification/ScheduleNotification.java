@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.sap.inspection.MainActivity;
+import com.sap.inspection.view.ui.MainActivity;
 import com.sap.inspection.R;
 
 public class ScheduleNotification extends BaseNotification {
