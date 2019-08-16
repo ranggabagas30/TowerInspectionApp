@@ -67,9 +67,9 @@ public class FormFillAdapter extends MyBaseAdapter {
 	public FormFillAdapter(Context context) {
 		this.context = context;
 		if (null == models)
-			models = new ArrayList<ItemFormRenderModel>();
+			models = new ArrayList<>();
 		if (null == shown)
-			shown = new ArrayList<ItemFormRenderModel>();
+			shown = new ArrayList<>();
 		if (null == itemFormRender)
 			itemFormRender = new ItemFormRenderModel();
 	}
