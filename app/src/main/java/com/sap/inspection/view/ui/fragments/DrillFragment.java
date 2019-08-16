@@ -8,7 +8,7 @@ import android.widget.AbsListView.LayoutParams;
 
 import com.sap.inspection.R;
 import com.sap.inspection.listener.GroupActivityListener;
-import com.sap.inspection.views.adapter.DrillAdapter;
+import com.sap.inspection.view.adapter.DrillAdapter;
 
 public class DrillFragment extends BaseListTitleFragment{
 	private DrillAdapter adapter;

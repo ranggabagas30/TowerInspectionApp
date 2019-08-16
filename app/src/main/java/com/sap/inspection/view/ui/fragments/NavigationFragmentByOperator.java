@@ -15,15 +15,15 @@
 //import com.sap.inspection.R;
 //import com.sap.inspection.listener.GroupActivityListener;
 //import com.sap.inspection.model.ScheduleBaseModel;
-//import com.sap.inspection.model.form.RowModel;
-//import com.sap.inspection.views.adapter.GroupsAdapter;
+//import com.sap.inspection.model.form.WorkFormRowModel;
+//import com.sap.inspection.view.adapter.GroupsAdapter;
 //
 //public class NavigationFragmentByOperator extends BaseFragment{
 //	private GroupsAdapter adapter;
 //	private ListView list;
 //	private View back, mainmenu;
 //	private TextView title, subTitle;
-//	private RowModel groupRowItems;
+//	private WorkFormRowModel groupRowItems;
 //	private ScheduleBaseModel scheduleModel;
 //	private String workFormGroupId;
 //	
@@ -75,7 +75,7 @@
 //		this.backPressedListener = backPressedListener;
 //	}
 //	
-//	public void setGroupItems(RowModel navigationModel) {
+//	public void setGroupItems(WorkFormRowModel navigationModel) {
 //		this.navigationModel = navigationModel;
 //	}
 //	

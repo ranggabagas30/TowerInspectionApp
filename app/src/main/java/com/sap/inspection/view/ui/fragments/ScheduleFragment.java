@@ -13,10 +13,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.sap.inspection.BaseActivity;
-import com.sap.inspection.CallendarActivity;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.CallendarActivity;
 import com.sap.inspection.MainActivity;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -31,7 +31,7 @@ import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.PrefUtil;
-import com.sap.inspection.views.adapter.ScheduleAdapter;
+import com.sap.inspection.view.adapter.ScheduleAdapter;
 
 import java.util.Vector;
 

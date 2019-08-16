@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 
 public class LoginLogModel extends BaseModel {
 

@@ -10,16 +10,16 @@ import android.widget.TextView;
 import com.sap.inspection.R;
 import com.sap.inspection.listener.GroupActivityListener;
 import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.views.adapter.GroupsAdapter;
+import com.sap.inspection.view.adapter.GroupsAdapter;
 
 public class GroupFragment extends BaseFragment {
 	private GroupsAdapter adapter;
 	private ListView list;
 	private View back, mainmenu;
 	private TextView title, subTitle;
-	private RowModel groupItems;
+	private WorkFormRowModel groupItems;
 	private ScheduleBaseModel schedule;
     private String workTypeName;
 
@@ -68,7 +68,7 @@ public class GroupFragment extends BaseFragment {
 		this.backPressedListener = backPressedListener;
 	}
 	
-	public void setGroupItems(RowModel groupItems) {
+	public void setGroupItems(WorkFormRowModel groupItems) {
 		this.groupItems = groupItems;
 	}
 
@@ -76,7 +76,7 @@ public class GroupFragment extends BaseFragment {
 	    this.workTypeName = workTypeName;
     }
 
-    public void setItems(RowModel groupItems) {
+    public void setItems(WorkFormRowModel groupItems) {
 		adapter.setItems(groupItems);
 	}
 	public void refreshItems() {

@@ -8,14 +8,14 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
-import com.sap.inspection.CallendarActivity;
-import com.sap.inspection.GroupActivity;
+import com.sap.inspection.view.ui.CallendarActivity;
+import com.sap.inspection.view.ui.GroupActivity;
 import com.sap.inspection.MainActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
-import com.sap.inspection.views.adapter.ScheduleAdapter;
+import com.sap.inspection.view.adapter.ScheduleAdapter;
 
 import java.util.Vector;
 
