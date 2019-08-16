@@ -38,10 +38,8 @@ public class ScreenManager {
 	}
 
 	public Boolean isPotrait() {
-		if (scrHeight > scrWidth)
-			return true;
-		return false;
-	}
+        return scrHeight > scrWidth;
+    }
 
 	public int getMin() {
 		return Math.min(scrHeight, scrWidth);

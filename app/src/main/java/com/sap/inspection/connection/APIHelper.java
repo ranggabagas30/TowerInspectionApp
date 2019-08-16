@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.tools.DebugLog;

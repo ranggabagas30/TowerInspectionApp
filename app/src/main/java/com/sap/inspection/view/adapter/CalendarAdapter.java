@@ -48,10 +48,10 @@ public class CalendarAdapter extends MyBaseAdapter {
 		if (convertView == null) {
 			holder = new ViewHolder();
 				view = LayoutInflater.from(context).inflate(R.layout.item_calendar,null);
-				holder.month = (TextView) view.findViewById(R.id.item_calendar_month);
-				holder.task = (TextView) view.findViewById(R.id.item_calendar_task);
-				holder.day = (TextView) view.findViewById(R.id.item_calendar_day);
-				holder.dayPhrase = (TextView) view.findViewById(R.id.item_calendar_day_phrase);
+				holder.month = view.findViewById(R.id.item_calendar_month);
+				holder.task = view.findViewById(R.id.item_calendar_task);
+				holder.day = view.findViewById(R.id.item_calendar_day);
+				holder.dayPhrase = view.findViewById(R.id.item_calendar_day_phrase);
 			view.setTag(holder);
 		} else
 			holder = (ViewHolder) view.getTag();

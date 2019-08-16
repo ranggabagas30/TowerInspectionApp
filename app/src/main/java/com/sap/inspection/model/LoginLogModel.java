@@ -23,9 +23,10 @@ public class LoginLogModel extends BaseModel {
 	 * Standard basic constructor for non-parcel
 	 * object creation
 	 */
-	public LoginLogModel() { ; };
+	public LoginLogModel() {
+    }
 
-	/**
+    /**
 	 *
 	 * Constructor to use when re-constructing object
 	 * from a parcel

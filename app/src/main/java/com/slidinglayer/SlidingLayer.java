@@ -481,12 +481,8 @@ public class SlidingLayer extends FrameLayout {
 
         final int action = ev.getAction();
 
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL
-                || action == MotionEvent.ACTION_OUTSIDE) {
-            mLastTouchAllowed = false;
-        } else {
-            mLastTouchAllowed = true;
-        }
+        mLastTouchAllowed = action != MotionEvent.ACTION_UP && action != MotionEvent.ACTION_CANCEL
+                && action != MotionEvent.ACTION_OUTSIDE;
 
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
@@ -1230,24 +1226,24 @@ public class SlidingLayer extends FrameLayout {
     	 * This method is called when an attempt is made to open the current <code>SlidingLayer</code>. Note
     	 * that because of animation, the <code>SlidingLayer</code> may not be visible yet. 
     	 */
-        public void onOpen();
+        void onOpen();
         
         /**
         * This method is called when an attempt is made to close the current <code>SlidingLayer</code>. Note
     	* that because of animation, the <code>SlidingLayer</code> may still be visible. 
     	*/
-        public void onClose();
+        void onClose();
 
         /**
          * this method is executed after <code>onOpen()</code>, when the animation has finished. 
          */
-        public void onOpened();
+        void onOpened();
 
         /**
          * this method is executed after <code>onClose()</code>, when the animation has finished and the  <code>SlidingLayer</code> is
          * therefore no longer visible. 
          */
-        public void onClosed();
+        void onClosed();
 
     }
 

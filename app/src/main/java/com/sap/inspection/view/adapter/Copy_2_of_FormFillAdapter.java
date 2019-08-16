@@ -92,44 +92,44 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 			switch (getItemViewType(position)) {
 			case ItemFormRenderModel.TYPE_CHECKBOX:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_checkbox,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
-				holder.checkBox = (LinearLayout) view.findViewById(R.id.item_form_check);
+				holder.label = view.findViewById(R.id.item_form_label);
+				holder.checkBox = view.findViewById(R.id.item_form_check);
 				break;
 			case ItemFormRenderModel.TYPE_COLUMN:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_column,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
+				holder.label = view.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_HEADER:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_header,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
-				holder.colored = (TextView) view.findViewById(R.id.item_form_colored);
-				holder.plain = (TextView) view.findViewById(R.id.item_form_plain);
+				holder.label = view.findViewById(R.id.item_form_label);
+				holder.colored = view.findViewById(R.id.item_form_colored);
+				holder.plain = view.findViewById(R.id.item_form_plain);
 				break;
 			case ItemFormRenderModel.TYPE_LABEL:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_label,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
+				holder.label = view.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_LINE_DEVIDER:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_line_devider,null);
 				break;
 			case ItemFormRenderModel.TYPE_OPERATOR:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_operator,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
+				holder.label = view.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE_RADIO:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_photo_radio,null);
-				holder.photo = (PhotoItemRadio) view.findViewById(R.id.item_form_photo);
+				holder.photo = view.findViewById(R.id.item_form_photo);
 				break;
 			case ItemFormRenderModel.TYPE_RADIO:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_radio,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
-				holder.radio = (RadioGroup) view.findViewById(R.id.item_form_radio);
+				holder.label = view.findViewById(R.id.item_form_label);
+				holder.radio = view.findViewById(R.id.item_form_radio);
 				break;
 			case ItemFormRenderModel.TYPE_TEXT_INPUT:
 				view = LayoutInflater.from(context).inflate(R.layout.item_form_text_field,null);
-				holder.label = (TextView) view.findViewById(R.id.item_form_label);
-				holder.description = (TextView) view.findViewById(R.id.item_form_description);
-				holder.input = (FormInputText) view.findViewById(R.id.item_form_input);
+				holder.label = view.findViewById(R.id.item_form_label);
+				holder.description = view.findViewById(R.id.item_form_description);
+				holder.input = view.findViewById(R.id.item_form_input);
 				break;
 			default:
 				DebugLog.d("============== get default view : "+getItemViewType(position));
@@ -170,9 +170,9 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 		case ItemFormRenderModel.TYPE_TEXT_INPUT:
 			holder.label.setText(getItem(position).workItemModel.label);
 			if(getItem(position).workItemModel.description == null)
-				holder.description.setVisibility(view.GONE);
+				holder.description.setVisibility(View.GONE);
 			else{
-				holder.description.setVisibility(view.VISIBLE);
+				holder.description.setVisibility(View.VISIBLE);
 				holder.description.setText(getItem(position).workItemModel.description);
 			}
 			if (getItem(position).itemValue != null)

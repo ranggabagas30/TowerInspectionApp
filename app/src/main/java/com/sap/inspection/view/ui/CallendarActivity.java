@@ -63,7 +63,7 @@ public class CallendarActivity extends BaseActivity implements OnGridItemClickLi
 			break;
 		}
 
-		listView = (ListView) findViewById(R.id.listview);
+		listView = findViewById(R.id.listview);
 		listView.getViewTreeObserver().addOnGlobalLayoutListener(
 				new OnGlobalLayoutListener() {
 

@@ -128,18 +128,18 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        mScrollViewCheckin      = (ScrollView) findViewById(R.id.scollviewcheckin);
-        mBtnCheckin             = (Button) findViewById(R.id.buttoncheckin);
-        mSiteIDCustomer         = (FormInputText) findViewById(R.id.input_text_siteid_stp);
-        mSiteName               = (FormInputText) findViewById(R.id.input_text_site_name);
-        mPMPeriod               = (FormInputText) findViewById(R.id.input_text_pmperiod);
-        mSiteLat                = (FormInputText) findViewById(R.id.input_text_site_latitude);
-        mSiteLong               = (FormInputText) findViewById(R.id.input_text_site_longitude);
-        mCurrentLat             = (FormInputText) findViewById(R.id.input_text_current_latitude);
-        mCurrentLong            = (FormInputText) findViewById(R.id.input_text_current_longitude);
-        mDistanceToSite         = (FormInputText) findViewById(R.id.input_text_distance_to_site);
-        mGPSAccuracy            = (FormInputText) findViewById(R.id.input_text_gps_accuracy);
-        mCheckinCriteria        = (TextView)      findViewById(R.id.textcheckincriteria);
+        mScrollViewCheckin      = findViewById(R.id.scollviewcheckin);
+        mBtnCheckin             = findViewById(R.id.buttoncheckin);
+        mSiteIDCustomer         = findViewById(R.id.input_text_siteid_stp);
+        mSiteName               = findViewById(R.id.input_text_site_name);
+        mPMPeriod               = findViewById(R.id.input_text_pmperiod);
+        mSiteLat                = findViewById(R.id.input_text_site_latitude);
+        mSiteLong               = findViewById(R.id.input_text_site_longitude);
+        mCurrentLat             = findViewById(R.id.input_text_current_latitude);
+        mCurrentLong            = findViewById(R.id.input_text_current_longitude);
+        mDistanceToSite         = findViewById(R.id.input_text_distance_to_site);
+        mGPSAccuracy            = findViewById(R.id.input_text_gps_accuracy);
+        mCheckinCriteria        = findViewById(R.id.textcheckincriteria);
 
         /* disable components while retrieving location data */
         mBtnCheckin.setEnabled(true);
@@ -417,7 +417,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mSiteLong.setText(mParamObject.getSiteLong());
         mCurrentLat.setText(mParamObject.getCurrentLat());
         mCurrentLong.setText(mParamObject.getCurrentLong());
-        mDistanceToSite.setText(String.valueOf(mParamObject.getDistance()) + " meters");
+        mDistanceToSite.setText(mParamObject.getDistance() + " meters");
         mGPSAccuracy.setText(String.valueOf(mAccuracy));
         mGPSAccuracy.requestFocus();
     }
@@ -507,13 +507,9 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         DebugLog.d("status : " + saveCheckinResponse.status);
         DebugLog.d("status_code : " + saveCheckinResponse.status_code);
 
-        if (saveCheckinResponse.status == 201 || saveCheckinResponse.status == 200) {
-            //MyApplication.getInstance().toast("post data check in berhasil", Toast.LENGTH_LONG);
-            return true;
-        } else {
-            //MyApplication.getInstance().toast("post data check in gagal", Toast.LENGTH_LONG);
-            return false;
-        }
+        //MyApplication.getInstance().toast("post data check in berhasil", Toast.LENGTH_LONG);
+//MyApplication.getInstance().toast("post data check in gagal", Toast.LENGTH_LONG);
+        return saveCheckinResponse.status == 201 || saveCheckinResponse.status == 200;
     }
 
     private class CheckinBackgroundTask extends AsyncTask<Void, String, Void> {

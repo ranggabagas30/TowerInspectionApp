@@ -43,20 +43,20 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
-        android:name=".MyApplication"
+        android:name=".view.ui.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/logo_app"
         android:label="@string/app_name"
         android:theme="@style/TowerAppTheme"
         tools:replace="android:theme">
-        <activity android:name=".views.adapter.Dummy2Activity">
+        <activity android:name=".view.adapter.Dummy2Activity">
             <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>-->
         </activity>
-        <activity android:name=".GroupWargaActivity" />
+        <activity android:name=".view.ui.GroupWargaActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -75,7 +75,7 @@
         </service>
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".view.ui.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -88,7 +88,7 @@
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".GroupActivity"
+            android:name=".view.ui.GroupActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".FormFillActivity"
@@ -96,13 +96,13 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".CallendarActivity"
+            android:name=".view.ui.CallendarActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".UpdateActivity"
+            android:name=".view.ui.UpdateActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".SettingActivity"
+            android:name=".view.ui.SettingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" /> <!-- Needed for push notification -->
         <!--
@@ -131,7 +131,7 @@
             android:resource="@xml/global_tracker" />
 
         <activity
-            android:name=".CheckInActivity"
+            android:name=".view.ui.CheckInActivity"
             android:windowSoftInputMode="stateHidden" />
     </application>
 

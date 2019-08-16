@@ -10,7 +10,7 @@ import java.util.Vector;
 public class TableModel extends BaseModel {
 
 	public Vector<ColumnModel> headers;
-	public Vector<RowModel> rows;
+	public Vector<WorkFormRowModel> rows;
 
 	@Override
 	public int describeContents() {
@@ -35,7 +35,7 @@ public class TableModel extends BaseModel {
 			}
 
 		if (rows != null)
-			for (RowModel row : rows) {
+			for (WorkFormRowModel row : rows) {
 				row.save();
 			}
 	}
@@ -43,7 +43,7 @@ public class TableModel extends BaseModel {
 	public int getInputCount(){
 		int count = 0;
 		if (rows != null)
-			for (RowModel row : rows) {
+			for (WorkFormRowModel row : rows) {
 				count += row.getInputCount();
 			}
 		return count;

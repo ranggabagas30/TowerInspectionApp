@@ -99,9 +99,9 @@ public class NavigationAdapterByOperator extends MyBaseAdapter {
 				DebugLog.d("============== get default view : "+getItemViewType(position));
 				break;
 			}
-			holder.expandCollapse = (ImageView) view.findViewById(R.id.expandCollapse);
+			holder.expandCollapse = view.findViewById(R.id.expandCollapse);
 			holder.expandCollapse.setOnClickListener(expandCollapseListener);
-			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.title = view.findViewById(R.id.title);
 			holder.title.setOnClickListener(ItemClickListener);
 			view.setTag(holder);
 		} else

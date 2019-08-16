@@ -86,18 +86,18 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			switch (getItemViewType(position)) {
 			case 0:
 				view = LayoutInflater.from(context).inflate(R.layout.item_schedule_separator,null);
-				holder.title = (TextView) view.findViewById(R.id.item_schedule_title);
+				holder.title = view.findViewById(R.id.item_schedule_title);
 				break;
 
 			case 1:
 				view = LayoutInflater.from(context).inflate(R.layout.item_schedule,null);
-				holder.percent = (TextView) view.findViewById(R.id.item_schedule_percent);
+				holder.percent = view.findViewById(R.id.item_schedule_percent);
 				holder.percent.setTypeface(null, Typeface.BOLD);
-				holder.status = (TextView) view.findViewById(R.id.item_schedule_status);
+				holder.status = view.findViewById(R.id.item_schedule_status);
 				holder.statusLayout = view.findViewById(R.id.item_schedule_statuslayout);
-				holder.title = (TextView) view.findViewById(R.id.item_schedule_title);
-				holder.task = (TextView) view.findViewById(R.id.item_schedule_task);
-				holder.place = (TextView) view.findViewById(R.id.item_schedule_place);
+				holder.title = view.findViewById(R.id.item_schedule_title);
+				holder.task = view.findViewById(R.id.item_schedule_task);
+				holder.place = view.findViewById(R.id.item_schedule_place);
 				holder.upload = view.findViewById(R.id.item_schedule_upload);
 				holder.upload.setOnClickListener(upload);
 				holder.deleteAndUpdateSchedule = view.findViewById(R.id.item_schedule_delete);

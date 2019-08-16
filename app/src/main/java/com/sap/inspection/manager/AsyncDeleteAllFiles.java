@@ -61,7 +61,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 		WorkTypeModel.delete(MyApplication.getInstance());
 		WorkFormModel.delete(MyApplication.getInstance());
 		WorkFormGroupModel.delete(MyApplication.getInstance());
-		RowModel.delete(MyApplication.getInstance());
+		WorkFormRowModel.delete(MyApplication.getInstance());
 		ColumnModel.delete(MyApplication.getInstance());
 		RowColumnModel.delete(MyApplication.getInstance());
 		WorkFormItemModel.delete(MyApplication.getInstance());

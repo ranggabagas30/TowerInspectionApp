@@ -22,7 +22,7 @@ public class DeleteAllSchedulesDialog {
 	public Context context;
 
 	public DeleteAllSchedulesDialog(Context prompt)
-	{ 
+	{
 		this.context = prompt;
 	}
 
@@ -38,7 +38,7 @@ public class DeleteAllSchedulesDialog {
 	private void initializeView(View v){
 		v.findViewById(R.id.negative).setOnClickListener(negativeClickListener);
 		v.findViewById(R.id.positive).setOnClickListener(positiveClickListener);
-		password = (EditText) v.findViewById(R.id.comment);
+		password = v.findViewById(R.id.comment);
 	}
 
 	OnClickListener negativeClickListener = new OnClickListener() {

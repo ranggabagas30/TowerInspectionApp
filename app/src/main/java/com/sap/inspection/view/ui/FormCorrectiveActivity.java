@@ -121,7 +121,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 
 		setContentView(R.layout.activity_form_fill);
 
-		list = (ListView) findViewById(R.id.list);
+		list = findViewById(R.id.list);
 //		list.setOnItemSelectedListener(itemSelected);
 		adapter = new FormFillAdapter(this);
 		adapter.setSavingRule(new PreventiveSave());
@@ -137,9 +137,9 @@ public class FormCorrectiveActivity extends BaseActivity {
 		schedule = new ScheduleGeneral();
 		schedule = schedule.getScheduleById(bundle.getString(Constants.KEY_SCHEDULEID));
 
-		search = (AutoCompleteTextView) findViewById(R.id.search);
+		search = findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);
-		title = (TextView) findViewById(R.id.header_title);
+		title = findViewById(R.id.header_title);
 
 		progressDialog.setMessage("Generating form...");
 		progressDialog.show();
@@ -201,7 +201,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 			for (CorrectiveValueModel correctiveValueModel : correctiveValueModels) {
 				x++;
 				WorkFormItemModel item = new WorkFormItemModel();
-				item = item.getWorkFormItemById(correctiveValueModel.itemId);
+				item = WorkFormItemModel.getWorkFormItemById(correctiveValueModel.itemId);
 				DebugLog.d( "-------------------- ");
 				if (!ruleAddItem(correctiveValueModel, lastModel, item)){
 					DebugLog.d( "not permited to add item");
@@ -210,7 +210,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 				}
 				DebugLog.d( "permited to add item");
 				OperatorModel operatorModel = new OperatorModel();
-				operatorModel = operatorModel.getOperatorById(correctiveValueModel.operatorId);
+				operatorModel = OperatorModel.getOperatorById(correctiveValueModel.operatorId);
 				DebugLog.d("Corrective : "+item.label);
 				ItemFormRenderModel header = new ItemFormRenderModel();
 				if (lastModel == null || lastModel.itemId != correctiveValueModel.itemId || lastModel.operatorId != correctiveValueModel.operatorId){
@@ -312,7 +312,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 			if (photoItem != null && mImageUri != null){
 				photoItem.initValue();
 				photoItem.deletePhoto();
-				DebugLog.d( String.valueOf(currentlocation.latitude)+" || "+String.valueOf(currentlocation.longitude));
+				DebugLog.d(currentlocation.latitude +" || "+ currentlocation.longitude);
 				photoItem.setImage(mImageUri.toString(),String.valueOf(currentlocation.latitude),String.valueOf(currentlocation.longitude),accuracy);
 			}
 		}
@@ -361,7 +361,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 		public void onLocationChanged(Location location) {
 			accuracy = (int)location.getAccuracy();
 			currentlocation = new LatLng(location.getLatitude(), location.getLongitude());
-			DebugLog.d(String.valueOf(currentlocation.latitude)+" || "+String.valueOf(currentlocation.longitude));
+			DebugLog.d(currentlocation.latitude +" || "+ currentlocation.longitude);
 		}
 	};
 

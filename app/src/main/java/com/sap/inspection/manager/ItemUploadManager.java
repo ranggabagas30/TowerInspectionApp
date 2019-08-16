@@ -12,7 +12,7 @@ import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -488,7 +488,7 @@ public class ItemUploadManager {
                         DebugLog.d("photo_datetime : " + itemValue.createdAt);
                     }
                     else {
-                        params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.photoDate)));
+                        params.add(new BasicNameValuePair("photo_datetime", itemValue.photoDate));
                         DebugLog.d("photo_datetime : " + itemValue.photoDate);
                     }
                 }

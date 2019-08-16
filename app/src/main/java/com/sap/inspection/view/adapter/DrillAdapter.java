@@ -41,10 +41,10 @@ public class DrillAdapter extends MyBaseAdapter {
 		if (convertView == null) {
 			holder = new ViewHolder();
 			view = LayoutInflater.from(context).inflate(R.layout.item_drill,null);
-			holder.arrow = (ImageView) view.findViewById(R.id.item_drill_arrow);
-			holder.title = (TextView) view.findViewById(R.id.item_drill_title);
-			holder.colored = (TextView) view.findViewById(R.id.item_drill_subcolored);
-			holder.plain = (TextView) view.findViewById(R.id.item_drill_subplain);
+			holder.arrow = view.findViewById(R.id.item_drill_arrow);
+			holder.title = view.findViewById(R.id.item_drill_title);
+			holder.colored = view.findViewById(R.id.item_drill_subcolored);
+			holder.plain = view.findViewById(R.id.item_drill_subplain);
 			holder.contentLayout = view.findViewById(R.id.item_drill_contentlayout);
 			view.setTag(holder);
 		} else

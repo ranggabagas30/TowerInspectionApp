@@ -79,8 +79,8 @@ public abstract class ExpandableListItemAdapter<T> extends ArrayAdapter<T> {
             view = createView(parent);
 
             viewHolder = new ViewHolder();
-            viewHolder.titleParent = (ViewGroup) view.findViewById(mTitleParentResId);
-            viewHolder.contentParent = (ViewGroup) view.findViewById(mContentParentResId);
+            viewHolder.titleParent = view.findViewById(mTitleParentResId);
+            viewHolder.contentParent = view.findViewById(mContentParentResId);
 
             view.setOnClickListener(new TitleViewOnClickListener(viewHolder.contentParent));
 

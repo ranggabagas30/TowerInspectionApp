@@ -10,7 +10,7 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.model.ErrorSatutempatModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;

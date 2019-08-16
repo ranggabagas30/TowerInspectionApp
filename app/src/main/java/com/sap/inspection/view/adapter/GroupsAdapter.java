@@ -206,11 +206,11 @@ public class GroupsAdapter extends MyBaseAdapter {
 				break;
 			}
 
-			holder.expandCollapse = (ImageView) view.findViewById(R.id.expandCollapse);
+			holder.expandCollapse = view.findViewById(R.id.expandCollapse);
 			holder.expandCollapse.setOnClickListener(expandCollapseListener);
-			holder.uploadWorkFormGroup = (ImageView) view.findViewById(R.id.workformgroup_upload);
+			holder.uploadWorkFormGroup = view.findViewById(R.id.workformgroup_upload);
 			holder.uploadWorkFormGroup.setOnClickListener(uploadWorkFormGroupListener);
-			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.title = view.findViewById(R.id.title);
 			holder.title.setOnClickListener(ItemClickListener);
 			view.setTag(holder);
 

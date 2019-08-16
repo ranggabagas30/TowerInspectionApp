@@ -1,4 +1,4 @@
-package com.sap.inspection.fragments;
+package com.sap.inspection.view.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,8 +27,8 @@ public class CalendarFragment extends BaseTitleFragment {
 	@Override
 	public View onGetLayout(LayoutInflater inflater) {
 		View root = inflater.inflate(R.layout.fragment_calendar, null, false);
-		grid = (GridView) root.findViewById(R.id.grid);
-		grid.setColumnWidth((int) ((ScreenManager.getInstance().getMin() - 6) / 4));
+		grid = root.findViewById(R.id.grid);
+		grid.setColumnWidth(((ScreenManager.getInstance().getMin() - 6) / 4));
 		grid.setAdapter(adapter);
 		return root;
 	}

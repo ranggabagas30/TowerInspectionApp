@@ -91,12 +91,12 @@ public class CopyOfFormItem extends RelativeLayout {
 			itemUpdateModel = new ItemUpdateResultViewModel();
 
 		View root = LayoutInflater.from(context).inflate(R.layout.item_form, null);
-		rootItem = (LinearLayout) root.findViewById(R.id.rootItem);
-		rowTitle = (TextView) root.findViewById(R.id.item_drill_title);
-		rowSubColored = (TextView) root.findViewById(R.id.item_drill_subcolored);
+		rootItem = root.findViewById(R.id.rootItem);
+		rowTitle = root.findViewById(R.id.item_drill_title);
+		rowSubColored = root.findViewById(R.id.item_drill_subcolored);
 		itemUpdateModel.colored = rowSubColored;
 		rowSubColored.setText("asdasdas");
-		rowSubPlain = (TextView) root.findViewById(R.id.item_drill_subplain);
+		rowSubPlain = root.findViewById(R.id.item_drill_subplain);
 		rowSubPlain.setText("asdasdas");
 		itemUpdateModel.plain = rowSubPlain;
 		this.addView(root);
@@ -228,7 +228,7 @@ public class CopyOfFormItem extends RelativeLayout {
 
 		log(schedule.id+" | "+item.id+" | "+operatorId+" | "+rowId);
 		FormValueModel initValue = new FormValueModel();
-		initValue = initValue.getItemValue(schedule.id,item.id,operatorId);
+		initValue = FormValueModel.getItemValue(schedule.id,item.id,operatorId);
 		log("================================================");
 		log("================================================");
 		log("================================================");
@@ -272,7 +272,7 @@ public class CopyOfFormItem extends RelativeLayout {
 			if (item.options.size() > 4)
 				linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-			String split[] = null;
+            String[] split = null;
 			if (initValue != null)
 				split = initValue.value.split("[,]");
 
@@ -310,7 +310,7 @@ public class CopyOfFormItem extends RelativeLayout {
 			if (item.options.size() > 4)
 				radioGroup.setOrientation(RadioGroup.VERTICAL);
 
-			String split[] = null;
+            String[] split = null;
 			if (initValue != null)
 				split = initValue.value.split("[,]");
 			for (WorkFormOptionsModel option : item.options) {
@@ -379,7 +379,7 @@ public class CopyOfFormItem extends RelativeLayout {
 		
 		log(schedule.id+" | "+item.id+" | "+operatorId);
 		FormValueModel initValue = new FormValueModel();
-		initValue = initValue.getItemValue(schedule.id,item.id,operatorId);
+		initValue = FormValueModel.getItemValue(schedule.id,item.id,operatorId);
 		log("================================================");
 		log("================================================");
 		log("================================================");
@@ -419,7 +419,7 @@ public class CopyOfFormItem extends RelativeLayout {
 			if (item.options.size() > 4)
 				linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-			String split[] = null;
+            String[] split = null;
 			if (initValue != null)
 				split = initValue.value.split("[,]");
 
@@ -448,7 +448,7 @@ public class CopyOfFormItem extends RelativeLayout {
 			if (item.options.size() > 4)
 				radioGroup.setOrientation(RadioGroup.VERTICAL);
 
-			String split[] = null;
+            String[] split = null;
 			if (initValue != null)
 				split = initValue.value.split("[,]");
 			for (WorkFormOptionsModel option : item.options) {

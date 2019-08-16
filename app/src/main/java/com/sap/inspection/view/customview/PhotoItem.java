@@ -108,18 +108,18 @@ public class PhotoItem extends RelativeLayout {
 		root = LayoutInflater.from(context).inflate(R.layout.photo_layout, this, true);
 		//		photoRoot = root.findViewById(R.id.layout_helper1);
 		photoRoot = root.findViewById(R.id.photolayout);
-		btnTakePicture = (ImageButtonForList) root.findViewById(R.id.btnTakePicture);
+		btnTakePicture = root.findViewById(R.id.btnTakePicture);
 		btnTakePicture.setTag(this);
 		noPicture =  root.findViewById(R.id.no_picture);
-		imageView = (ImageView) root.findViewById(R.id.photo);
+		imageView = root.findViewById(R.id.photo);
 		imageView.setTag(this);
 		//		failed = (TextView) root.findViewById(R.id.failed);
-		latitude = (TextView) root.findViewById(R.id.latitude);
-		longitude = (TextView) root.findViewById(R.id.longitude);
-		accuracy = (TextView) root.findViewById(R.id.accuracy);
-		label = (TextView) root.findViewById(R.id.label);
-		progress = (ProgressBar) root.findViewById(R.id.progress);
-		remark = (EditText) root.findViewById(R.id.remark);
+		latitude = root.findViewById(R.id.latitude);
+		longitude = root.findViewById(R.id.longitude);
+		accuracy = root.findViewById(R.id.accuracy);
+		label = root.findViewById(R.id.label);
+		progress = root.findViewById(R.id.progress);
+		remark = root.findViewById(R.id.remark);
 //		material_request = (EditText) root.findViewById(R.id.request_material);
 
 		remark.addTextChangedListener(textWatcher);

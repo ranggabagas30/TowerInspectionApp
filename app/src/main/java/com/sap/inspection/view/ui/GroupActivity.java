@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.fragments.GroupFragment;
+import com.sap.inspection.view.ui.fragments.GroupFragment;
 import com.sap.inspection.listener.GroupActivityListener;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
@@ -81,7 +81,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 				.setTopTitleColor(R.color.lightgray)
 				.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
 
-		mSlidingLayer = (SlidingLayer) findViewById(R.id.slidingLayer1);
+		mSlidingLayer = findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
 
         // get schedule base model by scheduleid

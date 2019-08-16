@@ -1,4 +1,4 @@
-package com.sap.inspection.fragments.dialogfragments;
+package com.sap.inspection.view.ui.fragments.dialogfragments;
 
 import android.app.DialogFragment;
 import android.content.DialogInterface;

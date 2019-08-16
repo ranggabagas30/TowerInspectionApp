@@ -1,4 +1,4 @@
-package com.sap.inspection.fragments;
+package com.sap.inspection.view.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,13 +22,13 @@ public abstract class BaseListTitleFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_list_with_titleheader, null, false);
-		header = (RelativeLayout) root.findViewById(R.id.header);
+		header = root.findViewById(R.id.header);
 		View headerTitleLayout = inflater.inflate(R.layout.header_title, header, true);
-		title = (TextView) headerTitleLayout.findViewById(R.id.header_title);
+		title = headerTitleLayout.findViewById(R.id.header_title);
 		title.setText(getTitle());
-		list = (ListView) root.findViewById(R.id.list);
-		actionRight = (ImageView) headerTitleLayout.findViewById(R.id.action_right);
-		actionLeft = (ImageView) headerTitleLayout.findViewById(R.id.action_left);
+		list = root.findViewById(R.id.list);
+		actionRight = headerTitleLayout.findViewById(R.id.action_right);
+		actionLeft = headerTitleLayout.findViewById(R.id.action_left);
 		onCreateView(inflater);
 		return root;
 	}

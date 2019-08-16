@@ -20,7 +20,7 @@ public class GaleryTakeImageActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_getimage);
-        Button buttonLoadImage = (Button) findViewById(R.id.buttonLoadPicture);
+        Button buttonLoadImage = findViewById(R.id.buttonLoadPicture);
         buttonLoadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -41,7 +41,7 @@ public class GaleryTakeImageActivity extends Activity {
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
-            ImageView imageView = (ImageView) findViewById(R.id.imgView);
+            ImageView imageView = findViewById(R.id.imgView);
             imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
         }
     }

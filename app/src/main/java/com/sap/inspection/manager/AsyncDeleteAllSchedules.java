@@ -3,7 +3,7 @@ package com.sap.inspection.manager;
 
 import android.os.AsyncTask;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.event.DeleteAllScheduleEvent;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;

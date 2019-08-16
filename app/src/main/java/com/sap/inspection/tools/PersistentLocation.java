@@ -2,7 +2,7 @@ package com.sap.inspection.tools;
 
 import android.widget.Toast;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.util.PrefUtil;
 

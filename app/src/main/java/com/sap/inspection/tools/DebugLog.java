@@ -84,10 +84,8 @@ public class DebugLog {
 	public static void d(String message){
 		if (!isDebuggable())
 			return;
-
 		getMethodNames(new Throwable().getStackTrace());
 		Log.d(className, createLog(message));
-		Crashlytics.log(Log.DEBUG, className, createLog(message));
 	}
 	
 	public static void v(String message){

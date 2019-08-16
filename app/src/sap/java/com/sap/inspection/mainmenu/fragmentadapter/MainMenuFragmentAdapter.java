@@ -3,7 +3,7 @@ package com.sap.inspection.mainmenu.fragmentadapter;
 import android.support.v4.app.FragmentManager;
 import android.view.View.OnClickListener;
 
-import com.sap.inspection.BaseFragmentAdapter;
+import com.sap.inspection.view.adapter.BaseFragmentAdapter;
 import com.sap.inspection.mainmenu.MainMenuPageFragment;
 import com.sap.inspection.tools.DebugLog;
 

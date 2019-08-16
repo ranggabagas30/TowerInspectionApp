@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 
 public class ConfigModel extends BaseModel {

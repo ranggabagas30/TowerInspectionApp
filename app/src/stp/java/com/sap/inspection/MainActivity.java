@@ -7,11 +7,13 @@ import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
-import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.view.ui.SettingActivity;
+import com.sap.inspection.view.ui.fragments.ScheduleFragment;
 import com.slidinglayer.SlidingLayer;
 
 public class MainActivity extends BaseActivity {
@@ -44,8 +46,7 @@ public class MainActivity extends BaseActivity {
 				requestReadPhoneStatePermission();
 
 			}
-			showMessageDialog(getString(R.string.getScheduleFromServer));
-			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+			downloadSchedules();
 
 		} else if (isLoadAfterLogin) {
 
@@ -92,47 +93,38 @@ public class MainActivity extends BaseActivity {
 			switch (i) {
 				case R.string.schedule:
 					DebugLog.d("schedule");
-					trackEvent(getResources().getString(R.string.schedule));
 					scheduleFragment.setScheduleBy(R.string.schedule);
 					break;
 				case R.string.site_audit:
 					DebugLog.d("site audit");
-					trackEvent(getResources().getString(R.string.site_audit));
 					scheduleFragment.setScheduleBy(R.string.site_audit);
 					break;
 				case R.string.preventive:
 					DebugLog.d("preventive");
-					trackEvent(getResources().getString(R.string.preventive));
 					scheduleFragment.setScheduleBy(R.string.preventive);
 					break;
 				case R.string.corrective:
 					DebugLog.d("corrective");
-					trackEvent(getResources().getString(R.string.corrective));
 					scheduleFragment.setScheduleBy(R.string.corrective);
 					break;
 				case R.string.newlocation:
 					DebugLog.d("new location");
-					trackEvent(getResources().getString(R.string.newlocation));
 					scheduleFragment.setScheduleBy(R.string.newlocation);
 					break;
 				case R.string.fiber_optic:
 					DebugLog.d("fiber optik");
-					trackEvent(getResources().getString(R.string.fiber_optic));
 					scheduleFragment.setScheduleBy(R.string.fiber_optic);
 					break;
 				case R.string.colocation:
 					DebugLog.d("colocation");
-					trackEvent(getResources().getString(R.string.colocation));
 					scheduleFragment.setScheduleBy(R.string.colocation);
 					break;
 				case R.string.hasil_PM:
 					DebugLog.d("hasil PM");
-					trackEvent(getResources().getString(R.string.hasil_PM));
 					scheduleFragment.setScheduleBy(R.string.hasil_PM);
 					break;
 				case R.string.settings:
 					DebugLog.d("settings");
-					trackEvent(getResources().getString(R.string.settings));
 					Intent intent = new Intent(activity, SettingActivity.class);
 					startActivity(intent);
 					return;

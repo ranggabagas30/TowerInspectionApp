@@ -69,7 +69,7 @@
                             android:paddingLeft="16dp"
                             android:text="Portrait : "/>
 
-                        <com.sap.inspection.view.FormInputText
+                        <com.sap.inspection.view.customview.FormInputText
                             android:id="@+id/textmarksizepotrait"
                             android:layout_weight="0.65"
                             android:layout_width="0dp"
@@ -93,7 +93,7 @@
                             android:paddingLeft="16dp"
                             android:text="Landscape : "/>
 
-                        <com.sap.inspection.view.FormInputText
+                        <com.sap.inspection.view.customview.FormInputText
                             android:id="@+id/textmarksizelandscape"
                             android:layout_weight="0.65"
                             android:layout_width="0dp"
@@ -149,7 +149,7 @@
                                 android:paddingLeft="16dp"
                                 android:text="Portrait : "/>
 
-                            <com.sap.inspection.view.FormInputText
+                            <com.sap.inspection.view.customview.FormInputText
                                 android:id="@+id/linespacepotrait"
                                 android:layout_weight="0.65"
                                 android:layout_width="0dp"
@@ -174,7 +174,7 @@
                                 android:paddingLeft="16dp"
                                 android:text="Landscape : "/>
 
-                            <com.sap.inspection.view.FormInputText
+                            <com.sap.inspection.view.customview.FormInputText
                                 android:id="@+id/linespacelandscape"
                                 android:layout_weight="0.65"
                                 android:layout_width="0dp"
@@ -233,7 +233,7 @@
                                 android:paddingLeft="16dp"
                                 android:text="Portrait : "/>
 
-                            <com.sap.inspection.view.FormInputText
+                            <com.sap.inspection.view.customview.FormInputText
                                 android:id="@+id/heightbackgroundwatermarkportrait"
                                 android:layout_weight="0.65"
                                 android:layout_width="0dp"
@@ -266,7 +266,7 @@
                                 android:paddingLeft="16dp"
                                 android:text="Landscape : "/>
 
-                            <com.sap.inspection.view.FormInputText
+                            <com.sap.inspection.view.customview.FormInputText
                                 android:id="@+id/heightbackgroundwatermarklandscape"
                                 android:layout_weight="0.65"
                                 android:layout_width="0dp"
@@ -314,7 +314,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/selector_button_green_small_padding"
-                    android:text="Update"
+                    android:text="Update Aplikasi"
                     android:textColor="@android:color/white"
                     android:textStyle="bold" />
 
@@ -519,7 +519,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/padding_medium"
-                android:visibility="gone"
                 />
 
         </LinearLayout>

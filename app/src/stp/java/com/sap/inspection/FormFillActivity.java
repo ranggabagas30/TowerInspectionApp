@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,62 +43,68 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
-import com.sap.inspection.model.form.ItemUpdateResultViewModel;
-import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.RowColumnModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.StringUtil;
-import com.sap.inspection.view.FormItem;
-import com.sap.inspection.view.PhotoItemRadio;
-import com.sap.inspection.view.dialog.DialogUtil;
-import com.sap.inspection.views.adapter.FormFillAdapter;
+import com.sap.inspection.view.adapter.FormFillAdapter;
+import com.sap.inspection.view.customview.FormItem;
+import com.sap.inspection.view.customview.PhotoItemRadio;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.view.ui.SettingActivity;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
-	private LinearLayout root;
-	private RowModel rowModel;
+	private WorkFormRowModel parentRow;
 	private ArrayList<ColumnModel> column;
-	private int workFormGroupId;
+
+	// bundle data
 	private String scheduleId;
 	private String workFormGroupName;
+	private String workTypeName;
+	private int workFormGroupId;
 	private int rowId;
+
 	private ScheduleBaseModel schedule;
 	private FormValueModel itemValueForShare;
 	private Uri mImageUri;
-	private HashMap<Integer, ItemUpdateResultViewModel> itemValuesProgressView;
 	public ArrayList<Integer> indexes;
 	public ArrayList<String> labels;
 	public ArrayList<FormItem> formItems;
 	private ArrayList<ItemFormRenderModel> formModels;
-	private PhotoItemRadio photoItem;
-	private ScrollView scroll;
-	private AutoCompleteTextView search;
-	private ListView list;
-	private View searchView;
 	private File photoFile;
 	private FormFillAdapter adapter;
 
+	private String pageTitle;
 	private LatLng currentGeoPoint;
 	private int accuracy;
-	private TextView title;
-	private String pageTitle;
 	private boolean finishInflate;
+	private boolean isChecklistOrSiteInformation;
 
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
 
+	// view
+	private ScrollView scroll;
+	private LinearLayout root;
+	private RelativeLayout layoutEmpty;
+	private PhotoItemRadio photoItem;
+	private AutoCompleteTextView search;
+	private ListView list;
+	private View searchView;
+	private TextView title;
 	private Button mBtnSettings;
 
 	@Override
@@ -118,6 +126,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
             DebugLog.d("workFormGroupId = " + workFormGroupId);
             DebugLog.d("workFormGroupName = " + workFormGroupName);
             DebugLog.d("scheduleId = " + scheduleId);
+
+			isChecklistOrSiteInformation =  workFormGroupName.equalsIgnoreCase("checklist") ||
+											workFormGroupName.equalsIgnoreCase("site information");
         }
 
         if (indexes == null)
@@ -128,7 +139,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         if (formItems == null)
             formItems = new ArrayList<FormItem>();
         if (formModels == null)
-            formModels = new ArrayList<ItemFormRenderModel>();
+            formModels = new ArrayList<>();
 
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -154,13 +165,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         list.setAdapter(adapter);
 
         // init view
-        scroll = (ScrollView) findViewById(R.id.scroll);
+        scroll = findViewById(R.id.scroll);
+        layoutEmpty = findViewById(R.id.item_form_empty_layout);
         searchView = findViewById(R.id.layout_search);
-        search = (AutoCompleteTextView) findViewById(R.id.search);
+        search = findViewById(R.id.search);
         search.setOnItemClickListener(searchClickListener);
-        root = (LinearLayout) findViewById(R.id.root);
-        title = (TextView) findViewById(R.id.header_title);
-        mBtnSettings = (Button) findViewById(R.id.btnsettings);
+        root = findViewById(R.id.root);
+        title = findViewById(R.id.header_title);
+        mBtnSettings = findViewById(R.id.btnsettings);
         mBtnSettings.setOnClickListener(view -> {
             Intent intent = new Intent(this, SettingActivity.class);
             startActivity(intent);
@@ -183,7 +195,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		    else if (adapter.getItemViewType(position) == ItemFormRenderModel.TYPE_PICTURE_RADIO){
 				DebugLog.d("here is the picture");
 		        listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-		        RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radioGroup);
+		        RadioGroup radioGroup = view.findViewById(R.id.radioGroup);
 		        if (radioGroup.getCheckedRadioButtonId() == R.id.radioNOK)
 		        	view.findViewById(R.id.remark).requestFocus();
 		        else {
@@ -215,7 +227,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	};
 
 
-	private void setPercentage(int rowId){
+	/*private void setPercentage(int rowId){
 		if (null != itemValuesProgressView.get(rowId) && finishInflate){
 			int taskDone = itemValueForShare.countTaskDone(schedule.id, rowId);
 			if (taskDone != 0){
@@ -231,7 +243,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 
 		}
-	}
+	}*/
 
 	private void saveValue(String[] itemProperties,boolean isAdding,boolean isCompundButton){
 
@@ -244,7 +256,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			itemValueForShare = new FormValueModel();
 		}
 
-		itemValueForShare = itemValueForShare.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
+		itemValueForShare = FormValueModel.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
 		if (itemValueForShare == null){
 
 			itemValueForShare = new FormValueModel();
@@ -291,7 +303,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				}
 				chkBoxValue = null;
 				if (itemValueForShare.value.equalsIgnoreCase(""))
-					itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
+					FormValueModel.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 				else{
 					itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 					itemValueForShare.save();
@@ -300,7 +312,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		else{
 			if (!isAdding)
-				itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
+				FormValueModel.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 			else{
 				itemValueForShare.value = itemProperties[3];
 				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
@@ -309,8 +321,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		DebugLog.d("===== value : "+itemValueForShare.value);
 		DebugLog.d("row id : "+ itemValueForShare.rowId);
-		DebugLog.d("task done : "+itemValueForShare.countTaskDone(schedule.id, itemValueForShare.rowId));
-		setPercentage(itemValueForShare.rowId);
+		DebugLog.d("task done : "+ FormValueModel.countTaskDone(schedule.id, itemValueForShare.rowId));
+		//setPercentage(itemValueForShare.rowId);
 	}
 
 	@Override
@@ -418,7 +430,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	//called after camera intent finished
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		String siteLatitude = String.valueOf(currentGeoPoint.latitude);;
+		String siteLatitude = String.valueOf(currentGeoPoint.latitude);
 		String siteLongitude = String.valueOf(currentGeoPoint.longitude);
 		Pair<String, String> photoLocation;
 
@@ -479,36 +491,45 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			rowModel = new RowModel();
-			rowModel = rowModel.getAllItemsByRowId(workFormGroupId, rowId);
+
+			parentRow = new WorkFormRowModel();
+			parentRow = parentRow.getAllItemsByRowId(workFormGroupId, rowId);
 			column = ColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
 
 			ItemFormRenderModel form;
 			setPageTitle();
 
 			//check if the head has a form
-			for(int i = 0; i < rowModel.row_columns.size(); i++){
-				if (rowModel.row_columns.get(i).items.size() > 0){
+			DebugLog.d("\nGet header form fill and its children items...");
+			for(int i = 0; i < parentRow.row_columns.size(); i++){
+
+				RowColumnModel rowColHeader = parentRow.row_columns.get(i);
+				DebugLog.d(i + ". row col id : " + rowColHeader.id);
+
+				if (rowColHeader.items.size() > 0){
 					finishInflate = false;
-					DebugLog.d("-----------------------------------------------");
-					DebugLog.d("========================= head row id : "+rowModel.id);
-					DebugLog.d("========================= head row ancestry : "+rowModel.ancestry);
-					checkHeaderName(rowModel);
-					DebugLog.d("-----------------------------------------------");
+					checkHeaderName(parentRow);
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
 					form.setColumn(column);
 					form.setWorkFormGroupName(workFormGroupName);
-					form.setRowColumnModels(rowModel.row_columns, null);
+					form.setRowColumnModels(parentRow.row_columns, null);
 					if (form.hasInput){
-						DebugLog.d("========================= head row has input : ");
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
-						labels.add(form.getLabel());
+						String label = form.getLabel();
+
+						if (TextUtils.isEmpty(label)) {
+							label = "item with no label";
+						}
+						labels.add(label);
 						formModels.add(form);
-					}
-					else if (form.hasPicture){
-						DebugLog.d("========================= head row has picture : ");
-						labels.add(form.getLabel());
+					} else if (form.hasPicture){
+						String label = form.getLabel();
+
+						if (TextUtils.isEmpty(label)) {
+							label = "item with no label";
+						}
+						labels.add(label);
 						formModels.add(form);
 					}
 					break;
@@ -518,36 +539,43 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			int x = 0;
 			//check if the child has a form
 			String parentLabel = null;
-			String ancestry = null;
-			for (RowModel model : rowModel.children) {
-				checkHeaderName(model);
+			DebugLog.d("\n\nlooping children with size : " + parentRow.children.size());
+			for (WorkFormRowModel rowChildren : parentRow.children) {
 				x++;
-				publishProgress(x*100/rowModel.children.size());
+				DebugLog.d("\nchildren ke-" + x + " with id " + rowChildren.id);
+				DebugLog.d("checking item's header label..");
+				checkHeaderName(rowChildren);
+				publishProgress(x * 100 / parentRow.children.size());
 				finishInflate = false;
-				DebugLog.d("-----------------------------------------------");
-				DebugLog.d("========================= child row id : "+model.id);
-				DebugLog.d("========================= child row ancestry : "+rowModel.ancestry);
-				DebugLog.d("-----------------------------------------------");
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
 				form.setColumn(column);
-				form.setRowColumnModels(model.row_columns,parentLabel);
+				form.setWorkFormGroupName(workFormGroupName);
+				form.setWorkFormGroupId(workFormGroupId);
+				form.setRowColumnModels(rowChildren.row_columns,parentLabel);
 				if (form.hasInput){
 					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 					String label = form.getLabel();
 					while (labels.indexOf(label) != -1){
 						label = label+".";
 					}
+
+					if (TextUtils.isEmpty(label)) {
+						label = "item with no label";
+					}
+
 					labels.add(label);
+					DebugLog.d("indexes : " + indexes.get(indexes.size()-1));
+					DebugLog.d("label : " + label);
 					formModels.add(form);
+
 				}else
 					parentLabel = form.getLabel();
-//				setPercentage(model.id);
 			}
 			return null;
 		}
 		
-		private void checkHeaderName(RowModel rowModel){
+		private void checkHeaderName(WorkFormRowModel rowModel){
 			if (rowModel.row_columns != null && 
 					rowModel.row_columns.size() > 0 && 
 					rowModel.row_columns.get(0).items != null &&
@@ -569,21 +597,43 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		protected void onPostExecute(Void result) {
 			title.setText(pageTitle);
 			hideDialog();
-			adapter.setItems(formModels);
-			boolean ada = false;
-			DebugLog.d("total formModels items : " + formModels.size());
-			for (ItemFormRenderModel item : formModels) {
-				if (item.workItemModel!=null&&!item.workItemModel.search) {
-					DebugLog.d("search="+item.workItemModel.search);
-					ada = true;
-					break;
-				}
-			}
-			if (ada)
-				searchView.setVisibility(View.GONE);
 
-			ArrayAdapter<String> searchAdapter = new ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, labels);
-			search.setAdapter(searchAdapter);
+			if (!formModels.isEmpty()) {
+				adapter.setItems(formModels);
+
+				boolean ada = false;
+				DebugLog.d("total formModels items : " + formModels.size());
+				for (ItemFormRenderModel item : formModels) {
+					if (item.workItemModel!=null&&!item.workItemModel.search) {
+						DebugLog.d("search="+item.workItemModel.search);
+						ada = true;
+						break;
+					}
+				}
+
+				if (ada)
+					searchView.setVisibility(View.GONE);
+
+				ArrayAdapter<String> searchAdapter =
+						new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, labels){
+
+							public View getView(int position, View convertView, ViewGroup parent) {
+								View v = super.getView(position, convertView, parent);
+								int i = 10;
+								((TextView) v).setTextSize(14);
+								((TextView) v).setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);
+
+								return v;
+							}
+						};
+
+				search.setAdapter(searchAdapter);
+			} else {
+
+				layoutEmpty.setVisibility(View.VISIBLE);
+				list.setVisibility(View.GONE);
+
+			}
 			super.onPostExecute(result);
 		}
 	}
@@ -598,8 +648,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	};
 	
 	private void setPageTitle(){
-		if (rowModel.row_columns.size() > 0 && rowModel.row_columns.get(0).items.size() > 0)
-			pageTitle = rowModel.row_columns.get(0).items.get(0).label;
+		if (parentRow.row_columns.size() > 0 && parentRow.row_columns.get(0).items.size() > 0)
+			pageTitle = parentRow.row_columns.get(0).items.get(0).label;
 	}
 
 	private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
@@ -633,7 +683,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		public void onLocationChanged(Location location) {
 			accuracy = (int)location.getAccuracy();
 			setCurrentGeoPoint(new LatLng(location.getLatitude(), location.getLongitude()));
-			DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
+			DebugLog.d(getCurrentGeoPoint().latitude +" || "+ getCurrentGeoPoint().longitude);
 		}
 	};
 
@@ -649,6 +699,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         adapter.notifyDataSetChanged();
 
         if (adapter!=null && !adapter.isEmpty() && !MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
+
+		if (adapter!=null && !adapter.isEmpty()) {
+			if ((MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation) || !MyApplication.getInstance().IS_CHECKING_HASIL_PM()){
+				isMandatoryCheckingActive = true;
+			}
+		}
+
+        if (isMandatoryCheckingActive) {
 
             DebugLog.d("\n\n ==== ON BACK PRESSED ====");
             DebugLog.d("scheduleId = " + scheduleId);

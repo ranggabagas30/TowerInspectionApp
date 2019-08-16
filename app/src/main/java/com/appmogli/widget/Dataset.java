@@ -26,7 +26,7 @@ public class Dataset {
 	}
 
 	public Vector<ScheduleBaseModel> getSectionCursor(String sectionName) {
-		Vector<ScheduleBaseModel> cursor = (Vector<ScheduleBaseModel>) sectionCursors.get(sectionName);
+		Vector<ScheduleBaseModel> cursor = sectionCursors.get(sectionName);
 		if( cursor == null) {
 			cursor = new Vector<ScheduleBaseModel>();
 			sectionCursors.put(sectionName, cursor);

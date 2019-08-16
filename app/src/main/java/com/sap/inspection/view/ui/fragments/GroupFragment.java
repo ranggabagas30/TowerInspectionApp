@@ -1,4 +1,4 @@
-package com.sap.inspection.fragments;
+package com.sap.inspection.view.ui.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -41,10 +41,10 @@ public class GroupFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
 		DebugLog.d("onCreateView");
 		View root = inflater.inflate(R.layout.fragment_navigation, null);
-		list = (ListView) root.findViewById(R.id.list);
-		title = (TextView) root.findViewById(R.id.header_title);
+		list = root.findViewById(R.id.list);
+		title = root.findViewById(R.id.header_title);
 		title.setText(schedule.site.name);
-		subTitle = (TextView) root.findViewById(R.id.header_subtitle);
+		subTitle = root.findViewById(R.id.header_subtitle);
 		subTitle.setText(schedule.work_type.name);
 		back = root.findViewById(R.id.action_left);
 		back.setOnClickListener(v -> {

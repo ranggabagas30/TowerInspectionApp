@@ -357,8 +357,8 @@ public class WorkFormRowModel extends BaseModel {
 
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
-		String where = DbManager.colWorkFormGroupId + "=? AND " + DbManager.colID + "=?";;
-		String[] args = new String[] {String.valueOf(workFormGroupId),String.valueOf(parentRowId)};
+		String where = DbManager.colWorkFormGroupId + "=? AND " + DbManager.colID + "=?";
+        String[] args = new String[] {String.valueOf(workFormGroupId),String.valueOf(parentRowId)};
 		String order = DbManager.colPosition+" ASC";
 
 		DbRepository.getInstance().open(MyApplication.getInstance());

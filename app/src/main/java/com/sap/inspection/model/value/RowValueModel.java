@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.model.BaseModel;
 
 
@@ -94,9 +94,9 @@ public class RowValueModel extends BaseModel {
 		bindAndCheckNullString(stmt, 2, workTypeId);
 		bindAndCheckNullString(stmt, 3, day_date);
 		bindAndCheckNullString(stmt, 4, rowId);
-		bindAndCheckNullString(stmt, 5, progress);;
+		bindAndCheckNullString(stmt, 5, progress);
 
-		stmt.executeInsert();
+        stmt.executeInsert();
 		stmt.close();
 		DbRepositoryValue.getInstance().close();
 	}

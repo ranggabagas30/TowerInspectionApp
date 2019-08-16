@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -216,9 +216,9 @@ public class FormValueModel extends BaseModel {
 		args = argsList.toArray(args);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);;
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst()) {
+        if (!cursor.moveToFirst()) {
 
 			cursor.close();
 			DbRepositoryValue.getInstance().close();
@@ -260,9 +260,9 @@ public class FormValueModel extends BaseModel {
 		args = argsList.toArray(args);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);;
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst()) {
+        if (!cursor.moveToFirst()) {
 
 			cursor.close();
 			DbRepositoryValue.getInstance().close();
@@ -310,9 +310,9 @@ public class FormValueModel extends BaseModel {
 		args = argsList.toArray(args);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);;
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst()) {
+        if (!cursor.moveToFirst()) {
 
 			cursor.close();
 			DbRepositoryValue.getInstance().close();

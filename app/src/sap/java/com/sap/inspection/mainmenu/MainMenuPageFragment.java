@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.sap.inspection.BaseActivity;
+import com.sap.inspection.view.ui.BaseActivity;
 import com.sap.inspection.R;
-import com.sap.inspection.fragments.BaseFragment;
+import com.sap.inspection.view.ui.fragments.BaseFragment;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;

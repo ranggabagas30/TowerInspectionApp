@@ -210,49 +210,49 @@ public class FormFillAdapter extends MyBaseAdapter {
 			switch (getItemViewType(position)) {
 			case ItemFormRenderModel.TYPE_CHECKBOX:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_checkbox,null);
-				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
-				holder.checkBox = (LinearLayout) convertView.findViewById(R.id.item_form_check);
-				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
+				holder.label = convertView.findViewById(R.id.item_form_label);
+				holder.checkBox = convertView.findViewById(R.id.item_form_check);
+				holder.mandatory = convertView.findViewById(R.id.item_form_mandatory);
 				break;
 			case ItemFormRenderModel.TYPE_COLUMN:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_column,null);
-				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
+				holder.label = convertView.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_HEADER_DIVIDER:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_header_devider,null);
 				break;
 			case ItemFormRenderModel.TYPE_HEADER:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_header,null);
-				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
+				holder.label = convertView.findViewById(R.id.item_form_label);
 				((MyTextView) convertView.findViewById(R.id.item_form_label)).setBold(context, true);
-				holder.upload_status = (TextView) convertView.findViewById(R.id.item_form_upload_status);
-				holder.colored = (TextView) convertView.findViewById(R.id.item_form_colored);
-				holder.plain = (TextView) convertView.findViewById(R.id.item_form_plain);
+				holder.upload_status = convertView.findViewById(R.id.item_form_upload_status);
+				holder.colored = convertView.findViewById(R.id.item_form_colored);
+				holder.plain = convertView.findViewById(R.id.item_form_plain);
 				break;
 			case ItemFormRenderModel.TYPE_LABEL:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_label,null);
-				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
+				holder.label = convertView.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_LINE_DEVIDER:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_line_devider,null);
 				break;
 			case ItemFormRenderModel.TYPE_OPERATOR:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_operator,null);
-				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
+				holder.label = convertView.findViewById(R.id.item_form_label);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE_RADIO:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_photo_radio,null);
-				holder.photoRadio = (PhotoItemRadio) convertView.findViewById(R.id.item_form_photo);
-				holder.upload = (ImageView) convertView.findViewById(R.id.item_form_upload);
+				holder.photoRadio = convertView.findViewById(R.id.item_form_photo);
+				holder.upload = convertView.findViewById(R.id.item_form_upload);
 				holder.photoRadio.setAudit(isAudit());
 				holder.photoRadio.setButtonTakePictureListener(photoListener);
 				holder.upload.setOnClickListener(uploadListener);
 				break;
 			case ItemFormRenderModel.TYPE_PICTURE:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_photo,null);
-				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
-				holder.photo = (PhotoItem) convertView.findViewById(R.id.item_form_photo);
-				holder.upload = (ImageView) convertView.findViewById(R.id.item_form_upload);
+				holder.mandatory = convertView.findViewById(R.id.item_form_mandatory);
+				holder.photo = convertView.findViewById(R.id.item_form_photo);
+				holder.upload = convertView.findViewById(R.id.item_form_upload);
 				holder.photo.setAudit(isAudit());
 				holder.photo.setButtonTakePictureListener(photoListener);
                 holder.upload.setOnClickListener(uploadListener);
@@ -260,29 +260,29 @@ public class FormFillAdapter extends MyBaseAdapter {
 				break;
 			case ItemFormRenderModel.TYPE_RADIO:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_radio,null);
-				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
-				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
-				holder.radio = (RadioGroup) convertView.findViewById(R.id.item_form_radio);
+				holder.mandatory = convertView.findViewById(R.id.item_form_mandatory);
+				holder.label = convertView.findViewById(R.id.item_form_label);
+				holder.radio = convertView.findViewById(R.id.item_form_radio);
 				break;
 			case ItemFormRenderModel.TYPE_TEXT_INPUT:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_text_field,null);
-				holder.label = (TextView) convertView.findViewById(R.id.item_form_label);
-				holder.description = (TextView) convertView.findViewById(R.id.item_form_description);
-				holder.input = (FormInputText) convertView.findViewById(R.id.item_form_input);
-				holder.mandatory = (TextView) convertView.findViewById(R.id.item_form_mandatory);
+				holder.label = convertView.findViewById(R.id.item_form_label);
+				holder.description = convertView.findViewById(R.id.item_form_description);
+				holder.input = convertView.findViewById(R.id.item_form_input);
+				holder.mandatory = convertView.findViewById(R.id.item_form_mandatory);
 				break;
 			case ItemFormRenderModel.TYPE_EXPAND:
 				convertView = LayoutInflater.from(context).inflate(R.layout.item_form_expand,null);
-				holder.label = (TextView) convertView.findViewById(R.id.item_form_expand_title);
+				holder.label = convertView.findViewById(R.id.item_form_expand_title);
 				((MyTextView) convertView.findViewById(R.id.item_form_expand_title)).setBold(context, true);
-				holder.expandButton = (LinearLayout) convertView.findViewById(R.id.item_form_expand_button);
+				holder.expandButton = convertView.findViewById(R.id.item_form_expand_button);
 				break;
 			default:
 				DebugLog.d("============== get default view : "+getItemViewType(position));
 				convertView = new View(context);
 				break;
 			}
-			holder.picture = (ImageView) convertView.findViewById(R.id.picture);
+			holder.picture = convertView.findViewById(R.id.picture);
 			convertView.setTag(holder);
 		} else {
 			DebugLog.d("convertView != null");

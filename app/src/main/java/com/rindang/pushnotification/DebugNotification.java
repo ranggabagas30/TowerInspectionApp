@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.sap.inspection.LoginActivity;
+import com.sap.inspection.view.ui.LoginActivity;
 import com.sap.inspection.R;
 import com.sap.inspection.util.BundleToJson;
 

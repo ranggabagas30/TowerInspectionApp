@@ -1,10 +1,10 @@
-<com.sap.inspection.view.SquareGridItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sap.inspection.view.customview.SquareGridItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="#deefab"
     android:padding="@dimen/padding_medium" >
 
-    <com.sap.inspection.view.MyTextView
+    <com.sap.inspection.view.customview.MyTextView
         android:id="@id/item_calendar_month"
         style="@style/list_title"
         android:layout_width="wrap_content"
@@ -12,7 +12,7 @@
         android:layout_alignParentStart="true"
         android:text="Feb" />
 
-    <com.sap.inspection.view.MyTextView
+    <com.sap.inspection.view.customview.MyTextView
         android:id="@id/item_calendar_task"
         style="@style/list_sub"
         android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
         android:gravity="center"
         android:text="10" />
 
-    <com.sap.inspection.view.MyTextView
+    <com.sap.inspection.view.customview.MyTextView
         android:id="@id/item_calendar_day_phrase"
         style="@style/list_sub"
         android:layout_width="wrap_content"
@@ -32,7 +32,7 @@
         android:layout_alignParentRight="true"
         android:text="Saturday" />
 
-    <com.sap.inspection.view.MyTextView
+    <com.sap.inspection.view.customview.MyTextView
         android:id="@id/item_calendar_day"
         style="@style/list_title"
         android:layout_width="wrap_content"
@@ -42,4 +42,4 @@
         android:text="30"
         android:textStyle="bold" />
 
-</com.sap.inspection.view.SquareGridItemLayout>
+</com.sap.inspection.view.customview.SquareGridItemLayout>

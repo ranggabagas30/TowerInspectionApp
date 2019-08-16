@@ -9,11 +9,13 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
-import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.fragments.ScheduleFragment;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.view.ui.SettingActivity;
+import com.sap.inspection.view.ui.fragments.ScheduleFragment;
 import com.slidinglayer.SlidingLayer;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 
@@ -50,7 +52,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 			}
 			showMessageDialog(getString(R.string.getScheduleFromServer));
-			APIHelper.getSchedules(activity, scheduleHandler, getPreference(R.string.user_id, ""));
+			downloadSchedules();
 
 		} else if (isLoadAfterLogin) {
 
@@ -75,7 +77,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 		replaceFragmentWith(mainMenuFragment, R.id.fragment_behind);
 		replaceFragmentWith(scheduleFragment, R.id.fragment_front);
-		trackThisPage("Main");
 	}
 
 	@Override
@@ -103,25 +104,21 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 			switch (i) {
 				case R.string.schedule: // R.id.s1
 					DebugLog.d("schedule");
-					trackThisPage(getResources().getString(R.string.schedule));
 					scheduleFragment.setScheduleBy(R.string.schedule);
 					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.site_audit: // R.id.s2
 					DebugLog.d("site audit");
-					trackThisPage(getResources().getString(R.string.site_audit));
 					scheduleFragment.setScheduleBy(R.string.site_audit);
 					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.preventive: // R.id.s3
 					DebugLog.d("preventive");
-					trackThisPage(getResources().getString(R.string.preventive));
 					scheduleFragment.setScheduleBy(R.string.preventive);
 					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.corrective: // R.id.s4
 					DebugLog.d("corrective");
-					trackThisPage(getResources().getString(R.string.corrective));
 					scheduleFragment.setScheduleBy(R.string.corrective);
 					mSlidingLayer.openLayer(true);
 					break;
@@ -133,7 +130,6 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					break;
 				case R.string.settings: // R.id.s6
 					DebugLog.d("settings");
-					trackThisPage(getResources().getString(R.string.settings));
 					Intent intent = new Intent(activity, SettingActivity.class);
 					startActivity(intent);
 					return;

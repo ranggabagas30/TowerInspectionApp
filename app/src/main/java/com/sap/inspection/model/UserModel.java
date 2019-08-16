@@ -7,7 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.Toast;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.MD5;
 
@@ -43,9 +43,10 @@ public class UserModel extends BaseModel {
 	 * Standard basic constructor for non-parcel
 	 * object creation
 	 */
-	public UserModel() { ; };
+	public UserModel() {
+    }
 
-	/**
+    /**
 	 *
 	 * Constructor to use when re-constructing object
 	 * from a parcel

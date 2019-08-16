@@ -38,7 +38,7 @@ import com.sap.inspection.event.DeleteAllScheduleEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
-import com.sap.inspection.fragments.BaseFragment;
+import com.sap.inspection.view.ui.fragments.BaseFragment;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -249,7 +249,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		Bundle bundle = new Bundle();
 		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
 		MyApplication myApplication = (MyApplication) getApplication();
-		FirebaseAnalytics mFirebaseAnalytics = myApplication.getDefaultAnalytics();
+		FirebaseAnalytics mFirebaseAnalytics = MyApplication.getDefaultAnalytics();
 		mFirebaseAnalytics.logEvent("track_event", bundle);
 	}
 
@@ -1036,7 +1036,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				// download the file
 				InputStream input = new BufferedInputStream(url.openStream(), 8192);
 				OutputStream output = new FileOutputStream(apkFile);
-				byte data[] = new byte[1024];
+				byte[] data = new byte[1024];
 				long total = 0;
 
 				DebugLog.d("start download with size " + lenghtOfFile);

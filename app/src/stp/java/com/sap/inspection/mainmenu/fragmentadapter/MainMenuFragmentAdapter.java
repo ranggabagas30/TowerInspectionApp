@@ -3,14 +3,14 @@ package com.sap.inspection.mainmenu.fragmentadapter;
 import android.support.v4.app.FragmentManager;
 import android.view.View.OnClickListener;
 
-import com.sap.inspection.BaseFragmentAdapter;
 import com.sap.inspection.mainmenu.MainMenuPageFragment;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.view.adapter.BaseFragmentAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainMenuFragmentAdapter extends BaseFragmentAdapter{
+public class MainMenuFragmentAdapter extends BaseFragmentAdapter {
 	private ArrayList<Integer> iconRes;
 	private ArrayList<Integer> titleRes;
 

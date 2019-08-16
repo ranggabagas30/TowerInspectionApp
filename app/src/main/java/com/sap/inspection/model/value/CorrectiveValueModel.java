@@ -11,7 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.manager.ItemUploadManager;
@@ -159,9 +159,9 @@ public class CorrectiveValueModel extends FormValueModel {
 		args = argsList.toArray(args);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);;
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst()) {
+        if (!cursor.moveToFirst()) {
 
 			cursor.close();
 			DbRepositoryValue.getInstance().close();
@@ -340,7 +340,7 @@ public class CorrectiveValueModel extends FormValueModel {
 				workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModel.work_type.id);
 
 				groupModel = new WorkFormGroupModel();
-				workFormGroupModels = groupModel.getAllItemByWorkFormId(workFormModel.id);
+				workFormGroupModels = WorkFormGroupModel.getAllItemByWorkFormId(workFormModel.id);
 			}
 		}
 

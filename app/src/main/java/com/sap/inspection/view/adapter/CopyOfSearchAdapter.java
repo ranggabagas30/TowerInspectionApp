@@ -46,7 +46,7 @@ public class CopyOfSearchAdapter extends MyBaseAdapter {
 		if (convertView == null) {
 			holder = new ViewHolder();
 			view = LayoutInflater.from(context).inflate(android.R.layout.select_dialog_item,null);
-			holder.title = (TextView) view.findViewById(android.R.id.text1);
+			holder.title = view.findViewById(android.R.id.text1);
 			view.setTag(holder);
 		} else
 			holder = (ViewHolder) view.getTag();

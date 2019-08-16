@@ -10,7 +10,7 @@
         android:padding="@dimen/padding_small"
         android:visibility="gone" />
 
-    <com.sap.inspection.view.PhotoItem
+    <com.sap.inspection.view.customview.PhotoItem
         android:id="@+id/item_form_photo"
         style="@style/list_sub"
         android:layout_width="match_parent"

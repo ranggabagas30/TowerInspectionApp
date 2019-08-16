@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" >
 
-            <com.sap.inspection.view.MyTextView
+            <com.sap.inspection.view.customview.MyTextView
                 android:id="@id/item_schedule_percent"
                 style="@style/list_title"
                 android:layout_width="wrap_content"
@@ -32,7 +32,7 @@
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
 
-            <com.sap.inspection.view.MyTextView
+            <com.sap.inspection.view.customview.MyTextView
                 android:id="@id/item_schedule_status"
                 style="@style/list_sub"
                 android:layout_width="wrap_content"
@@ -66,7 +66,7 @@
         android:paddingRight="@dimen/padding_medium"
         android:paddingTop="@dimen/padding_medium" >
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:id="@id/item_schedule_title"
             style="@style/list_title"
             android:layout_width="wrap_content"
@@ -77,7 +77,7 @@
             android:singleLine="true"
             android:text="Aneka Indah" />
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:id="@id/item_schedule_task"
             style="@style/list_sub"
             android:layout_width="@dimen/item_schedule_task_width"
@@ -89,7 +89,7 @@
             android:singleLine="true"
             android:text="NEW LOCATION" />
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:visibility="gone"
             android:id="@id/item_schedule_place"
             style="@style/list_sub"
@@ -105,7 +105,7 @@
             android:text="Cilandak Tangerang Jakarta Kota Sekali" />
     </RelativeLayout>
 
-    <com.sap.inspection.view.ImageViewForList
+    <com.sap.inspection.view.customview.ImageViewForList
         android:id="@+id/item_schedule_delete"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -116,7 +116,7 @@
         android:clickable="true"
         android:visibility="visible"/>
 
-    <com.sap.inspection.view.ImageViewForList
+    <com.sap.inspection.view.customview.ImageViewForList
         android:id="@+id/item_schedule_upload"
         android:layout_width="50dp"
         android:layout_height="50dp"

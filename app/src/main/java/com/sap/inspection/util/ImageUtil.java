@@ -20,7 +20,7 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.TextMarkModel;
@@ -678,13 +678,13 @@ public class ImageUtil {
                 pixels = (float) (pixels * 1.5);
                 break;
             case DisplayMetrics.DENSITY_XHIGH:
-                pixels = (float) (pixels * 2);
+                pixels = pixels * 2;
                 break;
             case DisplayMetrics.DENSITY_XXHIGH:
-                pixels = (float) (pixels * 3);
+                pixels = pixels * 3;
                 break;
             case DisplayMetrics.DENSITY_XXXHIGH:
-                pixels = (float) (pixels * 4);
+                pixels = pixels * 4;
                 break;
         }
         return pixels;

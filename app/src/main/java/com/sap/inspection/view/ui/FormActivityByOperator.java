@@ -8,8 +8,8 @@
 //import android.support.v4.view.ViewPager;
 //
 //import com.sap.inspection.constant.Constants;
-//import com.sap.inspection.fragments.BaseFragment;
-//import com.sap.inspection.fragments.GroupFragment;
+//import BaseFragment;
+//import GroupFragment;
 //import com.sap.inspection.listener.GroupActivityListener;
 //import com.sap.inspection.model.ScheduleBaseModel;
 //import com.sap.inspection.model.ScheduleGeneral;

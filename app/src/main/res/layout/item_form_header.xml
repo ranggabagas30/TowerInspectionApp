@@ -19,7 +19,7 @@
         android:paddingRight="@dimen/padding_large"
         android:paddingTop="@dimen/padding_medium" >
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:id="@+id/item_form_label"
             style="@style/list_title"
             android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
             android:includeFontPadding="false"
             android:text="SAMPLE" />
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:id="@+id/item_form_colored"
             style="@style/list_sub"
             android:layout_width="wrap_content"
@@ -41,7 +41,7 @@
             android:text="SAMPLE "
             android:visibility="gone" />
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:id="@+id/item_form_plain"
             style="@style/list_sub"
             android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
             android:text="SAMPLE"
             android:visibility="gone" />
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:id="@+id/item_form_upload_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

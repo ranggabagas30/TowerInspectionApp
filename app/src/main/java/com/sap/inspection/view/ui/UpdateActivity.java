@@ -43,13 +43,13 @@ public class UpdateActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		DebugLog.d("");
 		setContentView(R.layout.activity_update);
-		TextView title = (TextView) findViewById(R.id.header_title);
+		TextView title = findViewById(R.id.header_title);
 		title.setText("Aplikasi Update");
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		file_url = prefs.getString(this.getString(R.string.url_update), "");
 
 		// show progress bar button
-		btnShowProgress = (Button) findViewById(R.id.btnProgressBar);
+		btnShowProgress = findViewById(R.id.btnProgressBar);
 		// Image view to show image after downloading
 		/**
 		 * Show Progress bar click event
@@ -64,7 +64,7 @@ public class UpdateActivity extends BaseActivity {
 			}
 		});
 
-		Button cancel = (Button) findViewById(R.id.cancel);
+		Button cancel = findViewById(R.id.cancel);
 
 		cancel.setOnClickListener(new View.OnClickListener() {
 
@@ -137,7 +137,7 @@ public class UpdateActivity extends BaseActivity {
 				// Output stream
 				OutputStream output = new FileOutputStream(tempDir.getAbsolutePath()+"/sapInspection"+prefs.getString(UpdateActivity.this.getString(R.string.latest_version), "")+".apk");
 
-				byte data[] = new byte[1024];
+                byte[] data = new byte[1024];
 
 				long total = 0;
 
@@ -191,7 +191,7 @@ public class UpdateActivity extends BaseActivity {
 
 			Intent intent = new Intent(Intent.ACTION_VIEW)
 			.setDataAndType(Uri.fromFile(tempFile),"application/vnd.android.package-archive");
-			intent.addFlags(intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(intent); 
 
 		}

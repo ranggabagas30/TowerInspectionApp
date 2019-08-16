@@ -210,8 +210,8 @@ public class MyApplication extends Application implements ActivityLifecycleHandl
 	private static Handler toastHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			Toast.makeText(instance, msg.getData().getString("message"), msg.getData().getInt("duration")).show();
-		};
-	};
+		}
+    };
 
 	@SuppressLint("HandlerLeak")
 	private static Handler deviceRegisterHandler = new Handler(){

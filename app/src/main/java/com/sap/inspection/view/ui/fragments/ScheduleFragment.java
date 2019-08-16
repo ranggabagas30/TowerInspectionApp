@@ -1,4 +1,4 @@
-package com.sap.inspection.fragments;
+package com.sap.inspection.view.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;

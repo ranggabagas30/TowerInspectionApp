@@ -50,7 +50,7 @@ import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowColumnModel;
-import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
@@ -60,10 +60,13 @@ import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.StringUtil;
-import com.sap.inspection.view.FormItem;
-import com.sap.inspection.view.PhotoItemRadio;
-import com.sap.inspection.view.dialog.DialogUtil;
-import com.sap.inspection.views.adapter.FormFillAdapter;
+import com.sap.inspection.view.customview.FormItem;
+import com.sap.inspection.view.customview.PhotoItemRadio;
+import com.sap.inspection.util.DialogUtil;
+import com.sap.inspection.view.adapter.FormFillAdapter;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.view.ui.SettingActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +76,7 @@ import java.util.Set;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
-	private RowModel parentRow;
+	private WorkFormRowModel parentRow;
 	private ArrayList<ColumnModel> column;
 
 	// bundle data
@@ -509,7 +512,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			parentRow = new RowModel(FormFillActivity.this);
+			parentRow = new WorkFormRowModel(FormFillActivity.this);
 
 		    if (workTypeName.equalsIgnoreCase(getString(R.string.corrective))) {
 
@@ -579,7 +582,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			//check if the child has a form
 			String parentLabel = null;
 			DebugLog.d("\n\nlooping children with size : " + parentRow.children.size());
-			for (RowModel rowChildren : parentRow.children) {
+			for (WorkFormRowModel rowChildren : parentRow.children) {
 				x++;
 				DebugLog.d("\nchildren ke-" + x + " with id " + rowChildren.id);
 				DebugLog.d("checking item's header label..");
@@ -618,7 +621,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			return null;
 		}
 		
-		private void checkHeaderName(RowModel parentRow){
+		private void checkHeaderName(WorkFormRowModel parentRow){
 			if (parentRow.row_columns != null &&
 					parentRow.row_columns.size() > 0 &&
 					parentRow.row_columns.get(0).items != null &&

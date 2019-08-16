@@ -3,15 +3,12 @@ package com.sap.inspection.util;// Created by Arif Ariyan (me@arifariyan.com) on
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
@@ -21,7 +18,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.value.Pair;
@@ -333,32 +330,24 @@ public class CommonUtil {
         return imei;
     }
 
-    public static File getNewAPKpath(Context context) {
+    public static File getNewAPKpath() {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         File tempFile;
         if (CommonUtil.isExternalStorageAvailable()) {
             DebugLog.d("external storage available");
-            tempFile = Environment.getExternalStorageDirectory();
-        } else {
-            DebugLog.d("external storage not available");
-            tempFile = context.getFilesDir();
+            tempFile = new File(Constants.PATH_APK);
+            DebugLog.d(tempFile.getAbsolutePath());
+            if (tempFile.exists()) {
+                return tempFile;
+            }
         }
-        tempFile = new File(tempFile.getAbsolutePath() + "/Download/sapInspection" + prefs.getString(context.getString(R.string.latest_version), "") + ".apk");
-        DebugLog.d(tempFile.getAbsolutePath());
-
-        if (tempFile.exists()) {
-            return tempFile;
-        }
-
         return null;
     }
 
     public static void installAPK(Activity activity, Context context) {
 
-        File tempFile = getNewAPKpath(context);
+        File tempFile = getNewAPKpath();
         if (tempFile != null && tempFile.exists()) {
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Uri uriAPK = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileProvider", tempFile);
                 Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uriAPK, "application/vnd.android.package-archive");
@@ -369,7 +358,6 @@ public class CommonUtil {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 activity.startActivityForResult(intent, Constants.RC_INSTALL_APK);
             }
-
         } else {
             MyApplication.getInstance().toast(context.getResources().getString(R.string.failed_apknotfound), Toast.LENGTH_LONG);
             activity.finish();

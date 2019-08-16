@@ -183,10 +183,7 @@ public class JSONConnectionPOSTValue extends AsyncTask<Void, Void, String>{
 		String data = jsonObj.getString("data");
 		Gson gson = new Gson();
 		ErrorSatutempatModel model = gson.fromJson(data,ErrorSatutempatModel.class);
-		if (model != null && model.error_type != null ){
-			return true;
-		}
-		return false;
+        return model != null && model.error_type != null;
     }
 
 	@Override

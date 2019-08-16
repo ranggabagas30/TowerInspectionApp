@@ -48,8 +48,8 @@ View.OnClickListener {
 
 	public static final int MIN_SPACING = 10;
 
-	public static interface OnGridItemClickListener {
-		public void onGridItemClicked(String sectionName, int position, View v);
+	public interface OnGridItemClickListener {
+		void onGridItemClicked(String sectionName, int position, View v);
 	}
 
 	private OnGridItemClickListener listener = null;
@@ -159,7 +159,7 @@ View.OnClickListener {
 			if (isSectionheader) {
 				Log.d(getClass().getName(), "========= section header "+position);
 				v = inflater.inflate(R.layout.section_header, null);
-				TextView header = (TextView) v.findViewById(R.id.header);
+				TextView header = v.findViewById(R.id.header);
 				RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(gridItemSize * numberOfChildrenInRow, RelativeLayout.LayoutParams.WRAP_CONTENT);
 				param.addRule(RelativeLayout.CENTER_HORIZONTAL);
 				param.addRule(RelativeLayout.BELOW, R.id.layout_helper1);
@@ -169,7 +169,7 @@ View.OnClickListener {
 				LinearLayout ll = (LinearLayout) inflater.inflate(
 						R.layout.list_row, null);
 				v = ll;
-				ll = (LinearLayout) ll.findViewById(R.id.row_item);
+				ll = ll.findViewById(R.id.row_item);
 				// add childrenCount to this
 				for (int i = 0; i < numberOfChildrenInRow; i++) {
 					// add a child
@@ -194,7 +194,7 @@ View.OnClickListener {
 		String sectionName = whichSection(position);
 
 		if (isSectionheader) {
-			TextView tv = (TextView) v.findViewById(R.id.header);
+			TextView tv = v.findViewById(R.id.header);
 			String[] s = sectionName.split("[-]", 2);
 			//			if (s == null || s[0] == null || s[1] == null)
 			//				tv.setText(sectionName);
@@ -203,7 +203,7 @@ View.OnClickListener {
 			//			tv.setText(sectionName);
 		} else {
 			LinearLayout ll = (LinearLayout) v;
-			LinearLayout rowPanel = (LinearLayout) ll.findViewById(R.id.row_item);
+			LinearLayout rowPanel = ll.findViewById(R.id.row_item);
 			//			View divider = ll.findViewById(R.id.row_item_divider);
 			//			divider.setVisibility(View.VISIBLE);
 
@@ -231,16 +231,16 @@ View.OnClickListener {
 					Log.d(getClass().getName(), "==================="+s[0]+s[1]+s[2]);
 					Calendar calendar = Calendar.getInstance();
 					calendar.set(Integer.parseInt(s[0]), Integer.parseInt(s[1]) - 1, Integer.parseInt(s[2]));
-					TextView tv = (TextView) child.findViewById(R.id.day_week);
+					TextView tv = child.findViewById(R.id.day_week);
 					tv.setText(Constants.DAYS[calendar.get(Calendar.DAY_OF_WEEK) - 1]);
-					tv = (TextView) child.findViewById(R.id.day_month);
+					tv = child.findViewById(R.id.day_month);
 					tv.setText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
-					tv = (TextView) child.findViewById(R.id.task);
+					tv = child.findViewById(R.id.task);
 					tv.setText(String.valueOf(c.get(cursorStartAt).sum));
 				}
 
 				// set listener on image button
-				ImageButton button = (ImageButton) child
+				ImageButton button = child
 						.findViewById(R.id.data_item_image);
 				ButtonViewHolder holder = new ButtonViewHolder();
 				holder.sectionName = sectionName;

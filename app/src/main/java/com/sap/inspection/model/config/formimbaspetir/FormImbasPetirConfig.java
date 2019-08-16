@@ -340,7 +340,7 @@ public class FormImbasPetirConfig {
             for (int i = 1; i <= amountOfWarga; i++) {
 
                 int wargake = i + countaddwarga;
-                String wargaId = "new" + String.valueOf(wargake);
+                String wargaId = "new" + wargake;
 
                 Warga warga = new Warga();  //\\ init warga
                 warga.setWargake(wargaId);    // temporary id
@@ -395,7 +395,7 @@ public class FormImbasPetirConfig {
                     for (int i = 1; i <= amountOfBarang; i++) {
 
                         int barangke = i + countaddbarang;
-                        String barangId = "new" + String.valueOf(barangke);
+                        String barangId = "new" + barangke;
 
                         Barang barang = new Barang();
                         barang.setBarangke(barangId);
