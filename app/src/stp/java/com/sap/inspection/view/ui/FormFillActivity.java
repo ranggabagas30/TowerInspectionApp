@@ -67,9 +67,6 @@ import java.util.ArrayList;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
-	private WorkFormRowModel parentRow;
-	private ArrayList<ColumnModel> column;
-
 	// bundle data
 	private String scheduleId;
 	private String workFormGroupName;
@@ -78,6 +75,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private int rowId;
 
 	private ScheduleBaseModel schedule;
+	private WorkFormRowModel parentRow;
+	private ArrayList<ColumnModel> column;
 	private FormValueModel itemValueForShare;
 	private Uri mImageUri;
 	public ArrayList<Integer> indexes;
@@ -87,11 +86,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private File photoFile;
 	private FormFillAdapter adapter;
 
+
 	private String pageTitle;
 	private LatLng currentGeoPoint;
 	private int accuracy;
 	private boolean finishInflate;
 	private boolean isChecklistOrSiteInformation;
+	private boolean isMandatoryCheckingActive;
 
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
@@ -698,39 +699,38 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         list.add(ItemFormRenderModel.TYPE_EXPAND);
         adapter.notifyDataSetChanged();
 
-        if (adapter!=null && !adapter.isEmpty() && !MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
-
 		if (adapter!=null && !adapter.isEmpty()) {
 			if ((MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation) || !MyApplication.getInstance().IS_CHECKING_HASIL_PM()){
 				isMandatoryCheckingActive = true;
 			}
 		}
 
-        if (isMandatoryCheckingActive) {
+		if (isMandatoryCheckingActive) {
 
-            DebugLog.d("\n\n ==== ON BACK PRESSED ====");
-            DebugLog.d("scheduleId = " + scheduleId);
-            DebugLog.d("workFormGroupName = " + workFormGroupName);
-            DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().IS_CHECKING_HASIL_PM());
-            DebugLog.d("Jumlah item adapter : " + adapter.getCount());
+			DebugLog.d("\n\n ==== ON BACK PRESSED ====");
+			DebugLog.d("scheduleId = " + scheduleId);
+			DebugLog.d("workFormGroupName = " + workFormGroupName);
+			DebugLog.d("is in check hasil pm ? " + MyApplication.getInstance().IS_CHECKING_HASIL_PM());
+			DebugLog.d("Jumlah item adapter : " + adapter.getCount());
 
-            String mandatoryLabel = "";
-            boolean mandatoryFound = false;
+			String mandatoryLabel = "";
+			boolean mandatoryFound = false;
 
-            for (int i = 0; i < adapter.getCount(); i++) {
+			for (int i = 0; i < adapter.getCount(); i++) {
 
-                ItemFormRenderModel item = adapter.getItem(i);
+				ItemFormRenderModel item = adapter.getItem(i);
 
-                DebugLog.d("no. "+ i);
-                DebugLog.d("\titem type = " + item.type);
-                if (item.workItemModel!=null) {
-                    DebugLog.d("\titem label = " + item.workItemModel.label);
-                    DebugLog.d("\titem isMandatory = " + item.workItemModel.mandatory);
-                    DebugLog.d("\titem isDisabled = " + item.workItemModel.disable);
-                } else
-                    DebugLog.d("\titem workitemmodel = null");
+				DebugLog.d("no. " + i);
+				DebugLog.d("\titem type = " + item.type);
+				if (item.workItemModel != null) {
+					DebugLog.d("\titem label = " + item.workItemModel.label);
+					DebugLog.d("\titem isMandatory = " + item.workItemModel.mandatory);
+					DebugLog.d("\titem isDisabled = " + item.workItemModel.disable);
+				} else
+					DebugLog.d("\titem workitemmodel = null");
 
-                if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value)) DebugLog.d("\titem value = " +item.itemValue.value);
+				if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value))
+					DebugLog.d("\titem value = " + item.itemValue.value);
 
 				if (list.contains(item.type) && item.workItemModel != null) {
 					if (!FormValueModel.isItemValueValidated(item.workItemModel, item.itemValue)) {
@@ -739,16 +739,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						break;
 					}
 				}
-            }
+			}
 
-            //if (!BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
-            if (mandatoryFound) {
-                DebugLog.e("mandatoryFound with label : " + mandatoryLabel);
-                return;
-            }
-        }
-
-        super.onBackPressed();
+			//if (!BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
+			if (mandatoryFound) {
+				DebugLog.e("mandatoryFound with label : " + mandatoryLabel);
+				return;
+			}
+			super.onBackPressed();
+		}
     }
 
 	private AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener() {
