@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +32,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -516,21 +518,23 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					form.setWorkFormGroupName(workFormGroupName);
 					form.setWorkTypeName(workTypeName);
 					form.setRowColumnModels(parentRow.row_columns, null);
+					DebugLog.d("has input ? " + form.hasInput);
+					DebugLog.d("has picture ? " + form.hasPicture);
 					if (form.hasInput){
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 						String label = form.getLabel();
-
 						if (TextUtils.isEmpty(label)) {
 							label = "item with no label";
 						}
+						DebugLog.d("label added : " + label + " has input");
 						labels.add(label);
 						formModels.add(form);
 					} else if (form.hasPicture){
 						String label = form.getLabel();
-
 						if (TextUtils.isEmpty(label)) {
 							label = "item with no label";
 						}
+						DebugLog.d("label added : " + label + " has picture");
 						labels.add(label);
 						formModels.add(form);
 					}
@@ -556,6 +560,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				form.setWorkFormGroupName(workFormGroupName);
 				form.setWorkFormGroupId(workFormGroupId);
 				form.setRowColumnModels(rowChildren.row_columns, parentLabel);
+				DebugLog.d("has input ? " + form.hasInput);
 				if (form.hasInput){
 					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 					String label = form.getLabel();
@@ -633,6 +638,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				search.setAdapter(searchAdapter);
 			} else {
 
+				DebugLog.d("form kosong");
 				layoutEmpty.setVisibility(View.VISIBLE);
 				list.setVisibility(View.GONE);
 

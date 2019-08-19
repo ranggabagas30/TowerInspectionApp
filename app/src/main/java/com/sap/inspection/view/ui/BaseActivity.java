@@ -247,7 +247,13 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	protected void trackEvent(String name) {
 		Bundle bundle = new Bundle();
 		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
-		MyApplication myApplication = (MyApplication) getApplication();
+		FirebaseAnalytics mFirebaseAnalytics = MyApplication.getDefaultAnalytics();
+		mFirebaseAnalytics.logEvent("track_event", bundle);
+	}
+
+	public static void trackLog(String message) {
+		Bundle bundle = new Bundle();
+		bundle.putString(FirebaseAnalytics.Param.VALUE, message);
 		FirebaseAnalytics mFirebaseAnalytics = MyApplication.getDefaultAnalytics();
 		mFirebaseAnalytics.logEvent("track_event", bundle);
 	}

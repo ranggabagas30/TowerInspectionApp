@@ -23,9 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.sap.inspection.view.ui.BaseActivity;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -38,6 +36,8 @@ import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.MyApplication;
 
 import java.io.File;
 
