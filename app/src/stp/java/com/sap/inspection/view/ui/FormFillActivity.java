@@ -90,7 +90,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private int accuracy;
 	private boolean finishInflate;
 	private boolean isChecklistOrSiteInformation;
-	private boolean isMandatoryCheckingActive;
+	private boolean isMandatoryCheckingActive = false;
 
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
@@ -118,12 +118,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
             rowId 				= bundle.getInt(Constants.KEY_ROWID);
             workFormGroupId 	= bundle.getInt(Constants.KEY_WORKFORMGROUPID);
             workFormGroupName 	= bundle.getString(Constants.KEY_WORKFORMGROUPNAME);
+			workTypeName		= bundle.getString(Constants.KEY_WORKTYPENAME);
             scheduleId 			= bundle.getString(Constants.KEY_SCHEDULEID);
 
             DebugLog.d("received bundle : ");
             DebugLog.d("rowId = " + rowId);
             DebugLog.d("workFormGroupId = " + workFormGroupId);
             DebugLog.d("workFormGroupName = " + workFormGroupName);
+			DebugLog.d("workTypeName = " + workTypeName);
             DebugLog.d("scheduleId = " + scheduleId);
 
 			isChecklistOrSiteInformation =  workFormGroupName.equalsIgnoreCase("checklist") ||
@@ -512,6 +514,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					form.setSchedule(schedule);
 					form.setColumn(column);
 					form.setWorkFormGroupName(workFormGroupName);
+					form.setWorkTypeName(workTypeName);
 					form.setRowColumnModels(parentRow.row_columns, null);
 					if (form.hasInput){
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
@@ -549,9 +552,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
 				form.setColumn(column);
+				form.setWorkTypeName(workTypeName);
 				form.setWorkFormGroupName(workFormGroupName);
 				form.setWorkFormGroupId(workFormGroupId);
-				form.setRowColumnModels(rowChildren.row_columns,parentLabel);
+				form.setRowColumnModels(rowChildren.row_columns, parentLabel);
 				if (form.hasInput){
 					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 					String label = form.getLabel();
@@ -744,8 +748,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				DebugLog.e("mandatoryFound with label : " + mandatoryLabel);
 				return;
 			}
-			super.onBackPressed();
 		}
+		super.onBackPressed();
     }
 
 	private AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener() {

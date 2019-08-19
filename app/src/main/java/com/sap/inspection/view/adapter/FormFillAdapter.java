@@ -56,10 +56,10 @@ public class FormFillAdapter extends MyBaseAdapter {
 	private String wargaId;
 	private String barangId;
 	private boolean isScheduleApproved;
+	private boolean isChecklistOrSiteInformation;
 
 	private OnClickListener photoListener;
 	private OnClickListener uploadListener;
-	private boolean isChecklistOrSiteInformation;
 	private SparseArray<List<ItemFormRenderModel>> sparseArray = new SparseArray<>();
 	private SavingRule savingRule;
 	private SparseBooleanArray expandState = new SparseBooleanArray();
@@ -623,11 +623,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 		boolean isEnabled = false;
 		if (!workFormItem.disable) {
-			if (BuildConfig.FLAVOR.equalsIgnoreCase("sap")) {
-				if (MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation)
-					isEnabled = true;
-			}
-			if (!MyApplication.getInstance().IS_CHECKING_HASIL_PM())
+			if (MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation)
 				isEnabled = true;
 		}
 		DebugLog.d("workItemDisable : " + workFormItem.disable);

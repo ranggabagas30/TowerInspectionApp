@@ -204,7 +204,6 @@ public class ItemFormRenderModel extends BaseModel {
             }
         }
 
-
         //generate other cell
         DebugLog.d("> generate other cell for header " + this.label);
         DebugLog.d("|\trow_col_id\t|\trow_id\t|\tcol_id\t|\twork_form_group_id\t|\titem size\t|");
