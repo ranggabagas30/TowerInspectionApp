@@ -106,7 +106,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 			requestAllPermissions();
 	}
 
-	/** Ensure that Location GPS and Location Networkf had been enabled when app is resumed **/
+	/** Ensure that Location GPS and Location Network had been enabled when app is resumed **/
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -223,9 +223,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 			case NONE: DebugLog.d("permission granted");
 				Toast.makeText(LoginActivity.this, this.getString(R.string.success_permissions_granted), Toast.LENGTH_SHORT).show(); break;
 		}
-		/*login.setEnabled(true);
-		update.setEnabled(true);
-		copy.setEnabled(true);*/
 	}
 
 	private void login() {

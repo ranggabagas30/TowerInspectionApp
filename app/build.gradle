@@ -32,7 +32,6 @@ android {
     }
 
     signingConfigs {
-oke
         release {
             storeFile file('release.keystore.jks')
             storePassword "domikado"
