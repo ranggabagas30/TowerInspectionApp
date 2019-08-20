@@ -7,7 +7,6 @@ import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.R;
-import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.util.PrefUtil;
 
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class TowerAPIClient {
 
             Request original = chain.request();
             HttpUrl originalHttpUrl = original.url();
-            HttpUrl modifiedHttpUtl;
+            HttpUrl modifiedHttpUrl;
             HttpUrl.Builder modifiedHttpUrlBuilder = originalHttpUrl.newBuilder();
 
             String accessToken = PrefUtil.getStringPref(R.string.user_authToken, null);
@@ -69,9 +68,9 @@ public class TowerAPIClient {
                 modifiedHttpUrlBuilder.addQueryParameter("access_token", accessToken);
             }
 
-            modifiedHttpUtl = modifiedHttpUrlBuilder.build();
+            modifiedHttpUrl = modifiedHttpUrlBuilder.build();
             Request.Builder modifiedReqBuilder = original.newBuilder()
-                    .url(modifiedHttpUtl);
+                    .url(modifiedHttpUrl);
 
             Request modified = modifiedReqBuilder.build();
             return chain.proceed(modified);
