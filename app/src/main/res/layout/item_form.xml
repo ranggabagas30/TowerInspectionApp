@@ -18,7 +18,7 @@
             android:paddingRight="@dimen/padding_large"
             android:paddingTop="@dimen/padding_medium" >
 
-            <com.sap.inspection.view.MyTextView
+            <com.sap.inspection.view.customview.MyTextView
                 android:id="@id/item_drill_title"
                 style="@style/list_title"
                 android:layout_width="wrap_content"
@@ -29,7 +29,7 @@
                 android:maxLines="2"
                 android:text="SAMPLE" />
 
-            <com.sap.inspection.view.MyTextView
+            <com.sap.inspection.view.customview.MyTextView
                 android:id="@id/item_drill_subcolored"
                 style="@style/list_sub"
                 android:layout_width="wrap_content"
@@ -39,7 +39,7 @@
                 android:singleLine="true"
                 android:text="SAMPLE " />
 
-            <com.sap.inspection.view.MyTextView
+            <com.sap.inspection.view.customview.MyTextView
                 android:id="@id/item_drill_subplain"
                 style="@style/list_sub"
                 android:layout_width="wrap_content"

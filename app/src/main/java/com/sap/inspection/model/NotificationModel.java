@@ -1,10 +1,10 @@
 package com.sap.inspection.model;
 
-import java.util.ArrayList;
+import android.os.Parcel;
 
 import org.apache.http.NameValuePair;
 
-import android.os.Parcel;
+import java.util.ArrayList;
 
 public class NotificationModel extends BaseModel {
 	

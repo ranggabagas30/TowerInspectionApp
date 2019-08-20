@@ -1,14 +1,14 @@
 package com.sap.inspection.util;
 
-import java.util.Set;
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+
+import com.rindang.zconfig.AppConfig;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.rindang.zconfig.AppConfig;
-
-import android.annotation.SuppressLint;
-import android.os.Bundle;
+import java.util.Set;
 
 public class BundleToJson {
 

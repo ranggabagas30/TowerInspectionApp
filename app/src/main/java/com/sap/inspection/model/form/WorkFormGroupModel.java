@@ -1,16 +1,16 @@
 package com.sap.inspection.model.form;
 
-import java.util.Vector;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+
+import java.util.Vector;
 
 public class WorkFormGroupModel extends BaseModel {
 	

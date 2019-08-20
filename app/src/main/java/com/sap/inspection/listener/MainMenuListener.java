@@ -1,10 +1,10 @@
 package com.sap.inspection.listener;
 
 public interface MainMenuListener {
-	public static int CORRECTIVE = 0;
-	public static int PREVENTIVE = 1;
-	public static int NEW_LOCATION = 2;
-	public static int COLOCATION = 3;
-	public static int FIBEROPTIK = 4;
-	public void changeFrameRight(int fragmentId);
+	int CORRECTIVE = 0;
+	int PREVENTIVE = 1;
+	int NEW_LOCATION = 2;
+	int COLOCATION = 3;
+	int FIBEROPTIK = 4;
+	void changeFrameRight(int fragmentId);
 }

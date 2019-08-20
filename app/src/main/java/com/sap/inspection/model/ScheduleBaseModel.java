@@ -9,7 +9,9 @@ import android.os.Parcel;
 import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.BuildConfig;
+import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
@@ -194,10 +196,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			operator.save();
 		}
 
-		for (int hiddenItemIds : hidden) {
-			WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
-			workFormItem.visible = false;
-			workFormItem.save();
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			for (int hiddenItemIds : hidden) {
+				WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
+				workFormItem.visible = false;
+				workFormItem.save();
+			}
 		}
 
 		if (schedule_values!=null)
@@ -224,7 +228,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		if (sumTaskDone == 0){
 			sumTaskDone = getTaskDone(id);
 		}
-
 		insert();
 	}
 
@@ -369,7 +372,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		if (!cursor.moveToFirst()) {
 			cursor.close();
-            DbRepository.getInstance().close();
+			DbRepository.getInstance().close();
 			return result;
 		}
 		do {
@@ -486,7 +489,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		CallendarModel callendarModel = null;
 		int count = 0;
 		for (ScheduleBaseModel scheduleBaseModel : rawList) {
-			if (callendarModels == null 
+			if (callendarModels == null
 					|| !scheduleBaseModel.day_date.substring(0, 7).equalsIgnoreCase(callendarModels.get(callendarModels.size()-1).date.substring(0, 7))){
 				callendarModels = new Vector<CallendarModel>();
 				filter.put(scheduleBaseModel.day_date.substring(0, 7), callendarModels);
@@ -541,7 +544,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			String[] tempOpId = temp.split("[,]");
 			for (int i = 0; i < tempOpId.length; i++) {
 				tempOp = new OperatorModel();
-				tempOp  = tempOp.getOperatorById(Integer.parseInt(tempOpId[i]));
+				tempOp  = OperatorModel.getOperatorById(Integer.parseInt(tempOpId[i]));
 				scheduleBase.operators.add(tempOp);
 			}
 		}

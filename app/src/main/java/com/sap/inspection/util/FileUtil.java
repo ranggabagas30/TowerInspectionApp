@@ -4,12 +4,12 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.util.Log;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.tools.DebugLog;
@@ -44,7 +44,7 @@ public class FileUtil {
                 }
             }
             //string copy database sukses
-            Toast.makeText(context, context.getString(R.string.copydatabasesuccess), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.success_copydatabase), Toast.LENGTH_SHORT).show();
 
         } catch (Exception e) {
             DebugLog.e(e.getMessage());
@@ -93,19 +93,24 @@ public class FileUtil {
 
     public static File createTemporaryPhotoFile(String part, String ext, String path) throws IOException, IllegalArgumentException {
         File photoDir = getDir(path);
-        return File.createTempFile(part, ext, photoDir);
+        File createdFile = File.createTempFile(part, ext, photoDir);
+        DebugLog.d("created file : " + createdFile.getPath());
+        return createdFile;
     }
 
     public static File getDir(String path) throws NullPointerException {
+        if (TextUtils.isEmpty(path))
+            throw new NullPointerException("empth path");
+
         File tempDir = new File(path);
         if (!tempDir.exists()) {
-            String createDirMessage = "failed create dir : " + path;
+            String createDirMessage = MyApplication.getContext().getString(R.string.failed_createdir);
             boolean createDirStatus = tempDir.mkdirs();
-            if (createDirStatus) {
-                createDirMessage = "success create dir : " + tempDir.getPath();
-            }
-            DebugLog.d("createTemporaryPhotoFile: " + createDirMessage);
+            if (createDirStatus)
+                createDirMessage = MyApplication.getContext().getString(R.string.success_createdir);
+            DebugLog.d(createDirMessage);
         }
+        DebugLog.d("dir : " + path);
         return tempDir;
     }
 

@@ -6,10 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
-import com.sap.inspection.fragments.BaseTitleFragment;
 import com.sap.inspection.mainmenu.fragmentadapter.MainMenuFragmentAdapter;
+import com.sap.inspection.view.ui.fragments.BaseTitleFragment;
 
 import java.util.ArrayList;
 
@@ -39,7 +38,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 	@Override
 	public View onGetLayout(LayoutInflater inflater) {
 		View root = inflater.inflate(R.layout.fragment_mainmenu, null, false);
-		viewPager = (ViewPager) root.findViewById(R.id.viewPager);
+		viewPager = root.findViewById(R.id.viewPager);
 		viewPager.setAdapter(adapter);
 		return root;
 	}

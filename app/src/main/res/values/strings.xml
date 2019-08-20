@@ -73,8 +73,16 @@
     <string name="criteria">Criteria :</string>
 
     <!-- Log / Report message  -->
+    <!-- event message -->
+    <string name="event_take_picture">User memulai pengambilan foto</string>
+
     <!-- failed messages -->
+    <string name="failed_latest_version_not_found">Tidak ada informasi versi terakhir</string>
+    <string name="failed_check_apk_version">Gagal mengecek versi aplikasi</string>
+    <string name="failed_update_apk">Gagal mengupdate apk</string>
+    <string name="failed_apknotfound">Update aplikasi gagal! File APK tidak terunduh atau tidak ditemukan</string>
     <string name="failed_login_unauthorized">Username and Password salah</string>
+    <string name="failed_login_field_blanked">Mohon masukkan dengan benar username dan password</string>
     <string name="failed_feature_not_supported_or_removed_from_server">Fitur ini belum didukung oleh server atau dihapus dari server</string>
     <string name="failed_pasword_doesnt_match">Password salah</string>
     <string name="failed_network_connection_problem">Masalah pada jaringan</string>
@@ -83,20 +91,26 @@
     <string name="failed_search_product_not_found">Maaf, kami tidak menemui produk apapun yang sesuai</string>
     <string name="failed_search_people_not_found">Maaf, kami tidak menemui orang yang sesuai</string>
     <string name="failed_notjsontype">Respon bukan tipe json</string>
-    <string name="failed_apknotfound">Update aplikasi gagal! File APK tidak terunduh atau tidak ditemukan</string>
     <string name="failed_copydatabase">Gagal salin database</string>
     <string name="failed_downloadschedule">Tidak dapat mendapatkan Schedule dari server\nsilahkan login ulang untuk mendapatkan internet yang cepat</string>
     <string name="failed_nointernetconnection">Tidak ada koneksi internet, silahkan periksa jaringan anda.</string>
     <string name="failed_nonewuploaditem">Tidak ada item yang baru untuk di upload</string>
     <string name="failed_noitem">Tidak ada item</string>
+    <string name="failed_createdir">Gagal membuat direktori</string>
     <string name="failed_storageisreadonly">Gagal menyimpan file. (Storage is read-only)</string>
     <string name="failed_storageisnotavailble">Gagal menyimpan file. (Storage is not available)</string>
     <string name="failed_filenametooshort">Nama file terlalu pendek. Minimum 3 karakter</string>
     <string name="failed_take_picture">Pengambilan foto gagal</string>
+    <string name="failed_load_image">Gagal menampilkan gambar</string>
     <string name="failed_url_bad_format">URL tidak benar. Periksa kembal</string>
+    <string name="failed_delete_file">Gagal menghapus data file</string>
 
     <!-- success messages-->
-    <string name="copydatabasesuccess">Berhasil salin database</string>
+    <string name="success_copydatabase">Berhasil salin database</string>
+    <string name="success_createdir">Berhasil membuat direktori</string>
+    <string name="success_delete_file">Berhasil menghapus data file</string>
+    <string name="success_permissions_granted">Permissions diizinkan</string>
+    <string name="success_update_schedule">Schedule berhasil diperbaharui</string>
 
     <string name="informationGPS">Information</string>
     <string name="enableGPS">Silahkan aktifkan GPS</string>

@@ -1,7 +1,6 @@
 package com.sap.inspection.manager;
 
 import android.app.AlarmManager;
-import android.os.CountDownTimer;
 
 public class CheckinManager {
 

@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 
 public class TokenModel extends BaseModel {
@@ -21,9 +21,10 @@ public class TokenModel extends BaseModel {
 	 * Standard basic constructor for non-parcel
 	 * object creation
 	 */
-	public TokenModel() { ; };
+	public TokenModel() {
+    }
 
-	/**
+    /**
 	 *
 	 * Constructor to use when re-constructing object
 	 * from a parcel

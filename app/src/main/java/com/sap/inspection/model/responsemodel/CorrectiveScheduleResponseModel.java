@@ -1,6 +1,5 @@
 package com.sap.inspection.model.responsemodel;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 public class CorrectiveScheduleResponseModel extends BaseResponseModel {

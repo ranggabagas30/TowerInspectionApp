@@ -13,7 +13,7 @@
         android:id="@+id/item_form_mandatory"
         android:visibility="gone" />
 
-    <com.sap.inspection.view.MyTextView
+    <com.sap.inspection.view.customview.MyTextView
         android:id="@+id/item_form_label"
         style="@style/list_title"
         android:layout_width="match_parent"

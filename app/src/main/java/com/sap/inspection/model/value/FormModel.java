@@ -1,11 +1,11 @@
 package com.sap.inspection.model.value;
 
-import java.util.Vector;
-
 import android.os.Parcel;
 
 import com.sap.inspection.model.BaseModel;
-import com.sap.inspection.model.form.RowModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
+
+import java.util.Vector;
 
 public class FormModel extends BaseModel {
 
@@ -14,12 +14,12 @@ public class FormModel extends BaseModel {
 	public int level;
 	public String text;
 	public String position;
-	public Vector<RowModel> children;
+	public Vector<WorkFormRowModel> children;
 
 	public int getCount(){
 		int count = 0;
 		if (isOpen && children != null){
-			for (RowModel child : children) {
+			for (WorkFormRowModel child : children) {
 				count += child.getCount();
 			}
 			count += children.size();
@@ -27,10 +27,10 @@ public class FormModel extends BaseModel {
 		return count;
 	}
 
-	public Vector<RowModel> getModels(){
-		Vector<RowModel> models = new Vector<RowModel>();
+	public Vector<WorkFormRowModel> getModels(){
+		Vector<WorkFormRowModel> models = new Vector<WorkFormRowModel>();
 		if (isOpen && children != null){
-			for (RowModel child : children) {
+			for (WorkFormRowModel child : children) {
 				models.add(child);
 				models.addAll(child.getModels());
 			}

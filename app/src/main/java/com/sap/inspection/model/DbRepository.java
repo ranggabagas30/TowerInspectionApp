@@ -4,10 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Debug;
 import android.preference.PreferenceManager;
 
-import com.sap.inspection.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 

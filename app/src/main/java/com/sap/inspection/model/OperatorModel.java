@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.Vector;

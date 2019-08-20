@@ -3,9 +3,6 @@ package com.sap.inspection.tools;
  * Created by Rindang Septyan
  */
 
-import java.util.Calendar;
-import java.util.Random;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,6 +12,9 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 
 import com.sap.inspection.R;
+
+import java.util.Calendar;
+import java.util.Random;
 
 public class AndroidUID {
 	Activity activity;

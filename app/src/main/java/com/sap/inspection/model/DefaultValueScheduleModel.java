@@ -2,8 +2,6 @@ package com.sap.inspection.model;
 
 import android.os.Parcel;
 
-import com.sap.inspection.model.BaseModel;
-
 public class DefaultValueScheduleModel extends BaseModel {
 
     @Override

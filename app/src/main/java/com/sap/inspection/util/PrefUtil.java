@@ -1,14 +1,9 @@
 package com.sap.inspection.util;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.sap.inspection.MyApplication;
-import com.sap.inspection.model.value.Pair;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.sap.inspection.view.ui.MyApplication;
 
 public class PrefUtil {
 

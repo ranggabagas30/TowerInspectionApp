@@ -1,7 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@id/layout_helper1"
@@ -10,7 +9,7 @@
         android:background="#ee2933"
         android:padding="@dimen/padding_xtra_small" >
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:id="@id/header_title"
             style="@style/list_sub"
             android:layout_width="wrap_content"
@@ -23,13 +22,6 @@
             android:textSize="@dimen/text_large"
             android:textStyle="bold" />
 
-        <!--<ImageView
-            android:id="@+id/imagebuttonsettings"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/ic_settings"/>-->
         <Button
             android:id="@+id/btnsettings"
             android:layout_width="wrap_content"

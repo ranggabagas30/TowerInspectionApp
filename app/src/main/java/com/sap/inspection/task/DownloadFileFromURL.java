@@ -91,7 +91,7 @@ public class DownloadFileFromURL extends AsyncTask<String, String, Boolean> {
             // Output stream
             OutputStream output = new FileOutputStream(tempDir.getAbsolutePath() + "/sapInspection" + prefs.getString(context.getString(R.string.latest_version), "") + ".apk");
             DebugLog.d("get output sream");
-            byte data[] = new byte[1024];
+            byte[] data = new byte[1024];
 
             long total = 0;
             DebugLog.d("start download");

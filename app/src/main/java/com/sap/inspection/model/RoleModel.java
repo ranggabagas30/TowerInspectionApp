@@ -6,8 +6,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.sap.inspection.MyApplication;
-import com.sap.inspection.model.value.DbRepositoryValue;
+import com.sap.inspection.view.ui.MyApplication;
 
 public class RoleModel extends BaseModel {
 
@@ -22,9 +21,10 @@ public class RoleModel extends BaseModel {
 	 * Standard basic constructor for non-parcel
 	 * object creation
 	 */
-	public RoleModel() { ; };
+	public RoleModel() {
+    }
 
-	/**
+    /**
 	 *
 	 * Constructor to use when re-constructing object
 	 * from a parcel

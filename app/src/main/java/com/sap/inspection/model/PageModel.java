@@ -2,8 +2,6 @@ package com.sap.inspection.model;
 
 import android.os.Parcel;
 
-import com.sap.inspection.model.BaseModel;
-
 public class PageModel extends BaseModel {
     public int current;
     public int limit;

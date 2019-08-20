@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -187,7 +187,7 @@ public class WorkFormItemModel extends BaseModel {
 				DebugLog.d("new default_value = " + new_default_value);
 				updateDefaultValue(item_id, new_default_value);
 			}
-		 }
+		}
 
 	}
 
@@ -210,8 +210,6 @@ public class WorkFormItemModel extends BaseModel {
 	}
 
 	public Vector<WorkFormItemModel> getAllItemByWorkFormRowColumnId(Context context, int workFormRowColumnId) {
-
-
 		Vector<WorkFormItemModel> result = getAllItemByWorkFormRowColumnId(workFormRowColumnId);
 		return result;
 	}
@@ -292,7 +290,7 @@ public class WorkFormItemModel extends BaseModel {
 			return null;
 		}
 
-        WorkFormItemModel result;
+		WorkFormItemModel result;
 
 		result = getItemFromCursor(cursor);
 		result.options = getWorkFormOptionsModels(result.id);
@@ -304,42 +302,42 @@ public class WorkFormItemModel extends BaseModel {
 
 	public static WorkFormItemModel getItemByLable(int work_form_group_id, String lable) {
 
-        String table = DbManager.mWorkFormItem;
-        String[] columns = null;
-        String whereworkformgroupid = work_form_group_id > 0 ? DbManager.colWorkFormGroupId + "=?" : "";
-        String wherelable	        = lable != null ? " AND " + DbManager.colLable + "=?" : "";
-        String where = whereworkformgroupid + wherelable;
+		String table = DbManager.mWorkFormItem;
+		String[] columns = null;
+		String whereworkformgroupid = work_form_group_id > 0 ? DbManager.colWorkFormGroupId + "=?" : "";
+		String wherelable	        = lable != null ? " AND " + DbManager.colLable + "=?" : "";
+		String where = whereworkformgroupid + wherelable;
 
-        DebugLog.d("Get work form item(s) by : " + where);
+		DebugLog.d("Get work form item(s) by : " + where);
 
-        List<String> argsList = new ArrayList<>();
+		List<String> argsList = new ArrayList<>();
 
-        if (work_form_group_id > 0)
-            argsList.add(String.valueOf(work_form_group_id));
-        if (lable != null)
-            argsList.add(lable);
+		if (work_form_group_id > 0)
+			argsList.add(String.valueOf(work_form_group_id));
+		if (lable != null)
+			argsList.add(lable);
 
-        String[] args = new String[argsList.size()];
-        args = argsList.toArray(args);
+		String[] args = new String[argsList.size()];
+		args = argsList.toArray(args);
 
-        Cursor cursor;
+		Cursor cursor;
 
-        DbRepository.getInstance().open(MyApplication.getInstance());
-        cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, null, null);
+		DbRepository.getInstance().open(MyApplication.getInstance());
+		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, null, null);
 
-        if (!cursor.moveToFirst()) {
-            cursor.close();
-            DbRepository.getInstance().close();
-            return null;
-        }
+		if (!cursor.moveToFirst()) {
+			cursor.close();
+			DbRepository.getInstance().close();
+			return null;
+		}
 
-        WorkFormItemModel result = getItemFromCursor(cursor);
-        result.options = getWorkFormOptionsModels(result.id);
+		WorkFormItemModel result = getItemFromCursor(cursor);
+		result.options = getWorkFormOptionsModels(result.id);
 
-        cursor.close();
-        DbRepository.getInstance().close();
-        return result;
-    }
+		cursor.close();
+		DbRepository.getInstance().close();
+		return result;
+	}
 
 	public static ArrayList<WorkFormItemModel> getWorkFormItems(int work_form_group_id, String excl_field_type) {
 
@@ -394,32 +392,6 @@ public class WorkFormItemModel extends BaseModel {
 		return WorkFormOptionsModel.getAllItemByWorkFormItemId(workFormItemId);
 
 	}
-
-	//	public Vector<WorkFormItemModel> getAllItemByWorkFormId(Context context, String workFormId) {
-	//
-	//		DbRepository.getInstance().open(context);
-	//		Vector<WorkFormItemModel> result = new Vector<WorkFormItemModel>();
-	//
-	//		String table = DbManager.mWorkFormItem;
-	//		String[] columns = null;
-	//		String where =DbManager.colWorkFormGroupId + "=?";
-	//		String[] args = new String[] {workFormId};
-	//		String order = DbManager.colPosition+" ASC";
-	//		Cursor cursor;
-	//
-	//		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
-	//
-	//		if (!cursor.moveToFirst())
-	//			return result;
-	//		do {
-	//			result.add(getItemFromCursor(cursor));
-	//		} while(cursor.moveToNext());
-	//
-	//		cursor.close();
-	//		DbRepository.getInstance().close();
-	//
-	//		return result;
-	//	}
 
 	private static WorkFormItemModel getItemFromCursor(Cursor c) {
 		WorkFormItemModel item= new WorkFormItemModel();

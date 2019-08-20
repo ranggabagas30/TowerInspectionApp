@@ -97,7 +97,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/photolayout" >
 
-        <com.sap.inspection.view.ImageButtonForList
+        <com.sap.inspection.view.customview.ImageButtonForList
             android:id="@+id/btnTakePicture"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -125,7 +125,7 @@
             android:layout_toRightOf="@id/no_picture"
             android:paddingRight="@dimen/padding_medium" >
 
-            <com.sap.inspection.view.MyTextView
+            <com.sap.inspection.view.customview.MyTextView
                 android:id="@+id/label"
                 style="@style/list_title"
                 android:layout_width="wrap_content"

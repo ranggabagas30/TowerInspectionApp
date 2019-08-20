@@ -5,7 +5,6 @@ import com.sap.inspection.model.ConfigModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 public class CorrectiveScheduleConfig {

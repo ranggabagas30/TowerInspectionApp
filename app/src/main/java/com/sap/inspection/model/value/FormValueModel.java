@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Parcel;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,7 +12,7 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -27,8 +26,6 @@ import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
-
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -219,9 +216,9 @@ public class FormValueModel extends BaseModel {
 		args = argsList.toArray(args);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);;
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst()) {
+        if (!cursor.moveToFirst()) {
 
 			cursor.close();
 			DbRepositoryValue.getInstance().close();
@@ -263,9 +260,9 @@ public class FormValueModel extends BaseModel {
 		args = argsList.toArray(args);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);;
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);
 
-		if (!cursor.moveToFirst()) {
+        if (!cursor.moveToFirst()) {
 
 			cursor.close();
 			DbRepositoryValue.getInstance().close();
@@ -313,9 +310,9 @@ public class FormValueModel extends BaseModel {
 		args = argsList.toArray(args);
 
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);;
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
-		if (!cursor.moveToFirst()) {
+        if (!cursor.moveToFirst()) {
 
 			cursor.close();
 			DbRepositoryValue.getInstance().close();

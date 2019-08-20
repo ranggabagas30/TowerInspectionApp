@@ -15,7 +15,7 @@
         android:padding="@dimen/padding_large" >
     </ImageView>
 
-    <com.sap.inspection.view.MyTextView
+    <com.sap.inspection.view.customview.MyTextView
         android:id="@+id/title"
         style="@style/navigation_3"
         android:layout_width="match_parent"
@@ -27,7 +27,7 @@
         android:paddingLeft="@dimen/padding_large"
         android:text="Load Picture" />
 
-    <com.sap.inspection.view.ImageViewForList
+    <com.sap.inspection.view.customview.ImageViewForList
         android:id="@+id/workformgroup_upload"
         android:layout_width="50dp"
         android:layout_height="50dp"

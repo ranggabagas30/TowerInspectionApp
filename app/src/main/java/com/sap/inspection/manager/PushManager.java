@@ -1,8 +1,8 @@
 package com.sap.inspection.manager;
 
-import java.util.Vector;
-
 import com.sap.inspection.listener.PushListener;
+
+import java.util.Vector;
 
 //import android.util.Log;
 

@@ -1,9 +1,9 @@
 package com.sap.inspection.model.migrate;
 
-import com.sap.inspection.model.DbManager;
-
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.sap.inspection.model.DbManager;
 
 public class GeneralDropCreatePatch extends DBPatch{
 

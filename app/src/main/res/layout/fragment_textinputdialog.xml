@@ -38,7 +38,7 @@
             app:layout_constraintTop_toBottomOf="@id/layouttitle"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <com.sap.inspection.view.FormInputText
+        <com.sap.inspection.view.customview.FormInputText
             android:id="@+id/inputtext"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

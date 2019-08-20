@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.sap.inspection.R;
-import com.sap.inspection.SettingActivity;
+import com.sap.inspection.view.ui.SettingActivity;
 
 public class ApkNotification extends BaseNotification {
 

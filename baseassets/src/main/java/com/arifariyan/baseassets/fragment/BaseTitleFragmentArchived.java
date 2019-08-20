@@ -18,11 +18,11 @@ public abstract class BaseTitleFragmentArchived extends BaseFragmentArchived {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_with_titleheader, null, false);
-		header = (RelativeLayout) root.findViewById(R.id.header);
+		header = root.findViewById(R.id.header);
 		View headerTitleLayout = inflater.inflate(R.layout.header_title, header, true);
-		title = (TextView) headerTitleLayout.findViewById(R.id.header_title);
+		title = headerTitleLayout.findViewById(R.id.header_title);
 		title.setText(getTitle());
-		frameLayout = (FrameLayout) root.findViewById(R.id.fragment_layout);
+		frameLayout = root.findViewById(R.id.fragment_layout);
 		frameLayout.addView(onGetLayout(inflater));
 		return root;
 	}

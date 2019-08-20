@@ -1,12 +1,9 @@
 package com.sap.inspection.tools;
 
-import android.location.Location;
-import android.os.Debug;
 import android.widget.Toast;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
-import com.sap.inspection.model.LocationModel;
 import com.sap.inspection.util.PrefUtil;
 
 import java.util.AbstractMap;

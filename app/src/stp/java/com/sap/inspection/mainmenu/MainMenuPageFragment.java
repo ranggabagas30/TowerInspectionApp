@@ -8,10 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.sap.inspection.BaseActivity;
 import com.sap.inspection.R;
-import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.fragments.BaseFragment;
 
 import java.util.ArrayList;
 
@@ -42,7 +42,7 @@ public class MainMenuPageFragment extends BaseFragment {
 	}
 
 	private void initUserName(View root) {
-		TextView user = (TextView) root.findViewById(R.id.user);
+		TextView user = root.findViewById(R.id.user);
 		String userName = ((BaseActivity)getActivity()).getPreference(R.string.user_fullname, "");
 		user.setText("Hi "+userName);
 	}
@@ -51,9 +51,9 @@ public class MainMenuPageFragment extends BaseFragment {
 		View view = viewParent.findViewById(id);
 		view.setOnClickListener(mainMenuClickListener);
 		view.setTag(titles.get(position));
-		ImageView imageView = (ImageView) view.findViewById(R.id.item_mainmenu_icon);
+		ImageView imageView = view.findViewById(R.id.item_mainmenu_icon);
 		imageView.setImageResource(icons.get(position));
-		TextView textView = (TextView) view.findViewById(R.id.item_mainmenu_title);
+		TextView textView = view.findViewById(R.id.item_mainmenu_title);
 		textView.setText(titles.get(position));
 	}
 	

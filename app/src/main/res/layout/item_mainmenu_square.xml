@@ -1,4 +1,4 @@
-<com.sap.inspection.view.SquareGridItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sap.inspection.view.customview.SquareGridItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" 
     android:background="@drawable/selector_button_gray_small_padding">
@@ -19,4 +19,4 @@
         android:layout_centerHorizontal="true"
         android:src="@drawable/ic_launcher" />
 
-</com.sap.inspection.view.SquareGridItemLayout>
+</com.sap.inspection.view.customview.SquareGridItemLayout>

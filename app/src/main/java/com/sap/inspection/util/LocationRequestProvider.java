@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -14,12 +12,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
-import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.tools.DebugLog;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 

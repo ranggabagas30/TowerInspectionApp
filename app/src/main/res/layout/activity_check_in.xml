@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.sap.inspection.CheckInActivity">
+    tools:context="com.sap.inspection.view.ui.CheckInActivity">
 
     <RelativeLayout
         android:id="@id/layout_helper1"
@@ -13,7 +12,7 @@
         android:background="#ee2933"
         android:padding="@dimen/padding_xtra_small" >
 
-        <com.sap.inspection.view.MyTextView
+        <com.sap.inspection.view.customview.MyTextView
             android:id="@id/header_title"
             style="@style/list_sub"
             android:layout_width="match_parent"
@@ -42,21 +41,21 @@
 
             android:orientation="vertical">
 
-            <com.sap.inspection.view.FormInputText
+            <com.sap.inspection.view.customview.FormInputText
                 android:id="@+id/input_text_siteid_stp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
                 android:hint="Site ID STP" />
 
-            <com.sap.inspection.view.FormInputText
+            <com.sap.inspection.view.customview.FormInputText
                 android:id="@+id/input_text_site_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
                 android:hint="Site name" />
 
-            <com.sap.inspection.view.FormInputText
+            <com.sap.inspection.view.customview.FormInputText
                 android:id="@+id/input_text_pmperiod"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -74,20 +73,20 @@
                 android:paddingRight="16dp"
                 android:paddingStart="16dp">
 
-                <com.sap.inspection.view.MyTextView
+                <com.sap.inspection.view.customview.MyTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Site Coordinate : "
                     android:textSize="16sp" />
 
-                <com.sap.inspection.view.FormInputText
+                <com.sap.inspection.view.customview.FormInputText
                     android:id="@+id/input_text_site_latitude"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="6dp"
                     android:hint="Latitude" />
 
-                <com.sap.inspection.view.FormInputText
+                <com.sap.inspection.view.customview.FormInputText
                     android:id="@+id/input_text_site_longitude"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -106,20 +105,20 @@
                 android:paddingRight="16dp"
                 android:paddingStart="16dp">
 
-                <com.sap.inspection.view.MyTextView
+                <com.sap.inspection.view.customview.MyTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Current Coordinate : "
                     android:textSize="16sp" />
 
-                <com.sap.inspection.view.FormInputText
+                <com.sap.inspection.view.customview.FormInputText
                     android:id="@+id/input_text_current_latitude"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="6dp"
                     android:hint="Latitude" />
 
-                <com.sap.inspection.view.FormInputText
+                <com.sap.inspection.view.customview.FormInputText
                     android:id="@+id/input_text_current_longitude"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -127,7 +126,7 @@
                     android:hint="Longitude" />
             </LinearLayout>
 
-            <com.sap.inspection.view.MyTextView
+            <com.sap.inspection.view.customview.MyTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -136,14 +135,14 @@
                 android:text="Jarak ke lokasi site : (dalam meter) "
                 android:textSize="16sp" />
 
-            <com.sap.inspection.view.FormInputText
+            <com.sap.inspection.view.customview.FormInputText
                 android:id="@+id/input_text_distance_to_site"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
                 android:hint="Distance to site coordinte (in meter)"/>
 
-            <com.sap.inspection.view.MyTextView
+            <com.sap.inspection.view.customview.MyTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -152,7 +151,7 @@
                 android:text="Tingkat akurasi GPS :  "
                 android:textSize="16sp" />
 
-            <com.sap.inspection.view.FormInputText
+            <com.sap.inspection.view.customview.FormInputText
                 android:id="@+id/input_text_gps_accuracy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -5,11 +5,17 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.27.0'
+        classpath "io.fabric.tools:gradle:${rootProject.ext.fabricGradleVersion}"
     }
 }
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
+
+// Manifest version information!
+def minAPIlevel  = rootProject.ext.minSdkVersion
+def versionMajor = 2
+def versionMinor = 6
+def versionPatch = 2
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -20,13 +26,12 @@ android {
         applicationId "com.sap.inspection"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19020602
-        versionName "2.6.2"
+        versionCode minAPIlevel * 1000000 + versionMajor * 10000 + versionMinor * 100 + versionPatch
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         setProperty("archivesBaseName", "sap" + "-v" + "(" + versionName + ")")
     }
 
     signingConfigs {
-
         release {
             storeFile file('release.keystore.jks')
             storePassword "domikado"
@@ -72,10 +77,15 @@ android {
         stp {
             applicationId 'com.stp.inspection'
             dimension "default"
-            versionCode 19020401
-            versionName "2.4.1"
+            versionMajor = 2
+            versionMinor = 5
+            versionPatch = 4
+            versionCode minAPIlevel * 1000000 + versionMajor * 10000 + versionMinor * 100 + versionPatch
+            versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+            buildConfigField("int", "DBMANAGERVALUE_SCHEMA_VERSION", "8")
+            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "9")
             buildConfigField("String", "FOLDER_CAMERA", '"Camera"')
-            buildConfigField("String", "FOLDER_TOWER_INSPECTION", "TowerInspection")
+            buildConfigField("String", "FOLDER_TOWER_INSPECTION", '"TowerInspection"')
         }
     }
     compileOptions {
@@ -98,31 +108,29 @@ repositories {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api "com.google.android.gms:play-services-location:${rootProject.ext.playServicesVersionLocation}"
-    api "com.google.android.gms:play-services-maps:16.0.0"
-
-    api "com.google.firebase:firebase-core:16.0.5"
-    api "com.google.firebase:firebase-messaging:17.3.4"
     api project(':baseassets')
-
-    api 'com.crashlytics.sdk.android:crashlytics:2.9.7'
+    api "com.google.android.gms:play-services-location:${rootProject.ext.playServicesLocationVersion}"
+    api "com.google.android.gms:play-services-maps:${rootProject.ext.playServicesMapsVersion}"
+    api "com.google.firebase:firebase-core:${rootProject.ext.firebaseCoreVersion}"
+    api "com.google.firebase:firebase-messaging:${rootProject.ext.firebaseMessagingVersion}"
+    api "com.crashlytics.sdk.android:crashlytics:${rootProject.ext.crashlyticsVersion}"
+    api "com.facebook.stetho:stetho:${rootProject.ext.facebookStethoversion}"
     api("com.google.code.gson:gson:2.3") {
         exclude module: 'gson:2.2.4'
     }
-    api 'com.facebook.stetho:stetho:1.5.0'
 
     // For developers using the Android Support Library
-    implementation 'pub.devrel:easypermissions:1.3.0'
+    implementation "pub.devrel:easypermissions:${rootProject.ext.easyPermissionVersion}"
 
     // AES encryption lib
-    implementation 'com.scottyab:aescrypt:0.0.1'
+    implementation "com.scottyab:aescrypt:${rootProject.ext.aesEncryptionVersion}"
 
     // Apache commons
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-    implementation 'commons-codec:commons-codec:1.12'
+    implementation group: 'commons-io', name: 'commons-io', version: "${rootProject.ext.apacheCommonsIoVersion}"
+    implementation "commons-codec:commons-codec:${rootProject.ext.apacheCommonsCodecVersion}"
 
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
+    implementation "com.android.support.constraint:constraint-layout:${rootProject.ext.constraintLayoutVersion}"
+    debugImplementation "com.amitshekhar.android:debug-db:${rootProject.ext.androidDebug}"
 }
 
 apply plugin: 'com.google.gms.google-services'

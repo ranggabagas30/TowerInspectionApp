@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.view.ui.MyApplication;
 
 public class LoginLogModel extends BaseModel {
 
@@ -23,9 +23,10 @@ public class LoginLogModel extends BaseModel {
 	 * Standard basic constructor for non-parcel
 	 * object creation
 	 */
-	public LoginLogModel() { ; };
+	public LoginLogModel() {
+    }
 
-	/**
+    /**
 	 *
 	 * Constructor to use when re-constructing object
 	 * from a parcel
