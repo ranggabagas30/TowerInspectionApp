@@ -623,7 +623,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 
 		boolean isEnabled = false;
 		if (!workFormItem.disable) {
-			if (MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation)
+			if ((MyApplication.getInstance().IS_CHECKING_HASIL_PM() && isChecklistOrSiteInformation) || !MyApplication.getInstance().IS_CHECKING_HASIL_PM())
 				isEnabled = true;
 		}
 		DebugLog.d("workItemDisable : " + workFormItem.disable);
