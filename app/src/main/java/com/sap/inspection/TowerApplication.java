@@ -15,16 +15,12 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
-/*import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;*/
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.rindang.pushnotification.notificationchannel.DefaultNotificationChannel;
-import com.sap.inspection.connection.APIHelper;
-import com.sap.inspection.connection.rest.TowerAPIClient;
-import com.sap.inspection.connection.rest.TowerAPI;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.listener.ActivityLifecycleHandler;
 import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.DbRepository;
@@ -32,7 +28,6 @@ import com.sap.inspection.model.TextMarkDisplayOptionsModel;
 import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.CommonUtil;
 import com.scottyab.aescrypt.AESCrypt;
 
@@ -42,6 +37,10 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.schedulers.Schedulers;
+
+/*import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;*/
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
@@ -266,18 +265,24 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
     }
 
 	public static void sendRegIdtoServer(String token) {
-		try {
-			if (!PrefUtil.getStringPref(R.string.user_authToken, "").equalsIgnoreCase("")){
-
-				DebugLog.d("send FCM TOKEN to server : " + token);
-				APIHelper.registerFCMToken(TowerApplication.getInstance(), new Handler(),  token);
-			}
-		} catch (Exception e){
-			e.printStackTrace();
-			Crashlytics.log("FAILED to send FCM TOKEN to server");
-			DebugLog.e("FAILED to send FCM TOKEN to server");
-			DebugLog.e("ERROR : " + e.getMessage());
-		}
+		TowerAPIHelper.postRegisterFCMToken(token, CommonUtil.getIMEI(TowerApplication.getContext()), BuildConfig.VERSION_NAME)
+				.subscribeOn(Schedulers.io())
+				.subscribe(response -> {
+					if (response != null) {
+						switch (response.status) {
+							case 201 : // success
+								DebugLog.d("== device registration success ==");
+								DebugLog.d("token : " + response.token);
+								DebugLog.d("message : " + response.messages);
+								DebugLog.d("app version : " + response.app_version);
+								DebugLog.d("should update : " + response.should_udpate);
+								break;
+						}
+					} else {
+						DebugLog.e("== device registration failed. JSON response null ==");
+					}
+				}, throwable -> { DebugLog.e("== device registration failed with error " + throwable.getMessage() + " ==");
+				}, () -> DebugLog.d("== device registration complete =="));
 	}
 
 	public void setON_FORM_IMBAS_PETIR(boolean onFormImbasPetir) {

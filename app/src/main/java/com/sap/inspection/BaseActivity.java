@@ -71,6 +71,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -397,11 +398,10 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	protected void checkFormVersion(){
 		DebugLog.d("check form version");
 		showMessageDialog(getString(R.string.checkfromversion));
-		//APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
 		TowerAPIHelper.getFormVersion()
+				.observeOn(AndroidSchedulers.mainThread())
 				.subscribeOn(Schedulers.io())
 				.subscribe(formVersionObserver);
-
 	}
 
 	protected void checkFormVersionOffline(){
@@ -715,11 +715,13 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 
 		@Override
 		public void onComplete() {
+			hideDialog();
 			DebugLog.d("get form version complete");
 		}
 
 		@Override
 		public void onError(Throwable e) {
+			hideDialog();
 			DebugLog.e(e.getMessage());
 			Toast.makeText(activity, "Gagal mendapatkan versi form", Toast.LENGTH_SHORT).show();
 		}
