@@ -13,10 +13,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.sap.inspection.view.ui.BaseActivity;
-import com.sap.inspection.view.ui.CallendarActivity;
-import com.sap.inspection.view.ui.MainActivity;
-import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -32,6 +29,10 @@ import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.view.adapter.ScheduleAdapter;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.CallendarActivity;
+import com.sap.inspection.view.ui.MainActivity;
+import com.sap.inspection.view.ui.MyApplication;
 
 import java.util.Vector;
 
@@ -111,8 +112,10 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		filterBy = resId;
 		if (resId == R.string.schedule){
 			ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
-			Vector<ScheduleBaseModel> modelsImbasPetir = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.foto_imbas_petir)));
-			checkImbasPetirConfig(modelsImbasPetir);
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+				Vector<ScheduleBaseModel> modelsImbasPetir = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.foto_imbas_petir)));
+				checkImbasPetirConfig(modelsImbasPetir);
+			}
 			models = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getAllSchedule(activity));
 		}else if (resId == R.string.preventive){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();

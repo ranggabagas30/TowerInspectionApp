@@ -229,25 +229,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 	};
 
-
-	/*private void setPercentage(int rowId){
-		if (null != itemValuesProgressView.get(rowId) && finishInflate){
-			int taskDone = itemValueForShare.countTaskDone(schedule.id, rowId);
-			if (taskDone != 0){
-				itemValuesProgressView.get(rowId).colored.setText(String.valueOf(
-						itemValuesProgressView.get(rowId).getPercentage(
-								taskDone)+"%"));
-				//TODO change to match the database
-				SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-				itemValuesProgressView.get(rowId).plain.setText(" on "+df.format(Calendar.getInstance().getTime().getTime()));
-			}else{
-				itemValuesProgressView.get(rowId).colored.setText("");
-				itemValuesProgressView.get(rowId).plain.setText("No action yet");
-			}
-
-		}
-	}*/
-
 	private void saveValue(String[] itemProperties,boolean isAdding,boolean isCompundButton){
 
 		if (itemProperties.length < 5){
@@ -389,7 +370,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
 			FormValueModel uploadItem = itemFormRenderModel.itemValue;
 			if (uploadItem != null)
-				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
+				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, null, null).execute();
 			else
 				MyApplication.getInstance().toast(getString(R.string.failed_noitem), Toast.LENGTH_LONG);
         }
@@ -418,10 +399,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				return;
 			} catch (NullPointerException npe) {
 				DebugLog.e("take picture: " + npe.getMessage());
-			} catch (IOException e ) {
+			} catch (IOException e) {
 				DebugLog.e("take picture: " + e.getMessage());
 			} catch (IllegalArgumentException ilae) {
-				DebugLog.e( "take pciture: " + ilae.getMessage());
+				DebugLog.e("take picture: " + ilae.getMessage());
 			}
 		}
 

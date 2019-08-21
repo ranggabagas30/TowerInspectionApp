@@ -1125,9 +1125,7 @@ public class FormValueModel extends BaseModel {
 	}
 
 	public static void resetAllUploadStatus(){
-
 		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
-
 		ContentValues cv = new ContentValues();
 		cv.put(DbManagerValue.colUploadStatus, UPLOAD_NONE);
 

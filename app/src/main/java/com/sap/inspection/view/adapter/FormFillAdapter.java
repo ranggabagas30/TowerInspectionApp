@@ -107,13 +107,14 @@ public class FormFillAdapter extends MyBaseAdapter {
 	public void setScheduleId(String scheduleId) {
 		this.scheduleId = scheduleId;
 	}
-	// SAP only
 
+	// SAP only
 	public void setWargaId(String wargaId) {
 		DebugLog.d("wargaid = " + wargaId);
 		this.wargaId = wargaId;
 	}
 
+	// SAP only
 	public void setBarangId(String barangId) {
 		DebugLog.d("barangid = " + barangId);
 		this.barangId = barangId;
