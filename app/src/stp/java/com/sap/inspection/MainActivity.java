@@ -38,7 +38,7 @@ import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
-import com.sap.inspection.model.responsemodel.VersionModel;
+import com.sap.inspection.model.responsemodel.FormVersionResponseModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;

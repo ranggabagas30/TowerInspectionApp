@@ -2,7 +2,7 @@ package com.sap.inspection.connection.rest;
 
 import com.sap.inspection.model.responsemodel.FormVersionResponseModel;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 public class TowerAPIHelper {
 

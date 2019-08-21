@@ -41,9 +41,6 @@ public class TowerAPIClient {
 
     static <S> S createService(Class<S> serviceClass) {
 
-        if (!httpClient.interceptors().contains(loggingInterceptor))
-            httpClient.addInterceptor(loggingInterceptor);
-
         if (!httpClient.interceptors().contains(authenticationInterceptor)) {
             httpClient.addInterceptor(authenticationInterceptor);
             retrofitBuilder.client(httpClient.build());

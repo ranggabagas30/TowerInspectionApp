@@ -9,7 +9,9 @@ import android.os.Parcel;
 import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.TowerApplication;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
@@ -194,10 +196,13 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			operator.save();
 		}
 
-		for (int hiddenItemIds : hidden) {
-			WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
-			workFormItem.visible = false;
-			workFormItem.save();
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			for (int hiddenItemIds : hidden) {
+				WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
+				workFormItem.visible = false;
+				workFormItem.save();
+			}
 		}
 
 		if (schedule_values!=null)
@@ -307,7 +312,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		stmt.bindLong(14, sumTaskDone);
 		stmt.bindLong(15, operator_number);
 
-		if (DbManager.schema_version >= 10) {
+		if (DbManager.schema_version == 10) {
 			if (hidden == null || hidden.size() < 1) {
 				bindAndCheckNullString(stmt, 16, null);
 			} else {
@@ -557,7 +562,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		scheduleBase.work_type = scheduleBase.work_type.getworkTypeById(scheduleBase.work_type.id);
 
 		// hidden item ids
-		if (DbManager.schema_version >= 10) {
+		if (DbManager.schema_version == 10) {
 			scheduleBase.hidden = new Vector<>();
 			scheduleBase.hidden = toVectorHiddenItemIds(c.getString(c.getColumnIndex(DbManager.colHiddenItemIds)));
 		}

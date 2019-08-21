@@ -1,15 +1,12 @@
 package com.sap.inspection;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -18,7 +15,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -32,8 +28,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
@@ -47,47 +41,32 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.manager.ItemUploadManager;
-import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowModel;
-import com.sap.inspection.model.value.DbRepositoryValue;
-import com.sap.inspection.model.value.ItemValueModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.tools.PersistentLocation;
-import com.sap.inspection.util.ExifUtil;
-import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.CommonUtil;
-import com.sap.inspection.util.PermissionUtil;
+import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.view.FormItem;
 import com.sap.inspection.view.PhotoItemRadio;
 import com.sap.inspection.views.adapter.FormFillAdapter;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-
-import de.greenrobot.event.EventBus;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -101,8 +80,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private String workFormGroupName;
 	private int rowId;
 	private ScheduleBaseModel schedule;
-	private ItemValueModel itemValueForShare;
-	public ItemValueModel PhotographModel;
+	private FormValueModel itemValueForShare;
+	public FormValueModel PhotographModel;
 	private Uri mImageUri;
 	private HashMap<Integer, ItemUpdateResultViewModel> itemValuesProgressView;
 	public ArrayList<Integer> indexes;
@@ -276,13 +255,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		//
 		if (itemValueForShare == null) {
-			itemValueForShare = new ItemValueModel();
+			itemValueForShare = new FormValueModel();
 		}
 
 		itemValueForShare = itemValueForShare.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
 		if (itemValueForShare == null){
 
-			itemValueForShare = new ItemValueModel();
+			itemValueForShare = new FormValueModel();
 			itemValueForShare.scheduleId = schedule.id;
 			itemValueForShare.rowId = Integer.parseInt(itemProperties[0]);
 			itemValueForShare.itemId = Integer.parseInt(itemProperties[1]);
@@ -310,7 +289,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							itemValueForShare.value += ","+itemProperties[3];
 					}
 				}
-				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 				itemValueForShare.save();
 			}else{ // deleting on checkbox
 				DebugLog.d("goto deleting");
@@ -328,7 +307,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				if (itemValueForShare.value.equalsIgnoreCase(""))
 					itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 				else{
-					itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+					itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 					itemValueForShare.save();
 				}
 			}
@@ -338,7 +317,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 			else{
 				itemValueForShare.value = itemProperties[3];
-				itemValueForShare.uploadStatus = ItemValueModel.UPLOAD_NONE;
+				itemValueForShare.uploadStatus = FormValueModel.UPLOAD_NONE;
 				itemValueForShare.save();
 			}
 		}
@@ -449,7 +428,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 			else if (itemFormRenderModel.itemValue!=null) {
 
-				ItemValueModel itemUpload = itemFormRenderModel.itemValue;
+				FormValueModel itemUpload = itemFormRenderModel.itemValue;
 				ItemUploadManager.getInstance().addItemValue(itemFormRenderModel.workItemModel, itemFormRenderModel.itemValue);
 
 				DebugLog.d("isMandatory= " + itemFormRenderModel.workItemModel.mandatory + " itemId = " + itemUpload.itemId + " pos = " + pos + " hasPicture = " + itemFormRenderModel.hasPicture + " value = " + itemUpload.value + " picture = " + itemUpload.picture + " photoStatus = " + itemUpload.photoStatus);
@@ -593,38 +572,23 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
-				File file = ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), schedule.id, textMarks);
+				ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photo.getName(), textMarks);
 
-				if (null != file) {
+				// reget filePhotoResult
+				File filePhotoResult = new File(photo.toString());
 
-					if (CommonUtil.isExternalStorageAvailable()) {
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-							Intent mediaScanIntent = new Intent(
-									Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-							Uri contentUri = Uri.fromFile(file);
-							mediaScanIntent.setData(contentUri);
-							this.sendBroadcast(mediaScanIntent);
-						} else {
-							sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-									Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/TowerInspection/")));
-						}
-					}
-
+				if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
+					photoItem.deletePhoto();
+					photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
+				} else {
 					if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
 						photoItem.deletePhoto();
-						photoItem.setImage(photo, latitude, longitude, accuracy);
-
+						photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
 					} else {
-
 						DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
 						TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
 					}
-
-					return;
 				}
-
-				DebugLog.e("file = null. Pengambilan foto gagal. Silahkan ulangi kembali");
-				TowerApplication.getInstance().toast("Pengambilan foto gagal. Silahkan ulangi kembali", Toast.LENGTH_SHORT);
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -853,7 +817,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                         break;
                     } else if (item.itemValue != null) {
 
-                        ItemValueModel filledItem = item.itemValue;
+                        FormValueModel filledItem = item.itemValue;
 
                         if (isMandatory) {
 
@@ -865,7 +829,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                                     mandatoryFound = true;
                                     TowerApplication.getInstance().toast("Photo item" + mandatoryLabel + " harus ada", Toast.LENGTH_SHORT);
                                     break;
-                                } else if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
+                                } else if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !FormValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
                                     mandatoryLabel = item.workItemModel.label;
                                     mandatoryFound = true;
                                     break;
@@ -873,7 +837,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                             }
                         } else {
 
-                            if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !ItemValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
+                            if (item.type == ItemFormRenderModel.TYPE_PICTURE_RADIO && !FormValueModel.isPictureRadioItemValidated(item.workItemModel, item.itemValue)){
                                 mandatoryLabel = item.workItemModel.label;
                                 mandatoryFound = true;
                                 break;

@@ -26,8 +26,6 @@ import android.util.DisplayMetrics;
 import android.view.Window;
 import android.widget.Toast;
 
-/*import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;*/
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
@@ -72,10 +70,15 @@ import java.net.URLConnection;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
-import rx.schedulers.Schedulers;
+
+/*import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;*/
 
 //import com.sap.inspection.gcm.GCMService;
 
@@ -394,7 +397,11 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	protected void checkFormVersion(){
 		DebugLog.d("check form version");
 		showMessageDialog(getString(R.string.checkfromversion));
-		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
+		//APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
+		TowerAPIHelper.getFormVersion()
+				.subscribeOn(Schedulers.io())
+				.subscribe(formVersionObserver);
+
 	}
 
 	protected void checkFormVersionOffline(){
@@ -699,6 +706,51 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         }
     };
 
+    Observer<FormVersionResponseModel> formVersionObserver = new Observer<FormVersionResponseModel>() {
+
+		@Override
+		public void onSubscribe(Disposable d) {
+
+		}
+
+		@Override
+		public void onComplete() {
+			DebugLog.d("get form version complete");
+		}
+
+		@Override
+		public void onError(Throwable e) {
+			DebugLog.e(e.getMessage());
+			Toast.makeText(activity, "Gagal mendapatkan versi form", Toast.LENGTH_SHORT).show();
+		}
+
+		@Override
+		public void onNext(FormVersionResponseModel responseModel) {
+
+			formVersion = responseModel.version;
+			DebugLog.d("check version : " + PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form));
+			DebugLog.d("check version value : " + getPreference(PrefUtil.getStringPref(R.string.user_id, "") + getString(R.string.latest_version_form), "no value"));
+			DebugLog.d("check version value from web: " + formVersion);
+
+			if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
+
+				DebugLog.d("form needs update");
+				downloadNewForm();
+
+			}else{
+
+				DebugLog.d("form doesn't need to be updated");
+				if (!TowerApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+
+					// haven't yet register device, do device registration
+					requestReadPhoneStatePermission();
+
+				}
+				downloadSchedules();
+			}
+		}
+	};
+
     @SuppressLint("HandlerLeak")
     private Handler formSaverHandler = new Handler(){
         public void handleMessage(android.os.Message msg) {
@@ -868,7 +920,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 			if (!TextUtils.isEmpty(FCMRegToken)) {
 
 				TowerApplication.sendRegIdtoServer(FCMRegToken);
-				TowerApplication.getInstance().setDEVICE_REGISTER_STATE(false);
+				TowerApplication.getInstance().setDEVICE_REGISTER_STATE(true);
 
 			} else {
 
