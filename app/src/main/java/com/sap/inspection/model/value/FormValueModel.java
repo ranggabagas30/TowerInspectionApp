@@ -609,7 +609,6 @@ public class FormValueModel extends BaseModel {
 				} else {
 
 		    		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
 		    			return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, itemId, workFormGroupId, wargaId, barangId);
 					} else {
 		    			return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, itemId, workFormGroupId, null, null);
@@ -631,8 +630,10 @@ public class FormValueModel extends BaseModel {
 		protected void onPostExecute(ArrayList<FormValueModel> uploadItems) {
 			super.onPostExecute(uploadItems);
 			publish(DONEPREPARINGITEMS);
-			ItemUploadManager.getInstance().addItemValues(uploadItems);
-
+			if (uploadItems == null)
+				MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_upload_mandatory_items), Toast.LENGTH_LONG);
+			else
+				ItemUploadManager.getInstance().addItemValues(uploadItems);
 		}
 	}
 

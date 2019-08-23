@@ -310,15 +310,11 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 				if (bundle.getString("json") != null) {
 					String jsonCorrectiveSchedule = bundle.getString("json");
-
 					CorrectiveScheduleResponseModel correctiveData = gson.fromJson(jsonCorrectiveSchedule, CorrectiveScheduleResponseModel.class);
 					if (correctiveData != null) {
-
 						CorrectiveScheduleConfig.setCorrectiveScheduleConfig(correctiveData);
-
 						Vector<ScheduleBaseModel> correctiveScheduleModels = new Vector<>();
 						for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveData.getData()) {
-
 							String scheduleId = String.valueOf(correctiveSchedule.getId());
 							ScheduleBaseModel correctiveScheduleModel = new ScheduleGeneral();
 							correctiveScheduleModel = correctiveScheduleModel.getScheduleById(scheduleId);

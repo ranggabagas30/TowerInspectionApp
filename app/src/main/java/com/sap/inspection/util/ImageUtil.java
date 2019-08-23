@@ -206,27 +206,14 @@ public class ImageUtil {
         return fileReturn;
     }
 
-    public static void resizeAndSaveImageCheckExifWithMark(Context ctx, String path, String[] textMarks) {
-
+    public static void resizeAndSaveImageCheckExifWithMark(Context ctx, String path, String[] textMarks) throws IOException {
         //change to 480 from 640
         int x = 640;
-
-        try {
-            Bitmap bitmap = resizeAndWriteTextOnDrawable(ctx, path, x, textMarks);
-            File file = new File(path);
-            try {
-                FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
-                out.close();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.gc();
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+        Bitmap bitmap = resizeAndWriteTextOnDrawable(ctx, path, x, textMarks);
+        File file = new File(path);
+        FileOutputStream out = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+        out.close();
     }
 
     public static void addWaterMark(Context context, int res, String imagePath) {
@@ -406,7 +393,7 @@ public class ImageUtil {
         return bm;
     }
 
-    public static Bitmap resizeAndWriteTextOnDrawable(Context mContext, String imagePath, int x,  String[] texts) {
+    public static Bitmap resizeAndWriteTextOnDrawable(Context context, String imagePath, int x,  String[] texts) {
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds=true;
@@ -438,7 +425,7 @@ public class ImageUtil {
         int outputHeight = bitmap_Result.getHeight();
 
         Paint greyPaint = new Paint();
-        greyPaint.setColor(mContext.getResources().getColor(R.color.transparent_gray));
+        greyPaint.setColor(context.getResources().getColor(R.color.transparent_gray));
 
         DebugLog.d("bitmapRotation : " + bitmapRotation);
 
@@ -475,11 +462,11 @@ public class ImageUtil {
 
             if (isPortrait(outputWidth, outputHeight)) { // potrait
                 textSize = PrefUtil.getIntPref(R.string.textmarksizepotrait, Constants.TEXT_SIZE_POTRAIT);
-                px = convertToPixels(mContext, textSize);
+                px = convertToPixels(context, textSize);
 
                 textPaint.setTextSize(px);
 
-                xPos = convertToPixels(mContext, 10);
+                xPos = convertToPixels(context, 10);
                 yPos = (top_portrait + canvas.getHeight() * 7f/100f) + dy_potrait * i;
 
                 DebugLog.d("text size portrait : " + textSize);
@@ -488,10 +475,10 @@ public class ImageUtil {
             } else {
                                                         // landscape
                 textSize = PrefUtil.getIntPref(R.string.textmarksizelandscape, Constants.TEXT_SIZE_LANDSCAPE);
-                px = convertToPixels(mContext, textSize);
+                px = convertToPixels(context, textSize);
 
                 textPaint.setTextSize(px);
-                xPos = convertToPixels(mContext, 10);
+                xPos = convertToPixels(context, 10);
                 yPos = (top_landscape + canvas.getHeight() * 10f/100) + dy_landscape * i;
 
                 DebugLog.d("text size landscape : " + textSize);

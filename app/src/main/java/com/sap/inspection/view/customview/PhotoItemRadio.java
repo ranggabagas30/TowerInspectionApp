@@ -248,36 +248,42 @@ public class PhotoItemRadio extends RelativeLayout {
 
 				DebugLog.d("value : " + value.value);
 
-				Bitmap photoBmp;
+				File photoFile = new File(value.value.replaceFirst("/file:", ""));
 
-				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-					photoBmp = ImageUtil.loadDecryptedImage(value.value);
-				} else {
-					Uri photoUri = FileUtil.getUriFromFile(context, new File(value.value));
-					photoBmp = BaseActivity.imageLoader.loadImageSync(photoUri.toString());
-				}
+				if (photoFile.exists()) {
 
-				if (photoBmp != null) {
-					DebugLog.d("load image");
-					imageView.setImageBitmap(photoBmp);
-					progress.setVisibility(View.GONE);
-					photoRoot.setVisibility(View.VISIBLE);
-					if (value != null){
-						if (value.value == null)
-							noPicture.setVisibility(View.VISIBLE);
-						if (value.photoStatus == null){
-							radioGroup.check(R.id.radioOK);
+					Bitmap photoBmp = null;
+
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+						photoBmp = ImageUtil.loadDecryptedImage(value.value);
+					} else {
+						try {
+							Uri photoUri = FileUtil.getUriFromFile(context, new File(value.value.replaceFirst("/file:", "")));
+							photoBmp = BaseActivity.imageLoader.loadImageSync(photoUri.toString());
+						} catch (IllegalArgumentException e) {
+							DebugLog.e("load image: " + e.getMessage());
 						}
 					}
 
-				} else {
-					// on loading failed
-					progress.setVisibility(View.GONE);
-					photoRoot.setVisibility(View.GONE);
-					noPicture.setVisibility(View.VISIBLE);
-					DebugLog.e(context.getString(R.string.failed_load_image));
-				}
+					if (photoBmp != null) {
+						DebugLog.d("load image");
+						imageView.setImageBitmap(photoBmp);
+						progress.setVisibility(View.GONE);
+						photoRoot.setVisibility(View.VISIBLE);
+						if (TextUtils.isEmpty(value.photoStatus)){
+							radioGroup.check(R.id.radioOK);
+						}
 
+					} else {
+						// on loading failed
+						progress.setVisibility(View.GONE);
+						photoRoot.setVisibility(View.GONE);
+						noPicture.setVisibility(View.VISIBLE);
+						DebugLog.e(context.getString(R.string.failed_load_image));
+					}
+				} else {
+					Toast.makeText(context, "File photo " + value.value + " tidak ditemukan di gallery", Toast.LENGTH_LONG).show();
+				}
 			}
 
 			//notify radiobuttons

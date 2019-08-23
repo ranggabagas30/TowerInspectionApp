@@ -79,6 +79,7 @@ public class GroupFragment extends BaseFragment {
     public void setItems(WorkFormRowModel groupItems) {
 		adapter.setItems(groupItems);
 	}
+
 	public void refreshItems() {
 		adapter.notifyDataSetChanged();
 	}

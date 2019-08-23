@@ -11,7 +11,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,7 +31,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -386,17 +384,22 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
 				String savedPath = Constants.DIR_PHOTOS + File.separator + schedule.id;
 				photoFile = FileUtil.createTemporaryPhotoFile(photoFileName, ".jpg", savedPath);
-				mImageUri = FileUtil.getUriFromFile(this, photoFile);
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-				intent.putExtra("outputX", 480);
-				intent.putExtra("outputY", 480);
-				intent.putExtra("aspectX", 1);
-				intent.putExtra("aspectY", 1);
-				intent.putExtra("scale", true);
-				intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
-				intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-				startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
-				return;
+				if (photoFile.exists()) {
+					photoFile = new File(photoFile.getPath().replaceFirst("/file:", ""));
+					mImageUri = FileUtil.getUriFromFile(this, photoFile);
+					intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+					intent.putExtra("outputX", 480);
+					intent.putExtra("outputY", 480);
+					intent.putExtra("aspectX", 1);
+					intent.putExtra("aspectY", 1);
+					intent.putExtra("scale", true);
+					intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
+					intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
+					return;
+				} else {
+					DebugLog.e("take picture: photo file not created");
+				}
 			} catch (NullPointerException npe) {
 				DebugLog.e("take picture: " + npe.getMessage());
 			} catch (IOException e) {
@@ -408,7 +411,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		// if failed, then show toast with failed message
 		Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
-
     }
 
 	//called after camera intent finished
@@ -440,16 +442,24 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
-				ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
-
-				File filePhotoResult = new File(photoFile.toString());
-
-				if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
-					photoItem.deletePhoto();
-					photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
-				} else {
-					DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-					MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+				try {
+					ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
+					System.gc();
+					File filePhotoResult = new File(photoFile.toString());
+					if (filePhotoResult.exists()) {
+						if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
+							photoItem.deletePhoto();
+							photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
+						} else {
+							DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
+							MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+						}
+					} else {
+						Toast.makeText(activity, "File photo tidak ditemukan", Toast.LENGTH_LONG).show();
+					}
+				} catch (IOException e) {
+					DebugLog.e("resize and save image: " + e.getMessage());
+					Toast.makeText(activity, "Gagal melakukan resize dan menyimpan foto", Toast.LENGTH_LONG).show();
 				}
 			}
 		}

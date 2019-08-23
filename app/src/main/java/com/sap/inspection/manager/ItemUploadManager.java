@@ -1,18 +1,13 @@
 package com.sap.inspection.manager;
 
-import android.content.SharedPreferences;
+import android.nfc.FormatException;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -25,9 +20,11 @@ import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.StringUtil;
+import com.sap.inspection.view.ui.MyApplication;
 
-import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -50,7 +47,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Objects;
 
 import de.greenrobot.event.EventBus;
@@ -92,7 +88,6 @@ public class ItemUploadManager {
     }
 
     public FormValueModel convertToFormValue(CorrectiveValueModel itemValue) {
-
         FormValueModel formValue = new FormValueModel();
         formValue.scheduleId    = itemValue.scheduleId;
         formValue.operatorId    = itemValue.operatorId;
@@ -107,33 +102,27 @@ public class ItemUploadManager {
         formValue.value         = itemValue.value;
         formValue.uploadStatus  = itemValue.uploadStatus;
         formValue.typePhoto     = itemValue.typePhoto;
-
         return formValue;
     }
 
     public void addCorrectiveValues(ArrayList<CorrectiveValueModel> correctiveValues) {
-
         ArrayList<FormValueModel> itemValuesForUpload = new ArrayList<>();
-
         for (CorrectiveValueModel itemValue : correctiveValues) {
-
             itemValuesForUpload.add(convertToFormValue(itemValue));
         }
-
         addItemValues(itemValuesForUpload);
     }
 
     public void addCorrectiveValue(WorkFormItemModel workFormItem, CorrectiveValueModel correctiveValue) {
-
         addItemValue(workFormItem, convertToFormValue(correctiveValue));
     }
 
     public void addItemValues(ArrayList<FormValueModel> itemvalues) {
-        if (itemvalues == null)
-            MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
+        if (itemvalues == null || itemvalues.isEmpty())
+            MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_noitem), Toast.LENGTH_LONG);
         else {
                 if (itemvalues.isEmpty()) {
-                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_noitem), Toast.LENGTH_SHORT);
+                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_noitem), Toast.LENGTH_LONG);
                     return;
                 }
 
@@ -196,36 +185,30 @@ public class ItemUploadManager {
 
     }
 
-    private class UploadValue extends AsyncTask<Void, String, Void> {
+    private class UploadValue extends AsyncTask<Void, String, Boolean> {
 
-        // private Activity activity;
-        private String json;
-        private String errMsg;
-        private int statusCode = 0;
+        private String scheduleId;
 
         // upload variables
         private final String MESSAGE_SUCCESS = "success";
         private final String MESSAGE_FAILED  = "failed";
-        private String response = null;
+        private String message;
         private String messageToServer;
-        private String simpleResponseMessage = null;
         private int itemValueSuccessCount = 0;
 
-        private Gson gson = new Gson();
-        private String scheduleId;
-
-        private Handler responseObserver;
+        // connnection setup
+        private final int TIMEOUT_CONNECTION = 1 * 3600 * 1000;
+        private final int TIMEOUT_SOCKET = 1 * 3600 * 1000;
+        private final String UPLOAD_URL = APIList.uploadUrl() + "?access_token=" + APIHelper.getAccessToken(MyApplication.getInstance());
+        private HttpClient httpClient;
 
         public UploadValue() {}
-
-        public UploadValue(Handler responseObserver) {
-            this.responseObserver = responseObserver;
-        }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             running = true;
+            initConnection();
             MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
         }
 
@@ -242,167 +225,211 @@ public class ItemUploadManager {
         }
 
         @Override
-        protected Void doInBackground(Void... arg0) {
+        protected Boolean doInBackground(Void... arg0) {
 
-            while (itemValues.size() > 0) {
+            Boolean result = true;
+            try {
+                while (itemValues.size() > 0) {
+                    publish(itemValues.size() + " item yang tersisa");
 
-                publish(itemValues.size() + " item yang tersisa");
-                latestStatus = itemValues.size() + " item yang tersisa";
+                    /** upload Photo **/
+                    HttpResponse httpResponse = uploadItem2(itemValues.get(0));
+                    if (httpResponse != null) {
+                        int statusCode = httpResponse.getStatusLine().getStatusCode();
+                        if (statusCode >= 200 && statusCode < 300) {
+                            HttpEntity httpEntity = httpResponse.getEntity();
+                            if (httpEntity != null) {
+                                InputStream data = httpEntity.getContent();
+                                String jsonResponse = StringUtil.ConvertInputStreamToString(data); // get json response
+                                if (!TextUtils.isEmpty(jsonResponse)) {
+                                    if (!StringUtil.checkIfContentTypeJson(httpResponse.getEntity().getContentType().getValue())) {
+                                        result = false;
+                                        throw new FormatException("upload: response is not json type");
+                                    }
 
-                /** upload Photo **/
-                response = uploadItem2(itemValues.get(0));
-                DebugLog.d("response=" + response);
+                                    scheduleId = itemValues.get(0).scheduleId;
+                                    Gson gson = new Gson();
+                                    ItemDefaultResponseModel responseUploadItemModel = gson.fromJson(jsonResponse, ItemDefaultResponseModel.class);
+                                    FormValueModel item = itemValues.remove(0);
+                                    item.uploadStatus = FormValueModel.UPLOAD_DONE;
+                                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+                                        checkWargaAndBarangIDafterUpload(item, responseUploadItemModel);
+                                    }
+                                    item.save();
 
-                if (response != null) {
-                    scheduleId = itemValues.get(0).scheduleId;
-                    processUploadResponse();
-
-                } else {
-
-                    // stop upload
-                    break;
-                }
-            }
-
-            if (scheduleId != null && StringUtil.isPreventive(scheduleId)) {
-                DebugLog.d("hit corrective");
-                APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() + scheduleId + "/update");
-            }
-
-            // save failed item's status
-            for (FormValueModel item : itemValuesFailed) {
-                item.uploadStatus = FormValueModel.UPLOAD_FAIL;
-                item.save();
-            }
-
-            if (response != null) {
-
-                if (itemValuesFailed.size() == 0) {
-                    simpleResponseMessage = "jumlah item berhasil upload = " + itemValueSuccessCount;
-                    latestStatus = syncDone;
-                    messageToServer = MESSAGE_SUCCESS;
-                } else {
-                    latestStatus = syncFail;
-                    messageToServer = MESSAGE_FAILED;
-                }
-
-            } else {
-                latestStatus = syncFail;
-                simpleResponseMessage = "response is null";
-                messageToServer = MESSAGE_FAILED;
-            }
-
-            DebugLog.d("latest status : " + latestStatus);
-
-            publish(latestStatus);
-            MyApplication.getInstance().toast(latestStatus + "\n" + simpleResponseMessage, Toast.LENGTH_LONG);
-
-
-            // SAP only
-            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)){
-
-                //after uploading data, then send messageToServer to the backend server
-                response = uploadStatus(scheduleId, messageToServer);
-                if (response != null) {
-                    BaseResponseModel responseUploadStatusModel = gson.fromJson(response, BaseResponseModel.class);
-                    if (responseUploadStatusModel.status == 201) {
-                        DebugLog.d("upload status berhasil");
-                    } else {
-                        if (responseUploadStatusModel.status == 422 ||
-                            responseUploadStatusModel.status == 403 ||
-                            responseUploadStatusModel.status == 404 ||
-                            responseUploadStatusModel.status == 405) {
-
-                            Crashlytics.log(Log.ERROR, "uploadstatus", "upload status gagal dengan statuscode : " + responseUploadStatusModel.status);
-                            DebugLog.d("upload status gagal dengan statuscode : " + responseUploadStatusModel.status);
+                                    itemValueSuccessCount++;
+                                }
+                            } else {
+                                result = false;
+                                throw new NullPointerException("upload: http entity is null");
+                            }
+                        } else if (statusCode >= 400) {
+                            itemValuesFailed.add(itemValues.remove(0));
+                            result = false;
                         }
+                    } else {
+                        result = false;
+                        throw new NullPointerException("upload: http response is null");
+                    }
+                }
+            } catch (IOException e) {
+                DebugLog.e("upload: " + e.getMessage(), e);
+            } catch (NullPointerException e) {
+                DebugLog.e("upload: " + e.getMessage(), e);
+            } catch (FormatException e) {
+                DebugLog.e("upload: " + e.getMessage(), e);
+            }
+            return result;
+        }
+
+        private void initConnection() {
+            HttpParams httpParams = new BasicHttpParams();
+            HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT_CONNECTION);
+            HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT_SOCKET);
+            httpClient = new DefaultHttpClient(httpParams);
+        }
+
+        private HttpResponse uploadItem2(FormValueModel itemValue) throws IOException {
+            DebugLog.d("===== START UPLOADING PHOTO === \n");
+            HttpPost httpPost = new HttpPost(UPLOAD_URL);
+            httpPost.setHeader("Cookie", PrefUtil.getStringPref(R.string.user_cookie, ""));
+            DebugLog.d(httpPost.getURI().toString());
+
+            MultipartEntity reqEntity = getUploadEntity(itemValue);
+            httpPost.setEntity(reqEntity);
+            return httpClient.execute(httpPost);
+        }
+
+        private MultipartEntity getUploadEntity(FormValueModel itemValue) throws IOException {
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            ArrayList<NameValuePair> params = getParams(itemValue);
+
+            if (!TextUtils.isEmpty(itemValue.photoStatus) && !TextUtils.isEmpty(itemValue.value)) {
+
+                File fileUpload = new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""));
+                if (fileUpload.exists() && fileUpload.isFile()) {
+                    String fileName = fileUpload.getName();
+                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+                        reqEntity.addPart("picture", new ByteArrayBody(Objects.requireNonNull(CommonUtil.getDecryptedByteBase64(fileUpload)), fileName));
+                    else if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_STP))
+                        reqEntity.addPart("picture", new FileBody(fileUpload));
+                } else {
+                    throw new IOException(itemValue.value + " (No such file or directory)");
+                }
+            }
+
+            for (int i = 0; i < params.size(); i++) {
+                DebugLog.d(params.get(i).getName() + " || " + params.get(i).getValue());
+                reqEntity.addPart(params.get(i).getName(), new StringBody(params.get(i).getValue()));
+            }
+
+            System.gc();
+            return reqEntity;
+        }
+
+        private ArrayList<NameValuePair> getParams(FormValueModel itemValue) {
+
+            ArrayList<NameValuePair> params = new ArrayList<>();
+
+            params.add(new BasicNameValuePair("schedule_id", itemValue.scheduleId));
+            params.add(new BasicNameValuePair("operator_id", String.valueOf(itemValue.operatorId)));
+            params.add(new BasicNameValuePair("item_id", String.valueOf(itemValue.itemId)));
+
+            if (!TextUtils.isEmpty(itemValue.value))
+                params.add(new BasicNameValuePair("value", itemValue.value));
+            if (!TextUtils.isEmpty(itemValue.photoStatus)) {
+                params.add(new BasicNameValuePair("photo_status", itemValue.photoStatus));
+                if (!TextUtils.isEmpty(itemValue.value)) {
+                    if (!TextUtils.isEmpty(itemValue.photoDate)) {
+                        params.add(new BasicNameValuePair("photo_datetime", itemValue.photoDate));
+                        DebugLog.d("photo_datetime : " + itemValue.photoDate);
+                    } else {
+                        params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
+                        DebugLog.d("photo_datetime : " + itemValue.createdAt);
                     }
                 }
             }
+            if (!TextUtils.isEmpty(itemValue.remark))
+                params.add(new BasicNameValuePair("remark", itemValue.remark));
+            if (!TextUtils.isEmpty(itemValue.latitude) && !itemValue.latitude.equalsIgnoreCase("0"))
+                params.add(new BasicNameValuePair("latitude", itemValue.latitude));
+            if (!TextUtils.isEmpty(itemValue.longitude) && !itemValue.longitude.equalsIgnoreCase("0"))
+                params.add(new BasicNameValuePair("longitude", itemValue.longitude));
+            if (itemValue.gpsAccuracy != 0)
+                params.add(new BasicNameValuePair("accuracy", String.valueOf(itemValue.gpsAccuracy)));
 
-            return null;
+            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+                String wargaId = null;
+                String barangId = null;
+                if (StringUtil.isNotNullAndNotEmpty(itemValue.wargaId)) {
+                    wargaId = StringUtil.getRegisteredWargaId(itemValue.scheduleId, itemValue.wargaId);
+                    params.add(new BasicNameValuePair("wargaid", wargaId));
+                }
+                if (StringUtil.isNotNullAndNotEmpty(wargaId) && StringUtil.isNotNullAndNotEmpty(itemValue.barangId)) {
+                    barangId = StringUtil.getRegisteredBarangId(itemValue.scheduleId, wargaId, itemValue.barangId);
+                    params.add(new BasicNameValuePair("barangid", barangId));
+                }
+            }
+            return params;
+        }
+
+        private ArrayList<NameValuePair> getParamUploadStatus(String schedule_id, String messageToServer) {
+            ArrayList<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("schedule_id", schedule_id));
+            params.add(new BasicNameValuePair("message", messageToServer));
+            return params;
+        }
+
+        private void checkWargaAndBarangIDafterUpload(FormValueModel item, ItemDefaultResponseModel responseUploadItemModel) {
+
+            itemValuesModified.add(item);
+
+            // form imbas petir check new wargaid and new barangid after registration
+            String newWargaId;
+            String oldWargaId = item.wargaId;
+
+            String newBarangId;
+            String oldBarangId = item.barangId;
+
+            if (StringUtil.isNotNullAndNotEmpty(oldWargaId) && StringUtil.isNotRegistered(oldWargaId)) {
+
+                if (responseUploadItemModel.data.getWarga_id() != 0) {
+
+                    DebugLog.d("upload informasi diri complete, update wargaid");
+                    newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
+
+                    // update all items with old 'wargaId' value on FormValue table to the new one
+                    //FormValueModel.updateWargaId(item.scheduleId, oldWargaId, newWargaId);
+                    FormValueModel.updateWargaItems(oldWargaId, newWargaId, itemValuesModified);
+
+                    // update formimbaspetirconfig
+                    updateWargaId(oldWargaId, newWargaId);
+
+                    return;
+                }
+            }
+
+            if (StringUtil.isNotNullAndNotEmpty(oldBarangId) && StringUtil.isNotRegistered(oldBarangId)) {
+
+                if (responseUploadItemModel.data.getBarang_id() != 0) {
+
+                    newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
+
+                    // update all items with old 'barangId' value on FormValue table to the new one
+                    FormValueModel.updateBarangItems(oldWargaId, oldBarangId, newBarangId, itemValuesModified);
+
+                    // update formimbaspetirconfig
+                    updateBarangId(oldWargaId, oldBarangId, newBarangId);
+
+                    return;
+                }
+            }
         }
 
         private FormValueModel checkWargaAndBarangID(FormValueModel item) {
             item.wargaId    = StringUtil.getRegisteredWargaId(item.scheduleId, item.wargaId);
             item.barangId   = StringUtil.getRegisteredBarangId(item.scheduleId, item.wargaId, item.barangId);
             return item;
-        }
-
-        private void processUploadResponse() {
-
-            ItemDefaultResponseModel responseUploadItemModel = gson.fromJson(response, ItemDefaultResponseModel.class);
-
-            DebugLog.d("status code : " + responseUploadItemModel.status);
-            if (responseUploadItemModel.status == 201 || responseUploadItemModel.status == 200) {
-
-                FormValueModel item = itemValues.remove(0);
-                item.uploadStatus = FormValueModel.UPLOAD_DONE;
-
-                itemValueSuccessCount++;
-
-                DebugLog.d("itemValueSuccessCount : " + itemValueSuccessCount);
-                DebugLog.d("upload status : " + item.uploadStatus);
-
-                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-                    itemValuesModified.add(item);
-
-                    // form imbas petir check new wargaid and new barangid after registration
-                    String newWargaId;
-                    String oldWargaId = item.wargaId;
-
-                    String newBarangId;
-                    String oldBarangId = item.barangId;
-
-                    if (StringUtil.isNotNullAndNotEmpty(oldWargaId) && StringUtil.isNotRegistered(oldWargaId)) {
-
-                        if (responseUploadItemModel.data.getWarga_id() != 0) {
-
-                            DebugLog.d("upload informasi diri complete, update wargaid");
-                            newWargaId = String.valueOf(responseUploadItemModel.data.getWarga_id());
-
-                            // update all items with old 'wargaId' value on FormValue table to the new one
-                            //FormValueModel.updateWargaId(item.scheduleId, oldWargaId, newWargaId);
-                            FormValueModel.updateWargaItems(oldWargaId, newWargaId, itemValuesModified);
-
-                            // update formimbaspetirconfig
-                            updateWargaId(oldWargaId, newWargaId);
-
-                            return;
-                        }
-                    }
-
-                    if (StringUtil.isNotNullAndNotEmpty(oldBarangId) && StringUtil.isNotRegistered(oldBarangId)) {
-
-                        if (responseUploadItemModel.data.getBarang_id() != 0) {
-
-                            newBarangId = String.valueOf(responseUploadItemModel.data.getBarang_id());
-
-                            // update all items with old 'barangId' value on FormValue table to the new one
-                            FormValueModel.updateBarangItems(oldWargaId, oldBarangId, newBarangId, itemValuesModified);
-
-                            // update formimbaspetirconfig
-                            updateBarangId(oldWargaId, oldBarangId, newBarangId);
-
-                            return;
-                        }
-                    }
-
-                }
-
-                item.save();
-
-            } else {
-                if (responseUploadItemModel.status == 400 ||
-                    responseUploadItemModel.status == 422 ||
-                    responseUploadItemModel.status == 403 ||
-                    responseUploadItemModel.status == 404) {
-
-                    simpleResponseMessage = " with statuscode : " + responseUploadItemModel.status + "\n" + responseUploadItemModel.messages;
-                }
-                itemValuesFailed.add(itemValues.remove(0));
-            }
         }
 
         private void checkWargaIdAndBarangId(FormValueModel item, ItemDefaultResponseModel responseUploadItemModel) {
@@ -454,7 +481,6 @@ public class ItemUploadManager {
             }
         }
 
-
         private void updateWargaId(String oldWargaId, String newWargaId) {
 
             DebugLog.d("update warga id : (old,new) = (" + oldWargaId + "," + newWargaId + ")");
@@ -468,290 +494,110 @@ public class ItemUploadManager {
             FormImbasPetirConfig.updateBarangId(scheduleId, wargaId, oldBarangId, newBarangId);
         }
 
-        private ArrayList<NameValuePair> getParams(FormValueModel itemValue) {
-
-            ArrayList<NameValuePair> params = new ArrayList<>();
-
-            params.add(new BasicNameValuePair("schedule_id", itemValue.scheduleId));
-            params.add(new BasicNameValuePair("operator_id", String.valueOf(itemValue.operatorId)));
-            params.add(new BasicNameValuePair("item_id", String.valueOf(itemValue.itemId)));
-
-            if (itemValue.value != null)
-                params.add(new BasicNameValuePair("value", itemValue.value));
-            if (itemValue.photoStatus != null) {
-
-                params.add(new BasicNameValuePair("photo_status", itemValue.photoStatus));
-
-                if (null != itemValue.value) {
-                    if (itemValue.photoDate == null) {
-                        params.add(new BasicNameValuePair("photo_datetime", String.valueOf(itemValue.createdAt)));
-                        DebugLog.d("photo_datetime : " + itemValue.createdAt);
-                    }
-                    else {
-                        params.add(new BasicNameValuePair("photo_datetime", itemValue.photoDate));
-                        DebugLog.d("photo_datetime : " + itemValue.photoDate);
+        private void doUploadStatus() {
+            // SAP only
+            new Thread(() -> { // upload status in a new thread
+                if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)){
+                    //after uploading data, then send messageToServer to the backend server
+                    String response = uploadStatus(scheduleId, messageToServer);
+                    if (!TextUtils.isEmpty(response)) {
+                        BaseResponseModel responseUploadStatus = new Gson().fromJson(response, BaseResponseModel.class);
+                        if (responseUploadStatus.status >= 200 && responseUploadStatus.status < 300) {
+                            DebugLog.d("upload status berhasil");
+                        } else if (responseUploadStatus.status >= 400) {
+                            DebugLog.e("upload status gagal dengan statuscode : " + responseUploadStatus.status);
+                        }
                     }
                 }
-            }
-            if (itemValue.remark != null)
-                params.add(new BasicNameValuePair("remark", itemValue.remark));
-            if (itemValue.latitude != null && !itemValue.latitude.equalsIgnoreCase("0"))
-                params.add(new BasicNameValuePair("latitude", itemValue.latitude));
-            if (itemValue.longitude != null && !itemValue.longitude.equalsIgnoreCase("0"))
-                params.add(new BasicNameValuePair("longitude", itemValue.longitude));
-            if (itemValue.gpsAccuracy != 0)
-                params.add(new BasicNameValuePair("accuracy", String.valueOf(itemValue.gpsAccuracy)));
-
-            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-                String wargaId = null;
-                String barangId = null;
-
-                if (StringUtil.isNotNullAndNotEmpty(itemValue.wargaId)) {
-                    wargaId = StringUtil.getRegisteredWargaId(itemValue.scheduleId, itemValue.wargaId);
-                    params.add(new BasicNameValuePair("wargaid", wargaId));
-                }
-                if (StringUtil.isNotNullAndNotEmpty(wargaId) && StringUtil.isNotNullAndNotEmpty(itemValue.barangId)) {
-                    barangId = StringUtil.getRegisteredBarangId(itemValue.scheduleId, wargaId, itemValue.barangId);
-                    params.add(new BasicNameValuePair("barangid", barangId));
-                }
-            }
-
-            return params;
-        }
-
-        private String uploadItem2(FormValueModel itemValue) {
-            try {
-                DebugLog.d("===== START UPLOADING PHOTO === \n");
-                DebugLog.d("** set params ** ");
-
-                HttpParams httpParameters = new BasicHttpParams();
-
-                // Set the timeout in milliseconds until a connection is established.
-                // The default value is zero, that means the timeout is not used.
-                //int timeoutConnection = 3000;
-                int timeoutConnection = 1 * 3600 * 1000; // 1 HOUR
-                HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-
-                // Set the default socket timeout (SO_TIMEOUT)
-                // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 1 * 3600 * 1000; // 1 HOUR
-                HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-
-                HttpClient client = new DefaultHttpClient(httpParameters);
-                HttpPost request = new HttpPost(APIList.uploadUrl() + "?access_token=" + APIHelper.getAccessToken(MyApplication.getInstance()));
-                DebugLog.d(request.getURI().toString());
-
-                SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-                if (mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), null) != null) {
-                    request.setHeader("Cookie", mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), ""));
-                }
-
-                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-
-                ArrayList<NameValuePair> params = getParams(itemValue);
-
-                if (itemValue.photoStatus != null && itemValue.value != null) {
-
-                    File fileUpload = new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""));
-                    String fileName = fileUpload.getName();
-
-                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-                        reqEntity.addPart("picture", new ByteArrayBody(Objects.requireNonNull(CommonUtil.getDecryptedByteBase64(fileUpload)), fileName));
-                    else if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_STP))
-                        reqEntity.addPart("picture", new FileBody(new File(itemValue.value.replaceFirst("^file\\:\\/\\/", ""))));
-                }
-
-                for (int i = 0; i < params.size(); i++) {
-                    DebugLog.d(params.get(i).getName() + " || " + params.get(i).getValue());
-                    reqEntity.addPart(params.get(i).getName(), new StringBody(params.get(i).getValue()));
-                }
-
-                System.gc();
-
-                InputStream data;
-                HttpResponse response;
-                request.setEntity(reqEntity);
-
-                DebugLog.d("\n\n** execute request ** ");
-                response = client.execute(request);
-
-                Header cookie = response.getFirstHeader("Set-Cookie");
-                if (cookie != null) {
-                    mPref.edit().putString(MyApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
-                }
-
-                data = response.getEntity().getContent();
-                DebugLog.d("** response ** ");
-                DebugLog.d("response string data : " + data);
-
-                statusCode = response.getStatusLine().getStatusCode();
-                DebugLog.d("response string status code : " + statusCode);
-
-                String stringResponse = ConvertInputStreamToString(data);
-                DebugLog.d("json : " + stringResponse);
-
-                if (!StringUtil.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
-                //if (true) { // debug purpose only
-                    DebugLog.d("not json type");
-                    if (statusCode == 422 ||
-                        statusCode == 403 ||
-                        statusCode == 404 ||
-                        statusCode == 405) {
-
-                        Crashlytics.log(Log.ERROR, "uploadItem2", "Not json type with code : " + statusCode + " and string response : " + stringResponse);
-                        MyApplication.getInstance().toast("Not json type with code : " + statusCode  + " and string response : " + stringResponse, Toast.LENGTH_LONG);
-                        return stringResponse;
-                    } else {
-                        Crashlytics.log(Log.ERROR, "uploadItem2", "Not json type with string response : " + stringResponse);
-                        MyApplication.getInstance().toast("Not json type with string response : " + stringResponse, Toast.LENGTH_LONG);
-                        return null;
-                    }
-                }
-                DebugLog.d("====== END OF UPLOAD PHOTO ===== \n\n");
-                return stringResponse;
-            } catch (SocketTimeoutException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "SE " + "Koneksi dengan server terlalu lama. Periksa jaringan Anda");
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "SE Koneksi dengan server terlalu lama. Periksa jaringan Anda", Toast.LENGTH_LONG);
-                return null;
-            } catch(ClientProtocolException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "CPE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "CPE " + e.getMessage(), Toast.LENGTH_LONG);
-                return null;
-            } catch (IOException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "IOE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "IOE " + e.getMessage(), Toast.LENGTH_LONG);
-                return null;
-            } catch (NullPointerException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "uploadItem2", "STATUSCODE : " + statusCode + "NPE " + e.getMessage());
-                MyApplication.getInstance().toast("upload photo, STATUSCODE : " + statusCode + "NPE " + e.getMessage(), Toast.LENGTH_LONG);
-                return null;
-            }
-
-        }
-
-        private LinkedList<NameValuePair> getParamUploadStatus(String schedule_id, String messageToServer) {
-            LinkedList<NameValuePair> params = new LinkedList<>();
-            params.add(new BasicNameValuePair("schedule_id", schedule_id));
-            params.add(new BasicNameValuePair("message", messageToServer));
-            return params;
+            }).start();
         }
 
         private String uploadStatus(String schedule_id, String messageToServer) {
             DebugLog.d("===== START UPLOADING STATUS === \n");
-            DebugLog.d("** set params ** ");
-            String responseStringData;
+            String responseStringData = null;
             try {
-                //Request Part
-                HttpParams httpParameters = new BasicHttpParams();
-
-                // Set the timeout in milliseconds until a connection is established.
-                // The default value is zero, that means the timeout is not used.
-                int timeoutConnection = 1 * 3600 * 1000;
-                HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-                // Set the default socket timeout (SO_TIMEOUT)
-                // in milliseconds which is the timeout for waiting for data.
-                int timeoutSocket = 1 * 36 * 1000;
-                HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-
-                HttpClient client = new DefaultHttpClient(httpParameters);
                 HttpPost request = new HttpPost(APIList.uploadStatusUrl() + "?access_token=" + APIHelper.getAccessToken(MyApplication.getInstance()));
                 DebugLog.d(request.getURI().toString());
-                LinkedList<NameValuePair> params = getParamUploadStatus(schedule_id, messageToServer);
+
+                ArrayList<NameValuePair> params = getParamUploadStatus(schedule_id, messageToServer);
                 request.setEntity(new UrlEncodedFormEntity(params));
 
                 //Execution Part
                 DebugLog.d("\n\n** execute request ** ");
                 InputStream data;
-                HttpResponse response;
-                response = client.execute(request);
+                HttpResponse response = httpClient.execute(request);
 
                 //Response Part
                 DebugLog.d("** response ** ");
                 data = response.getEntity().getContent();
                 int statusCode = response.getStatusLine().getStatusCode();
-                responseStringData = ConvertInputStreamToString(data);
+                responseStringData = StringUtil.ConvertInputStreamToString(data);
                 DebugLog.d("schedule_id : " + schedule_id);
                 DebugLog.d("messageToServer : " + messageToServer);
                 DebugLog.d("response status code : " + statusCode);
                 DebugLog.d("response string data : " + responseStringData);
-
-                if (statusCode == 201 || statusCode == 200) {
-                    return responseStringData;
-                } else
-                if (statusCode == 400 ||
-                    statusCode == 422 ||
-                    statusCode == 403 ||
-                    statusCode == 404) {
-
-                    Crashlytics.log(Log.ERROR, "updatestatus", "statuscode : " + statusCode);
-                    return responseStringData;
-                }
-
                 DebugLog.d("====== END OF UPLOAD STATUS ===== \n\n");
             } catch (SocketTimeoutException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "updatestatus", e.getMessage());
-                DebugLog.d("uploadStatus err " + errMsg);
+                DebugLog.e("upload status: " + e.getMessage(), e);
             } catch (ClientProtocolException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "updatestatus", e.getMessage());
-                DebugLog.d("uploadStatus err ||||| " + errMsg);
+                DebugLog.e("upload status: " + e.getMessage(), e);
             } catch (IOException e) {
-                errMsg = e.getMessage();
-                e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "updatestatus", e.getMessage());
-                DebugLog.d("uploadStatus err ||||| " + errMsg);
+                DebugLog.e("upload status: " + e.getMessage(), e);
             }
-            return null;
+            return responseStringData;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
+
+            if (scheduleId != null && StringUtil.isPreventive(scheduleId)) {
+                DebugLog.d("hit corrective");
+                APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() + scheduleId + "/update");
+            }
+
+            if (!result) { // failed upload items
+                latestStatus = syncFail;
+                messageToServer = MESSAGE_FAILED;
+
+                // save failed item's status
+                if (!itemValuesFailed.isEmpty()) {
+                    for (FormValueModel item : itemValuesFailed) {
+                        item.uploadStatus = FormValueModel.UPLOAD_FAIL;
+                        item.save();
+                    }
+                    message = itemValuesFailed.size() + " item gagal diupload";
+                } else {
+                    message = MyApplication.getContext().getString(R.string.failed_upload_items);
+                }
+            } else { // success upload items
+                latestStatus = syncDone;
+                messageToServer = MESSAGE_SUCCESS;
+                message = itemValueSuccessCount + " item berhasil diupload";
+            }
+
+            publish(latestStatus);
+            MyApplication.getInstance().toast(latestStatus + "\n" + message, Toast.LENGTH_LONG);
+
+            // SAP only
+            doUploadStatus();
+
             running = false;
         }
 
         @Override
         protected void onCancelled() {
             super.onCancelled();
+            latestStatus = syncFail;
+            messageToServer = MESSAGE_FAILED;
+            publish(latestStatus);
+
+            // SAP only
+            doUploadStatus();
+
             running = false;
         }
-
-        public String ConvertInputStreamToString(InputStream is) {
-            String str = null;
-            byte[] b = null;
-            try {
-                StringBuffer buffer = new StringBuffer();
-                b = new byte[4096];
-                for (int n; (n = is.read(b)) != -1; ) {
-                    buffer.append(new String(b, 0, n));
-                }
-                str = buffer.toString();
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            return str;
-        }
-
-        public void setJson(String json) {
-            this.json = json;
-        }
-
-        public String getJson() {
-            return json;
-        }
     }
+
 
 }

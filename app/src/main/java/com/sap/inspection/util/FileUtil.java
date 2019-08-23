@@ -83,7 +83,8 @@ public class FileUtil {
         }
     }
 
-    public static Uri getUriFromFile(Context context, File file) {
+    public static Uri getUriFromFile(Context context, File file) throws IllegalArgumentException {
+        DebugLog.d("file format : " + file.toString());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return FileProvider.getUriForFile(context, Constants.APPLICATION_FILE_PROVIDER, file);
         } else {

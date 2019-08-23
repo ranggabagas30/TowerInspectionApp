@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.InputType;
 import android.widget.Toast;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.view.ui.fragments.GroupFragment;
@@ -95,7 +96,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 		parentGroupRow.text = "this is just";
 		parentGroupRow.children = new Vector<>();
 
-		if (workTypeName.equalsIgnoreCase(getString(R.string.corrective))) {
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(getString(R.string.corrective))) {
 
 			int correctiveScheduleId = Integer.valueOf(scheduleId);
 			CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule = CorrectiveScheduleConfig.getCorrectiveSchedule(correctiveScheduleId);
@@ -120,8 +121,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 				}
 			}
 
-		} else
-		if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
+		} else if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
 
 			// get workformid by worktypeid
 			workForm = new WorkFormModel();
