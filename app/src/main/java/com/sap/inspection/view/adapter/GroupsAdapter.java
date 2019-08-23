@@ -57,7 +57,8 @@ public class GroupsAdapter extends MyBaseAdapter {
 
 	public void setScheduleId(String scheduleId) {
 		this.scheduleId = scheduleId;
-		dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+			dataIndex = FormImbasPetirConfig.getDataIndex(scheduleId);
 	}
 
 	public String getScheduleId() {
