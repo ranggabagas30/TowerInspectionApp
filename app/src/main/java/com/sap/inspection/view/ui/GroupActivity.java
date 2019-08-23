@@ -120,8 +120,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 				}
 			}
 
-		} else
-		if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
+		} else if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
 
 			// get workformid by worktypeid
 			workForm = new WorkFormModel();
