@@ -379,8 +379,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		public void onClick(View v) {
 			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
-				if (!takePicture(photoItem.getItemId()))
-					Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
+				takePicture(photoItem.getItemId());
 			} else
 				DialogUtil.gpsDialog(FormFillActivity.this).show();
 		}
@@ -405,7 +404,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         }
     };
 
-	public boolean takePicture(int itemId){
+	public void takePicture(int itemId){
+		trackEvent(getString(R.string.event_take_picture));
+		DebugLog.d(getString(R.string.event_take_picture));
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (intent.resolveActivity(this.getPackageManager()) != null && FileUtil.isStorageAvailableAndWriteable(this)) {
 			photoFile = null;
@@ -423,7 +424,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
 				intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 				startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
-				return true;
+				return;
 			} catch (NullPointerException npe) {
 				DebugLog.e("take picture: " + npe.getMessage());
 			} catch (IOException e ) {
@@ -432,7 +433,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				DebugLog.e( "take pciture: " + ilae.getMessage());
 			}
 		}
-		return false;
+
+		// if failed, then show toast with failed message
+		Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
 	}
 
 	//called after camera intent finished

@@ -454,16 +454,13 @@ public class ItemUploadManager {
             }
         }
 
-
         private void updateWargaId(String oldWargaId, String newWargaId) {
-
             DebugLog.d("update warga id : (old,new) = (" + oldWargaId + "," + newWargaId + ")");
             FormImbasPetirConfig.updateWargaId(scheduleId, oldWargaId, newWargaId);
 
         }
 
         private void updateBarangId(String wargaId, String oldBarangId, String newBarangId) {
-
             DebugLog.d("update barang id : (old,new) = (" + oldBarangId + "," + newBarangId + ")");
             FormImbasPetirConfig.updateBarangId(scheduleId, wargaId, oldBarangId, newBarangId);
         }
