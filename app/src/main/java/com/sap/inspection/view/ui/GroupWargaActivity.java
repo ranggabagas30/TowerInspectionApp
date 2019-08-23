@@ -59,6 +59,7 @@ public class GroupWargaActivity extends BaseActivity {
     private String workFormGroupId;
     private String workFormGroupName;
     private String workFormParentId;
+    private String workTypeName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class GroupWargaActivity extends BaseActivity {
         workFormGroupId     = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPID); DebugLog.d("workFormGroupId = " + workFormGroupId);
         workFormGroupName   = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPNAME); DebugLog.d("workFormGroupName = " + workFormGroupName);
         workFormParentId    = getIntent().getStringExtra(Constants.KEY_PARENTID); DebugLog.d("parentId = " + workFormParentId);
+        workTypeName        = getIntent().getStringExtra(Constants.KEY_WORKTYPENAME); DebugLog.d("workTypeName = " + workTypeName);
 
         mHeaderTitle = findViewById(R.id.header_title);
         mHeaderSubtitle = findViewById(R.id.header_subtitle);
@@ -252,7 +254,7 @@ public class GroupWargaActivity extends BaseActivity {
                         rowModel.id,
                         rowModel.work_form_group_id,
                         workFormGroupName,
-                        null,
+                        workTypeName,
                         realWargaId,
                         realBarangId
                 );
@@ -317,7 +319,7 @@ public class GroupWargaActivity extends BaseActivity {
                                 rowId,
                                 workFormGroupId,
                                 workFormGroupName,
-                                null,
+                                workTypeName,
                                 wargaId,
                                 barangId
                         );
