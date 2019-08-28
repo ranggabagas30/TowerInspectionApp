@@ -422,31 +422,32 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
 
-			if (photoItem != null && mImageUri != null){
-				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
-					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
-					if (photoLocation != null) {
-						siteLatitude  = photoLocation.first();
-						siteLongitude = photoLocation.second();
-					} else {
-						DebugLog.e("Persistent photo location error (null)");
-					}
-				}
-
-				String[] textMarks = new String[3];
-				String photoDate = DateTools.getCurrentDate();
-				String latitude = siteLatitude;
-				String longitude = siteLongitude;
-
-				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
-				textMarks[2] = "Photo date : "+photoDate;
+			if (photoItem != null && mImageUri != null && !TextUtils.isEmpty(photoFile.toString())) {
 
 				try {
-					ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
-					System.gc();
 					File filePhotoResult = new File(photoFile.toString());
 					if (filePhotoResult.exists()) {
+						if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
+							photoLocation = CommonUtil.getPersistentLocation(scheduleId);
+							if (photoLocation != null) {
+								siteLatitude  = photoLocation.first();
+								siteLongitude = photoLocation.second();
+							} else {
+								DebugLog.e("Persistent photo location error (null)");
+							}
+						}
+
+						String[] textMarks = new String[3];
+						String photoDate = DateTools.getCurrentDate();
+						String latitude = siteLatitude;
+						String longitude = siteLongitude;
+
+						textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
+						textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
+						textMarks[2] = "Photo date : "+photoDate;
+
+						ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
+						System.gc();
 						if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
 							photoItem.deletePhoto();
 							photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
@@ -455,9 +456,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
 						}
 					} else {
-						Toast.makeText(activity, "File photo tidak ditemukan", Toast.LENGTH_LONG).show();
+						throw new NullPointerException("failed take picture");
 					}
 				} catch (IOException e) {
+					DebugLog.e("resize and save image: " + e.getMessage());
+					Toast.makeText(activity, "Gagal melakukan resize dan menyimpan foto", Toast.LENGTH_LONG).show();
+				} catch (NullPointerException e) {
 					DebugLog.e("resize and save image: " + e.getMessage());
 					Toast.makeText(activity, "Gagal melakukan resize dan menyimpan foto", Toast.LENGTH_LONG).show();
 				}

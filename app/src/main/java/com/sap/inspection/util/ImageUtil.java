@@ -14,6 +14,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -206,7 +207,7 @@ public class ImageUtil {
         return fileReturn;
     }
 
-    public static void resizeAndSaveImageCheckExifWithMark(Context ctx, String path, String[] textMarks) throws IOException {
+    public static void resizeAndSaveImageCheckExifWithMark(Context ctx, String path, String[] textMarks) throws IOException, NullPointerException {
         //change to 480 from 640
         int x = 640;
         Bitmap bitmap = resizeAndWriteTextOnDrawable(ctx, path, x, textMarks);
@@ -393,7 +394,10 @@ public class ImageUtil {
         return bm;
     }
 
-    public static Bitmap resizeAndWriteTextOnDrawable(Context context, String imagePath, int x,  String[] texts) {
+    public static Bitmap resizeAndWriteTextOnDrawable(Context context, String imagePath, int x,  String[] texts) throws NullPointerException {
+
+        if (TextUtils.isEmpty(imagePath) || !new File(imagePath).exists())
+            throw new NullPointerException("photo file not found");
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds=true;
@@ -416,9 +420,13 @@ public class ImageUtil {
 
         Bitmap bitmap_Result = BitmapFactory.decodeFile(imagePath, options);
 
+        if (bitmap_Result == null)
+            throw new NullPointerException("bitmap result is null");
+
         float bitmapRotation = imageOrientation(imagePath);
 
         bitmap_Result = ExifUtil.rotateBitmap(imagePath, bitmap_Result);
+
         Canvas canvas = new Canvas(bitmap_Result);
 
         int outputWidth  = bitmap_Result.getWidth();
