@@ -1,30 +1,21 @@
 package com.sap.inspection;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
-import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
-import android.hardware.Camera.ShutterCallback;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,6 +24,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.AlertDialogManager;
@@ -43,7 +35,6 @@ import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
-import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
@@ -55,18 +46,17 @@ import com.sap.inspection.view.dialog.DialogUtil;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -289,6 +279,10 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	private void onlineLogin(UserModel userModel){
 		showMessageDialog("Masuk ke server, silahkan tunggu");
 		APIHelper.login(activity, loginHandler, userModel.username, userModel.password);
+		TowerAPIHelper.login(userModel.username, userModel.password)
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribeOn(Schedulers.io())
+				.subscribe();
 	}
 
 	private class FormSaver extends AsyncTask<Object, Integer, Void>{

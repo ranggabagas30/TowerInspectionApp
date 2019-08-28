@@ -683,7 +683,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                     }else{
 
                         DebugLog.d("form doesn't need to be updated");
-                        if (!TowerApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+                        if (!TowerApplication.getInstance().getDEVICE_REGISTRATION_STATE()) {
 
                             // haven't yet register device, do device registration
                             requestReadPhoneStatePermission();
@@ -742,7 +742,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 			}else{
 
 				DebugLog.d("form doesn't need to be updated");
-				if (!TowerApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+				if (!TowerApplication.getInstance().getDEVICE_REGISTRATION_STATE()) {
 
 					// haven't yet register device, do device registration
 					requestReadPhoneStatePermission();
@@ -922,7 +922,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 			if (!TextUtils.isEmpty(FCMRegToken)) {
 
 				TowerApplication.sendRegIdtoServer(FCMRegToken);
-				TowerApplication.getInstance().setDEVICE_REGISTER_STATE(true);
+				TowerApplication.getInstance().setDEVICE_REGISTRATION_STATE(true);
 
 			} else {
 

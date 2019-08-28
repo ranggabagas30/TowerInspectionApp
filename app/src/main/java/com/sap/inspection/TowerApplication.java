@@ -54,7 +54,7 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 	private boolean ON_FORM_IMBAS_PETIR;
 	private boolean SCHEDULE_NEED_CHECK_IN;
 	private boolean CHECK_APP_VERSION_STATE;
-	private boolean DEVICE_REGISTER_STATE;
+	private boolean DEVICE_REGISTRATION_STATE;
 
 	public static Key key;
 	public CheckinDataModel checkinDataModel;
@@ -135,7 +135,7 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 		IS_CHECKING_HASIL_PM = false;
 		SCHEDULE_NEED_CHECK_IN = false;
 		CHECK_APP_VERSION_STATE = false;
-		DEVICE_REGISTER_STATE = false;
+		DEVICE_REGISTRATION_STATE = false;
 		ON_FORM_IMBAS_PETIR = false;
 		checkinDataModel = new CheckinDataModel();
 	}
@@ -265,7 +265,7 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
     }
 
 	public static void sendRegIdtoServer(String token) {
-		TowerAPIHelper.postRegisterFCMToken(token, CommonUtil.getIMEI(TowerApplication.getContext()), BuildConfig.VERSION_NAME)
+		TowerAPIHelper.sendRegistrationFCMToken(token, CommonUtil.getIMEI(TowerApplication.getContext()), BuildConfig.VERSION_NAME)
 				.subscribeOn(Schedulers.io())
 				.subscribe(response -> {
 					if (response != null) {
@@ -317,11 +317,11 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 		this.CHECK_APP_VERSION_STATE = checkAppVersionState;
 	}
 
-	public boolean getDEVICE_REGISTER_STATE() {
-		return DEVICE_REGISTER_STATE;
+	public boolean getDEVICE_REGISTRATION_STATE() {
+		return DEVICE_REGISTRATION_STATE;
 	}
 
-	public void setDEVICE_REGISTER_STATE(boolean DEVICE_REGISTER_STATE) {
-		this.DEVICE_REGISTER_STATE = DEVICE_REGISTER_STATE;
+	public void setDEVICE_REGISTRATION_STATE(boolean DEVICE_REGISTRATION_STATE) {
+		this.DEVICE_REGISTRATION_STATE = DEVICE_REGISTRATION_STATE;
 	}
 }

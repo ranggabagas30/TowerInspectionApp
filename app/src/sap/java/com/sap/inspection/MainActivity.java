@@ -43,7 +43,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		if (isLoadSchedule) {
 
 			DebugLog.d("load schedule");
-			if (!TowerApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+			if (!TowerApplication.getInstance().getDEVICE_REGISTRATION_STATE()) {
 
 				// haven't yet register device, do device registration
 				requestReadPhoneStatePermission();
