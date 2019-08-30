@@ -21,11 +21,11 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.view.ui.MyApplication;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,146 +65,6 @@ public class ImageUtil {
             e.printStackTrace();
         }
         return false;
-    }
-
-	public static void resizeAndSaveImage(String imageUri) {
-        try {
-
-            BitmapFactory.Options options = new BitmapFactory.Options();
-
-            options.inSampleSize = 4;
-            File tempDir;
-            if (CommonUtil.isExternalStorageAvailable())
-                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-            else
-                tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
-
-            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+imageUri.substring(imageUri.lastIndexOf('/'));
-
-            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
-
-            File file;
-            file = new File(path);
-            DebugLog.d(file.getPath());
-            try {
-                FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
-                out.flush();
-                out.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            bitmap = null;
-            System.gc();
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-    }
-	
-	public static File resizeAndSaveImage(String imageUri, String scheduleId) {
-        File fileReturn = null;
-        try {
-            File tempDir;
-            if (CommonUtil.isExternalStorageAvailable())
-                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-            else
-                tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
-
-            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
-
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 4;
-            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
-
-            File file;
-            file = new File(path);
-            DebugLog.d(file.getPath());
-            try {
-                FileOutputStream out = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
-                out.flush();
-                out.close();
-                fileReturn = file;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-            bitmap = null;
-            System.gc();
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-
-        return fileReturn;
-    }
-
-    public static File resizeAndSaveImageCheckExif(Context ctx, String imageUri, String scheduleId) {
-        File fileReturn = null;
-        File tempDir;
-        //change to 480 from 640
-        int x = 640;
-
-        try {
-
-            // determine image source path
-            if (CommonUtil.isExternalStorageAvailable()) {
-                DebugLog.d("external storage available");
-                tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
-            } else {
-                DebugLog.d("external storage not available");
-                tempDir = new File(ctx.getFilesDir()+"/Camera/");
-            }
-            String path = tempDir.getAbsolutePath()+"/TowerInspection/"+scheduleId+"/"+imageUri.substring(imageUri.lastIndexOf('/'));
-
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds=true; // avoid memory allocation
-
-            BitmapFactory.decodeFile(path,options);
-            int imageHeight = options.outHeight;
-            int imageWidth = options.outWidth;
-
-            float factorH = x / (float)imageHeight;
-            float factorW = x / (float)imageWidth;
-            float factorToUse = (factorH > factorW) ? factorW : factorH;
-
-            DebugLog.d("factorToUse="+factorToUse);
-            Bitmap bitmap_Source = BitmapFactory.decodeFile(path);
-            Bitmap bitmap = Bitmap.createScaledBitmap(bitmap_Source,
-                    (int) (imageWidth * factorToUse),
-                    (int) (imageHeight * factorToUse),
-                    false);
-
-//            options.inSampleSize = 4;
-//            Bitmap bitmap = BitmapFactory.decodeFile(path,options);
-
-            bitmap = ExifUtil.rotateBitmap(path,bitmap);
-            DebugLog.d("width="+bitmap.getWidth()+" height="+bitmap.getHeight());
-
-            File file;
-            file = new File(path);
-            DebugLog.d(file.getPath());
-            try {
-                FileOutputStream out = new FileOutputStream(file);
-                //kualitas
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
-                out.flush();
-                out.close();
-                fileReturn = file;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            bitmap = null;
-            System.gc();
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-
-        return fileReturn;
     }
 
     public static void resizeAndSaveImageCheckExifWithMark(Context ctx, String path, String[] textMarks) throws IOException, NullPointerException {
@@ -295,7 +155,7 @@ public class ImageUtil {
     }
 	
 	public static Uri takePicture(Activity activity){
-		//		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        //		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
 		//		startActivityForResult(intent,CAMERA);
 
 		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
@@ -332,8 +192,7 @@ public class ImageUtil {
 		return mImageUri;
 	}
 
-	private static File createTemporaryFile(String part, String ext) throws Exception
-	{
+	private static File createTemporaryFile(String part, String ext) throws Exception {
         File tempDir;
         boolean createDirStatus;
 
@@ -423,8 +282,6 @@ public class ImageUtil {
         if (bitmap_Result == null)
             throw new NullPointerException("bitmap result is null");
 
-        float bitmapRotation = imageOrientation(imagePath);
-
         bitmap_Result = ExifUtil.rotateBitmap(imagePath, bitmap_Result);
 
         Canvas canvas = new Canvas(bitmap_Result);
@@ -435,7 +292,6 @@ public class ImageUtil {
         Paint greyPaint = new Paint();
         greyPaint.setColor(context.getResources().getColor(R.color.transparent_gray));
 
-        DebugLog.d("bitmapRotation : " + bitmapRotation);
 
         int height_portrait = PrefUtil.getIntPref(R.string.heightbackgroundwatermarkportrait, Constants.HEIGHT_BACKGROUND_WATERMARK_PORTRAIT);
         int height_landscape = PrefUtil.getIntPref(R.string.heightbackgroundwatermarklandscape, Constants.HEIGHT_BACKGROUND_WATERMARK_LANDSCAPE);
