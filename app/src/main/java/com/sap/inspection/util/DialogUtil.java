@@ -20,9 +20,9 @@ import java.util.ArrayList;
 
 public class DialogUtil {
 
-    /** Dialog for asking GPS permission to user **/
-    public static LovelyStandardDialog gpsDialog(Context context) {
-        return new LovelyStandardDialog(context, R.style.CheckBoxTintTheme)
+    /** asking GPS permission  **/
+    public static void showGPSdialog(Context context) {
+        new LovelyStandardDialog(context, R.style.CheckBoxTintTheme)
                 .setTopColor(ContextCompat.getColor(context, R.color.theme_color))
                 .setButtonsColor(ContextCompat.getColor(context, R.color.theme_color))
                 .setIcon(R.drawable.logo_app)
@@ -33,11 +33,11 @@ public class DialogUtil {
                     Intent gpsOptionsIntent = new Intent(
                             Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     context.startActivity(gpsOptionsIntent);
-                });
+                }).show();
     }
 
-    /** Showing network permission dialog if network is not available **/
-    public static void networkPermissionDialog(Context context) {
+    /** enable network **/
+    public static void showEnableNetworkDialog(Context context) {
         if (!GlobalVar.getInstance().anyNetwork(context)){
             new LovelyStandardDialog(context, R.style.CheckBoxTintTheme)
                     .setTopColor(ContextCompat.getColor(context, R.color.theme_color))
@@ -53,8 +53,24 @@ public class DialogUtil {
         }
     }
 
-    public static void singleChoiceScheduleRoutingDialog(Context context) {
+    /** take picture camera app recommendation */
+    public static void showTakePictureDialog(Context context, LovelyChoiceDialog.OnItemSelectedListener<? super String> onItemSelectedListener) {
+        new LovelyChoiceDialog(context, R.style.CheckBoxTintTheme)
+                .setTopColor(ContextCompat.getColor(context, R.color.theme_color))
+                .setIcon(R.drawable.logo_app)
+                .setTitle("Pengambilan foto")
+                .setMessage("Aplikasi akan melakukan pengambilan foto. Untuk hasil lebih baik, disarankan untuk memilih " +
+                        "\"Camera\" default (bawaan device) jika aplikasi menawarkan metode pengambilan foto")
+                .setCancelable(true)
+                .setItems(new String[]{
+                        context.getString(R.string.positive_understood_dont_show_again),
+                        context.getString(R.string.positive_understood),
+                        context.getString(R.string.negative_cancel)
+                }, onItemSelectedListener)
+                .show();
+    }
 
+    public static void singleChoiceScheduleRoutingDialog(Context context) {
         ArrayList<String> routingSchedules = new ArrayList<>();
         routingSchedules.add("ROUTING SEGMENT");
         routingSchedules.add("HAND HOLE");
@@ -71,6 +87,7 @@ public class DialogUtil {
                     Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
                 }).show();
     }
+
 
     public static DeleteAllDataDialog deleteAllDataDialog(Context context, String scheduleId) {
         return new DeleteAllDataDialog(context, scheduleId);
