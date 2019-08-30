@@ -15,14 +15,12 @@ public class ExifUtil {
     public static Bitmap rotateBitmap(String src, Bitmap bitmap) {
         try {
             int orientation = getExifOrientation(src);
-            DebugLog.d("orientation="+orientation);
-            
-            if (orientation == 1) {
-                return bitmap;
-            }
+            DebugLog.d("orientation = "+orientation);
             
             Matrix matrix = new Matrix();
             switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
             case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
                 matrix.setScale(-1, 1);
                 break;
@@ -50,19 +48,13 @@ public class ExifUtil {
             default:
                 return bitmap;
             }
-            
-            try {
-                Bitmap oriented = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                bitmap.recycle();
-                return oriented;
-            } catch (OutOfMemoryError e) {
-                e.printStackTrace();
-                return bitmap;
-            }
+
+            Bitmap oriented = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return oriented;
         } catch (IOException e) {
-            e.printStackTrace();
-        } 
-        
+            DebugLog.e("rotate bitmap: " + e.getMessage(), e);
+        }
         return bitmap;
     }
     
@@ -87,7 +79,7 @@ public class ExifUtil {
             ExifInterface exif = new ExifInterface(src);
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         } catch (SecurityException e) {
-            e.printStackTrace();
+            DebugLog.e("exif orientation: " + e.getMessage(), e);
         }
         
         return orientation;
