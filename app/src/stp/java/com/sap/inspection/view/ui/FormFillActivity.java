@@ -54,6 +54,7 @@ import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.adapter.FormFillAdapter;
 import com.sap.inspection.view.customview.FormItem;
@@ -350,9 +351,34 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		public void onClick(View v) {
 			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
-				takePicture(photoItem.getItemId());
+				if (photoItem == null)
+					Toast.makeText(activity, "Gagal mengambil foto. Item tidak valid", Toast.LENGTH_LONG).show();
+
+				// if dialog has never shown once
+				if (!PrefUtil.getBoolPref(R.string.key_should_not_show_take_picture_dialog, false)) {
+
+					// show it
+					DialogUtil.showTakePictureDialog(activity, (position, item) -> {
+
+						// set initial value of dialog not shown as false
+						PrefUtil.putBoolPref(R.string.key_should_not_show_take_picture_dialog, false);
+						switch (position) {
+							// set dialog not shown as true ("Don't show again") and proceed take picture
+							case 0 : PrefUtil.putBoolPref(R.string.key_should_not_show_take_picture_dialog, true);
+
+							// proceed take picture
+							case 1 : takePicture(photoItem.getItemId()); break;
+
+							// dismiss
+							default: break;
+						}
+					});
+				} else {
+					// proceed take picture anyway
+					takePicture(photoItem.getItemId());
+				}
 			} else
-				DialogUtil.gpsDialog(FormFillActivity.this).show();
+				DialogUtil.showGPSdialog(FormFillActivity.this);
 		}
 	};
 
@@ -384,7 +410,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
 				String savedPath = Constants.DIR_PHOTOS + File.separator + schedule.id;
 				photoFile = FileUtil.createTemporaryPhotoFile(photoFileName, ".jpg", savedPath);
-				if (photoFile.exists()) {
+				if (photoFile != null && photoFile.exists()) {
 					photoFile = new File(photoFile.getPath().replaceFirst("/file:", ""));
 					mImageUri = FileUtil.getUriFromFile(this, photoFile);
 					intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
@@ -393,13 +419,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					intent.putExtra("aspectX", 1);
 					intent.putExtra("aspectY", 1);
 					intent.putExtra("scale", true);
-					intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
+					intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
 					intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 					startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
-					return;
 				} else {
 					DebugLog.e("take picture: photo file not created");
+					Toast.makeText(activity, getString(R.string.failed_take_picture) + ". " + "Aplikasi gagal membuat file foto", Toast.LENGTH_LONG).show();
 				}
+				return;
 			} catch (NullPointerException npe) {
 				DebugLog.e("take picture: " + npe.getMessage());
 			} catch (IOException e) {
@@ -421,16 +448,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		Pair<String, String> photoLocation;
 
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
-
-			if (photoItem != null && mImageUri != null && !TextUtils.isEmpty(photoFile.toString())) {
-
-				try {
+			try {
+				if (mImageUri != null && !TextUtils.isEmpty(photoFile.toString())) {
 					File filePhotoResult = new File(photoFile.toString());
 					if (filePhotoResult.exists()) {
+
 						if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
 							photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 							if (photoLocation != null) {
-								siteLatitude  = photoLocation.first();
+								siteLatitude = photoLocation.first();
 								siteLongitude = photoLocation.second();
 							} else {
 								DebugLog.e("Persistent photo location error (null)");
@@ -442,9 +468,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						String latitude = siteLatitude;
 						String longitude = siteLongitude;
 
-						textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
+						textMarks[0] = "Lat. : " + latitude + ", Long. : " + longitude;
 						textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
-						textMarks[2] = "Photo date : "+photoDate;
+						textMarks[2] = "Photo date : " + photoDate;
 
 						ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
 						System.gc();
@@ -456,15 +482,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 							MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
 						}
 					} else {
-						throw new NullPointerException("failed take picture");
+						throw new NullPointerException("Failed take picture. File not exists");
 					}
-				} catch (IOException e) {
-					DebugLog.e("resize and save image: " + e.getMessage());
-					Toast.makeText(activity, "Gagal melakukan resize dan menyimpan foto", Toast.LENGTH_LONG).show();
-				} catch (NullPointerException e) {
-					DebugLog.e("resize and save image: " + e.getMessage());
-					Toast.makeText(activity, "Gagal melakukan resize dan menyimpan foto", Toast.LENGTH_LONG).show();
-				}
+				} else throw new NullPointerException("Failed take picture. Image URI or photo path is null");
+			} catch (IOException e) {
+				DebugLog.e("resize and save image: " + e.getMessage());
+				Toast.makeText(activity, "Gagal menyimpan foto", Toast.LENGTH_LONG).show();
+			} catch (NullPointerException e) {
+				DebugLog.e("resize and save image: " + e.getMessage());
+				Toast.makeText(activity, "Gagal menyimpan foto", Toast.LENGTH_LONG).show();
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
