@@ -69,7 +69,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		DialogUtil.networkPermissionDialog(this);
+		DialogUtil.showEnableNetworkDialog(this);
 
 		developmentLayout = findViewById(R.id.devLayout);
 		imagelogo = findViewById(R.id.imagelogo);
@@ -111,7 +111,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	protected void onResume() {
 		super.onResume();
 		if (!CommonUtil.checkGpsStatus(this) && !CommonUtil.checkNetworkStatus(this)) {
-			DialogUtil.gpsDialog(this).show();
+			DialogUtil.showGPSdialog(this);
 		} else {
 			getLoginSessionFromPreference();
 		}
