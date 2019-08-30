@@ -64,29 +64,7 @@ public class LocationRequestProvider implements
     }
 
     public void showGPSDialog() {
-        gpsDialog().show();
-    }
-
-    /** Dialog for asking GPS permission to user **/
-    private LovelyStandardDialog gpsDialog() {
-        final Activity mActivity = (Activity) mContext;
-        return new LovelyStandardDialog(mContext, R.style.CheckBoxTintTheme)
-                .setTopColor(mContext.getResources().getColor(R.color.theme_color))
-                .setButtonsColor(mContext.getResources().getColor(R.color.theme_color))
-                .setIcon(R.drawable.logo_app)
-                //string title information GPS
-                .setTitle(mContext.getResources().getString(R.string.informationGPS))
-                .setMessage("Silahkan aktifkan GPS")
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.yes, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent gpsOptionsIntent = new Intent(
-                                Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        mContext.startActivity(gpsOptionsIntent);
-                        mActivity.finish();
-                    }
-                });
+        DialogUtil.showGPSdialog(mContext);
     }
 
     @Override
