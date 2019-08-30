@@ -382,7 +382,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				if (!takePicture(photoItem.getItemId()))
 					Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
 			} else
-				DialogUtil.gpsDialog(FormFillActivity.this).show();
+				DialogUtil.showGPSdialog(FormFillActivity.this).show();
 		}
 	};
 
