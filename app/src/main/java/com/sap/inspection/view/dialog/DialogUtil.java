@@ -35,7 +35,7 @@ public class DialogUtil {
     }
 
     /** Showing network permission dialog if network is not available **/
-    public static void networkPermissionDialog(Context context) {
+    public static void showEnableNetworkDialog(Context context) {
         if (!GlobalVar.getInstance().anyNetwork(context)){
             new LovelyStandardDialog(context, R.style.CheckBoxTintTheme)
                     .setTopColor(ContextCompat.getColor(context, R.color.theme_color))
