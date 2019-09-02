@@ -47,7 +47,6 @@ android {
 
     buildTypes {
         debug {
-
             applicationIdSuffix ".debug"
             applicationVariants.all { variant ->
                 renameAPK(variant)
