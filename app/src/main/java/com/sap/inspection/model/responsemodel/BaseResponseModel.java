@@ -23,4 +23,15 @@ public class BaseResponseModel extends BaseModel {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("{");
+		stringBuilder.append("\tstatus: " + status);
+		stringBuilder.append("\tstatus_code: " + status_code);
+		stringBuilder.append("\tmessage: " + messages);
+		stringBuilder.append("}");
+		return new String(stringBuilder);
+	}
 }
