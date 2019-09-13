@@ -119,10 +119,10 @@ public class ItemUploadManager {
 
     public void addItemValues(ArrayList<FormValueModel> itemvalues) {
         if (itemvalues == null || itemvalues.isEmpty())
-            MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_noitem), Toast.LENGTH_LONG);
+            MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_nonewuploaditem), Toast.LENGTH_LONG);
         else {
                 if (itemvalues.isEmpty()) {
-                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_noitem), Toast.LENGTH_LONG);
+                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_nonewuploaditem), Toast.LENGTH_LONG);
                     return;
                 }
 
@@ -192,7 +192,7 @@ public class ItemUploadManager {
         // upload variables
         private final String MESSAGE_SUCCESS = "success";
         private final String MESSAGE_FAILED  = "failed";
-        private String message;
+        private String message = "";
         private String messageToServer;
         private int itemValueSuccessCount = 0;
 
@@ -235,37 +235,40 @@ public class ItemUploadManager {
                     /** upload Photo **/
                     HttpResponse httpResponse = uploadItem2(itemValues.get(0));
                     if (httpResponse != null) {
-                        int statusCode = httpResponse.getStatusLine().getStatusCode();
-                        if (statusCode >= 200 && statusCode < 300) {
-                            HttpEntity httpEntity = httpResponse.getEntity();
-                            if (httpEntity != null) {
-                                InputStream data = httpEntity.getContent();
-                                String jsonResponse = StringUtil.ConvertInputStreamToString(data); // get json response
-                                if (!TextUtils.isEmpty(jsonResponse)) {
-                                    if (!StringUtil.checkIfContentTypeJson(httpResponse.getEntity().getContentType().getValue())) {
-                                        result = false;
-                                        throw new FormatException("upload: response is not json type");
-                                    }
-
-                                    scheduleId = itemValues.get(0).scheduleId;
-                                    Gson gson = new Gson();
-                                    ItemDefaultResponseModel responseUploadItemModel = gson.fromJson(jsonResponse, ItemDefaultResponseModel.class);
-                                    FormValueModel item = itemValues.remove(0);
-                                    item.uploadStatus = FormValueModel.UPLOAD_DONE;
-                                    if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-                                        checkWargaAndBarangIDafterUpload(item, responseUploadItemModel);
-                                    }
-                                    item.save();
-
-                                    itemValueSuccessCount++;
-                                }
-                            } else {
+                        HttpEntity httpEntity = httpResponse.getEntity();
+                        ItemDefaultResponseModel responseUploadItemModel;
+                        InputStream data = httpEntity.getContent();
+                        String jsonResponse = StringUtil.ConvertInputStreamToString(data); // get json response
+                        if (!TextUtils.isEmpty(jsonResponse)) {
+                            if (!StringUtil.checkIfContentTypeJson(httpResponse.getEntity().getContentType().getValue())) {
                                 result = false;
-                                throw new NullPointerException("upload: http entity is null");
+                                throw new FormatException("upload: response is not json type");
                             }
-                        } else if (statusCode >= 400) {
-                            itemValuesFailed.add(itemValues.remove(0));
+                            scheduleId = itemValues.get(0).scheduleId;
+                            FormValueModel item = itemValues.remove(0);
+                            item.uploadStatus = FormValueModel.UPLOAD_DONE;
+                            responseUploadItemModel = new Gson().fromJson(jsonResponse, ItemDefaultResponseModel.class);
+                            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+                                checkWargaAndBarangIDafterUpload(item, responseUploadItemModel);
+                            }
+                            item.save();
+
+                            itemValueSuccessCount++;
+                            DebugLog.d("== response ==");
+                            DebugLog.d(responseUploadItemModel.toString());
+
+                            int statuscode = responseUploadItemModel.status;
+                            if (statuscode >= 200 && statuscode < 300) {
+                                DebugLog.d("item with id(" + item.itemId + ") upload success");
+                            } else {
+                                itemValuesFailed.add(item);
+                                message += responseUploadItemModel.messages + "\n";
+                                DebugLog.e("item with id(" + item.itemId + ") upload failed");
+                                result = false;
+                            }
+                        } else {
                             result = false;
+                            throw new NullPointerException("upload: json response is null");
                         }
                     } else {
                         result = false;
@@ -482,14 +485,12 @@ public class ItemUploadManager {
         }
 
         private void updateWargaId(String oldWargaId, String newWargaId) {
-
             DebugLog.d("update warga id : (old,new) = (" + oldWargaId + "," + newWargaId + ")");
             FormImbasPetirConfig.updateWargaId(scheduleId, oldWargaId, newWargaId);
 
         }
 
         private void updateBarangId(String wargaId, String oldBarangId, String newBarangId) {
-
             DebugLog.d("update barang id : (old,new) = (" + oldBarangId + "," + newBarangId + ")");
             FormImbasPetirConfig.updateBarangId(scheduleId, wargaId, oldBarangId, newBarangId);
         }
@@ -566,10 +567,11 @@ public class ItemUploadManager {
                         item.uploadStatus = FormValueModel.UPLOAD_FAIL;
                         item.save();
                     }
-                    message = itemValuesFailed.size() + " item gagal diupload";
+                    message += itemValuesFailed.size() + " item gagal diupload";
                 } else {
-                    message = MyApplication.getContext().getString(R.string.failed_upload_items);
+                    message += MyApplication.getContext().getString(R.string.failed_upload_items);
                 }
+
             } else { // success upload items
                 latestStatus = syncDone;
                 messageToServer = MESSAGE_SUCCESS;
@@ -581,7 +583,6 @@ public class ItemUploadManager {
 
             // SAP only
             doUploadStatus();
-
             running = false;
         }
 
