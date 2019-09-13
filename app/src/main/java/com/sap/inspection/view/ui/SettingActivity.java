@@ -277,8 +277,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             model.save();
         }
 
-        //String progress upload
-        Toast.makeText(activity, getString(R.string.progressUpload), Toast.LENGTH_SHORT).show();
         ItemUploadManager.getInstance().addItemValues(formValueModels);
         hideDialog();
     };
