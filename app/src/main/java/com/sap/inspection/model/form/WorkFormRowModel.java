@@ -221,7 +221,7 @@ public class WorkFormRowModel extends BaseModel {
 	public Vector<WorkFormRowModel> getAllItemByWorkFormGroupIdAndAncestry(int workFormGroupId, String ancestry) {
 
 		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
-		Vector<WorkFormRowModel> result = new Vector<WorkFormRowModel>();
+		Vector<WorkFormRowModel> result = new Vector<>();
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
 		String where = null;

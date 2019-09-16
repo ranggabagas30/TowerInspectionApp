@@ -304,7 +304,19 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 
 					for (int i = 0; i < wargaSize; i++) {
 
-						WorkFormRowModel wargaIdRow = parentGroupRow.getAllItemByWorkFormGroupId(group.id).get(0);
+						Vector<WorkFormRowModel> wargaIdRows = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
+						WorkFormRowModel wargaIdRow;
+						if (!wargaIdRows.isEmpty())
+							wargaIdRow = wargaIdRows.get(0);
+						else {
+							wargaIdRow = new WorkFormRowModel();
+							wargaIdRow.work_form_group_id = groupRow.work_form_group_id;
+							wargaIdRow.text = "Id-";
+							wargaIdRow.level = 1;
+							wargaIdRow.hasForm = true;
+							wargaIdRow.ancestry = null;
+							wargaIdRow.parent_id = 0;
+						}
 
 						String wargaLabel = wargaIdRow.text;
 						String wargaId	  = wargas.get(i).getWargaid();
