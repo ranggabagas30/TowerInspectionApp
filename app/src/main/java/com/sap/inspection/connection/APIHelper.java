@@ -35,8 +35,8 @@ public class APIHelper {
 		} else {
 
 			// network not available
-			DebugLog.d(context.getString(R.string.failed_nointernetconnection));
-			MyApplication.getInstance().toast(context.getString(R.string.failed_nointernetconnection), Toast.LENGTH_LONG);
+			DebugLog.d(context.getString(R.string.error_no_internet_connection));
+			MyApplication.getInstance().toast(context.getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
 
 		}*/
 	}
@@ -51,8 +51,8 @@ public class APIHelper {
 		} else {
 
 			// network not available
-			DebugLog.d(context.getString(R.string.failed_nointernetconnection));
-			MyApplication.getInstance().toast(context.getString(R.string.failed_nointernetconnection), Toast.LENGTH_LONG);
+			DebugLog.d(context.getString(R.string.error_no_internet_connection));
+			MyApplication.getInstance().toast(context.getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
 
 		}
 	}
@@ -67,8 +67,8 @@ public class APIHelper {
         } else {
 
             // network not available
-            DebugLog.d(context.getString(R.string.failed_nointernetconnection));
-            MyApplication.getInstance().toast(context.getString(R.string.failed_nointernetconnection), Toast.LENGTH_LONG);
+            DebugLog.d(context.getString(R.string.error_no_internet_connection));
+            MyApplication.getInstance().toast(context.getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
 
         }
     }

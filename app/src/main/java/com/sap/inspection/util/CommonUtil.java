@@ -359,7 +359,7 @@ public class CommonUtil {
                 activity.startActivityForResult(intent, Constants.RC_INSTALL_APK);
             }
         } else {
-            MyApplication.getInstance().toast(context.getResources().getString(R.string.failed_apknotfound), Toast.LENGTH_LONG);
+            MyApplication.getInstance().toast(context.getResources().getString(R.string.error_apk_not_found), Toast.LENGTH_LONG);
             activity.finish();
         }
     }
@@ -435,12 +435,12 @@ public class CommonUtil {
             int appVersionInt = Integer.parseInt(appVersion);
 
             if (appVersionInt > latestVersionInt) {
-                StringBuilder message = new StringBuilder(context.getString(R.string.failed_check_apk_version));
+                StringBuilder message = new StringBuilder(context.getString(R.string.error_check_apk_version));
                 message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
                 DebugLog.e(new String(message));
             }
         } else {
-            DebugLog.e(context.getString(R.string.failed_latest_version_not_found));
+            DebugLog.e(context.getString(R.string.error_latest_version_not_found));
         }
     }
 
@@ -460,13 +460,13 @@ public class CommonUtil {
             int appVersionInt = Integer.parseInt(appVersion);
 
             if (appVersionInt > latestVersionInt) {
-                StringBuilder message = new StringBuilder(context.getString(R.string.failed_check_apk_version));
+                StringBuilder message = new StringBuilder(context.getString(R.string.error_check_apk_version));
                 message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
                 DebugLog.e(new String(message));
                 isUpdateAvailable = false;
             }
         } else {
-            DebugLog.e(context.getString(R.string.failed_latest_version_not_found));
+            DebugLog.e(context.getString(R.string.error_latest_version_not_found));
             isUpdateAvailable = false;
         }
         return isUpdateAvailable;

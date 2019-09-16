@@ -293,11 +293,9 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 
 	}
 
-	private void downloadNewForm() {
-
+	protected void downloadNewForm() {
 		showMessageDialog(getString(R.string.gettingnewform));
 		APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
-
 	}
 
 	protected void downloadNewFormImbasPetir() {
@@ -542,7 +540,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				} else {
 					hideDialog();
 					setFlagScheduleSaved(true);
-					Toast.makeText(activity, getString(R.string.failed_downloadschedule),Toast.LENGTH_LONG).show();
+					Toast.makeText(activity, getString(R.string.error_download_schedule),Toast.LENGTH_LONG).show();
 				}
 
 			} else {
@@ -567,7 +565,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				}
 			} else {
 				hideDialog();
-				Toast.makeText(activity, getString(R.string.failed_downloadschedule), Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.error_download_schedule), Toast.LENGTH_LONG).show();
 			}
 		}
 	};
@@ -788,8 +786,8 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 			if (isAccessStorageAllowed) {
 				updateAPK();
 			} else {
-				DebugLog.e(getString(R.string.failed_update_apk));
-				Toast.makeText(this, getString(R.string.failed_update_apk), Toast.LENGTH_LONG).show();
+				DebugLog.e(getString(R.string.error_update_apk));
+				Toast.makeText(this, getString(R.string.error_update_apk), Toast.LENGTH_LONG).show();
 			}
 		}
 	}
@@ -851,7 +849,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		if (GlobalVar.getInstance().isNetworkOnline(this)) {
 			new DownloadFileFromURL().execute(Constants.URL_APK);
 		} else {
-			Toast.makeText(this, getString(R.string.failed_disconnected), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.error_disconnected), Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -1085,7 +1083,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
             hideDialog();
 
 			if (!isSuccessful) {
-				Toast.makeText(BaseActivity.this, BaseActivity.this.getString(R.string.failed_update_apk), Toast.LENGTH_LONG).show();
+				Toast.makeText(BaseActivity.this, BaseActivity.this.getString(R.string.error_update_apk), Toast.LENGTH_LONG).show();
 			} else {
 				// just install the new APK
 				CommonUtil.installAPK(activity, BaseActivity.this);

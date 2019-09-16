@@ -67,7 +67,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			try {
 				httpRequest = new HttpGet(url);
 			} catch (Exception e) {
-				MyApplication.getInstance().toast(context.getString(R.string.failed_url_bad_format), Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(context.getString(R.string.error_url_bad_format), Toast.LENGTH_SHORT);
 				e.printStackTrace();
 				isResponseOK = false;
 				response = e.getMessage();
@@ -149,8 +149,8 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 		} else {
 
 			if (notJson) {
-				DebugLog.e(context.getString(R.string.failed_notjsontype) + " = " + result);
-				MyApplication.getInstance().toast(context.getString(R.string.failed_notjsontype), Toast.LENGTH_LONG);
+				DebugLog.e(context.getString(R.string.error_not_json_type) + " = " + result);
+				MyApplication.getInstance().toast(context.getString(R.string.error_not_json_type), Toast.LENGTH_LONG);
 
 			} else {
 				DebugLog.e(result);

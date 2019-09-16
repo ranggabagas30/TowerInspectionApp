@@ -390,7 +390,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         @Override
         public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				MyApplication.getInstance().toast(getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
+				MyApplication.getInstance().toast(getString(R.string.error_no_internet_connection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
@@ -400,7 +400,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (uploadItem != null)
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
 			else
-				MyApplication.getInstance().toast(getString(R.string.failed_noitem), Toast.LENGTH_LONG);
+				MyApplication.getInstance().toast(getString(R.string.error_no_item), Toast.LENGTH_LONG);
         }
     };
 
@@ -435,7 +435,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 
 		// if failed, then show toast with failed message
-		Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
+		Toast.makeText(activity, getString(R.string.error_take_picture), Toast.LENGTH_SHORT).show();
 	}
 
 	//called after camera intent finished

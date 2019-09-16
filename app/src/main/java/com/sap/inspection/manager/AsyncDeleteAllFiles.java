@@ -1,7 +1,9 @@
 package com.sap.inspection.manager;
 
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -10,6 +12,8 @@ import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.view.ui.MyApplication;
 
 import java.io.File;
 
@@ -50,41 +54,11 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 				DebugLog.d("delete file : "+file.getAbsolutePath());
 				file.delete();
 			}
-		/*
-		TokenModel.delete(MyApplication.getInstance());
-		UserModel.delete(MyApplication.getInstance());
-		RoleModel.delete(MyApplication.getInstance());
-//		LoginLogModel.delete(MyApplication.getInstance());
-		ScheduleBaseModel.delete(MyApplication.getInstance());
-		SiteModel.delete(MyApplication.getInstance());
-		OperatorModel.delete(MyApplication.getInstance());
-		WorkTypeModel.delete(MyApplication.getInstance());
-		WorkFormModel.delete(MyApplication.getInstance());
-		WorkFormGroupModel.delete(MyApplication.getInstance());
-		WorkFormRowModel.delete(MyApplication.getInstance());
-		ColumnModel.delete(MyApplication.getInstance());
-		RowColumnModel.delete(MyApplication.getInstance());
-		WorkFormItemModel.delete(MyApplication.getInstance());
-		WorkFormOptionsModel.delete(MyApplication.getInstance());
-		FormValueModel.deleteAll(MyApplication.getInstance());
-		CorrectiveValueModel.deleteAll(MyApplication.getInstance());
-//		RowValueModel.deleteAll(MyApplication.getInstance());
-		ScheduleBaseModel.resetAllSchedule();
-
-*/
-		/*
-		Resources r = MyApplication.getContext().getResources();
-		mPref.edit().putBoolean(Constants.LOADAFTERLOGIN, false).commit();
-		mPref.edit().putString(r.getString(R.string.user_name), "").commit();
-		mPref.edit().putString(r.getString(R.string.password), "").commit();
-		mPref.edit().putString(r.getString(R.string.user_fullname), "").commit();
-		mPref.edit().putString(r.getString(R.string.user_id), "").commit();
-		mPref.edit().putString(r.getString(R.string.user_authToken), "").commit();*/
 
 		if (TextUtils.isEmpty(mScheduleId)) {// if there is no specific dir by scheduleId, then clear all application data
-			/*SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-			mPref.edit().clear().commit();
-			CommonUtil.clearApplicationData();*/
+			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+			mPref.edit().clear().apply();
+			CommonUtil.clearApplicationData();
 			ScheduleBaseModel.delete();
 		}
 		return null;

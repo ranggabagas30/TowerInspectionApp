@@ -133,7 +133,7 @@ public class ItemUploadManager {
             MyApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
         else {
                 if (itemvalues.isEmpty()) {
-                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_noitem), Toast.LENGTH_SHORT);
+                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.error_no_item), Toast.LENGTH_SHORT);
                     return;
                 }
 
