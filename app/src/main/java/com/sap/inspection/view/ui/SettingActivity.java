@@ -244,7 +244,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
     OnClickListener updateFormClickListener = v -> {
         trackEvent("user_update_form");
-        checkFormVersion();
+        DialogUtil.showWarningUpdateFormDialog(this, (dialogInterface, i) -> {dialogInterface.dismiss(); downloadNewForm();}, (dialogInterface, i) -> dialogInterface.dismiss());
     };
 
     OnClickListener updateFormImbasPetirClickListener = v -> {
@@ -263,8 +263,8 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             hideDialog();
 
             // Item is empty
-            Toast.makeText(activity, getString(R.string.failed_nonewuploaditem), Toast.LENGTH_LONG).show();
-            uploadInfo.setText(getString(R.string.failed_nonewuploaditem));
+            Toast.makeText(activity, getString(R.string.error_no_upload_item), Toast.LENGTH_LONG).show();
+            uploadInfo.setText(getString(R.string.error_no_upload_item));
             return;
         }
 
