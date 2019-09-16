@@ -9,19 +9,19 @@ import android.widget.Toast;
 
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.view.ui.fragments.GroupFragment;
 import com.sap.inspection.listener.GroupActivityListener;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
-import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
+import com.sap.inspection.view.ui.fragments.GroupFragment;
 import com.slidinglayer.SlidingLayer;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
@@ -76,10 +76,16 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 		showMessageDialog(getString(R.string.generatingInspectionForm));
 
 		inputJumlahWargaDialog = new LovelyTextInputDialog(this, R.style.CheckBoxTintTheme)
-				.setTopColorRes(R.color.item_drill_red)
-				.setTopTitle("input Jumlah Warga")
-				.setTopTitleColor(R.color.lightgray)
-				.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
+				.setTopTitle("input jumlah warga")
+				.setTopTitleColor(R.color.item_drill_red)
+				.setTopColorRes(android.R.color.white)
+				.setMessage(getString(R.string.warning_input_amount_warga_barang))
+				.setErrorMessageColor(R.color.item_drill_red)
+				.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED)
+				.setInputFilter(getString(R.string.error_input_amount_warga), input -> {
+					int numericInputAmount = Integer.parseInt(input);
+					return numericInputAmount >= 0 && numericInputAmount <= 10 && input.charAt(0) != '0';
+				});
 
 		mSlidingLayer = findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
@@ -350,7 +356,6 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 					groupRow.children = childRows;
 
 				} else {
-
 					groupRow.children = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
 				}
 

@@ -81,10 +81,16 @@ public class GroupWargaActivity extends BaseActivity {
         mNavigationMenu = findViewById(R.id.recyclerviewNavigation);
 
         mInputJumlahBarangDialog = new LovelyTextInputDialog(this, R.style.CheckBoxTintTheme)
-                .setTopColorRes(R.color.item_drill_red)
-                .setTopTitle("input Jumlah Barang")
-                .setTopTitleColor(R.color.lightgray)
-                .setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
+                .setTopTitle("input jumlah barang")
+                .setTopTitleColor(R.color.item_drill_red)
+                .setTopColorRes(android.R.color.white)
+                .setMessage(getString(R.string.warning_input_amount_warga_barang))
+                .setErrorMessageColor(R.color.item_drill_red)
+                .setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED)
+                .setInputFilter(getString(R.string.error_input_amount_barang), input -> {
+                    int numericInputAmount = Integer.parseInt(input);
+                    return numericInputAmount >= 0 && numericInputAmount <= 10 && input.charAt(0) != '0';
+                });
 
         mNavigationAdapter = new RecyclerNavigationAdapter();
         mNavigationMenu.setAdapter(mNavigationAdapter);
