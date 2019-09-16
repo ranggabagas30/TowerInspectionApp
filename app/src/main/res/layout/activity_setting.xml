@@ -362,7 +362,8 @@
                     android:background="@drawable/selector_button_green_small_padding"
                     android:text="Upload"
                     android:textColor="@android:color/white"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone"/>
                 
                 <Button
                     android:layout_marginTop="@dimen/padding_medium"
