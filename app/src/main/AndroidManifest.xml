@@ -104,6 +104,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.ui.SettingActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
