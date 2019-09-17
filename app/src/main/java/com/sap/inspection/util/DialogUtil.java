@@ -57,6 +57,7 @@ public class DialogUtil {
         routingSchedules.add(context.getString(R.string.routing_segment));
         routingSchedules.add(context.getString(R.string.handhole));
         routingSchedules.add(context.getString(R.string.hdpe));
+        routingSchedules.add(context.getString(R.string.focut));
 
         new LovelyChoiceDialog(context)
                 .setTopColor(ContextCompat.getColor(context, R.color.theme_color))

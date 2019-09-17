@@ -34,11 +34,12 @@
 
     <!-- SAP ONLY-->
     <string name="site_audit">Site Audit</string>
+    <string name="foto_imbas_petir">Imbas Petir</string>
     <string name="routing">Routing</string>
     <string name="routing_segment">Routing Segment</string>
     <string name="handhole">Handhole</string>
     <string name="hdpe">HDPE</string>
-    <string name="foto_imbas_petir">Imbas Petir</string>
+    <string name="focut">FO Cut</string>
 
     <!-- STP ONLY-->
     <string name="app_reg_id">app_reg_id</string>
