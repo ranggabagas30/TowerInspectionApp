@@ -145,6 +145,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 							case 0 : resId = R.string.routing_segment; break;
 							case 1 : resId = R.string.handhole; break;
 							case 2 : resId = R.string.hdpe; break;
+							case 3 : resId = R.string.focut; break;
 							default: resId = R.string.routing_segment;
 						}
 						scheduleFragment.setScheduleBy(resId);
