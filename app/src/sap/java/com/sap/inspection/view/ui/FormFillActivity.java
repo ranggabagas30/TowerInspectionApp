@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -54,6 +56,7 @@ import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
+import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DateTools;
@@ -61,6 +64,7 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.util.LocationRequestProvider;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.customview.FormItem;
 import com.sap.inspection.view.customview.PhotoItemRadio;
@@ -98,13 +102,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private FormFillAdapter adapter;
 
 	private String pageTitle;
-	private LatLng currentGeoPoint;
-	private int accuracy;
 	private boolean finishInflate;
 	private boolean isChecklistOrSiteInformation;
 
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
+	private Location currentLocation;
 
 	// view
 	private ScrollView scroll;
@@ -120,7 +123,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setCurrentGeoPoint(new LatLng(0, 0));
 		setContentView(R.layout.activity_form_fill);
 
 		Bundle bundle = getIntent().getExtras();
@@ -441,18 +443,28 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	//called after camera intent finished
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		String siteLatitude = String.valueOf(currentGeoPoint.latitude);;
-		String siteLongitude = String.valueOf(currentGeoPoint.longitude);
-		Pair<String, String> photoLocation;
+
+		CommonUtil.checkFakeGPSAvailable(FormFillActivity.this, currentLocation, String.valueOf(schedule.site.id), new Handler(message -> {
+			Bundle bundle = message.getData();
+			if (!TextUtils.isEmpty(bundle.getString("json"))) {
+				FakeGPSResponseModel fakeGPSResponseModel = new Gson().fromJson(bundle.getString("json"), FakeGPSResponseModel.class);
+				DebugLog.d(fakeGPSResponseModel.toString());
+			}
+			return true;
+		}));
+
+		String currentLat  = String.valueOf(currentLocation.getLatitude());
+		String currentLong = String.valueOf(currentLocation.getLongitude());
+		int accuracy	   = (int) currentLocation.getAccuracy();
 
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
 
 			if (photoItem != null && mImageUri != null){
 				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
-					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
+					Pair<String, String> photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 					if (photoLocation != null) {
-						siteLatitude  = photoLocation.first();
-						siteLongitude = photoLocation.second();
+						currentLat  = photoLocation.first();
+						currentLong = photoLocation.second();
 					} else {
 						Crashlytics.log(Log.ERROR, "photolocation", "Persistent photo location error (null)");
 					}
@@ -460,10 +472,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 				String[] textMarks = new String[3];
 				String photoDate = DateTools.getCurrentDate();
-				String latitude = siteLatitude;
-				String longitude = siteLongitude;
 
-				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
+				textMarks[0] = "Lat. : "+  currentLat + ", Long. : "+ currentLong;
 				textMarks[1] = "Distance to site : " + MyApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
@@ -476,11 +486,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
                 if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
                     photoItem.deletePhoto();
-                    photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
+                    photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
                 } else {
-                    if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
+                    if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
                         photoItem.deletePhoto();
-                        photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
+                        photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
                     } else {
                         DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
                         MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
@@ -489,17 +499,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
             }
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
-	}
-
-	/*
-	 * called when image is stored
-	 */
-	public void setCurrentGeoPoint(LatLng currentGeoPoint) {
-		this.currentGeoPoint = currentGeoPoint;
-	}
-
-	public LatLng getCurrentGeoPoint() {
-		return currentGeoPoint;
 	}
 
 	private class FormLoader extends AsyncTask<Void, Integer, Void>{
@@ -732,19 +731,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	};
 
-	private GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = new GoogleApiClient.OnConnectionFailedListener() {
-		@Override
-		public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-			DebugLog.d("connectionResult="+connectionResult.toString());
-		}
-	};
+	private GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = connectionResult -> DebugLog.d("connectionResult="+connectionResult.toString());
 
 	private com.google.android.gms.location.LocationListener locationListener = new com.google.android.gms.location.LocationListener() {
 		@Override
 		public void onLocationChanged(Location location) {
-			accuracy = (int)location.getAccuracy();
-			setCurrentGeoPoint(new LatLng(location.getLatitude(), location.getLongitude()));
-			DebugLog.d(String.valueOf(getCurrentGeoPoint().latitude)+" || "+String.valueOf(getCurrentGeoPoint().longitude));
+			currentLocation = location;
+			DebugLog.d("location(lat: " + currentLocation.getLatitude() + ", long: " + currentLocation.getLongitude() + ", acc: " + currentLocation.getAccuracy()+ ")");
 		}
 	};
 

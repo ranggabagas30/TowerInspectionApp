@@ -4,11 +4,15 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
@@ -18,12 +22,13 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
+import com.sap.inspection.view.ui.MyApplication;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -38,10 +43,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.Key;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -76,6 +83,74 @@ public class CommonUtil {
             Crashlytics.logException(ex);
         }
         return network_enabled;
+    }
+
+    public static boolean checkFakeGPSAvailable(Context context, Location location, String siteId, Handler handler) {
+        if (CommonUtil.isMockLocationOn(location)) {
+            String message = "App is using fake gps";
+            sendReportFakeGPS(context, message, siteId, handler);
+            return true;
+        } else {
+            List<String> listOfFakeGPSApp = CommonUtil.getListOfFakeLocationAppsFromAll(context);
+            if (!listOfFakeGPSApp.isEmpty()) {
+                String message = "Fake gps application(s) found : \n";
+                message += listOfFakeGPSApp.toString();
+                sendReportFakeGPS(context, message, siteId, handler);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void sendReportFakeGPS(Context context, String message, String siteId, Handler handler) {
+        String timeDetected = CommonUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN2);
+        String appVersion = BuildConfig.VERSION_NAME;
+        APIHelper.reportFakeGPS(context, handler, timeDetected, appVersion, message, siteId);
+    }
+
+    public static boolean isMockLocationOn(Location location) {
+        return location.isFromMockProvider();
+    }
+
+    public static List<String> getListOfFakeLocationAppsFromAll(Context context) {
+        List<String> fakeApps = new ArrayList<>();
+        List<ApplicationInfo> packages = context.getPackageManager().getInstalledApplications(PackageManager.GET_META_DATA);
+        for (ApplicationInfo aPackage : packages) {
+            boolean isSystemPackage = ((aPackage.flags & ApplicationInfo.FLAG_SYSTEM) != 0);
+            if(!isSystemPackage && hasAppPermission(context, aPackage.packageName, "android.permission.ACCESS_MOCK_LOCATION")){
+                fakeApps.add(aPackage.packageName);
+            }
+        }
+        return fakeApps;
+    }
+
+    public static boolean hasAppPermission(Context context, String app, String permission){
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo;
+        try {
+            packageInfo = packageManager.getPackageInfo(app, PackageManager.GET_PERMISSIONS);
+            if(packageInfo.requestedPermissions!= null){
+                for (String requestedPermission : packageInfo.requestedPermissions) {
+                    if (requestedPermission.equals(permission)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static String getApplicationName(Context context, String packageName) {
+        String appName = packageName;
+        PackageManager packageManager = context.getPackageManager();
+        try {
+            appName = packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return appName;
     }
 
     /**
@@ -591,8 +666,8 @@ public class CommonUtil {
     /**
      * Time Util
      * */
-    private String toDate(long timeInMillis) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd:MM:yyyy HH:mm:ss");
+    public static String toDate(long timeInMillis, String pattern) {
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date date = new Date(timeInMillis);
         return sdf.format(date);
     }

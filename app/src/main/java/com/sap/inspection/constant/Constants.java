@@ -20,7 +20,8 @@ public class Constants {
 	public static final String EMPTY = "EMPTY";
 	public static final String[] DAYS 		= {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 	public static final String[] MONTHS 	= {"Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"};
-	
+	public static final String DATETIME_PATTERN1 = "dd:MM:yyyy HH:mm:ss";
+	public static final String DATETIME_PATTERN2 = "yyyy-MM-dd HH:mm:ss";
 	/**
 	 * ============================ ACTIVITY MAPPING ===================================================== 
 	 */

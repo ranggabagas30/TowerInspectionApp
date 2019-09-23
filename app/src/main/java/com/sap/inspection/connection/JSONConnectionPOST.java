@@ -138,7 +138,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 					return null;
 				}
 				String s = StringUtil.ConvertInputStreamToString(data);
-				DebugLog.d("json /n"+s);
+				DebugLog.d(s);
 				return s;
 			} else {
 				return null;
