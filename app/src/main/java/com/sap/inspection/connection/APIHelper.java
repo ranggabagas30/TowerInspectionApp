@@ -98,6 +98,19 @@ public class APIHelper {
 		postParams(context, APIList.fcmTokenRegeisterUrl()+"?access_token="+getAccessToken(context), handler, params);
 	}
 
+	public static void reportFakeGPS(Context context, Handler handler, String timeDetected, String appVersion, String message, String siteId) {
+		LinkedList<NameValuePair> params = new LinkedList<>();
+		NameValuePair param = new BasicNameValuePair("time_detected", timeDetected);
+		params.add(param);
+		param = new BasicNameValuePair("app_version", appVersion);
+		params.add(param);
+		param = new BasicNameValuePair("message", message);
+		params.add(param);
+		param = new BasicNameValuePair("site_id", siteId);
+		params.add(param);
+		postParams(context, APIList.reportFakeGPS() +"?access_token=" + getAccessToken(context), handler, params);
+	}
+
 	public static void logout(Context context,Handler handler, String userName, String password){
 		getJsonFromUrl(context, handler, APIList.logoutUrl());
 	}

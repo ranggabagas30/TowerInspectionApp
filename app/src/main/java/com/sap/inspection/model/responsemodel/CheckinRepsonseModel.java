@@ -4,6 +4,8 @@ import com.sap.inspection.tools.DebugLog;
 
 public class CheckinRepsonseModel extends BaseResponseModel {
     public Data data;
+    public String respond_in;
+
     public class Data{
         public int id;
         public int schedule_id;
@@ -19,7 +21,6 @@ public class CheckinRepsonseModel extends BaseResponseModel {
         public String status;
         public String accuracy;
     }
-    public String respond_in;
 
     public void printLogResponse() {
         DebugLog.d("--- checkin response data from server ---\n");
