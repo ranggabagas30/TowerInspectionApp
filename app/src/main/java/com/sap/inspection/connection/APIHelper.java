@@ -24,10 +24,7 @@ public class APIHelper {
 
 	public static void getJsonFromUrl(Context context, Handler handler, String url){
 
-		JSONConnection getJson = new JSONConnection(context,url, handler);
-		getJson.execute();
-
-		/*if (GlobalVar.getInstance().anyNetwork(context)) {
+		if (GlobalVar.getInstance().anyNetwork(context)) {
 
 			JSONConnection getJson = new JSONConnection(context,url, handler);
 			getJson.execute();
@@ -38,7 +35,7 @@ public class APIHelper {
 			DebugLog.d(context.getString(R.string.error_no_internet_connection));
 			MyApplication.getInstance().toast(context.getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
 
-		}*/
+		}
 	}
 
 	public static void postParams(Context context,String url,Handler handler,LinkedList<NameValuePair> params){
