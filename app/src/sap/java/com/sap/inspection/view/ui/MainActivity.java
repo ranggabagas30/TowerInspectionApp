@@ -8,6 +8,7 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.mainmenu.MainMenuFragment;
@@ -150,7 +151,8 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 						}
 						scheduleFragment.setScheduleBy(resId);
 						mSlidingLayer.openLayer(true);
-						Toast.makeText(MainActivity.this, result, Toast.LENGTH_SHORT).show();
+						if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug"))
+							Toast.makeText(MainActivity.this, result, Toast.LENGTH_SHORT).show();
 					});
 
 					break;
