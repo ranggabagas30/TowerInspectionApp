@@ -13,8 +13,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.manager.AsyncDeleteAllFiles;
@@ -167,8 +167,8 @@ public class ScheduleAdapter extends MyBaseAdapter {
 	}
 
     View.OnClickListener upload = v -> {
-		if (!GlobalVar.getInstance().anyNetwork(MyApplication.getContext())) {
-			MyApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
+		if (!GlobalVar.getInstance().anyNetwork(TowerApplication.getContext())) {
+			TowerApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
 		} else {
 			String scheduleId = (String) v.getTag();
 

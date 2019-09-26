@@ -29,6 +29,7 @@ import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.view.ui.MainActivity;
 import com.scottyab.aescrypt.AESCrypt;
 
 import java.lang.Thread.UncaughtExceptionHandler;

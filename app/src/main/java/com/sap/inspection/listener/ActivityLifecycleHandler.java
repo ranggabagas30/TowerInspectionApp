@@ -5,7 +5,7 @@ import android.app.Application;
 import android.os.Bundle;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.tools.DebugLog;
 
 /**
@@ -83,7 +83,7 @@ public class ActivityLifecycleHandler implements Application.ActivityLifecycleCa
     private void trackThisPage(String message) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, message);
-        FirebaseAnalytics mFirebaseAnalytics = MyApplication.getDefaultAnalytics();
+        FirebaseAnalytics mFirebaseAnalytics = TowerApplication.getInstance().getDefaultAnalytics();
         mFirebaseAnalytics.logEvent("track_page", bundle);
         DebugLog.d(message);
     }

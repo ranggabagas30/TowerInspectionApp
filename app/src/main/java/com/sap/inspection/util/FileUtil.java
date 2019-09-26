@@ -9,8 +9,8 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.tools.DebugLog;
 
@@ -105,10 +105,10 @@ public class FileUtil {
 
         File tempDir = new File(path);
         if (!tempDir.exists()) {
-            String createDirMessage = MyApplication.getContext().getString(R.string.failed_createdir);
+            String createDirMessage = TowerApplication.getContext().getString(R.string.failed_createdir);
             boolean createDirStatus = tempDir.mkdirs();
             if (createDirStatus)
-                createDirMessage = MyApplication.getContext().getString(R.string.success_createdir);
+                createDirMessage = TowerApplication.getContext().getString(R.string.success_createdir);
             DebugLog.d(createDirMessage);
         }
         DebugLog.d("dir : " + path);

@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -32,7 +33,6 @@ import com.sap.inspection.view.adapter.ScheduleAdapter;
 import com.sap.inspection.view.ui.BaseActivity;
 import com.sap.inspection.view.ui.CallendarActivity;
 import com.sap.inspection.view.ui.MainActivity;
-import com.sap.inspection.view.ui.MyApplication;
 
 import java.util.Vector;
 
@@ -76,7 +76,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
     @Override
     public void onResume() {
         super.onResume();
-		MyApplication.getInstance().setIsScheduleNeedCheckIn(false);
+		TowerApplication.getInstance().setIsScheduleNeedCheckIn(false);
         EventBus.getDefault().register(this);
     }
 
@@ -140,7 +140,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.foto_imbas_petir)));
 			checkImbasPetirConfig(models);
 		} else if (resId == R.string.hasil_PM){
-			MyApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
+			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
 		} else if (resId == R.string.routing_segment) {
@@ -361,13 +361,13 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		log("-=-="+ scheduleId +"-=-=-=");
 		log("-=-="+ userId +"-=-=-=");
 
-		if (userId != null && !userId.equalsIgnoreCase("") && !MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
+		if (userId != null && !userId.equalsIgnoreCase("") && !TowerApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 
 			setItemScheduleModelBy(scheduleId, userId);
 		}
 
-		if (workTypeName.matches(Constants.regexPREVENTIVE) && !MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
-		    MyApplication.getInstance().setIsScheduleNeedCheckIn(true);
+		if (workTypeName.matches(Constants.regexPREVENTIVE) && !TowerApplication.getInstance().IS_CHECKING_HASIL_PM()) {
+		    TowerApplication.getInstance().setIsScheduleNeedCheckIn(true);
 
 			BaseActivity.navigateToCheckinActivity(
 					getActivity(),

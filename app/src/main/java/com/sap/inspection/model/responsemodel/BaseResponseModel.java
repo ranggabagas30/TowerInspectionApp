@@ -1,6 +1,6 @@
 package com.sap.inspection.model.responsemodel;
 
-import java.util.Vector;
+import android.os.Parcel;
 
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.PageModel;
@@ -20,6 +20,7 @@ public class BaseResponseModel extends BaseModel {
 	public int describeContents() {
 		return 0;
 	}
+
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 	}

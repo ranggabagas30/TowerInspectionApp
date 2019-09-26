@@ -8,8 +8,8 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -23,7 +23,6 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.StringUtil;
-import com.sap.inspection.view.ui.MyApplication;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -122,12 +121,7 @@ public class ItemUploadManager {
         if (itemvalues == null || itemvalues.isEmpty())
             TowerApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
         else {
-                if (itemvalues.isEmpty()) {
-                    TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
-                    return;
-                }
-
-                DebugLog.d("itemvalues="+itemvalues.size());
+            DebugLog.d("itemvalues="+itemvalues.size());
                 this.itemValues.clear();
                 this.itemValuesFailed.clear();
                 this.itemValuesModified.clear();
@@ -200,7 +194,7 @@ public class ItemUploadManager {
         // connnection setup
         private final int TIMEOUT_CONNECTION = 1 * 3600 * 1000;
         private final int TIMEOUT_SOCKET = 1 * 3600 * 1000;
-        private final String UPLOAD_URL = APIList.uploadUrl() + "?access_token=" + APIHelper.getAccessToken(MyApplication.getInstance());
+        private final String UPLOAD_URL = APIList.uploadUrl() + "?access_token=" + APIHelper.getAccessToken(TowerApplication.getInstance());
         private HttpClient httpClient;
 
         public UploadValue() {}
@@ -518,7 +512,7 @@ public class ItemUploadManager {
             DebugLog.d("===== START UPLOADING STATUS === \n");
             String responseStringData = null;
             try {
-                HttpPost request = new HttpPost(APIList.uploadStatusUrl() + "?access_token=" + APIHelper.getAccessToken(MyApplication.getInstance()));
+                HttpPost request = new HttpPost(APIList.uploadStatusUrl() + "?access_token=" + APIHelper.getAccessToken(TowerApplication.getInstance()));
                 DebugLog.d(request.getURI().toString());
 
                 ArrayList<NameValuePair> params = getParamUploadStatus(schedule_id, messageToServer);
@@ -555,7 +549,7 @@ public class ItemUploadManager {
 
             if (scheduleId != null && StringUtil.isPreventive(scheduleId)) {
                 DebugLog.d("hit corrective");
-                APIHelper.getJsonFromUrl(MyApplication.getContext(), null, APIList.uploadConfirmUrl() + scheduleId + "/update");
+                APIHelper.getJsonFromUrl(TowerApplication.getContext(), null, APIList.uploadConfirmUrl() + scheduleId + "/update");
             }
 
             if (!result) { // failed upload items
@@ -570,7 +564,7 @@ public class ItemUploadManager {
                     }
                     message += itemValuesFailed.size() + " item gagal diupload";
                 } else {
-                    message += MyApplication.getContext().getString(R.string.failed_upload_items);
+                    message += TowerApplication.getContext().getString(R.string.failed_upload_items);
                 }
 
             } else { // success upload items
@@ -580,7 +574,7 @@ public class ItemUploadManager {
             }
 
             publish(latestStatus);
-            MyApplication.getInstance().toast(latestStatus + "\n" + message, Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast(latestStatus + "\n" + message, Toast.LENGTH_LONG);
 
             // SAP only
             doUploadStatus();

@@ -51,8 +51,8 @@ public class APIHelper {
 		} else {
 
 			// network not available
-			DebugLog.d(context.getString(R.string.checkConnection));
-			TowerApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+			DebugLog.d(context.getString(R.string.failed_nointernetconnection));
+			TowerApplication.getInstance().toast(context.getString(R.string.failed_nointernetconnection), Toast.LENGTH_LONG);
 
 		}
 	}
@@ -67,8 +67,8 @@ public class APIHelper {
         } else {
 
             // network not available
-            DebugLog.d(context.getString(R.string.checkConnection));
-            TowerApplication.getInstance().toast(context.getString(R.string.checkConnection), Toast.LENGTH_LONG);
+            DebugLog.d(context.getString(R.string.failed_nointernetconnection));
+            TowerApplication.getInstance().toast(context.getString(R.string.failed_nointernetconnection), Toast.LENGTH_LONG);
 
         }
     }

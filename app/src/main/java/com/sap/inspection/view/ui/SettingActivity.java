@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.rindang.pushnotification.NotificationProcessor;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.UploadListener;
 import com.sap.inspection.manager.AsyncDeleteAllFiles;
@@ -20,9 +21,9 @@ import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.view.customview.FormInputText;
-import com.sap.inspection.util.DialogUtil;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
 import java.util.ArrayList;
@@ -202,21 +203,21 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
      * */
     OnClickListener setTextMarkClickListener = view -> {
         trackEvent("user_set_text_mark_size");
-        MyApplication.getInstance().toast("text mark size saved", Toast.LENGTH_SHORT);
+        TowerApplication.getInstance().toast("text mark size saved", Toast.LENGTH_SHORT);
         writePreference(R.string.textmarksizepotrait, Integer.parseInt(inputtextmarksizepotrait.getText().toString()));
         writePreference(R.string.textmarksizelandscape, Integer.parseInt(inputtextmarksizelandscape.getText().toString()));
     };
 
     OnClickListener setLinespaceClickListener = view -> {
         trackEvent("user_set_line_space_size");
-        MyApplication.getInstance().toast("line space size saved", Toast.LENGTH_SHORT);
+        TowerApplication.getInstance().toast("line space size saved", Toast.LENGTH_SHORT);
         writePreference(R.string.linespacepotrait, Integer.parseInt(inputlinespacepotrait.getText().toString()));
         writePreference(R.string.linespacelandscape, Integer.parseInt(inputlinespacelandscape.getText().toString()));
     };
 
     OnClickListener setHeightBackgroundWatermarkClickListener = view -> {
         trackEvent("user_set_height_background_watermark_size");
-        MyApplication.getInstance().toast("height background watermark size saved", Toast.LENGTH_SHORT);
+        TowerApplication.getInstance().toast("height background watermark size saved", Toast.LENGTH_SHORT);
         writePreference(R.string.heightbackgroundwatermarkportrait, Integer.parseInt(inputheightwatermarkportrait.getText().toString()));
         writePreference(R.string.heightbackgroundwatermarklandscape, Integer.parseInt(inputheightwatermarklandscape.getText().toString()));
     };

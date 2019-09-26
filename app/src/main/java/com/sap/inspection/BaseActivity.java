@@ -39,15 +39,14 @@ import com.sap.inspection.event.DeleteAllScheduleEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
-import com.sap.inspection.fragments.BaseFragment;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
-import com.sap.inspection.model.form.RowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.FormVersionResponseModel;
@@ -58,6 +57,13 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.PrefUtil;
+import com.sap.inspection.view.ui.CheckInActivity;
+import com.sap.inspection.view.ui.FormFillActivity;
+import com.sap.inspection.view.ui.GroupActivity;
+import com.sap.inspection.view.ui.GroupWargaActivity;
+import com.sap.inspection.view.ui.LoginActivity;
+import com.sap.inspection.view.ui.SettingActivity;
+import com.sap.inspection.view.ui.fragments.BaseFragment;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -570,7 +576,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				} else {
 					hideDialog();
 					setFlagScheduleSaved(true);
-					Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet),Toast.LENGTH_LONG).show();
+					Toast.makeText(activity, getString(R.string.failed_downloadschedule),Toast.LENGTH_LONG).show();
 				}
 
 			} else {
@@ -595,7 +601,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				}
 			} else {
 				hideDialog();
-				Toast.makeText(activity, getString(R.string.cantgetschedulefastinternet), Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.failed_downloadschedule), Toast.LENGTH_LONG).show();
 			}
 		}
 	};
@@ -941,9 +947,9 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	private void updateAPK() {
 
 		if (GlobalVar.getInstance().isNetworkOnline(this)) {
-			new SettingActivity.DownloadFileFromURL().execute(file_url);
+			new DownloadFileFromURL().execute(file_url);
 		} else {
-			Toast.makeText(this, getString(R.string.disconnected), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.failed_disconnected), Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -998,7 +1004,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 							columnModel.save();
 						}
 
-						for (RowModel rowModel : group.table.rows) {
+						for (WorkFormRowModel rowModel : group.table.rows) {
 							curr ++;
 							publishProgress(curr*100/sum);
 							rowModel.save();
@@ -1074,7 +1080,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                             columnModel.save();
                         }
 
-                        for (RowModel rowModel : group.table.rows) {
+                        for (WorkFormRowModel rowModel : group.table.rows) {
                             curr ++;
                             publishProgress(curr*100/sum);
                             rowModel.save();

@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.OperatorModel;
@@ -37,7 +38,6 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.view.ui.BaseActivity;
-import com.sap.inspection.view.ui.MyApplication;
 
 import java.io.File;
 
@@ -154,7 +154,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory)
 			mandatory.setVisibility(VISIBLE);
 
-		if (!MyApplication.getInstance().IS_CHECKING_HASIL_PM())
+		if (!TowerApplication.getInstance().IS_CHECKING_HASIL_PM())
 			enable();
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
@@ -533,7 +533,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	private void toggleEditable() {
-		if (MyApplication.getInstance().IS_CHECKING_HASIL_PM()) {
+		if (TowerApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 			DebugLog.d("input is disabled");
 			disable();
 		} else {
@@ -598,16 +598,16 @@ public class PhotoItemRadio extends RelativeLayout {
                     }
 
                     DebugLog.d("belum ada approval dari STP");
-                    MyApplication.getInstance().toast("Photo penghancuran menunggu approval dari STP", Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast("Photo penghancuran menunggu approval dari STP", Toast.LENGTH_LONG);
 
                 } else {
 
-                    MyApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
 
                 }
             } else {
 
-                MyApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
                 DebugLog.d("response not ok");
             }
         }

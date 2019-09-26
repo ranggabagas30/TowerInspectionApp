@@ -21,12 +21,11 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.view.ui.MyApplication;
 
 import java.io.File;
 import java.io.FileNotFoundException;

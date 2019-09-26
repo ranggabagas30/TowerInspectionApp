@@ -8,6 +8,7 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.tools.DebugLog;
@@ -37,7 +38,7 @@ public class MainActivity extends BaseActivity {
 		if (isLoadSchedule) {
 
 			DebugLog.d("load schedule");
-			if (!MyApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+			if (!TowerApplication.getInstance().getDEVICE_REGISTRATION_STATE()) {
 
 				// haven't yet register device, do device registration
 				DebugLog.d("start device registration....");
@@ -86,7 +87,7 @@ public class MainActivity extends BaseActivity {
 	OnClickListener mainMenuClick = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			MyApplication.getInstance().setIS_CHECKING_HASIL_PM(false);
+			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(false);
 			int i = (Integer) v.getTag();
 			switch (i) {
 				case R.string.schedule:

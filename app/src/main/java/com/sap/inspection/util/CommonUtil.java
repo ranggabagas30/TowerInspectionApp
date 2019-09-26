@@ -359,7 +359,7 @@ public class CommonUtil {
                 activity.startActivityForResult(intent, Constants.RC_INSTALL_APK);
             }
         } else {
-            TowerApplication.getInstance().toast(context.getResources().getString(R.string.apkforupdateisnotfound), Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast(context.getResources().getString(R.string.failed_apknotfound), Toast.LENGTH_LONG);
             activity.finish();
         }
     }

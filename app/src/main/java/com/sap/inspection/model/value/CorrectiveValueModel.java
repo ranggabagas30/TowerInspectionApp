@@ -159,7 +159,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		String[] args = new String[argsList.size()];
 		args = argsList.toArray(args);
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);
 
         if (!cursor.moveToFirst()) {

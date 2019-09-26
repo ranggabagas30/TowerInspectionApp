@@ -14,12 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.sap.inspection.model.form.WorkFormRowModel;
-import com.sap.inspection.view.ui.BaseActivity;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.view.ui.GroupActivity;
-import com.sap.inspection.view.ui.MyApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
@@ -27,12 +24,15 @@ import com.sap.inspection.manager.ItemUploadManager;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.model.form.WorkFormGroupModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.view.dialog.DeleteWargaAndBarangDialog;
 import com.sap.inspection.util.StringUtil;
+import com.sap.inspection.view.dialog.DeleteWargaAndBarangDialog;
+import com.sap.inspection.view.ui.BaseActivity;
+import com.sap.inspection.view.ui.GroupActivity;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -264,7 +264,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 		@Override
 		public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(context)){
-				MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast(TowerApplication.getContext().getResources().getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
 			} else {
 
 				if (!ItemUploadManager.getInstance().isRunning()) {
@@ -285,7 +285,7 @@ public class GroupsAdapter extends MyBaseAdapter {
                     	new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, null, null).execute();
 
 				} else {
-					MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+					TowerApplication.getInstance().toast(TowerApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
 				}
 			}
 
@@ -445,13 +445,13 @@ public class GroupsAdapter extends MyBaseAdapter {
 
 							removeItem(removedWargaItem);
 							DebugLog.d("remove wargaid berhasil dengan message : " + responseDeleteWargaModel.messages);
-							MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
+							TowerApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
 						} else {
-							MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
+							TowerApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
 						}
 					} else {
 
-						MyApplication.getInstance().toast(failedMessage + ". Repsonse not OK from server", Toast.LENGTH_LONG);
+						TowerApplication.getInstance().toast(failedMessage + ". Repsonse not OK from server", Toast.LENGTH_LONG);
 						DebugLog.e("response not ok");
 					}
 				}
@@ -534,16 +534,16 @@ public class GroupsAdapter extends MyBaseAdapter {
 					}
 
 					DebugLog.d("belum ada approval dari STP");
-					MyApplication.getInstance().toast("Schedule menunggu approval dari STP", Toast.LENGTH_LONG);
+					TowerApplication.getInstance().toast("Schedule menunggu approval dari STP", Toast.LENGTH_LONG);
 
                 } else {
 
-                    MyApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
 
                 }
             } else {
 
-            	MyApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
+            	TowerApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
                 DebugLog.d("response not ok");
             }
         }

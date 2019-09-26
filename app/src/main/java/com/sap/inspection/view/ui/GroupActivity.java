@@ -9,20 +9,21 @@ import android.widget.Toast;
 
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.view.ui.fragments.GroupFragment;
 import com.sap.inspection.listener.GroupActivityListener;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.config.formimbaspetir.Warga;
-import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
+import com.sap.inspection.view.ui.fragments.GroupFragment;
 import com.slidinglayer.SlidingLayer;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 

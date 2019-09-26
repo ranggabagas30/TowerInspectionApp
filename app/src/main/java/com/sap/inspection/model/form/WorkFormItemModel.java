@@ -322,7 +322,7 @@ public class WorkFormItemModel extends BaseModel {
 
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, null, null);
 
 		if (!cursor.moveToFirst()) {

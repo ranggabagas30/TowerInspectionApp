@@ -10,9 +10,8 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.nostra13.universalimageloader.utils.IoUtils;
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.ErrorSatutempatModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.tools.DebugLog;
@@ -68,7 +67,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			try {
 				httpRequest = new HttpGet(url);
 			} catch (Exception e) {
-				MyApplication.getInstance().toast(context.getString(R.string.failed_url_bad_format), Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast(context.getString(R.string.failed_url_bad_format), Toast.LENGTH_SHORT);
 				e.printStackTrace();
 				TowerApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
 
@@ -153,10 +152,10 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 
 			if (notJson) {
 				DebugLog.e(context.getString(R.string.failed_notjsontype) + " = " + result);
-				MyApplication.getInstance().toast(context.getString(R.string.failed_notjsontype), Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(context.getString(R.string.failed_notjsontype), Toast.LENGTH_LONG);
 
 
-				TowerApplication.getInstance().toast(context.getString(R.string.notjsontype), Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(context.getString(R.string.failed_notjsontype), Toast.LENGTH_LONG);
 			} else {
 				TowerApplication.getInstance().toast("error : " + result, Toast.LENGTH_LONG);
 				DebugLog.e(result);

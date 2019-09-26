@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
@@ -37,25 +38,25 @@ import com.sap.inspection.event.DeleteAllScheduleEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
-import com.sap.inspection.view.ui.fragments.BaseFragment;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
-import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
+import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
-import com.sap.inspection.model.responsemodel.VersionModel;
+import com.sap.inspection.model.responsemodel.FormVersionResponseModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.PrefUtil;
+import com.sap.inspection.view.ui.fragments.BaseFragment;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -185,7 +186,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     }
 
 	public void onEvent(DeleteAllScheduleEvent event) {
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		DbRepository.getInstance().clearData(DbManager.mSchedule);
 		DbRepository.getInstance().close();
 		ScheduleTempSaver scheduleSaver = new ScheduleTempSaver();
@@ -247,14 +248,14 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	protected void trackEvent(String name) {
 		Bundle bundle = new Bundle();
 		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
-		FirebaseAnalytics mFirebaseAnalytics = MyApplication.getDefaultAnalytics();
+		FirebaseAnalytics mFirebaseAnalytics = TowerApplication.getInstance().getDefaultAnalytics();
 		mFirebaseAnalytics.logEvent("track_event", bundle);
 	}
 
 	public static void trackLog(String message) {
 		Bundle bundle = new Bundle();
 		bundle.putString(FirebaseAnalytics.Param.VALUE, message);
-		FirebaseAnalytics mFirebaseAnalytics = MyApplication.getDefaultAnalytics();
+		FirebaseAnalytics mFirebaseAnalytics = TowerApplication.getInstance().getDefaultAnalytics();
 		mFirebaseAnalytics.logEvent("track_event", bundle);
 	}
 
@@ -420,9 +421,9 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	}
 
 	public static void navigateToLoginActivity() {
-		Intent i = new Intent(MyApplication.getContext(), LoginActivity.class);
+		Intent i = new Intent(TowerApplication.getContext(), LoginActivity.class);
 		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		MyApplication.getContext().startActivity(i);
+		TowerApplication.getContext().startActivity(i);
 	}
 
 	public static void navigateToGroupActivity(Context context, String scheduleId, int siteId, int workTypeId, String workTypeName, String dayDate) {
@@ -508,16 +509,16 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 						CorrectiveScheduleConfig.setCorrectiveScheduleConfig(correctiveData);
 
 						DebugLog.d("save corrective schedule config");
-						MyApplication.getInstance().toast("Corrective schedules data berhasil diunduh", Toast.LENGTH_SHORT);
+						TowerApplication.getInstance().toast("Corrective schedules data berhasil diunduh", Toast.LENGTH_SHORT);
 					}
 				} else {
 
-					MyApplication.getInstance().toast("JSON == null. Gagal mengunduh data schedule Corrective", Toast.LENGTH_LONG);
+					TowerApplication.getInstance().toast("JSON == null. Gagal mengunduh data schedule Corrective", Toast.LENGTH_LONG);
 				}
 
 			} else {
 
-				MyApplication.getInstance().toast("Response not OK. Gagal mengunduh data schedule Corrective", Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast("Response not OK. Gagal mengunduh data schedule Corrective", Toast.LENGTH_LONG);
 			}
 		}
 	};
@@ -584,7 +585,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
             if (isResponseOK) {
 
                 if (bundle.getString("json") != null){
-                    VersionModel versionModel = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
+                    FormVersionResponseModel versionModel = gson.fromJson(msg.getData().getString("json"), FormVersionResponseModel.class);
                     DebugLog.d("latest_version from server : " + versionModel.version);
                     writePreference(R.string.latest_version, versionModel.version);
                     writePreference(R.string.url_update, versionModel.download);
@@ -627,7 +628,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
             if (isResponseOK) {
 
                 if (bundle.getString("json") != null){
-                    VersionModel model = gson.fromJson(msg.getData().getString("json"), VersionModel.class);
+                    FormVersionResponseModel model = gson.fromJson(msg.getData().getString("json"), FormVersionResponseModel.class);
                     formVersion = model.version;
                     DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
                     DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
@@ -641,7 +642,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                     }else{
 
                         DebugLog.d("form doesn't need to be updated");
-                        if (!MyApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+                        if (!TowerApplication.getInstance().getDEVICE_REGISTRATION_STATE()) {
 
                             // have never register the device, then register it now
                             requestReadPhoneStatePermission();
@@ -829,8 +830,8 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 
 			if (!TextUtils.isEmpty(FCMRegToken)) {
 
-				MyApplication.sendRegIdtoServer(FCMRegToken);
-				MyApplication.getInstance().setDEVICE_REGISTER_STATE(false);
+				TowerApplication.sendRegIdtoServer(FCMRegToken);
+				TowerApplication.getInstance().setDEVICE_REGISTRATION_STATE(false);
 
 			} else {
 
@@ -864,7 +865,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		protected void onPreExecute() {
 			super.onPreExecute();
 			showMessageDialog("Persiapan menyimpan forms");
-			DbRepository.getInstance().open(MyApplication.getInstance());
+			DbRepository.getInstance().open(TowerApplication.getInstance());
 			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);

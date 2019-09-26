@@ -241,7 +241,7 @@ public class ItemFormRenderModel extends BaseModel {
                     DebugLog.d("input type found");
                     Vector<OperatorModel> operatorItems = schedule.operators;
                     if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
-                            workTypeName.equalsIgnoreCase(MyApplication.getContext().getString(R.string.corrective))) {
+                            workTypeName.equalsIgnoreCase(TowerApplication.getContext().getString(R.string.corrective))) {
                         int inputTypeItemId = getInputTypeItemId(rowcol.items);
                         if (inputTypeItemId != -1) {
                             CorrectiveScheduleResponseModel.CorrectiveItem correctiveItem = CorrectiveScheduleConfig.getCorrectiveItem(Integer.valueOf(schedule.id), workFormGroupId, inputTypeItemId);

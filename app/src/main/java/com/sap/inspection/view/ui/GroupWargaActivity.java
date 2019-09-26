@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
@@ -27,9 +28,9 @@ import com.sap.inspection.model.responsemodel.BaseResponseModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.view.dialog.DeleteWargaAndBarangDialog;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.customview.MyTextView;
+import com.sap.inspection.view.dialog.DeleteWargaAndBarangDialog;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
 import java.util.Vector;

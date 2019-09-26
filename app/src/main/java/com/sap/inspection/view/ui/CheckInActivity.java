@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -311,7 +312,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private void showFailCheckinMessage() {
         String mFailCheckinMessage = getResources().getString(R.string.failedmessagecheckin);
 
-        MyApplication.getInstance().toast(mFailCheckinMessage + ".\n" +
+        TowerApplication.getInstance().toast(mFailCheckinMessage + ".\n" +
                 "Current GPS accuration : " + mAccuracy + " meters. \n" +
                 "Current lat : " + mCurrentCoordinate.getLatitude() + "\n" +
                 "Current long : " + mCurrentCoordinate.getLongitude() + "\n" +
@@ -321,7 +322,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private void showSuccessCheckinMessage() {
         String mSuccessMessage = getResources().getString(R.string.successmessagecheckin);
 
-        MyApplication.getInstance().toast(mSuccessMessage + ".\n" +
+        TowerApplication.getInstance().toast(mSuccessMessage + ".\n" +
                 "Current GPS accuration : " + mAccuracy + " meters. \n" +
                 "Current lat : " + mCurrentCoordinate.getLatitude() + "\n" +
                 "Current long : " + mCurrentCoordinate.getLongitude() + "\n" +
@@ -329,11 +330,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private void showLocationGPSError() {
-        MyApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
+        TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
     }
 
     private void showPleaseWaitMessage() {
-        MyApplication.getInstance().toast("Mohon tunggu. Sedang proses mendapatkan lokasi", Toast.LENGTH_SHORT);
+        TowerApplication.getInstance().toast("Mohon tunggu. Sedang proses mendapatkan lokasi", Toast.LENGTH_SHORT);
     }
 
     private void setCheckinCriteriaText() {
@@ -350,7 +351,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     private void navigateToGroupActivity() {
 
-        MyApplication.getInstance().checkinDataModel = mParamObject;
+        TowerApplication.getInstance().checkinDataModel = mParamObject;
 
         navigateToGroupActivity(
                 this,
@@ -430,7 +431,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             checkinBackgroundTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         else {
-            MyApplication.getInstance().toast("Mohon tunggu sebentar", Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast("Mohon tunggu sebentar", Toast.LENGTH_SHORT);
         }
     }
 
@@ -463,7 +464,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
             org.apache.http.Header cookie = response.getFirstHeader("Set-Cookie");
             if (cookie != null) {
-                mPref.edit().putString(MyApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
+                mPref.edit().putString(TowerApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
             }
 
             data = response.getEntity().getContent();
@@ -507,8 +508,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         DebugLog.d("status : " + saveCheckinResponse.status);
         DebugLog.d("status_code : " + saveCheckinResponse.status_code);
 
-        //MyApplication.getInstance().toast("post data check in berhasil", Toast.LENGTH_LONG);
-//MyApplication.getInstance().toast("post data check in gagal", Toast.LENGTH_LONG);
+        //TowerApplication.getInstance().toast("post data check in berhasil", Toast.LENGTH_LONG);
+//TowerApplication.getInstance().toast("post data check in gagal", Toast.LENGTH_LONG);
         return saveCheckinResponse.status == 201 || saveCheckinResponse.status == 200;
     }
 
@@ -529,7 +530,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             super.onPreExecute();
             runningTask = true;
             mBtnCheckin.setEnabled(false);
-            //MyApplication.getInstance().toast("Start check in", Toast.LENGTH_SHORT);
+            //TowerApplication.getInstance().toast("Start check in", Toast.LENGTH_SHORT);
         }
 
         @Override
@@ -546,7 +547,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
                 validatedByServer = receiveDataFromSERVER(response);
             } else {
                 DebugLog.d("Error response from server");
-                //MyApplication.getInstance().toast("Error response from server", Toast.LENGTH_SHORT);
+                //TowerApplication.getInstance().toast("Error response from server", Toast.LENGTH_SHORT);
             }
             return null;
         }
@@ -623,9 +624,9 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private String getCookie() {
-        SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-        if (mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), null) != null) {
-            return mPref.getString(MyApplication.getContext().getString(R.string.user_cookie), "");
+        SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
+        if (mPref.getString(TowerApplication.getContext().getString(R.string.user_cookie), null) != null) {
+            return mPref.getString(TowerApplication.getContext().getString(R.string.user_cookie), "");
         }
         return null;
     }
@@ -650,7 +651,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private void startCheckoutCountdown() {
         DebugLog.d("start countdown .... ");
         mRunnableCheckoutHandler  = () -> {
-            MyApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
             Intent recheckinIntent = new Intent(CheckInActivity.this, CheckInActivity.class);
             recheckinIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(recheckinIntent);
