@@ -106,15 +106,16 @@ repositories {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api project(':baseassets')
-    api "com.google.android.gms:play-services-location:${rootProject.ext.playServicesLocationVersion}"
-    api "com.google.android.gms:play-services-maps:${rootProject.ext.playServicesMapsVersion}"
-    api "com.google.firebase:firebase-core:${rootProject.ext.firebaseCoreVersion}"
-    api "com.google.firebase:firebase-messaging:${rootProject.ext.firebaseMessagingVersion}"
-    api "com.crashlytics.sdk.android:crashlytics:${rootProject.ext.crashlyticsVersion}"
-    api "com.facebook.stetho:stetho:${rootProject.ext.facebookStethoversion}"
-    api("com.google.code.gson:gson:2.3") {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':baseassets')
+    implementation "com.google.android.gms:play-services-location:${rootProject.ext.playServicesLocationVersion}"
+    implementation "com.google.android.gms:play-services-maps:${rootProject.ext.playServicesMapsVersion}"
+    implementation "com.google.firebase:firebase-core:${rootProject.ext.firebaseCoreVersion}"
+    implementation "com.google.firebase:firebase-messaging:${rootProject.ext.firebaseMessagingVersion}"
+    implementation "com.crashlytics.sdk.android:crashlytics:${rootProject.ext.crashlyticsVersion}"
+    implementation "com.facebook.stetho:stetho:${rootProject.ext.facebookStethoversion}"
+    implementation("com.google.code.gson:gson:2.3") {
         exclude module: 'gson:2.2.4'
     }
 
@@ -130,6 +131,19 @@ dependencies {
 
     implementation "com.android.support.constraint:constraint-layout:${rootProject.ext.constraintLayoutVersion}"
     debugImplementation "com.amitshekhar.android:debug-db:${rootProject.ext.androidDebug}"
+
+    // Networking
+    // Retrofit http://square.github.io/retrofit
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0' // interceptor
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+    implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'  // // retrofit2 rxjava2 adapter
+
+    // reactive
+    // https://github.com/ReactiveX/RxAndroid
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1' // rxAndroid 2.0 to subscribe on AndroidSchedulers class
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.10' // rxJava2
+
 }
 
 apply plugin: 'com.google.gms.google-services'

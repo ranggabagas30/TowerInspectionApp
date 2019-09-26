@@ -3,6 +3,7 @@ package com.sap.inspection.model.form;
 import android.content.Context;
 import android.os.Parcel;
 
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 
 import java.util.Vector;

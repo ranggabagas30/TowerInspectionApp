@@ -10,7 +10,8 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.sap.inspection.view.ui.MyApplication;
+import com.nostra13.universalimageloader.utils.IoUtils;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.model.ErrorSatutempatModel;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
@@ -69,6 +70,8 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			} catch (Exception e) {
 				MyApplication.getInstance().toast(context.getString(R.string.failed_url_bad_format), Toast.LENGTH_SHORT);
 				e.printStackTrace();
+				TowerApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
+
 				isResponseOK = false;
 				response = e.getMessage();
 				return response;
@@ -143,7 +146,7 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 			BaseResponseModel responseModel = new Gson().fromJson(result, BaseResponseModel.class);
 			if (responseModel.status == 422 || responseModel.status == 403 || responseModel.status == 404) {
 				DebugLog.e("error status code : " + responseModel.status);
-				MyApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(responseModel.messages, Toast.LENGTH_LONG);
 			}
 
 		} else {
@@ -152,9 +155,11 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
 				DebugLog.e(context.getString(R.string.failed_notjsontype) + " = " + result);
 				MyApplication.getInstance().toast(context.getString(R.string.failed_notjsontype), Toast.LENGTH_LONG);
 
+
+				TowerApplication.getInstance().toast(context.getString(R.string.notjsontype), Toast.LENGTH_LONG);
 			} else {
+				TowerApplication.getInstance().toast("error : " + result, Toast.LENGTH_LONG);
 				DebugLog.e(result);
-				MyApplication.getInstance().toast("error : " + result, Toast.LENGTH_LONG);
 			}
 		}
 

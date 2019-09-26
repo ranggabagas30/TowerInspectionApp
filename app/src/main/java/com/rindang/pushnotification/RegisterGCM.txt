@@ -7,7 +7,7 @@ import android.os.Handler;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.rindang.zconfig.AppConfig;
-import com.sap.inspection.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.tools.DebugLog;
@@ -27,7 +27,7 @@ public class RegisterGCM extends AsyncTask<Void, Void, String>{
 		DebugLog.d("Trying get registration ID for GCM");
 		try {
 			if(gcm == null) {
-				gcm = GoogleCloudMessaging.getInstance(MyApplication.getInstance());
+				gcm = GoogleCloudMessaging.getInstance(TowerApplication.getInstance());
 			}
 			String registrationID = gcm.register(AppConfig.getInstance().config.getGCMSenderId());
 			DebugLog.d("RegistrationID: " + registrationID);
@@ -45,7 +45,7 @@ public class RegisterGCM extends AsyncTask<Void, Void, String>{
 		DebugLog.d("result in gcm : " + result);
 		try {
 			if (!PrefUtil.getStringPref(R.string.user_authToken, "").equalsIgnoreCase("")){
-				APIHelper.registerGCMToken(MyApplication.getInstance(), myHandler,  result);
+				APIHelper.registerGCMToken(TowerApplication.getInstance(), myHandler,  result);
 			}
 		} catch (UnsupportedOperationException e){
 			e.printStackTrace();
@@ -57,7 +57,7 @@ public class RegisterGCM extends AsyncTask<Void, Void, String>{
 	private int getAppVersionCode(){
 		PackageInfo pInfo = null;
 		try {
-			pInfo = MyApplication.getInstance().getPackageManager().getPackageInfo(MyApplication.getInstance().getPackageName(), 0);
+			pInfo = TowerApplication.getInstance().getPackageManager().getPackageInfo(TowerApplication.getInstance().getPackageName(), 0);
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 		}

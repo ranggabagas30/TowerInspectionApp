@@ -4,7 +4,7 @@ import android.os.Parcel;
 
 import com.sap.inspection.model.BaseModel;
 
-public class VersionModel extends BaseModel {
+public class FormVersionResponseModel extends BaseModel {
     public String version;
     public String download;
 

@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.tools.DebugLog;
 
 public class WorkTypeModel extends BaseModel {
@@ -45,7 +45,7 @@ public class WorkTypeModel extends BaseModel {
 		String[] args = new String[]{String.valueOf(id)};
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -70,7 +70,7 @@ public class WorkTypeModel extends BaseModel {
 						DbManager.colName);
 
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
@@ -83,7 +83,7 @@ public class WorkTypeModel extends BaseModel {
 
 	public static void delete(Context ctx){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkType;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();

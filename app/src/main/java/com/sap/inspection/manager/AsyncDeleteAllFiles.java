@@ -61,7 +61,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 		WorkTypeModel.delete(MyApplication.getInstance());
 		WorkFormModel.delete(MyApplication.getInstance());
 		WorkFormGroupModel.delete(MyApplication.getInstance());
-		WorkFormRowModel.delete(MyApplication.getInstance());
+		RowModel.delete(MyApplication.getInstance());
 		ColumnModel.delete(MyApplication.getInstance());
 		RowColumnModel.delete(MyApplication.getInstance());
 		WorkFormItemModel.delete(MyApplication.getInstance());
@@ -73,7 +73,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 
 */
 		/*
-		Resources r = MyApplication.getContext().getResources();
+		Resources r = TowerApplication.getContext().getResources();
 		mPref.edit().putBoolean(Constants.LOADAFTERLOGIN, false).commit();
 		mPref.edit().putString(r.getString(R.string.user_name), "").commit();
 		mPref.edit().putString(r.getString(R.string.password), "").commit();
@@ -82,7 +82,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 		mPref.edit().putString(r.getString(R.string.user_authToken), "").commit();*/
 
 		if (TextUtils.isEmpty(mScheduleId)) {// if there is no specific dir by scheduleId, then clear all application data
-			/*SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+			/*SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
 			mPref.edit().clear().commit();
 			CommonUtil.clearApplicationData();*/
 			ScheduleBaseModel.delete();

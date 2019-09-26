@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
@@ -91,7 +91,7 @@ public class WorkFormItemModel extends BaseModel {
 
 	public static void delete(Context ctx){
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormItem;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -120,7 +120,7 @@ public class WorkFormItemModel extends BaseModel {
 						DbManager.colDisable,DbManager.colSearch,
 						DbManager.colExpand);
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
 		stmt.bindLong(1, id);
@@ -203,7 +203,7 @@ public class WorkFormItemModel extends BaseModel {
 		String[] args = new String[] { workFormItemId };
 
 		DebugLog.d("UPDATE workFormItem SET default_value = '" + new_default_value + "' WHERE " + DbManager.colWorkFormItemId + " = '" + workFormItemId);
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		DbRepository.getInstance().getDB().update(DbManager.mWorkFormItem, cv, where, args);
 		DbRepository.getInstance().close();
 
@@ -225,7 +225,7 @@ public class WorkFormItemModel extends BaseModel {
 		String order = DbManager.colPosition+" ASC";
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -255,7 +255,7 @@ public class WorkFormItemModel extends BaseModel {
 		String order = DbManager.colPosition+" ASC";
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -281,7 +281,7 @@ public class WorkFormItemModel extends BaseModel {
 		String order = DbManager.colID+" DESC";
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {
@@ -362,7 +362,7 @@ public class WorkFormItemModel extends BaseModel {
 		String order = DbManager.colID + " DESC";
 		Cursor cursor;
 
-		DbRepository.getInstance().open(MyApplication.getInstance());
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
 		if (!cursor.moveToFirst()) {

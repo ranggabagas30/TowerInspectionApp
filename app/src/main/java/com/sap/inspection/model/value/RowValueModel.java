@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 
-import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 
 
@@ -35,7 +35,7 @@ public class RowValueModel extends BaseModel {
 
 	public static void deleteAll(Context ctx){
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mRowValue;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
@@ -45,7 +45,7 @@ public class RowValueModel extends BaseModel {
 
 	public RowValueModel getSiteById(Context context,String scheduleId, String itemId) {
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		RowValueModel model = null;
 		model = getSiteById(scheduleId, itemId);
 		DbRepositoryValue.getInstance().close();
@@ -61,7 +61,7 @@ public class RowValueModel extends BaseModel {
 		String[] args = new String[]{scheduleId,itemId};
 		Cursor cursor;
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null,null, null);
 
 		if (!cursor.moveToFirst()) {
@@ -87,7 +87,7 @@ public class RowValueModel extends BaseModel {
 				DbManagerValue.colUploaded);
 
 
-		DbRepositoryValue.getInstance().open(MyApplication.getInstance());
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 
 		bindAndCheckNullString(stmt, 1, siteId);

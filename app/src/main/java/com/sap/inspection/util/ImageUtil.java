@@ -21,6 +21,7 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.TextMarkModel;
@@ -124,7 +125,7 @@ public class ImageUtil {
             if (CommonUtil.isExternalStorageAvailable())
                 tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/");
             else
-                tempDir = new File(MyApplication.getContext().getFilesDir()+"/Camera/");
+                tempDir = new File(TowerApplication.getContext().getFilesDir()+"/Camera/");
 
             String path;
             if (url.contains("?"))
@@ -199,7 +200,7 @@ public class ImageUtil {
         if (CommonUtil.isExternalStorageAvailable())
             tempDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), BuildConfig.FOLDER_CAMERA);
         else
-            tempDir = new File(MyApplication.getContext().getFilesDir(), BuildConfig.FOLDER_CAMERA);
+            tempDir = new File(TowerApplication.getContext().getFilesDir(), BuildConfig.FOLDER_CAMERA);
 
 		tempDir = new File(tempDir.getAbsolutePath(), BuildConfig.FOLDER_TOWER_INSPECTION);
 

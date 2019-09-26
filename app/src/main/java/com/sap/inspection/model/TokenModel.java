@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.tools.DebugLog;
 
 public class TokenModel extends BaseModel {
@@ -93,7 +93,7 @@ public class TokenModel extends BaseModel {
 		accToken = accToken.replace("access_token", "oauth_token");
 		DebugLog.d(accToken);
 		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+			DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = String.format("INSERT OR REPLACE INTO %s(%s) VALUES(?)",
 						DbManager.mTokenTable, DbManager.colAccToken);
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
@@ -106,7 +106,7 @@ public class TokenModel extends BaseModel {
 
 	public static void delete(Context ctx){
 		if (!DbRepository.getInstance().getDB().isOpen())
-			DbRepository.getInstance().open(MyApplication.getInstance());
+			DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mTokenTable;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();

@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
@@ -119,10 +120,10 @@ public class ItemUploadManager {
 
     public void addItemValues(ArrayList<FormValueModel> itemvalues) {
         if (itemvalues == null || itemvalues.isEmpty())
-            MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_nonewuploaditem), Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
         else {
                 if (itemvalues.isEmpty()) {
-                    MyApplication.getInstance().toast(MyApplication.getContext().getString(R.string.failed_nonewuploaditem), Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.tidakadaitem), Toast.LENGTH_SHORT);
                     return;
                 }
 
@@ -152,7 +153,7 @@ public class ItemUploadManager {
             if (TextUtils.isEmpty(filledItem.value)) {
 
                 if (workFormItem.field_type.equalsIgnoreCase("file") && !TextUtils.isEmpty(filledItem.photoStatus) && !filledItem.photoStatus.equalsIgnoreCase(Constants.NA))
-                    MyApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
                 else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
                     DebugLog.d("item file picture radio not validated");
 
@@ -180,7 +181,7 @@ public class ItemUploadManager {
             uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             //There is upload process, please wait until finish
-            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast(TowerApplication.getContext().getResources().getString(R.string.uploadProses), Toast.LENGTH_SHORT);
         }
 
     }
@@ -209,7 +210,7 @@ public class ItemUploadManager {
             super.onPreExecute();
             running = true;
             initConnection();
-            MyApplication.getInstance().toast(MyApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
+            TowerApplication.getInstance().toast(TowerApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
         }
 
         private void publish(String msg) {

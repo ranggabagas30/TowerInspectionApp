@@ -6,7 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
@@ -112,7 +112,7 @@ public class ItemFormRenderModel extends BaseModel {
 
         if (schedule.operators == null || schedule.operators.size() == 0) {
             DebugLog.d("operator none");
-            MyApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
             return;
         }
 

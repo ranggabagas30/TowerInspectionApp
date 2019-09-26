@@ -14,7 +14,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.sap.inspection.view.ui.MyApplication;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
@@ -89,7 +89,7 @@ public class LocationRequestProvider implements
             }
 
         } else {
-            MyApplication.getInstance().toast("Location connection failed with message : \n" + connectionResult.getErrorCode(), Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast("Location connection failed with message : \n" + connectionResult.getErrorCode(), Toast.LENGTH_LONG);
         }
     }
 

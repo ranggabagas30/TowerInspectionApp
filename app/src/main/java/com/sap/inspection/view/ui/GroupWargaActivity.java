@@ -238,7 +238,7 @@ public class GroupWargaActivity extends BaseActivity {
         if (!TextUtils.isEmpty(realWargaId)) {
             if (StringUtil.isNotRegistered(realWargaId) && !rowModel.text.equalsIgnoreCase("Informasi Diri")) {
 
-                MyApplication.getInstance().toast("Tidak bisa melanjutkan membuka form. Silahkan upload data 'Informasi Diri' terlebih dahulu", Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("Tidak bisa melanjutkan membuka form. Silahkan upload data 'Informasi Diri' terlebih dahulu", Toast.LENGTH_LONG);
 
             } else if (rowModel.text.equalsIgnoreCase("Kwitansi")) {
 
@@ -326,16 +326,16 @@ public class GroupWargaActivity extends BaseActivity {
                     }
 
                     DebugLog.d("belum ada approval dari STP");
-                    MyApplication.getInstance().toast("Schedule menunggu approval dari STP", Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast("Schedule menunggu approval dari STP", Toast.LENGTH_LONG);
 
                 } else {
 
-                    MyApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast("Gagal mengecek approval. Response json = null", Toast.LENGTH_LONG);
 
                 }
             } else {
 
-                MyApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
+                TowerApplication.getInstance().toast("Gagal mengecek approval. Response not OK dari server", Toast.LENGTH_LONG);
                 DebugLog.d("response not ok");
             }
         }
@@ -461,14 +461,14 @@ public class GroupWargaActivity extends BaseActivity {
                 switch (id) {
 
                     case R.id.workformgroup_upload :
-                        //MyApplication.getInstance().toast("Upload data", Toast.LENGTH_SHORT);
+                        //TowerApplication.getInstance().toast("Upload data", Toast.LENGTH_SHORT);
                         uploadPerWargaSubNavigationMenu(itemClick);
                         break;
                     case R.id.expandCollapse :
-                        //MyApplication.getInstance().toast("expand", Toast.LENGTH_SHORT);
+                        //TowerApplication.getInstance().toast("expand", Toast.LENGTH_SHORT);
                         break;
                     case R.id.title :
-                        //MyApplication.getInstance().toast("title click", Toast.LENGTH_SHORT);
+                        //TowerApplication.getInstance().toast("title click", Toast.LENGTH_SHORT);
 
                         WorkFormRowModel parentNavigationItem = (WorkFormRowModel) v.getTag();
 
@@ -584,7 +584,7 @@ public class GroupWargaActivity extends BaseActivity {
                 mInputJumlahBarangDialog.setConfirmButton("Tambah", amountOfBarang -> {
 
                     // insert new data warga as many as amount inputted
-                    MyApplication.getInstance().toast("Tambahan jumlah barang : " + amountOfBarang, Toast.LENGTH_LONG);
+                    TowerApplication.getInstance().toast("Tambahan jumlah barang : " + amountOfBarang, Toast.LENGTH_LONG);
 
                     String realWargaId  = StringUtil.getRegisteredWargaId(scheduleId, getWargaId());
                     FormImbasPetirConfig.insertDataBarang(dataIndex, realWargaId, Integer.valueOf(amountOfBarang));
@@ -633,14 +633,14 @@ public class GroupWargaActivity extends BaseActivity {
 
                                 DebugLog.d("remove barangid berhasil dengan message : " + responseDeleteBarangModel.messages);
                                 removeNavigationItem(removedChildItem);
-                                MyApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
+                                TowerApplication.getInstance().toast(successfulMessage, Toast.LENGTH_LONG);
                             } else {
-                                MyApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
+                                TowerApplication.getInstance().toast(failedMessage, Toast.LENGTH_LONG);
                             }
 
                         } else {
 
-                            MyApplication.getInstance().toast(failedMessage + ". Repsonse not OK from server", Toast.LENGTH_LONG);
+                            TowerApplication.getInstance().toast(failedMessage + ". Repsonse not OK from server", Toast.LENGTH_LONG);
                             DebugLog.e("response not ok");
                         }
                     }

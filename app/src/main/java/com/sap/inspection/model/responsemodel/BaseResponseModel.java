@@ -1,6 +1,6 @@
 package com.sap.inspection.model.responsemodel;
 
-import android.os.Parcel;
+import java.util.Vector;
 
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.PageModel;
