@@ -496,29 +496,6 @@ public class CommonUtil {
         }
     }
 
-    public static void fixVersion(Context context) {
-        String latestVersion = PrefUtil.getStringPref(R.string.latest_version, "");
-        String appVersion = Constants.APPLICATION_VERSION;
-        DebugLog.d("latestVersion : " + latestVersion);
-        DebugLog.d("appVersion : " + appVersion);
-        if (!TextUtils.isEmpty(latestVersion)) {
-
-            latestVersion = latestVersion.replace(".","");
-            int latestVersionInt = Integer.parseInt(latestVersion);
-
-            appVersion = appVersion.replace(".","");
-            int appVersionInt = Integer.parseInt(appVersion);
-
-            if (appVersionInt > latestVersionInt) {
-                StringBuilder message = new StringBuilder(context.getString(R.string.error_check_apk_version));
-                message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
-                DebugLog.e(new String(message));
-            }
-        } else {
-            DebugLog.e(context.getString(R.string.error_latest_version_not_found));
-        }
-    }
-
     public static boolean isUpdateAvailable(Context context) {
 
         boolean isUpdateAvailable = true;
