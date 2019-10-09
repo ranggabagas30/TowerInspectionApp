@@ -10,6 +10,7 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.tools.DebugLog;
@@ -43,7 +44,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 		if (isLoadSchedule) {
 
 			DebugLog.d("load schedule");
-			if (!TowerApplication.getInstance().getDEVICE_REGISTER_STATE()) {
+			if (!TowerApplication.getInstance().getDEVICE_REGISTRATION_STATE()) {
 
 				// haven't yet register device, do device registration
 				requestReadPhoneStatePermission();
