@@ -46,7 +46,6 @@ import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
-import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.VersionModel;
@@ -279,7 +278,6 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		}
 	}
 	public void showMessageDialog(String message) {
-
 		if (progressDialog != null) {
 			progressDialog.setMessage(message);
 			if (!progressDialog.isShowing())
