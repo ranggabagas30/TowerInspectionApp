@@ -79,7 +79,7 @@
 
     <!-- error messages -->
     <string name="error_latest_version_not_found">Tidak ada informasi versi terakhir</string>
-    <string name="error_check_apk_version">Gagal mengecek versi aplikasi</string>
+    <string name="error_failed_check_apk_version">Gagal mengecek versi aplikasi</string>
     <string name="error_update_apk">Gagal mengupdate apk</string>
     <string name="error_apk_not_found">Update aplikasi gagal! File APK tidak terunduh atau tidak ditemukan</string>
     <string name="error_login_unauthorized">Username and Password salah</string>
@@ -114,6 +114,7 @@
     <string name="success_delete_file">Berhasil menghapus data file</string>
     <string name="success_permissions_granted">Permissions diizinkan</string>
     <string name="success_update_schedule">Schedule berhasil diperbaharui</string>
+    <string name="success_latest_apk">Aplikasi terinstal merupakan versi terupdate</string>
 
     <!-- warning messages-->
     <string name="warning_update_form_title">Mengupdate ulang form</string>

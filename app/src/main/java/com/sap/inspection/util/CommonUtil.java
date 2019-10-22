@@ -498,7 +498,7 @@ public class CommonUtil {
 
     public static boolean isUpdateAvailable(Context context) {
 
-        boolean isUpdateAvailable = true;
+        boolean isUpdateAvailable = false;
         String latestVersion = PrefUtil.getStringPref(R.string.latest_version, "");
         String appVersion = Constants.APPLICATION_VERSION;
         DebugLog.d("latestVersion\t: " + latestVersion);
@@ -512,14 +512,14 @@ public class CommonUtil {
             int appVersionInt = Integer.parseInt(appVersion);
 
             if (appVersionInt > latestVersionInt) {
-                StringBuilder message = new StringBuilder(context.getString(R.string.error_check_apk_version));
+                StringBuilder message = new StringBuilder(context.getString(R.string.error_failed_check_apk_version));
                 message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
-                DebugLog.e(new String(message));
-                isUpdateAvailable = false;
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            } else if (appVersionInt < latestVersionInt) {
+                isUpdateAvailable = true;
+            } else {
+                Toast.makeText(context, context.getString(R.string.success_latest_apk), Toast.LENGTH_SHORT).show();
             }
-        } else {
-            DebugLog.e(context.getString(R.string.error_latest_version_not_found));
-            isUpdateAvailable = false;
         }
         return isUpdateAvailable;
     }

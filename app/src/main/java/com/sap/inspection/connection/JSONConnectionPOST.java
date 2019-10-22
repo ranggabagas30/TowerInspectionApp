@@ -95,10 +95,8 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 				request = new HttpPost(url);
 			} catch (Exception e) {
 				isUrlOk = false;
-				e.printStackTrace();
 				MyApplication.getInstance().toast("URL tidak benar. Periksa kembali", Toast.LENGTH_SHORT);
 			}
-            DebugLog.d("POST "+url);
 
 			if (isUrlOk) {
 
@@ -108,11 +106,9 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 					request.setHeader("Cookie", mPref.getString(context.getString(R.string.user_cookie), ""));
 				}
 
-				UrlEncodedFormEntity entity = null;
-				entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
 				request.setEntity(entity);
 
-				DebugLog.d("=============== before response");
 				response = client.execute(request);
 
 				for (Header header : response.getAllHeaders()){
@@ -148,24 +144,18 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 			e.printStackTrace();
 			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.TIMEOUT_EXCEPTION);
 		}
 		catch (ClientProtocolException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
 			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
 		catch (IOException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
 			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
 
 		return null;

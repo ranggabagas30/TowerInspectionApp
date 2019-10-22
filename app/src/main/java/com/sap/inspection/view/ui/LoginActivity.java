@@ -134,12 +134,13 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 
 		public void handleMessage(android.os.Message msg) {
 
+			hideDialog();
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
 
 			if (bundle.getString("json") != null){
-				hideDialog();
 				UserResponseModel userResponseModel = gson.fromJson(bundle.getString("json"), UserResponseModel.class);
+				DebugLog.d("\nlogin response: " + userResponseModel.toString());
 				if (userResponseModel.status == 201){
 					writePreference(R.string.user_name, username.getText().toString());
 					writePreference(R.string.password, password.getText().toString());
@@ -148,13 +149,10 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 					writePreference(R.string.user_authToken, userResponseModel.data.persistence_token);
 					writePreference(R.string.keep_login,cbKeep.isChecked());
 					checkLoginState(true);
-				} else
+				} else {
 					checkLoginState(false);
-
-				DebugLog.d("userReponseModel.status = " + userResponseModel.status);
+				}
 			}else{
-				DebugLog.e(getString(R.string.error_network_connection_problem));
-				hideDialog();
 				Toast.makeText(activity, R.string.error_network_connection_problem, Toast.LENGTH_SHORT).show();
 			}
 		}

@@ -86,7 +86,7 @@ public class GroupWargaActivity extends BaseActivity {
                 .setTopColorRes(android.R.color.white)
                 .setMessage(getString(R.string.warning_input_amount_warga_barang))
                 .setErrorMessageColor(R.color.item_drill_red)
-                .setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED)
+                .setInputType(InputType.TYPE_CLASS_DATETIME)
                 .setInputFilter(getString(R.string.error_input_amount_barang), input -> {
                     int numericInputAmount = Integer.parseInt(input);
                     return numericInputAmount >= 0 && numericInputAmount <= 10 && input.charAt(0) != '0';
