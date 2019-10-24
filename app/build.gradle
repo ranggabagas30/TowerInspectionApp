@@ -78,7 +78,7 @@ android {
             dimension "default"
             versionMajor = 2
             versionMinor = 5
-            versionPatch = 9
+            versionPatch = 10
             versionCode minAPIlevel * 1000000 + versionMajor * 10000 + versionMinor * 100 + versionPatch
             versionName "${versionMajor}.${versionMinor}.${versionPatch}"
             buildConfigField("int", "DBMANAGERVALUE_SCHEMA_VERSION", "8")

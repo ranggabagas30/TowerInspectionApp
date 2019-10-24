@@ -247,9 +247,10 @@ public class PhotoItemRadio extends RelativeLayout {
 				noPicture.setVisibility(INVISIBLE);
 
 				DebugLog.d("value : " + value.value);
+				value.value = value.value.replaceFirst("/file:", "");
+				value.value = value.value.replaceFirst("file://", "");
 
-				File photoFile = new File(value.value.replaceFirst("/file:", ""));
-
+				File photoFile = new File(value.value);
 				if (photoFile.exists()) {
 
 					Bitmap photoBmp = null;
