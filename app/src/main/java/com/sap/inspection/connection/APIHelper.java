@@ -24,10 +24,7 @@ public class APIHelper {
 
 	public static void getJsonFromUrl(Context context, Handler handler, String url){
 
-		JSONConnection getJson = new JSONConnection(context,url, handler);
-		getJson.execute();
-
-		/*if (GlobalVar.getInstance().anyNetwork(context)) {
+		if (GlobalVar.getInstance().anyNetwork(context)) {
 
 			JSONConnection getJson = new JSONConnection(context,url, handler);
 			getJson.execute();
@@ -96,6 +93,19 @@ public class APIHelper {
 		nvp = new BasicNameValuePair("version_app", BuildConfig.VERSION_NAME);
 		params.add(nvp);
 		postParams(context, APIList.fcmTokenRegeisterUrl()+"?access_token="+getAccessToken(context), handler, params);
+	}
+
+	public static void reportFakeGPS(Context context, Handler handler, String timeDetected, String appVersion, String message, String siteId) {
+		LinkedList<NameValuePair> params = new LinkedList<>();
+		NameValuePair param = new BasicNameValuePair("time_detected", timeDetected);
+		params.add(param);
+		param = new BasicNameValuePair("app_version", appVersion);
+		params.add(param);
+		param = new BasicNameValuePair("message", message);
+		params.add(param);
+		param = new BasicNameValuePair("site_id", siteId);
+		params.add(param);
+		postParams(context, APIList.reportFakeGPS() +"?access_token=" + getAccessToken(context), handler, params);
 	}
 
 	public static void logout(Context context,Handler handler, String userName, String password){

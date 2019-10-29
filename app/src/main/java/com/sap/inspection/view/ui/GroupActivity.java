@@ -78,10 +78,16 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 		showMessageDialog(getString(R.string.generatingInspectionForm));
 
 		inputJumlahWargaDialog = new LovelyTextInputDialog(this, R.style.CheckBoxTintTheme)
-				.setTopColorRes(R.color.item_drill_red)
-				.setTopTitle("input Jumlah Warga")
-				.setTopTitleColor(R.color.lightgray)
-				.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
+				.setTopTitle("input jumlah warga")
+				.setTopTitleColor(R.color.item_drill_red)
+				.setTopColorRes(android.R.color.white)
+				.setMessage(getString(R.string.warning_input_amount_warga_barang))
+				.setErrorMessageColor(R.color.item_drill_red)
+				.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED)
+				.setInputFilter(getString(R.string.error_input_amount_warga), input -> {
+					int numericInputAmount = Integer.parseInt(input);
+					return numericInputAmount >= 0 && numericInputAmount <= 10 && input.charAt(0) != '0';
+				});
 
 		mSlidingLayer = findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
@@ -122,7 +128,11 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 				}
 			}
 
+<<<<<<< HEAD
 		} else if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
+=======
+		} else if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
+>>>>>>> currentwork-sap
 
 			// get workformid by worktypeid
 			workForm = new WorkFormModel();
@@ -306,7 +316,19 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 
 					for (int i = 0; i < wargaSize; i++) {
 
-						WorkFormRowModel wargaIdRow = parentGroupRow.getAllItemByWorkFormGroupId(group.id).get(0);
+						Vector<WorkFormRowModel> wargaIdRows = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
+						WorkFormRowModel wargaIdRow;
+						if (!wargaIdRows.isEmpty())
+							wargaIdRow = wargaIdRows.get(0);
+						else {
+							wargaIdRow = new WorkFormRowModel();
+							wargaIdRow.work_form_group_id = groupRow.work_form_group_id;
+							wargaIdRow.text = "Id-";
+							wargaIdRow.level = 1;
+							wargaIdRow.hasForm = true;
+							wargaIdRow.ancestry = null;
+							wargaIdRow.parent_id = 0;
+						}
 
 						String wargaLabel = wargaIdRow.text;
 						String wargaId	  = wargas.get(i).getWargaid();
@@ -340,7 +362,6 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 					groupRow.children = childRows;
 
 				} else {
-
 					groupRow.children = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
 				}
 

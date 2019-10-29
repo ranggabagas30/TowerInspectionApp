@@ -93,4 +93,9 @@ public class APIList {
 	public static String uploadConfirmUrl(){
 		return AppConfig.getInstance().getV1()+"/corrective/";
 	}
+
+	// fake gps
+	public static String reportFakeGPS() {
+		return AppConfig.getInstance().getV1() + "/register/fake_gps";
+	}
 }

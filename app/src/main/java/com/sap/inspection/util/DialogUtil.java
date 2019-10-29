@@ -6,11 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
-import android.widget.Toast;
 
 import com.sap.inspection.R;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.view.dialog.DeleteAllDataDialog;
 import com.sap.inspection.view.dialog.DeleteAllSchedulesDialog;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
@@ -53,6 +51,7 @@ public class DialogUtil {
         }
     }
 
+<<<<<<< HEAD
     /** take picture camera app recommendation */
     public static void showTakePictureDialog(Context context, LovelyChoiceDialog.OnItemSelectedListener<? super String> onItemSelectedListener) {
         new LovelyChoiceDialog(context, R.style.CheckBoxTintTheme)
@@ -69,17 +68,22 @@ public class DialogUtil {
                 }, onItemSelectedListener)
                 .show();
     }
+=======
+    public static void singleChoiceScheduleRoutingDialog(Context context, LovelyChoiceDialog.OnItemSelectedListener<String> onItemSelectedListener) {
+>>>>>>> currentwork-sap
 
     public static void singleChoiceScheduleRoutingDialog(Context context) {
         ArrayList<String> routingSchedules = new ArrayList<>();
-        routingSchedules.add("ROUTING SEGMENT");
-        routingSchedules.add("HAND HOLE");
-        routingSchedules.add("HDPE");
+        routingSchedules.add(context.getString(R.string.routing_segment));
+        routingSchedules.add(context.getString(R.string.handhole));
+        routingSchedules.add(context.getString(R.string.hdpe));
+        routingSchedules.add(context.getString(R.string.focut));
 
         new LovelyChoiceDialog(context)
                 .setTopColor(ContextCompat.getColor(context, R.color.theme_color))
                 .setIcon(R.drawable.logo_app)
                 .setTitle("Choose schedule")
+<<<<<<< HEAD
                 .setMessage("Please select one routing schedule")
                 .setItems(routingSchedules, (position, item) -> {
                     String result = "(pos, item) : (" + position + ", " + item + ")";
@@ -95,6 +99,11 @@ public class DialogUtil {
 
     public static DeleteAllSchedulesDialog deleteAllSchedulesDialog(Context context) {
         return new DeleteAllSchedulesDialog(context);
+=======
+                .setMessage("Please select one of routing schedules")
+                .setItems(routingSchedules, onItemSelectedListener)
+                .show();
+>>>>>>> currentwork-sap
     }
 
     public static void showUploadAllDataDialog(Context context, DialogInterface.OnClickListener positiveClickListener, DialogInterface.OnClickListener negativeClickListener) {
@@ -106,6 +115,7 @@ public class DialogUtil {
                 .create().show();
     }
 
+<<<<<<< HEAD
     public static void showRejectionDialog(Context context, String title, String message) {
         new AlertDialog.Builder(context)
                 .setCancelable(true)
@@ -115,5 +125,22 @@ public class DialogUtil {
                     dialogInterface.dismiss();
                 })
                 .setOnCancelListener(DialogInterface::dismiss).create().show();
+=======
+    public static void showWarningUpdateFormDialog(Context context, DialogInterface.OnClickListener positiveClickListener, DialogInterface.OnClickListener negativeClickListener) {
+        new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.warning_update_form_title))
+                .setMessage(context.getString(R.string.warning_update_form_message))
+                .setPositiveButton(android.R.string.ok, positiveClickListener)
+                .setNegativeButton(android.R.string.cancel, negativeClickListener)
+                .create().show();
+    }
+
+    public static DeleteAllDataDialog deleteAllDataDialog(Context context, String scheduleId) {
+        return new DeleteAllDataDialog(context, scheduleId);
+    }
+
+    public static DeleteAllSchedulesDialog deleteAllSchedulesDialog(Context context) {
+        return new DeleteAllSchedulesDialog(context);
+>>>>>>> currentwork-sap
     }
 }

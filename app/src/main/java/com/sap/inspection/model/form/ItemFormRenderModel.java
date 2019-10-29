@@ -143,7 +143,7 @@ public class ItemFormRenderModel extends BaseModel {
                 DebugLog.d("|\t" + rowcol.id + "\t\t|\t" + rowcol.row_id + "\t|\t" + rowcol.column_id + "\t\t|\t" + rowcol.work_form_group_id + "\t\t|");
         }
 
-        if (firstItem == null)
+        if (firstItem == null || firstItem.items == null)
             return;
 
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
@@ -162,9 +162,11 @@ public class ItemFormRenderModel extends BaseModel {
 
         //generate first cell
         DebugLog.d("firstitem.items.size() = " + firstItem.items.size());
+
         if (firstItem.items.size() != 0) {
 
             DebugLog.d("> generate first cell (header) ");
+            boolean isFirstItemVisible = firstItem.items.get(0).visible;
             this.type = TYPE_HEADER;                                        DebugLog.d("TYPE\t:\t" + this.type);
             this.workItemModel = firstItem.items.get(0);                    DebugLog.d("-WORKFORMITEM id\t:\t" + this.workItemModel.id);
             this.label = workItemModel.label;                               DebugLog.d("-WORKFORMITEM label\t:\t" + this.label);
@@ -179,7 +181,7 @@ public class ItemFormRenderModel extends BaseModel {
             child.parent = this;
 
             // add first item only if visible is true
-            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && firstItem.items.get(0).visible) {
+            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && isFirstItemVisible) {
                 add(child);
             } else {
                 add(child);

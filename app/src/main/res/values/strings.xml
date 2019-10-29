@@ -34,11 +34,12 @@
 
     <!-- SAP ONLY-->
     <string name="site_audit">Site Audit</string>
+    <string name="foto_imbas_petir">Imbas Petir</string>
     <string name="routing">Routing</string>
     <string name="routing_segment">Routing Segment</string>
     <string name="handhole">Handhole</string>
     <string name="hdpe">HDPE</string>
-    <string name="foto_imbas_petir">Imbas Petir</string>
+    <string name="focut">FO Cut</string>
 
     <!-- STP ONLY-->
     <string name="app_reg_id">app_reg_id</string>
@@ -76,6 +77,7 @@
     <!-- event message -->
     <string name="event_take_picture">User memulai pengambilan foto</string>
 
+<<<<<<< HEAD
     <!-- failed messages -->
     <string name="failed_latest_version_not_found">Tidak ada informasi versi terakhir</string>
     <string name="failed_check_apk_version">Gagal mengecek versi aplikasi</string>
@@ -107,6 +109,38 @@
     <string name="failed_load_image">Gagal menampilkan gambar</string>
     <string name="failed_url_bad_format">URL tidak benar. Periksa kembal</string>
     <string name="failed_delete_file">Gagal menghapus data file</string>
+=======
+    <!-- error messages -->
+    <string name="error_latest_version_not_found">Tidak ada informasi versi terakhir</string>
+    <string name="error_failed_check_apk_version">Gagal mengecek versi aplikasi</string>
+    <string name="error_update_apk">Gagal mengupdate apk</string>
+    <string name="error_apk_not_found">Update aplikasi gagal! File APK tidak terunduh atau tidak ditemukan</string>
+    <string name="error_login_unauthorized">Username and Password salah</string>
+    <string name="error_login_field_blanked">Mohon masukkan dengan benar username dan password</string>
+    <string name="error_feature_not_supported_or_removed_from_server">Fitur ini belum didukung oleh server atau dihapus dari server</string>
+    <string name="error_pasword_doesnt_match">Password salah</string>
+    <string name="error_network_connection_problem">Masalah pada jaringan</string>
+    <string name="error_disconnected">Jaringan terputus. Periksa jaringan Anda</string>
+    <string name="error_comment_can_not_blank">Pesan tidak boleh kosong</string>
+    <string name="error_search_product_not_found">Maaf, kami tidak menemui produk apapun yang sesuai</string>
+    <string name="error_search_people_not_found">Maaf, kami tidak menemui orang yang sesuai</string>
+    <string name="error_not_json_type">Respon bukan tipe json</string>
+    <string name="error_copy_database">Gagal salin database</string>
+    <string name="error_download_schedule">Tidak dapat mendapatkan Schedule dari server\nsilahkan login ulang untuk mendapatkan internet yang cepat</string>
+    <string name="error_no_internet_connection">Tidak ada koneksi internet, silahkan periksa jaringan anda.</string>
+    <string name="error_no_upload_item">Tidak ada item yang baru untuk di upload</string>
+    <string name="error_no_item">Tidak ada item</string>
+    <string name="error_make_dir">Gagal membuat direktori</string>
+    <string name="error_storage_read_only">Gagal menyimpan file. (Storage is read-only)</string>
+    <string name="error_storage_is_not_available">Gagal menyimpan file. (Storage is not available)</string>
+    <string name="error_file_name_too_short">Nama file terlalu pendek. Minimum 3 karakter</string>
+    <string name="error_take_picture">Pengambilan foto gagal</string>
+    <string name="error_load_image">Gagal menampilkan gambar</string>
+    <string name="error_url_bad_format">URL tidak benar. Periksa kembal</string>
+    <string name="error_delete_file">Gagal menghapus data file</string>
+    <string name="error_input_amount_warga">Mohon masukkan jumlah warga dengan benar</string>
+    <string name="error_input_amount_barang">Mohon masukkan jumlah barang dengan benar</string>
+>>>>>>> currentwork-sap
 
     <!-- success messages-->
     <string name="success_copydatabase">Berhasil salin database</string>
@@ -114,6 +148,13 @@
     <string name="success_delete_file">Berhasil menghapus data file</string>
     <string name="success_permissions_granted">Permissions diizinkan</string>
     <string name="success_update_schedule">Schedule berhasil diperbaharui</string>
+    <string name="success_latest_apk">Aplikasi terinstal merupakan versi terupdate</string>
+
+    <!-- warning messages-->
+    <string name="warning_update_form_title">Mengupdate ulang form</string>
+    <string name="warning_update_form_message">Anda akan melakukan update form. Pastikan Anda sedang dalam jaringan internet yang stabil dan kencang agar proses update form berjalan sempurna.
+     Klik tombol "OK" untuk mengupdate form.</string>
+    <string name="warning_input_amount_warga_barang">Jumlah maksimal untuk ditambahkan adalah 10. Lakukan penambahan kembali jika diperlukan penambahan</string>
 
     <string name="informationGPS">Information</string>
     <string name="enableGPS">Silahkan aktifkan GPS</string>

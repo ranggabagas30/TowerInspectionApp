@@ -2,23 +2,21 @@ package com.sap.inspection.view.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.mainmenu.MainMenuFragment;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.view.ui.fragments.ScheduleFragment;
 import com.slidinglayer.SlidingLayer;
-import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
-
-import java.util.ArrayList;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -141,33 +139,23 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 				case R.string.routing: // R.id.s8
 					DebugLog.d("routing");
 					trackEvent("routing");
+					DialogUtil.singleChoiceScheduleRoutingDialog(MainActivity.this, (position, item) -> {
+						String result = "(pos, item) : (" + position + ", " + item + ")";
+						DebugLog.d(result);
+						int resId;
+						switch (position) {
+							case 0 : resId = R.string.routing_segment; break;
+							case 1 : resId = R.string.handhole; break;
+							case 2 : resId = R.string.hdpe; break;
+							case 3 : resId = R.string.focut; break;
+							default: resId = R.string.routing_segment;
+						}
+						scheduleFragment.setScheduleBy(resId);
+						mSlidingLayer.openLayer(true);
+						if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug"))
+							Toast.makeText(MainActivity.this, result, Toast.LENGTH_SHORT).show();
+					});
 
-					ArrayList<String> routingSchedules = new ArrayList<>();
-					routingSchedules.add(getString(R.string.routing_segment));
-					routingSchedules.add(getString(R.string.handhole));
-					routingSchedules.add(getString(R.string.hdpe));
-
-					new LovelyChoiceDialog(MainActivity.this)
-							.setTopColor(ContextCompat.getColor(MainActivity.this, R.color.theme_color))
-							.setIcon(R.drawable.logo_app)
-							.setTitle("Choose schedule")
-							.setMessage("Please select one of routing schedules")
-							.setItems(routingSchedules, (position, item) -> {
-								String result = "(pos, item) : (" + position + ", " + item + ")";
-								DebugLog.d(result);
-
-								int resId;
-								switch (position) {
-									case 0 : resId = R.string.routing_segment; break;
-									case 1 : resId = R.string.handhole; break;
-									case 2 : resId = R.string.hdpe; break;
-									default: resId = R.string.routing_segment;
-								}
-
-								scheduleFragment.setScheduleBy(resId);
-								mSlidingLayer.openLayer(true);
-								Toast.makeText(MainActivity.this, result, Toast.LENGTH_SHORT).show();
-							}).show();
 					break;
 
 				default:

@@ -180,48 +180,17 @@ public class WorkFormRowModel extends BaseModel {
 
 	public Vector<WorkFormRowModel> getAllItemByWorkFormGroupId(int workFormGroupId) {
 		Vector<WorkFormRowModel> result;
-		//		maxLevel = getMaxLevel(workFormGroupId);
-		//		if (maxLevel == -1)
-		//			return result;
-
 		result = getAllItemByWorkFormGroupIdAndAncestry(workFormGroupId, null);
 		for (WorkFormRowModel rowModel : result) {
-//			rowModel.children = getAllItemByWorkFormGroupIdAndAncestry(workFormGroupId, String.valueOf(rowModel.id));
-//			for (WorkFormRowModel model : rowModel.children) {
-				rowModel.hasForm = true;
-//			}
+			rowModel.hasForm = true;
 		}
-
-		//		for (int i = 1; i <= 2; i++) {
-		//			
-		//		String table = DbManager.mWorkFormRow;
-		//		String[] columns = null;
-		//		String where =DbManager.colWorkFormGroupId + "=? AND "+DbManager.colLevel+"="+3;
-		//		String[] args = new String[] {workFormGroupId};
-		//		String order = DbManager.colLevel+" ASC, LENGTH("+DbManager.colAncestry+") ASC,"+ DbManager.colAncestry+" ASC," + DbManager.colPosition+" ASC";
-		//
-		//		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
-		//
-		//		if (!cursor.moveToFirst())
-		//			return result;
-		//		do {
-		//			WorkFormRowModel model = getRowFromCursor(cursor);
-		//			model.row_columns = getRowColumnModels(model.id);
-		//			log("===== id : "+model.id+"   position : "+model.position+"   ancestry : "+model.ancestry+" row_col size : "+model.row_columns.size());
-		//			result.add(model);
-		//		} while(cursor.moveToNext());
-		//
-		//		cursor.close();
-		//		
-		//		}
-
 		return result;
 	}
 
 	public Vector<WorkFormRowModel> getAllItemByWorkFormGroupIdAndAncestry(int workFormGroupId, String ancestry) {
 
 		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
-		Vector<WorkFormRowModel> result = new Vector<WorkFormRowModel>();
+		Vector<WorkFormRowModel> result = new Vector<>();
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
 		String where = null;

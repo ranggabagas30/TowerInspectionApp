@@ -283,7 +283,15 @@ public class PhotoItemRadio extends RelativeLayout {
 						DebugLog.e(context.getString(R.string.failed_load_image));
 					}
 				} else {
+<<<<<<< HEAD
 					Toast.makeText(context, "File photo " + value.value + " tidak ditemukan di gallery", Toast.LENGTH_LONG).show();
+=======
+					// on loading failed
+					progress.setVisibility(View.GONE);
+					photoRoot.setVisibility(View.GONE);
+					noPicture.setVisibility(View.VISIBLE);
+					DebugLog.e(context.getString(R.string.error_load_image));
+>>>>>>> currentwork-sap
 				}
 			}
 
@@ -475,7 +483,7 @@ public class PhotoItemRadio extends RelativeLayout {
 					DebugLog.d(context.getString(R.string.success_delete_file));
 				}catch(Exception e){
 					e.printStackTrace();
-					DebugLog.e(context.getString(R.string.failed_delete_file));
+					DebugLog.e(context.getString(R.string.error_delete_file));
 				}
 				value.value = "";
 				value.uploadStatus = FormValueModel.UPLOAD_NONE;

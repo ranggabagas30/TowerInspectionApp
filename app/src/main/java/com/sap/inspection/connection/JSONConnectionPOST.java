@@ -108,11 +108,9 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 					request.setHeader("Cookie", mPref.getString(context.getString(R.string.user_cookie), ""));
 				}
 
-				UrlEncodedFormEntity entity = null;
-				entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+				UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
 				request.setEntity(entity);
 
-				DebugLog.d("=============== before response");
 				response = client.execute(request);
 
 				for (Header header : response.getAllHeaders()){
@@ -138,7 +136,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 					return null;
 				}
 				String s = StringUtil.ConvertInputStreamToString(data);
-				DebugLog.d("json /n"+s);
+				DebugLog.d(s);
 				return s;
 			} else {
 				return null;
@@ -148,24 +146,18 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 			e.printStackTrace();
 			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.TIMEOUT_EXCEPTION);
 		}
 		catch (ClientProtocolException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
 			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
 		catch (IOException e) {
 			errMsg = e.getMessage();
 			e.printStackTrace();
 			Crashlytics.log(Log.ERROR, "jsonconnectionPOST", e.getMessage());
 			DebugLog.d("err ||||| "+errMsg);
-			//			ErrorManager.getInstance().setError(errMsg);
-			//			ErrorManager.getInstance().setKindError(ErrorManager.UNHANDLED_EXEPTION);
 		}
 
 		return null;
@@ -177,7 +169,7 @@ public class JSONConnectionPOST extends AsyncTask<Void, Void, String>{
 
 		if (notJson && result == null) {
 
-			//Toast.makeText(context, R.string.failed_feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, R.string.error_feature_not_supported_or_removed_from_server, Toast.LENGTH_LONG).show();
 			Crashlytics.log("response from server is not json format and result is null");
 		}
 		else if (result != null) {

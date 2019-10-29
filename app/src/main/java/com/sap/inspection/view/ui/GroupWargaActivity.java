@@ -60,6 +60,7 @@ public class GroupWargaActivity extends BaseActivity {
     private String workFormGroupId;
     private String workFormGroupName;
     private String workFormParentId;
+    private String workTypeName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,16 +75,23 @@ public class GroupWargaActivity extends BaseActivity {
         workFormGroupId     = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPID); DebugLog.d("workFormGroupId = " + workFormGroupId);
         workFormGroupName   = getIntent().getStringExtra(Constants.KEY_WORKFORMGROUPNAME); DebugLog.d("workFormGroupName = " + workFormGroupName);
         workFormParentId    = getIntent().getStringExtra(Constants.KEY_PARENTID); DebugLog.d("parentId = " + workFormParentId);
+        workTypeName        = getIntent().getStringExtra(Constants.KEY_WORKTYPENAME); DebugLog.d("workTypeName = " + workTypeName);
 
         mHeaderTitle = findViewById(R.id.header_title);
         mHeaderSubtitle = findViewById(R.id.header_subtitle);
         mNavigationMenu = findViewById(R.id.recyclerviewNavigation);
 
         mInputJumlahBarangDialog = new LovelyTextInputDialog(this, R.style.CheckBoxTintTheme)
-                .setTopColorRes(R.color.item_drill_red)
-                .setTopTitle("input Jumlah Barang")
-                .setTopTitleColor(R.color.lightgray)
-                .setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
+                .setTopTitle("input jumlah barang")
+                .setTopTitleColor(R.color.item_drill_red)
+                .setTopColorRes(android.R.color.white)
+                .setMessage(getString(R.string.warning_input_amount_warga_barang))
+                .setErrorMessageColor(R.color.item_drill_red)
+                .setInputType(InputType.TYPE_CLASS_DATETIME)
+                .setInputFilter(getString(R.string.error_input_amount_barang), input -> {
+                    int numericInputAmount = Integer.parseInt(input);
+                    return numericInputAmount >= 0 && numericInputAmount <= 10 && input.charAt(0) != '0';
+                });
 
         mNavigationAdapter = new RecyclerNavigationAdapter();
         mNavigationMenu.setAdapter(mNavigationAdapter);
@@ -253,7 +261,7 @@ public class GroupWargaActivity extends BaseActivity {
                         rowModel.id,
                         rowModel.work_form_group_id,
                         workFormGroupName,
-                        null,
+                        workTypeName,
                         realWargaId,
                         realBarangId
                 );
@@ -318,7 +326,7 @@ public class GroupWargaActivity extends BaseActivity {
                                 rowId,
                                 workFormGroupId,
                                 workFormGroupName,
-                                null,
+                                workTypeName,
                                 wargaId,
                                 barangId
                         );

@@ -4,11 +4,15 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
@@ -38,10 +42,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.Key;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -76,6 +82,74 @@ public class CommonUtil {
             Crashlytics.logException(ex);
         }
         return network_enabled;
+    }
+
+    public static boolean checkFakeGPSAvailable(Context context, Location location, String siteId, Handler handler) {
+        if (CommonUtil.isMockLocationOn(location)) {
+            String message = "App is using fake gps";
+            sendReportFakeGPS(context, message, siteId, handler);
+            return true;
+        } else {
+            List<String> listOfFakeGPSApp = CommonUtil.getListOfFakeLocationAppsFromAll(context);
+            if (!listOfFakeGPSApp.isEmpty()) {
+                String message = "Fake gps application(s) found : \n";
+                message += listOfFakeGPSApp.toString();
+                sendReportFakeGPS(context, message, siteId, handler);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void sendReportFakeGPS(Context context, String message, String siteId, Handler handler) {
+        String timeDetected = CommonUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN2);
+        String appVersion = BuildConfig.VERSION_NAME;
+        APIHelper.reportFakeGPS(context, handler, timeDetected, appVersion, message, siteId);
+    }
+
+    public static boolean isMockLocationOn(Location location) {
+        return location.isFromMockProvider();
+    }
+
+    public static List<String> getListOfFakeLocationAppsFromAll(Context context) {
+        List<String> fakeApps = new ArrayList<>();
+        List<ApplicationInfo> packages = context.getPackageManager().getInstalledApplications(PackageManager.GET_META_DATA);
+        for (ApplicationInfo aPackage : packages) {
+            boolean isSystemPackage = ((aPackage.flags & ApplicationInfo.FLAG_SYSTEM) != 0);
+            if(!isSystemPackage && hasAppPermission(context, aPackage.packageName, "android.permission.ACCESS_MOCK_LOCATION")){
+                fakeApps.add(aPackage.packageName);
+            }
+        }
+        return fakeApps;
+    }
+
+    public static boolean hasAppPermission(Context context, String app, String permission){
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo;
+        try {
+            packageInfo = packageManager.getPackageInfo(app, PackageManager.GET_PERMISSIONS);
+            if(packageInfo.requestedPermissions!= null){
+                for (String requestedPermission : packageInfo.requestedPermissions) {
+                    if (requestedPermission.equals(permission)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static String getApplicationName(Context context, String packageName) {
+        String appName = packageName;
+        PackageManager packageManager = context.getPackageManager();
+        try {
+            appName = packageManager.getApplicationLabel(packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return appName;
     }
 
     /**
@@ -421,32 +495,9 @@ public class CommonUtil {
         }
     }
 
-    public static void fixVersion(Context context) {
-        String latestVersion = PrefUtil.getStringPref(R.string.latest_version, "");
-        String appVersion = Constants.APPLICATION_VERSION;
-        DebugLog.d("latestVersion : " + latestVersion);
-        DebugLog.d("appVersion : " + appVersion);
-        if (!TextUtils.isEmpty(latestVersion)) {
-
-            latestVersion = latestVersion.replace(".","");
-            int latestVersionInt = Integer.parseInt(latestVersion);
-
-            appVersion = appVersion.replace(".","");
-            int appVersionInt = Integer.parseInt(appVersion);
-
-            if (appVersionInt > latestVersionInt) {
-                StringBuilder message = new StringBuilder(context.getString(R.string.failed_check_apk_version));
-                message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
-                DebugLog.e(new String(message));
-            }
-        } else {
-            DebugLog.e(context.getString(R.string.failed_latest_version_not_found));
-        }
-    }
-
     public static boolean isUpdateAvailable(Context context) {
 
-        boolean isUpdateAvailable = true;
+        boolean isUpdateAvailable = false;
         String latestVersion = PrefUtil.getStringPref(R.string.latest_version, "");
         String appVersion = Constants.APPLICATION_VERSION;
         DebugLog.d("latestVersion\t: " + latestVersion);
@@ -460,14 +511,14 @@ public class CommonUtil {
             int appVersionInt = Integer.parseInt(appVersion);
 
             if (appVersionInt > latestVersionInt) {
-                StringBuilder message = new StringBuilder(context.getString(R.string.failed_check_apk_version));
+                StringBuilder message = new StringBuilder(context.getString(R.string.error_failed_check_apk_version));
                 message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
-                DebugLog.e(new String(message));
-                isUpdateAvailable = false;
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            } else if (appVersionInt < latestVersionInt) {
+                isUpdateAvailable = true;
+            } else {
+                Toast.makeText(context, context.getString(R.string.success_latest_apk), Toast.LENGTH_SHORT).show();
             }
-        } else {
-            DebugLog.e(context.getString(R.string.failed_latest_version_not_found));
-            isUpdateAvailable = false;
         }
         return isUpdateAvailable;
     }
@@ -591,8 +642,8 @@ public class CommonUtil {
     /**
      * Time Util
      * */
-    private String toDate(long timeInMillis) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd:MM:yyyy HH:mm:ss");
+    public static String toDate(long timeInMillis, String pattern) {
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date date = new Date(timeInMillis);
         return sdf.format(date);
     }

@@ -1,12 +1,15 @@
 package com.sap.inspection.view.ui.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+<<<<<<< HEAD
 import android.text.TextUtils;
+=======
+import android.support.annotation.Nullable;
+>>>>>>> currentwork-sap
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -43,9 +46,8 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	private ScheduleAdapter adapter;
 	private Vector<ScheduleBaseModel> models;
 	private String userId;
-
+	private BaseActivity baseActivity;
 	private int filterBy = 0;
-    private ProgressDialog dialog;
 
 	public static ScheduleFragment newInstance() {
 		ScheduleFragment fragment = new ScheduleFragment();
@@ -55,9 +57,8 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		adapter = new ScheduleAdapter(activity);
-        dialog = new ProgressDialog(getActivity());
-        dialog.setCancelable(false);
+		baseActivity = (BaseActivity) getActivity();
+		adapter = new ScheduleAdapter(getActivity());
 	}
 
 	@Override
@@ -68,13 +69,18 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		list.setOnItemClickListener(this);
 		actionRight.setVisibility(View.VISIBLE);
 		actionRight.setOnClickListener(v -> {
-			Intent intent = new Intent(activity, CallendarActivity.class);
+			Intent intent = new Intent(getActivity(), CallendarActivity.class);
 			intent.putExtra("filterBy", filterBy);
 			startActivityForResult(intent,MainActivity.REQUEST_CODE);
 		});
 	}
 
-    @Override
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	@Override
     public void onResume() {
         super.onResume();
 		TowerApplication.getInstance().setIsScheduleNeedCheckIn(false);
@@ -90,7 +96,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
     @Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		log("==== activity result ==== "+requestCode+" "+resultCode);
+		log("==== getActivity() result ==== "+requestCode+" "+resultCode);
 		if (requestCode == MainActivity.REQUEST_CODE){
 			switch (resultCode) {
 			case Constants.CALLENDAR_ACTIVITY:
@@ -114,45 +120,48 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		if (resId == R.string.schedule){
 			ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-				Vector<ScheduleBaseModel> modelsImbasPetir = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.foto_imbas_petir)));
+				Vector<ScheduleBaseModel> modelsImbasPetir = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(getActivity(), getString(R.string.foto_imbas_petir)));
 				checkImbasPetirConfig(modelsImbasPetir);
 			}
-			models = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getAllSchedule(activity));
+			models = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getAllSchedule(getActivity()));
 		}else if (resId == R.string.preventive){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
 		}else if (resId == R.string.corrective){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.corrective)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.corrective)));
 		}else if (resId == R.string.newlocation){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.newlocation)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.newlocation)));
 		}else if (resId == R.string.colocation){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.colocation)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.colocation)));
 		}else if (resId == R.string.site_audit){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.site_audit)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.site_audit)));
 		} else if (resId == R.string.fiber_optic){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.fiber_optic)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.fiber_optic)));
 		} else if (resId == R.string.foto_imbas_petir) {
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.foto_imbas_petir)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.foto_imbas_petir)));
 			checkImbasPetirConfig(models);
 		} else if (resId == R.string.hasil_PM){
 			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity,getString(R.string.preventive)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
 		} else if (resId == R.string.routing_segment) {
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity, getString(R.string.routing_segment)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.routing_segment)));
 		} else if (resId == R.string.handhole) {
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity, getString(R.string.handhole)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.handhole)));
 		} else if (resId == R.string.hdpe) {
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(activity, getString(R.string.hdpe)));
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.hdpe)));
+		} else if (resId == R.string.focut) {
+			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.focut)));
 		}
 		adapter.setItems(models);
 	}
@@ -191,9 +200,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		if (correctiveData == null) {
 
 			DebugLog.d("Corrective schedule config not found, create config");
-
-			dialog.setMessage("Loading corrective schedules data");
-			dialog.show();
+			baseActivity.showMessageDialog("Loading corrective schedules data");
 			APIHelper.getCorrectiveSchedule(getContext(), correctiveScheduleHandler, userId);
 
 		} else {
@@ -217,8 +224,12 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		DebugLog.d("schedule id : " + scheduleId);
 		DebugLog.d("user id : " + userId);
 
+<<<<<<< HEAD
 		/*dialog.setMessage("Loading data please wait");
 		dialog.show();*/
+=======
+		//baseActivity.showMessageDialog("Loading data please wait");
+>>>>>>> currentwork-sap
 	    APIHelper.getItemSchedules(getContext(), itemScheduleHandler, scheduleId, userId);
 	}
 
@@ -227,8 +238,12 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 		public void handleMessage(android.os.Message msg) {
 
+<<<<<<< HEAD
 			//dialog.dismiss();
 
+=======
+			baseActivity.hideDialog();
+>>>>>>> currentwork-sap
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
 
@@ -297,8 +312,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		@Override
 		public void handleMessage(Message msg) {
 
-			dialog.dismiss();
-
+			baseActivity.hideDialog();
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
 
@@ -392,12 +406,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	}
 
     public void onEvent(UploadProgressEvent event){
-        if (dialog.isShowing()){
-            dialog.setMessage(event.progressString);
-            if (event.done) dialog.dismiss();
-        }else if (!event.done) {
-            dialog.show();
-            dialog.setMessage(event.progressString);
-        }
+        if (event.done) baseActivity.hideDialog();
+        else baseActivity.showMessageDialog(event.progressString);
     }
 }

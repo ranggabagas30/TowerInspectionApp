@@ -440,7 +440,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 
 		// if failed, then show toast with failed message
+<<<<<<< HEAD
 		Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
+=======
+		Toast.makeText(activity, getString(R.string.error_take_picture), Toast.LENGTH_SHORT).show();
+
+>>>>>>> currentwork-sap
     }
 
 	//called after camera intent finished

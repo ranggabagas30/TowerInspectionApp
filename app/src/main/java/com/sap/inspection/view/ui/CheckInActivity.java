@@ -3,7 +3,6 @@ package com.sap.inspection.view.ui;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -13,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Button;
@@ -27,10 +27,12 @@ import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.responsemodel.CheckinRepsonseModel;
+import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
@@ -100,6 +102,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     /* variabel handlers*/
     Handler mCheckoutHandler;
     Handler mCheckGPSHandler;
+    Handler mSendReportFakeGPSHandler;
     Runnable mRunnableCheckoutHandler;
     Runnable mRunnableCheckGPSHandler;
 
@@ -155,6 +158,19 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mGPSAccuracy.setEnabled(false);
 
         mLocationRequestProvider = new LocationRequestProvider(this, this);
+        mSendReportFakeGPSHandler = new Handler(message -> {
+            hideDialog();
+            Bundle bundle = message.getData();
+            if (!TextUtils.isEmpty(bundle.getString("json"))) {
+                FakeGPSResponseModel fakeGPSResponseModel = new Gson().fromJson(bundle.getString("json"), FakeGPSResponseModel.class);
+                DebugLog.d(fakeGPSResponseModel.toString());
+            }
+            showSuccessCheckinMessage();
+            startCheckoutCountdown();
+            keepCurrentLocationDataTobeUsed();
+            navigateToGroupActivity();
+            return true;
+        });
 
         setCheckinCriteriaText();
 
@@ -168,10 +184,21 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
                     if (localValidation()) {
 
-                        showSuccessCheckinMessage();
-                        startCheckoutCountdown();
-                        keepCurrentLocationDataTobeUsed();
-                        navigateToGroupActivity();
+                        showMessageDialog("Checking");
+
+                        if (!GlobalVar.getInstance().anyNetwork(this)) {
+                            hideDialog();
+                            MyApplication.getInstance().toast(getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
+                            return;
+                        }
+
+                        if (!CommonUtil.checkFakeGPSAvailable(this, mCurrentCoordinate, String.valueOf(mExtraSiteId), mSendReportFakeGPSHandler)) {
+                            hideDialog();
+                            showSuccessCheckinMessage();
+                            startCheckoutCountdown();
+                            keepCurrentLocationDataTobeUsed();
+                            navigateToGroupActivity();
+                        }
 
                     } else {
 
@@ -616,11 +643,6 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         DebugLog.d("month : " + month);
         DebugLog.d("period : " + period);
         return period;
-    }
-
-    private String getAccessToken(Context context) {
-        SharedPreferences mpref = PreferenceManager.getDefaultSharedPreferences(context);
-        return mpref.getString(context.getString(R.string.user_authToken), "");
     }
 
     private String getCookie() {

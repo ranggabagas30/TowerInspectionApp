@@ -10,26 +10,27 @@
     </facet>
     <facet type="android" name="Android">
       <configuration>
-        <option name="SELECTED_BUILD_VARIANT" value="stpDebug" />
-        <option name="ASSEMBLE_TASK_NAME" value="assembleStpDebug" />
-        <option name="COMPILE_JAVA_TASK_NAME" value="compileStpDebugSources" />
+        <option name="SELECTED_BUILD_VARIANT" value="sapDebug" />
+        <option name="ASSEMBLE_TASK_NAME" value="assembleSapDebug" />
+        <option name="COMPILE_JAVA_TASK_NAME" value="compileSapDebugSources" />
         <afterSyncTasks>
-          <task>generateStpDebugSources</task>
+          <task>generateSapDebugSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
         <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res;file://$MODULE_DIR$/src/stp/res;file://$MODULE_DIR$/build/generated/fabric/res/stp/debug;file://$MODULE_DIR$/build/generated/res/google-services/stp/debug;file://$MODULE_DIR$/build/generated/res/rs/stp/debug;file://$MODULE_DIR$/build/generated/res/resValues/stp/debug" />
-        <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/build/generated/res/rs/androidTest/stp/debug" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res;file://$MODULE_DIR$/src/sap/res;file://$MODULE_DIR$/build/generated/fabric/res/sap/debug;file://$MODULE_DIR$/build/generated/res/google-services/sap/debug;file://$MODULE_DIR$/build/generated/res/rs/sap/debug;file://$MODULE_DIR$/build/generated/res/resValues/sap/debug" />
+        <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/build/generated/res/rs/androidTest/sap/debug" />
         <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
-    <output url="file://$MODULE_DIR$/build/intermediates/javac/stpDebug/compileStpDebugJavaWithJavac/classes" />
-    <output-test url="file://$MODULE_DIR$/build/intermediates/javac/stpDebugUnitTest/compileStpDebugUnitTestJavaWithJavac/classes" />
+    <output url="file://$MODULE_DIR$/build/intermediates/javac/sapDebug/compileSapDebugJavaWithJavac/classes" />
+    <output-test url="file://$MODULE_DIR$/build/intermediates/javac/sapDebugUnitTest/compileSapDebugUnitTestJavaWithJavac/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
+<<<<<<< HEAD
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/stp/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/aidl_source_output_dir/stpDebug/compileStpDebugAidl/out" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/stp/debug" isTestSource="false" generated="true" />
@@ -87,6 +88,65 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testStp/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testStp/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testStp/shaders" isTestSource="true" />
+=======
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/sap/debug" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/aidl_source_output_dir/sapDebug/compileSapDebugAidl/out" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/sap/debug" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/renderscript_source_output_dir/sapDebug/compileSapDebugRenderscript/out" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/fabric/res/sap/debug" type="java-resource" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/google-services/sap/debug" type="java-resource" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/sap/debug" type="java-resource" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/sap/debug" type="java-resource" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/res" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/assets" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/aidl" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sapDebug/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/androidTest/sap/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/aidl_source_output_dir/sapDebugAndroidTest/compileSapDebugAndroidTestAidl/out" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/sap/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/renderscript_source_output_dir/sapDebugAndroidTest/compileSapDebugAndroidTestRenderscript/out" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/sap/debug" type="java-test-resource" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/sap/debug" type="java-test-resource" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSapDebug/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSapDebug/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSapDebug/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSapDebug/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSapDebug/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSapDebug/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSapDebug/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/source/apt/test/sap/debug" isTestSource="true" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSapDebug/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sap/res" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sap/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sap/assets" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sap/aidl" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sap/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sap/rs" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sap/shaders" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/androidTestSap/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/testSap/shaders" isTestSource="true" />
+>>>>>>> currentwork-sap
       <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
@@ -138,6 +198,7 @@
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/domikado/Documents/Android Projects/sap_tower_android/app/libs/nineoldandroids-2.4.0.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/domikado/Documents/Android Projects/sap_tower_android/app/libs/svg-android.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/domikado/Documents/Android Projects/sap_tower_android/app/libs/universal-image-loader-1.9.3.jar:unspecified@jar" level="project" />
+<<<<<<< HEAD
     <orderEntry type="library" name="Gradle: com.squareup.retrofit2:converter-gson:2.5.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.5@jar" level="project" />
     <orderEntry type="library" name="Gradle: commons-io:commons-io:2.6@jar" level="project" />
@@ -163,11 +224,33 @@
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-messaging:17.3.4@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:crashlytics:2.9.7@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.facebook.stetho:stetho:1.5.0@aar" level="project" />
+=======
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.5@jar" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.6@jar" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.12@jar" level="project" />
+    <orderEntry type="library" name="Gradle: commons-cli:commons-cli:1.2@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:2.0.1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.support.constraint:constraint-layout-solver:1.1.3@jar" level="project" />
+    <orderEntry type="library" name="Gradle: android.arch.persistence.room:common:1.1.1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: android.arch.core:common:1.1.1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.support:support-annotations:27.1.1@jar" level="project" />
+    <orderEntry type="library" name="Gradle: android.arch.lifecycle:common:1.1.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-location:16.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-maps:16.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.firebase:firebase-core:16.0.5@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.firebase:firebase-messaging:17.3.4@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:crashlytics:2.9.7@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.facebook.stetho:stetho:1.5.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.amitshekhar.android:debug-db:1.0.6@aar" level="project" />
+>>>>>>> currentwork-sap
     <orderEntry type="library" name="Gradle: com.amitshekhar.android:debug-db-base:1.0.6@aar" level="project" />
     <orderEntry type="library" name="Gradle: pub.devrel:easypermissions:1.3.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.scottyab:aescrypt:0.0.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support.constraint:constraint-layout:1.1.3@aar" level="project" />
+<<<<<<< HEAD
     <orderEntry type="library" name="Gradle: io.reactivex.rxjava2:rxandroid:2.1.1@aar" level="project" />
+=======
+>>>>>>> currentwork-sap
     <orderEntry type="library" name="Gradle: com.yarolegovich:lovely-dialog:1.0.4@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:appcompat-v7:27.1.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-measurement-connector-impl:17.0.3@aar" level="project" />
@@ -195,9 +278,15 @@
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:answers:1.4.5@aar" level="project" />
     <orderEntry type="library" name="Gradle: io.fabric.sdk.android:fabric:1.4.6@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-fragment:27.1.1@aar" level="project" />
+<<<<<<< HEAD
     <orderEntry type="library" name="Gradle: android.arch.persistence.room:runtime:1.1.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:animated-vector-drawable:27.1.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-core-ui:27.1.1@aar" level="project" />
+=======
+    <orderEntry type="library" name="Gradle: com.android.support:animated-vector-drawable:27.1.1@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.support:support-core-ui:27.1.1@aar" level="project" />
+    <orderEntry type="library" name="Gradle: android.arch.persistence.room:runtime:1.1.1@aar" level="project" />
+>>>>>>> currentwork-sap
     <orderEntry type="library" name="Gradle: com.android.support:support-core-utils:27.1.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-vector-drawable:27.1.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-media-compat:27.1.1@aar" level="project" />
@@ -210,6 +299,14 @@
     <orderEntry type="library" name="Gradle: android.arch.lifecycle:viewmodel:1.1.0@aar" level="project" />
     <orderEntry type="module" module-name="baseassets" />
     <orderEntry type="library" name="Gradle: org.apache.http.legacy-android-27" level="project" />
+<<<<<<< HEAD
+=======
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.3@jar" level="project" />
+    <orderEntry type="library" name="Gradle: android.arch.core:common:1.1.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: android.arch.core:runtime:1.1.0@aar" level="project" />
+    <orderEntry type="module" module-name="baseassets" />
+    <orderEntry type="module" module-name="baseassets" />
+>>>>>>> currentwork-sap
     <orderEntry type="module" module-name="baseassets" />
   </component>
 </module>
