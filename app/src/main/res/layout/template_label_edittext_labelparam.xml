@@ -3,25 +3,25 @@
     android:layout_height="match_parent" >
 
     <TextView
-        android:id="@id/label"
+        android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:text="@string/hello_world" />
 
     <TextView
-        android:id="@id/label_param"
+        android:id="@+id/label_param"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:text="@string/hello_world" />
 
     <EditText
-        android:id="@id/edit_text"
+        android:id="@+id/edit_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/label"
-        android:layout_toLeftOf="@id/label_param"
+        android:layout_toRightOf="@+id/label"
+        android:layout_toLeftOf="@+id/label_param"
         android:background="#ababab"
         android:text="@string/hello_world" />
 

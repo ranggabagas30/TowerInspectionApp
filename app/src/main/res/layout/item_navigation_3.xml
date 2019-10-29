@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar"
         android:layout_marginLeft="@dimen/padding_large"
-        android:layout_toRightOf="@id/expandCollapse"
+        android:layout_toRightOf="@+id/expandCollapse"
         android:background="@drawable/selector_nav_2"
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/padding_large"

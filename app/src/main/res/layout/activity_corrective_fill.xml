@@ -3,20 +3,20 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
-        android:id="@id/layout_helper1"
+        android:id="@+id/layout_helper1"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar"
         android:background="#ee2933"
         android:padding="@dimen/padding_xtra_small" >
 
         <RelativeLayout
-            android:id="@id/layout_helper1"
+            android:id="@+id/layout_helper1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" >
 
             <TextView
-                android:id="@id/header_title"
+                android:id="@+id/header_title"
                 style="@style/list_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -29,11 +29,11 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@id/header_subtitle"
+                android:id="@+id/header_subtitle"
                 style="@style/list_sub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/header_title"
+                android:layout_below="@+id/header_title"
                 android:ellipsize="end"
                 android:gravity="center"
                 android:maxLines="2"
@@ -47,7 +47,7 @@
         android:id="@+id/layout_search"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar"
-        android:layout_below="@id/layout_helper1"
+        android:layout_below="@+id/layout_helper1"
         android:background="#ffffff"
         android:paddingLeft="@dimen/padding_large"
         android:paddingRight="@dimen/padding_large" >
@@ -70,7 +70,7 @@
             android:layout_marginBottom="@dimen/padding_small"
             android:layout_marginLeft="@dimen/padding_small"
             android:layout_marginTop="@dimen/padding_small"
-            android:layout_toLeftOf="@id/ic_search"
+            android:layout_toLeftOf="@+id/ic_search"
             android:hint="Search"
             android:maxHeight="@dimen/action_bar"
             android:singleLine="true" />
@@ -80,7 +80,7 @@
         android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/layout_search"
+        android:layout_below="@+id/layout_search"
         android:background="#eeeeee" >
 
         <LinearLayout
@@ -101,7 +101,7 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/layout_search"
+        android:layout_below="@+id/layout_search"
         android:background="#eeeeee"
         android:descendantFocusability="beforeDescendants"
         android:divider="@android:color/transparent"

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -212,15 +213,13 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	}
 
 	public void setItemScheduleModelBy(String scheduleId, String userId) {
-
 		DebugLog.d("set item schedule ");
 		DebugLog.d("schedule id : " + scheduleId);
 		DebugLog.d("user id : " + userId);
 
-		dialog.setMessage("Loading data please wait");
-		dialog.show();
+		/*dialog.setMessage("Loading data please wait");
+		dialog.show();*/
 	    APIHelper.getItemSchedules(getContext(), itemScheduleHandler, scheduleId, userId);
-
 	}
 
 	@SuppressLint("HandlerLeak")
@@ -228,7 +227,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 		public void handleMessage(android.os.Message msg) {
 
-			dialog.dismiss();
+			//dialog.dismiss();
 
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
@@ -264,8 +263,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 								DebugLog.d("--default_value : " + new_default_value);
 								DebugLog.d("}");
 
-								if (!(new_default_value == null && new_default_value.isEmpty())) {
-
+								if (!TextUtils.isEmpty(new_default_value)) {
 									DebugLog.d("json default value not null, do update");
 									WorkFormItemModel.setDefaultValueFromItemSchedule(workFormItemId, workFormGroupId, new_default_value);
 								}
@@ -273,20 +271,20 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 						} else {
 
-							Toast.makeText(getContext(), "Gagal mendapatkan item schedules\n" + itemScheduleResponse.status + " : " + itemScheduleResponse.messages, Toast.LENGTH_LONG).show();
+							//Toast.makeText(getContext(), "Gagal mendapatkan item schedules\n" + itemScheduleResponse.status + " : " + itemScheduleResponse.messages, Toast.LENGTH_LONG).show();
 
 							DebugLog.d("response status code : " + itemScheduleResponse.status);
 							DebugLog.d("response message : " + itemScheduleResponse.messages);
 						}
 					} else {
 
-						Toast.makeText(getContext(), "Item schedules data kosong atau tidak ada", Toast.LENGTH_LONG).show();
+						//Toast.makeText(getContext(), "Item schedules data kosong atau tidak ada", Toast.LENGTH_LONG).show();
 						DebugLog.d("item schedules kosong");
 					}
 
 				} else {
 
-					Toast.makeText(getContext(), "Schedule ini tidak memiliki data item schedules", Toast.LENGTH_LONG).show();
+					//Toast.makeText(getContext(), "Schedule ini tidak memiliki data item schedules", Toast.LENGTH_LONG).show();
 					DebugLog.e("repsonse json for ITEM SCHEDULES is null");
 				}
 			}

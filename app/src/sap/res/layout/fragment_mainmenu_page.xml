@@ -17,7 +17,7 @@
         android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/user"
+        android:layout_below="@+id/user"
         android:orientation="vertical"
         android:weightSum="1.5" >
 

@@ -5,7 +5,7 @@
     android:padding="@dimen/padding_medium" >
 
     <com.sap.inspection.view.customview.MyTextView
-        android:id="@id/item_calendar_month"
+        android:id="@+id/item_calendar_month"
         style="@style/list_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -13,18 +13,18 @@
         android:text="Feb" />
 
     <com.sap.inspection.view.customview.MyTextView
-        android:id="@id/item_calendar_task"
+        android:id="@+id/item_calendar_task"
         style="@style/list_sub"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/item_calendar_month"
+        android:layout_alignBottom="@+id/item_calendar_month"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/item_calendar_month"
+        android:layout_alignTop="@+id/item_calendar_month"
         android:gravity="center"
         android:text="10" />
 
     <com.sap.inspection.view.customview.MyTextView
-        android:id="@id/item_calendar_day_phrase"
+        android:id="@+id/item_calendar_day_phrase"
         style="@style/list_sub"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,11 +33,11 @@
         android:text="Saturday" />
 
     <com.sap.inspection.view.customview.MyTextView
-        android:id="@id/item_calendar_day"
+        android:id="@+id/item_calendar_day"
         style="@style/list_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/item_calendar_day_phrase"
+        android:layout_above="@+id/item_calendar_day_phrase"
         android:layout_alignParentRight="true"
         android:text="30"
         android:textStyle="bold" />

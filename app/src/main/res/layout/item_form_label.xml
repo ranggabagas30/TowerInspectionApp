@@ -21,7 +21,7 @@
         android:id="@+id/picture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/item_form_label"
+        android:layout_below="@+id/item_form_label"
         android:padding="@dimen/padding_small"
         android:visibility="gone" />
 

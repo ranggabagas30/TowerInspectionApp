@@ -6,7 +6,7 @@
     <!-- android:background="#16191c" > -->
 
     <RelativeLayout
-        android:id="@id/layout_helper1"
+        android:id="@+id/layout_helper1"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar"
         android:background="#ee2933" >
@@ -35,11 +35,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/action_right"
-            android:layout_toRightOf="@id/action_left" >
+            android:layout_toLeftOf="@+id/action_right"
+            android:layout_toRightOf="@+id/action_left" >
 
             <com.sap.inspection.view.customview.MyTextView
-                android:id="@id/header_title"
+                android:id="@+id/header_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -48,10 +48,10 @@
                 android:textSize="@dimen/text_large" />
 
             <com.sap.inspection.view.customview.MyTextView
-                android:id="@id/header_subtitle"
+                android:id="@+id/header_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/header_title"
+                android:layout_below="@+id/header_title"
                 android:layout_centerHorizontal="true"
                 android:text="@string/hello_world"
                 android:textColor="@android:color/white"
@@ -60,10 +60,10 @@
     </RelativeLayout>
 
     <ListView
-        android:id="@id/list"
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/layout_helper1"
+        android:layout_below="@+id/layout_helper1"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp" >
     </ListView>

@@ -45,7 +45,7 @@ public class DrillAdapter extends MyBaseAdapter {
 			holder.title = view.findViewById(R.id.item_drill_title);
 			holder.colored = view.findViewById(R.id.item_drill_subcolored);
 			holder.plain = view.findViewById(R.id.item_drill_subplain);
-			holder.contentLayout = view.findViewById(R.id.item_drill_contentlayout);
+			holder.contentLayout = view.findViewById(R.id.item_drill_layout_content);
 			view.setTag(holder);
 		} else
 			holder = (ViewHolder) view.getTag();

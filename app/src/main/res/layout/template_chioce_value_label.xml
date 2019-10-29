@@ -4,20 +4,20 @@
     android:orientation="horizontal" >
 
     <CheckBox
-        android:id="@id/choice"
+        android:id="@+id/choice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical" />
 
     <EditText
-        android:id="@id/edit_text"
+        android:id="@+id/edit_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:text="@string/hello_world" />
 
     <TextView
-        android:id="@id/label"
+        android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"

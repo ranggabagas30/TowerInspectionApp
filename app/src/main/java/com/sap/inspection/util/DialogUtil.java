@@ -105,4 +105,15 @@ public class DialogUtil {
                 .setNegativeButton("Batal", negativeClickListener)
                 .create().show();
     }
+
+    public static void showRejectionDialog(Context context, String title, String message) {
+        new AlertDialog.Builder(context)
+                .setCancelable(true)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                })
+                .setOnCancelListener(DialogInterface::dismiss).create().show();
+    }
 }

@@ -18,6 +18,7 @@ import com.sap.inspection.model.migrate.DBPatch;
 import com.sap.inspection.model.migrate.GeneralDropCreatePatch;
 import com.sap.inspection.model.migrate.GeneralPatch10;
 import com.sap.inspection.model.migrate.GeneralPatch11;
+import com.sap.inspection.model.migrate.GeneralPatch12;
 import com.sap.inspection.model.migrate.GeneralPatch5;
 import com.sap.inspection.model.migrate.GeneralPatch6;
 import com.sap.inspection.model.migrate.GeneralPatch7;
@@ -87,6 +88,7 @@ public class DbManager extends SQLiteOpenHelper {
 	public static final String colSumDone 		= "sumDone";
 	public static final String colOperatorNumber= "operatorNumber";
 	public static final String colHiddenItemIds	= "hiddenItemIds";
+	public static final String colRejection		= "rejection"; // STP ONLY
 
 	// work form
 	public static final String mWorkForm 		= "WorkForms";
@@ -222,7 +224,8 @@ public class DbManager extends SQLiteOpenHelper {
 			new GeneralPatch8(),				// 8
 			new GeneralPatch9(),				// 9
 			new GeneralPatch10(),				// 10
-			new GeneralPatch11()				// 11
+			new GeneralPatch11(),				// 11
+			new GeneralPatch12()
 	};
 
 	public static void dropTable(SQLiteDatabase db){

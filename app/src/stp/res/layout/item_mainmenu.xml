@@ -4,14 +4,14 @@
     android:background="@drawable/selector_mainmenu_bg" >
 
     <ImageView
-        android:id="@id/item_mainmenu_icon"
+        android:id="@+id/item_mainmenu_icon"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_centerInParent="true"
         android:scaleType="centerCrop" />
 
     <TextView
-        android:id="@id/item_mainmenu_title"
+        android:id="@+id/item_mainmenu_title"
         style="@style/list_title_bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

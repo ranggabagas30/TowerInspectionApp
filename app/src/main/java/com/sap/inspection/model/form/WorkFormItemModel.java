@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.os.Parcel;
+import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.TowerApplication;
@@ -176,18 +177,18 @@ public class WorkFormItemModel extends BaseModel {
 
 		 formitem = getWorkFormItemById(workFormItemId, workFormGroupId);
 
-
-		 if (formitem.default_value == null || formitem.default_value.isEmpty()) {
-		 	DebugLog.d("column 'default_value' for workFormItemId " + item_id + " is null or empty");
-		 	updateDefaultValue(item_id, new_default_value);
-		 } else {
-
-		 	if (!formitem.default_value.equalsIgnoreCase(new_default_value)) {
-				DebugLog.d("old default_value = " + formitem.default_value);
-				DebugLog.d("new default_value = " + new_default_value);
-				updateDefaultValue(item_id, new_default_value);
-			}
-		}
+		 if (formitem != null) {
+			 if (TextUtils.isEmpty(formitem.default_value)) {
+				 DebugLog.d("column 'default_value' for workFormItemId " + item_id + " is null or empty");
+				 updateDefaultValue(item_id, new_default_value);
+			 } else {
+				 if (!formitem.default_value.equalsIgnoreCase(new_default_value)) {
+					 DebugLog.d("old default_value = " + formitem.default_value);
+					 DebugLog.d("new default_value = " + new_default_value);
+					 updateDefaultValue(item_id, new_default_value);
+				 }
+			 }
+		 }
 
 	}
 

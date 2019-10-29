@@ -57,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/task"
+        android:layout_below="@+id/task"
         android:layout_marginTop="@dimen/padding_large"
         android:text="Wed"
         android:textAppearance="?android:attr/textAppearanceSmall" />

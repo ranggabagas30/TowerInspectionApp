@@ -4,16 +4,16 @@
     android:layout_height="wrap_content" >
 
     <View
-        android:id="@id/layout_helper1"
+        android:id="@+id/layout_helper1"
         android:layout_width="@dimen/padding_large"
         android:layout_height="@dimen/padding_large"
         android:layout_alignParentTop="true" />
 
     <TextView
-        android:id="@id/header"
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/layout_helper1"
+        android:layout_below="@+id/layout_helper1"
         android:layout_centerHorizontal="true"
         android:background="@drawable/bg_schedule_top"
         android:gravity="center"

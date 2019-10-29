@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_below="@id/copy"
+            android:layout_below="@+id/copy"
             android:text="change url"
             android:visibility="invisible"/>
 
@@ -40,8 +40,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@id/copy"
-            android:layout_toLeftOf="@id/change"
+            android:layout_below="@+id/copy"
+            android:layout_toLeftOf="@+id/change"
             android:visibility="invisible"/>
     </RelativeLayout>
 
@@ -82,7 +82,7 @@
             style="@style/list_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/logo"
+            android:layout_below="@+id/logo"
             android:layout_marginBottom="30dp"
             android:layout_marginTop="@dimen/padding_xtra_large"
             android:gravity="center_horizontal"
@@ -94,7 +94,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/text"
+            android:layout_below="@+id/text"
             android:orientation="vertical" >
 
             <LinearLayout
@@ -105,7 +105,7 @@
                 android:orientation="vertical" >
 
                 <EditText
-                    android:id="@id/username"
+                    android:id="@+id/username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/padding_medium"
@@ -113,7 +113,7 @@
                     android:layout_marginTop="@dimen/padding_medium"
                     android:background="@android:color/transparent"
                     android:hint="@string/user_name"
-                    android:nextFocusDown="@id/password"
+                    android:nextFocusDown="@+id/password"
                     android:singleLine="true" />
 
                 <View
@@ -124,7 +124,7 @@
                     android:background="@color/bg_main" />
 
                 <EditText
-                    android:id="@id/password"
+                    android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/padding_medium"
@@ -156,7 +156,7 @@
                 android:textColor="@android:color/white" />
 
             <TextView
-                android:id="@id/forgot_password"
+                android:id="@+id/forgot_password"
                 style="@style/list_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

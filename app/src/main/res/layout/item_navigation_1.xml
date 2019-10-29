@@ -20,7 +20,7 @@
         style="@style/navigation_1"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar"
-        android:layout_toRightOf="@id/expandCollapse"
+        android:layout_toRightOf="@+id/expandCollapse"
         android:gravity="center_vertical|left"
         android:paddingLeft="@dimen/padding_large"
         android:text="Load Picture" />
@@ -39,7 +39,7 @@
     <View
         android:layout_width="1dp"
         android:layout_height="@dimen/action_bar"
-        android:layout_toRightOf="@id/expandCollapse"
+        android:layout_toRightOf="@+id/expandCollapse"
         android:background="#d7d7d7" />
 
 </RelativeLayout>

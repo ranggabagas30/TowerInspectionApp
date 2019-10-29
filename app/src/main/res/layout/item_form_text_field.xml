@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/item_form_mandatory"
+        android:layout_below="@+id/item_form_mandatory"
         android:text="SAMPLE"
         android:textColor="#333333" />
 
@@ -29,7 +29,7 @@
         android:id="@+id/picture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/item_form_label"
+        android:layout_below="@+id/item_form_label"
         android:padding="@dimen/padding_small"
         android:visibility="gone" />
 
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/picture"
+        android:layout_below="@+id/picture"
         android:ellipsize="end"
         android:singleLine="true"
         android:text="SAMPLE"
@@ -50,8 +50,8 @@
         style="@style/list_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/picture"
-        android:layout_toLeftOf="@id/item_form_description"
+        android:layout_below="@+id/picture"
+        android:layout_toLeftOf="@+id/item_form_description"
         android:minWidth="100dp"
         android:text="SAMPLE"
         android:textColor="#333333" />

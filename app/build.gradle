@@ -82,7 +82,7 @@ android {
             versionCode minAPIlevel * 1000000 + versionMajor * 10000 + versionMinor * 100 + versionPatch
             versionName "${versionMajor}.${versionMinor}.${versionPatch}"
             buildConfigField("int", "DBMANAGERVALUE_SCHEMA_VERSION", "8")
-            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "9")
+            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "12")
             buildConfigField("String", "FOLDER_CAMERA", '"Camera"')
             buildConfigField("String", "FOLDER_TOWER_INSPECTION", '"TowerInspection"')
         }

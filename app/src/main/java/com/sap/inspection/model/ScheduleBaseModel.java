@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.TowerApplication;
@@ -39,11 +40,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public ArrayList<Integer> general_corrective_item_ids;
 	public UserModel user;
 	public WorkTypeModel work_type;
-	public Vector<Integer> hidden;
+	public Vector<Integer> hidden; // SAP only
 
 	//penambahan irwan
 	public WorkFormModel work_form;
 	public ProjectModel project;
+	public RejectionModel rejection; // STP only
 	public Vector<FormValueModel> schedule_values;
 	public Vector<DefaultValueScheduleModel> default_value_schedule = new Vector<>();
 	public String statusColor;
@@ -54,7 +56,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public boolean isAnimated = false;
 	public int operator_number = 0;
 	private int task = -1;
-
 
 	@Override
 	public int describeContents() {
@@ -69,6 +70,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public static String createDB(){
 		switch (DbManager.schema_version) {
 			case 9: {
+				// STP
 				return "create table if not exists " + DbManager.mSchedule
 						+ " (" + DbManager.colID + " varchar, "
 						+ DbManager.colUserId + " varchar, "
@@ -87,7 +89,29 @@ public abstract class ScheduleBaseModel extends BaseModel {
 						+ DbManager.colOperatorNumber + " integer, "
 						+ "PRIMARY KEY (" + DbManager.colID + "))";
 			}
+			case 12: {
+				// STP request add rejections mark on schedule
+				return "create table if not exists " + DbManager.mSchedule
+						+ " (" + DbManager.colID + " varchar, "
+						+ DbManager.colUserId + " varchar, "
+						+ DbManager.colSiteId + " integer, "
+						+ DbManager.colOperatorIds + " varchar, "
+						+ DbManager.colProjectId + " varchar, "
+						+ DbManager.colProjectName + " varchar, "
+						+ DbManager.colWorkTypeId + " integer, "
+						+ DbManager.colDayDate + " varchar, "
+						+ DbManager.colWorkDate + " varchar, "
+						+ DbManager.colWorkDateStr + " varchar, "
+						+ DbManager.colProgress + " varchar, "
+						+ DbManager.colStatus + " varchar, "
+						+ DbManager.colSumTask + " integer, "
+						+ DbManager.colSumDone + " integer, "
+						+ DbManager.colOperatorNumber + " integer, "
+						+ DbManager.colRejection + " varchar, "
+						+ "PRIMARY KEY (" + DbManager.colID + "))";
+			}
 			default:
+				// SAP request add hidden items flag
 				return "create table if not exists " + DbManager.mSchedule
 					+ " (" + DbManager.colID + " varchar, "
 					+ DbManager.colUserId + " varchar, "
@@ -246,10 +270,19 @@ public abstract class ScheduleBaseModel extends BaseModel {
 						DbManager.colStatus,DbManager.colDayDate,
 						DbManager.colWorkDateStr,DbManager.colSumTask,
 						DbManager.colSumDone, DbManager.colOperatorNumber);
-				//						DbManager.colWorkDateStr,DbManager.colSumTask,
-				//						DbManager.colSumTask,DbManager.mSchedule,DbManager.colID);
 				break;
-
+			case 12:
+				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+						DbManager.mSchedule , DbManager.colID,
+						DbManager.colUserId,DbManager.colSiteId,
+						DbManager.colOperatorIds,DbManager.colProjectId,
+						DbManager.colProjectName,DbManager.colWorkTypeId,
+						DbManager.colWorkDate,DbManager.colProgress,
+						DbManager.colStatus,DbManager.colDayDate,
+						DbManager.colWorkDateStr,DbManager.colSumTask,
+						DbManager.colSumDone, DbManager.colOperatorNumber,
+						DbManager.colRejection);
+				break;
 			default :
 				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 						DbManager.mSchedule , DbManager.colID,
@@ -316,8 +349,13 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			} else {
 				bindAndCheckNullString(stmt, 16, toStringHiddenItemIds(hidden));
 			}
+		} else if (DbManager.schema_version == 12) {
+			String rejectionJson = null;
+			if (rejection != null) {
+				rejectionJson =  new Gson().toJson(rejection);
+			}
+			bindAndCheckNullString(stmt, 16, rejectionJson);
 		}
-
 		stmt.executeInsert();
 		stmt.close();
 		DbRepository.getInstance().close();
@@ -563,6 +601,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		if (DbManager.schema_version == 10) {
 			scheduleBase.hidden = new Vector<>();
 			scheduleBase.hidden = toVectorHiddenItemIds(c.getString(c.getColumnIndex(DbManager.colHiddenItemIds)));
+		} else if (DbManager.schema_version == 12) {
+			scheduleBase.rejection = new Gson().fromJson(c.getString(c.getColumnIndex(DbManager.colRejection)), RejectionModel.class);
 		}
 		return scheduleBase;
 	}

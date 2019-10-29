@@ -6,7 +6,7 @@
         android:id="@+id/picture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/item_form_mandatory"
+        android:layout_below="@+id/item_form_mandatory"
         android:padding="@dimen/padding_small"
         android:visibility="gone" />
 
@@ -15,7 +15,7 @@
         style="@style/list_sub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/picture"
+        android:layout_below="@+id/picture"
         android:text="SAMPLE"
         android:visibility="visible"/>
 

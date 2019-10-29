@@ -19,7 +19,7 @@
         style="@style/list_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/item_form_mandatory"
+        android:layout_below="@+id/item_form_mandatory"
         android:text="SAMPLE"
         android:textColor="#333333"
         android:visibility="gone" />
@@ -28,7 +28,7 @@
         android:id="@+id/picture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/item_form_label"
+        android:layout_below="@+id/item_form_label"
         android:padding="@dimen/padding_small"
         android:visibility="gone" />
 
@@ -36,7 +36,7 @@
         android:id="@+id/item_form_check"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/picture"
+        android:layout_below="@+id/picture"
         android:orientation="horizontal" />
 
 </RelativeLayout>

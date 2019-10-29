@@ -4,7 +4,7 @@
     android:layout_height="wrap_content" >
 
     <RelativeLayout
-        android:id="@id/layout_helper1"
+        android:id="@+id/layout_helper1"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar"
         android:layout_alignParentTop="true" >
@@ -29,16 +29,16 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@id/layout_helper2"
+        android:id="@+id/layout_helper2"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/layout_helper1"
+        android:layout_below="@+id/layout_helper1"
         android:background="#fafafa"
         android:padding="@dimen/padding_medium" >
 
         <TextView
-            android:id="@id/layout_helper1"
+            android:id="@+id/layout_helper1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -50,7 +50,7 @@
             android:id="@+id/photo"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:layout_below="@id/layout_helper1"
+            android:layout_below="@+id/layout_helper1"
             android:layout_centerHorizontal="true"
             android:background="@drawable/bg_edittext_white"
             android:padding="@dimen/padding_medium"
@@ -58,24 +58,24 @@
     </RelativeLayout>
 
     <View
-        android:id="@id/layout_helper3"
+        android:id="@+id/layout_helper3"
         android:layout_width="2dp"
         android:layout_height="match_parent"
-        android:layout_below="@id/layout_helper1"
-        android:layout_toRightOf="@id/layout_helper2"
+        android:layout_below="@+id/layout_helper1"
+        android:layout_toRightOf="@+id/layout_helper2"
         android:background="#333" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/layout_helper1"
-        android:layout_toRightOf="@id/layout_helper3"
+        android:layout_below="@+id/layout_helper1"
+        android:layout_toRightOf="@+id/layout_helper3"
         android:background="#fafafa"
         android:padding="@dimen/padding_large" >
 
         <TextView
-            android:id="@id/layout_helper1"
+            android:id="@+id/layout_helper1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -86,7 +86,7 @@
             android:id="@+id/category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/layout_helper1"
+            android:layout_below="@+id/layout_helper1"
             android:layout_marginBottom="@dimen/padding_medium"
             android:layout_marginTop="@dimen/padding_medium"
             android:background="@drawable/bg_edittext_white"
@@ -96,18 +96,18 @@
             android:text="Category" />
 
         <TextView
-            android:id="@id/layout_helper2"
+            android:id="@+id/layout_helper2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@id/category"
+            android:layout_below="@+id/category"
             android:text="Description" />
 
         <EditText
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/layout_helper2"
+            android:layout_below="@+id/layout_helper2"
             android:layout_marginTop="@dimen/padding_medium"
             android:background="@drawable/bg_edittext_white"
             android:gravity="top|left"
@@ -120,7 +120,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:layout_below="@id/layout_helper1"
+        android:layout_below="@+id/layout_helper1"
         android:background="#333" />
 
 </RelativeLayout>

@@ -3,15 +3,15 @@
     android:layout_height="wrap_content" >
 
     <View
-        android:id="@id/layout_helper1"
+        android:id="@+id/layout_helper1"
         android:layout_width="match_parent"
         android:layout_height="@dimen/padding_large" />
 
     <RelativeLayout
-        android:id="@id/layout_helper2"
+        android:id="@+id/layout_helper2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/layout_helper1"
+        android:layout_below="@+id/layout_helper1"
         android:layout_centerVertical="true"
         android:background="@drawable/bg_item_drill_green"
         android:paddingBottom="@dimen/padding_medium"
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_below="@id/item_form_label"
+            android:layout_below="@+id/item_form_label"
             android:maxLines="1"
             android:text="SAMPLE "
             android:visibility="gone" />
@@ -46,8 +46,8 @@
             style="@style/list_sub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/item_form_label"
-            android:layout_toRightOf="@id/item_form_colored"
+            android:layout_below="@+id/item_form_label"
+            android:layout_toRightOf="@+id/item_form_colored"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="SAMPLE"
@@ -68,7 +68,7 @@
         android:id="@+id/picture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/layout_helper2"
+        android:layout_below="@+id/layout_helper2"
         android:background="@android:color/white"
         android:padding="@dimen/padding_small"
         android:visibility="gone" />
