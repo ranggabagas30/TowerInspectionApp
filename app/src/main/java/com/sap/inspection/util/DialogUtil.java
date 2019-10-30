@@ -51,7 +51,6 @@ public class DialogUtil {
         }
     }
 
-<<<<<<< HEAD
     /** take picture camera app recommendation */
     public static void showTakePictureDialog(Context context, LovelyChoiceDialog.OnItemSelectedListener<? super String> onItemSelectedListener) {
         new LovelyChoiceDialog(context, R.style.CheckBoxTintTheme)
@@ -68,11 +67,8 @@ public class DialogUtil {
                 }, onItemSelectedListener)
                 .show();
     }
-=======
-    public static void singleChoiceScheduleRoutingDialog(Context context, LovelyChoiceDialog.OnItemSelectedListener<String> onItemSelectedListener) {
->>>>>>> currentwork-sap
 
-    public static void singleChoiceScheduleRoutingDialog(Context context) {
+    public static void singleChoiceScheduleRoutingDialog(Context context, LovelyChoiceDialog.OnItemSelectedListener<String> onItemSelectedListener) {
         ArrayList<String> routingSchedules = new ArrayList<>();
         routingSchedules.add(context.getString(R.string.routing_segment));
         routingSchedules.add(context.getString(R.string.handhole));
@@ -83,13 +79,9 @@ public class DialogUtil {
                 .setTopColor(ContextCompat.getColor(context, R.color.theme_color))
                 .setIcon(R.drawable.logo_app)
                 .setTitle("Choose schedule")
-<<<<<<< HEAD
-                .setMessage("Please select one routing schedule")
-                .setItems(routingSchedules, (position, item) -> {
-                    String result = "(pos, item) : (" + position + ", " + item + ")";
-                    DebugLog.d(result);
-                    Toast.makeText(context, result, Toast.LENGTH_SHORT).show();
-                }).show();
+                .setMessage("Please select one of routing schedules")
+                .setItems(routingSchedules, onItemSelectedListener)
+                .show();
     }
 
 
@@ -99,11 +91,6 @@ public class DialogUtil {
 
     public static DeleteAllSchedulesDialog deleteAllSchedulesDialog(Context context) {
         return new DeleteAllSchedulesDialog(context);
-=======
-                .setMessage("Please select one of routing schedules")
-                .setItems(routingSchedules, onItemSelectedListener)
-                .show();
->>>>>>> currentwork-sap
     }
 
     public static void showUploadAllDataDialog(Context context, DialogInterface.OnClickListener positiveClickListener, DialogInterface.OnClickListener negativeClickListener) {
@@ -115,7 +102,6 @@ public class DialogUtil {
                 .create().show();
     }
 
-<<<<<<< HEAD
     public static void showRejectionDialog(Context context, String title, String message) {
         new AlertDialog.Builder(context)
                 .setCancelable(true)
@@ -125,7 +111,8 @@ public class DialogUtil {
                     dialogInterface.dismiss();
                 })
                 .setOnCancelListener(DialogInterface::dismiss).create().show();
-=======
+    }
+
     public static void showWarningUpdateFormDialog(Context context, DialogInterface.OnClickListener positiveClickListener, DialogInterface.OnClickListener negativeClickListener) {
         new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.warning_update_form_title))
@@ -133,14 +120,5 @@ public class DialogUtil {
                 .setPositiveButton(android.R.string.ok, positiveClickListener)
                 .setNegativeButton(android.R.string.cancel, negativeClickListener)
                 .create().show();
-    }
-
-    public static DeleteAllDataDialog deleteAllDataDialog(Context context, String scheduleId) {
-        return new DeleteAllDataDialog(context, scheduleId);
-    }
-
-    public static DeleteAllSchedulesDialog deleteAllSchedulesDialog(Context context) {
-        return new DeleteAllSchedulesDialog(context);
->>>>>>> currentwork-sap
     }
 }

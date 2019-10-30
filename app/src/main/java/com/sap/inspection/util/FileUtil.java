@@ -105,7 +105,7 @@ public class FileUtil {
 
         File tempDir = new File(path);
         if (!tempDir.exists()) {
-            String createDirMessage = TowerApplication.getContext().getString(R.string.failed_createdir);
+            String createDirMessage = TowerApplication.getContext().getString(R.string.error_make_dir);
             boolean createDirStatus = tempDir.mkdirs();
             if (createDirStatus)
                 createDirMessage = TowerApplication.getContext().getString(R.string.success_createdir);

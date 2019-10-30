@@ -280,18 +280,15 @@ public class PhotoItemRadio extends RelativeLayout {
 						progress.setVisibility(View.GONE);
 						photoRoot.setVisibility(View.GONE);
 						noPicture.setVisibility(View.VISIBLE);
-						DebugLog.e(context.getString(R.string.failed_load_image));
+						DebugLog.e(context.getString(R.string.error_load_image));
 					}
 				} else {
-<<<<<<< HEAD
 					Toast.makeText(context, "File photo " + value.value + " tidak ditemukan di gallery", Toast.LENGTH_LONG).show();
-=======
 					// on loading failed
 					progress.setVisibility(View.GONE);
 					photoRoot.setVisibility(View.GONE);
 					noPicture.setVisibility(View.VISIBLE);
 					DebugLog.e(context.getString(R.string.error_load_image));
->>>>>>> currentwork-sap
 				}
 			}
 
@@ -299,9 +296,7 @@ public class PhotoItemRadio extends RelativeLayout {
 			imageView.setVisibility(VISIBLE);
 			btnTakePicture.setVisibility(VISIBLE);
             if (!TextUtils.isEmpty(value.photoStatus)) {
-
                 switch (value.photoStatus) {
-
                     case Constants.OK :
                     	DebugLog.d("check OK");
                         ok.setChecked(true);

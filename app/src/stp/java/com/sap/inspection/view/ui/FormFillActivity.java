@@ -388,7 +388,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
         @Override
         public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				TowerApplication.getInstance().toast(getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast(getString(R.string.error_no_internet_connection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag(); DebugLog.d("pos = "+pos);
@@ -397,7 +397,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (uploadItem != null)
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, null, null).execute();
 			else
-				TowerApplication.getInstance().toast(getString(R.string.failed_noitem), Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(getString(R.string.error_no_item), Toast.LENGTH_LONG);
         }
     };
 
@@ -427,25 +427,16 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
 				} else {
 					DebugLog.e("take picture: photo file not created");
-					Toast.makeText(activity, getString(R.string.failed_take_picture) + ". " + "Aplikasi gagal membuat file foto", Toast.LENGTH_LONG).show();
+					Toast.makeText(activity, getString(R.string.error_take_picture) + ". " + "Aplikasi gagal membuat file foto", Toast.LENGTH_LONG).show();
 				}
 				return;
-			} catch (NullPointerException npe) {
-				DebugLog.e("take picture: " + npe.getMessage());
-			} catch (IOException e) {
+			} catch (NullPointerException | IOException | IllegalArgumentException e) {
 				DebugLog.e("take picture: " + e.getMessage());
-			} catch (IllegalArgumentException ilae) {
-				DebugLog.e("take picture: " + ilae.getMessage());
 			}
 		}
 
 		// if failed, then show toast with failed message
-<<<<<<< HEAD
-		Toast.makeText(activity, getString(R.string.failed_take_picture), Toast.LENGTH_SHORT).show();
-=======
 		Toast.makeText(activity, getString(R.string.error_take_picture), Toast.LENGTH_SHORT).show();
-
->>>>>>> currentwork-sap
     }
 
 	//called after camera intent finished

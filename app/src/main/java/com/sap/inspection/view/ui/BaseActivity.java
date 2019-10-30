@@ -23,7 +23,6 @@ import android.util.DisplayMetrics;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -48,8 +47,8 @@ import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
-import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FormVersionResponseModel;
+import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
@@ -826,21 +825,14 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		if (!TextUtils.isEmpty(AccessToken)) {
 
 			if (!TextUtils.isEmpty(FCMRegToken)) {
-
 				TowerApplication.sendRegIdtoServer(FCMRegToken);
 				TowerApplication.getInstance().setDEVICE_REGISTRATION_STATE(false);
-
 			} else {
-
 				DebugLog.e("FCM TOKEN is empty");
-				Crashlytics.log("FCM TOKEN is empty");
 			}
 
 		} else {
-
 			DebugLog.e("ACCESS TOKEN is empty, unable to send FCM TOKEN to server");
-			Crashlytics.log("ACCESS TOKEN is empty, unable to send FCM TOKEN to server");
-
 		}
 	}
 

@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.annotation.RequiresPermission;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
@@ -22,8 +23,9 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
+import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
@@ -397,6 +399,7 @@ public class CommonUtil {
      * get DeviceID (IMEI)
      * and installing APK programmatically
      * */
+    @RequiresPermission(Manifest.permission.READ_PHONE_STATE)
     public static String getIMEI(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String imei = telephonyManager.getDeviceId();
@@ -433,7 +436,7 @@ public class CommonUtil {
                 activity.startActivityForResult(intent, Constants.RC_INSTALL_APK);
             }
         } else {
-            TowerApplication.getInstance().toast(context.getResources().getString(R.string.failed_apknotfound), Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast(context.getResources().getString(R.string.error_apk_not_found), Toast.LENGTH_LONG);
             activity.finish();
         }
     }
@@ -496,28 +499,19 @@ public class CommonUtil {
     }
 
     public static boolean isUpdateAvailable(Context context) {
-
         boolean isUpdateAvailable = false;
         String latestVersion = PrefUtil.getStringPref(R.string.latest_version, "");
         String appVersion = Constants.APPLICATION_VERSION;
         DebugLog.d("latestVersion\t: " + latestVersion);
         DebugLog.d("appVersion\t\t: " + appVersion);
         if (!TextUtils.isEmpty(latestVersion)) {
-
-            latestVersion = latestVersion.replace(".","");
-            int latestVersionInt = Integer.parseInt(latestVersion);
-
-            appVersion = appVersion.replace(".","");
-            int appVersionInt = Integer.parseInt(appVersion);
-
+            int latestVersionInt = Integer.parseInt(latestVersion.replace(".",""));
+            int appVersionInt = Integer.parseInt(appVersion.replace(".",""));
             if (appVersionInt > latestVersionInt) {
                 StringBuilder message = new StringBuilder(context.getString(R.string.error_failed_check_apk_version));
                 message.append(".").append("App version (").append(appVersion).append(") is newer than the server's (").append(latestVersion).append(")");
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             } else if (appVersionInt < latestVersionInt) {
                 isUpdateAvailable = true;
-            } else {
-                Toast.makeText(context, context.getString(R.string.success_latest_apk), Toast.LENGTH_SHORT).show();
             }
         }
         return isUpdateAvailable;
@@ -534,7 +528,6 @@ public class CommonUtil {
 
     private static byte[] getFile(File f) {
 
-        //File f = new File(filePath);
         InputStream is = null;
         try {
             is = new FileInputStream(f);

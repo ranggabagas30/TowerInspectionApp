@@ -128,23 +128,16 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 				}
 			}
 
-<<<<<<< HEAD
 		} else if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
-=======
-		} else if (workTypeName.equalsIgnoreCase(getString(R.string.foto_imbas_petir))) {
->>>>>>> currentwork-sap
-
 			// get workformid by worktypeid
 			workForm = new WorkFormModel();
 			workForm = workForm.getItemByWorkTypeId(schedule.work_type.id);
-
 			DebugLog.d("== schedule worktype id : "+schedule.work_type.id);
 			DebugLog.d("== form model id : "+workForm.id);
 			DebugLog.d("== form model name : "+workForm.name);
 
 			// get all workformgroup by workformid
 			workFormGroups = WorkFormGroupModel.getAllItemByWorkFormId(workForm.id);
-
 			checkDataWarga();
 
 		} else{

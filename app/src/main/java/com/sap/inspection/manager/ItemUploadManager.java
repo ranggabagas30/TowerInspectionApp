@@ -564,7 +564,7 @@ public class ItemUploadManager {
                     }
                     message += itemValuesFailed.size() + " item gagal diupload";
                 } else {
-                    message += TowerApplication.getContext().getString(R.string.failed_upload_items);
+                    message += TowerApplication.getContext().getString(R.string.error_upload_item);
                 }
 
             } else { // success upload items

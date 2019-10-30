@@ -631,7 +631,7 @@ public class FormValueModel extends BaseModel {
 			super.onPostExecute(uploadItems);
 			publish(DONEPREPARINGITEMS);
 			if (uploadItems == null)
-				TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.failed_upload_mandatory_items), Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.error_no_upload_item), Toast.LENGTH_LONG);
 			else
 				ItemUploadManager.getInstance().addItemValues(uploadItems);
 		}

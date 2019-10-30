@@ -40,14 +40,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public ArrayList<Integer> general_corrective_item_ids;
 	public UserModel user;
 	public WorkTypeModel work_type;
-	public Vector<Integer> hidden; // SAP only
-
-	//penambahan irwan
 	public WorkFormModel work_form;
 	public ProjectModel project;
-	public RejectionModel rejection; // STP only
+	public RejectionModel rejection;
+	public Vector<Integer> hidden; // SAP only
 	public Vector<FormValueModel> schedule_values;
-	public Vector<DefaultValueScheduleModel> default_value_schedule = new Vector<>();
+	public Vector<DefaultValueScheduleModel> default_value_schedule;
 	public String statusColor;
 	public String taskColor;
 	public int sumTask = 0;
@@ -68,69 +66,35 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public static String createDB(){
-		switch (DbManager.schema_version) {
-			case 9: {
-				// STP
-				return "create table if not exists " + DbManager.mSchedule
-						+ " (" + DbManager.colID + " varchar, "
-						+ DbManager.colUserId + " varchar, "
-						+ DbManager.colSiteId + " integer, "
-						+ DbManager.colOperatorIds + " varchar, "
-						+ DbManager.colProjectId + " varchar, "
-						+ DbManager.colProjectName + " varchar, "
-						+ DbManager.colWorkTypeId + " integer, "
-						+ DbManager.colDayDate + " varchar, "
-						+ DbManager.colWorkDate + " varchar, "
-						+ DbManager.colWorkDateStr + " varchar, "
-						+ DbManager.colProgress + " varchar, "
-						+ DbManager.colStatus + " varchar, "
-						+ DbManager.colSumTask + " integer, "
-						+ DbManager.colSumDone + " integer, "
-						+ DbManager.colOperatorNumber + " integer, "
-						+ "PRIMARY KEY (" + DbManager.colID + "))";
-			}
-			case 12: {
-				// STP request add rejections mark on schedule
-				return "create table if not exists " + DbManager.mSchedule
-						+ " (" + DbManager.colID + " varchar, "
-						+ DbManager.colUserId + " varchar, "
-						+ DbManager.colSiteId + " integer, "
-						+ DbManager.colOperatorIds + " varchar, "
-						+ DbManager.colProjectId + " varchar, "
-						+ DbManager.colProjectName + " varchar, "
-						+ DbManager.colWorkTypeId + " integer, "
-						+ DbManager.colDayDate + " varchar, "
-						+ DbManager.colWorkDate + " varchar, "
-						+ DbManager.colWorkDateStr + " varchar, "
-						+ DbManager.colProgress + " varchar, "
-						+ DbManager.colStatus + " varchar, "
-						+ DbManager.colSumTask + " integer, "
-						+ DbManager.colSumDone + " integer, "
-						+ DbManager.colOperatorNumber + " integer, "
-						+ DbManager.colRejection + " varchar, "
-						+ "PRIMARY KEY (" + DbManager.colID + "))";
-			}
-			default:
-				// SAP request add hidden items flag
-				return "create table if not exists " + DbManager.mSchedule
-					+ " (" + DbManager.colID + " varchar, "
-					+ DbManager.colUserId + " varchar, "
-					+ DbManager.colSiteId + " integer, "
-					+ DbManager.colOperatorIds + " varchar, "
-					+ DbManager.colProjectId + " varchar, "
-					+ DbManager.colProjectName + " varchar, "
-					+ DbManager.colWorkTypeId + " integer, "
-					+ DbManager.colDayDate + " varchar, "
-					+ DbManager.colWorkDate + " varchar, "
-					+ DbManager.colWorkDateStr + " varchar, "
-					+ DbManager.colProgress + " varchar, "
-					+ DbManager.colStatus + " varchar, "
-					+ DbManager.colSumTask + " integer, "
-					+ DbManager.colSumDone + " integer, "
-					+ DbManager.colOperatorNumber + " integer, "
-					+ DbManager.colHiddenItemIds + " varchar, "
-					+ "PRIMARY KEY (" + DbManager.colID + "))";
+		StringBuilder createTableBuilder = new StringBuilder("create table if not exists " + DbManager.mSchedule + " ("
+				+ DbManager.colID + " varchar, "
+				+ DbManager.colUserId + " varchar, "
+				+ DbManager.colSiteId + " integer, "
+				+ DbManager.colOperatorIds + " varchar, "
+				+ DbManager.colProjectId + " varchar, "
+				+ DbManager.colProjectName + " varchar, "
+				+ DbManager.colWorkTypeId + " integer, "
+				+ DbManager.colDayDate + " varchar, "
+				+ DbManager.colWorkDate + " varchar, "
+				+ DbManager.colWorkDateStr + " varchar, "
+				+ DbManager.colProgress + " varchar, "
+				+ DbManager.colStatus + " varchar, "
+				+ DbManager.colSumTask + " integer, "
+				+ DbManager.colSumDone + " integer, "
+				+ DbManager.colOperatorNumber + " integer, ");
+
+		if (DbManager.schema_version >= 10) {
+			// SAP request add hidden items flag
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+				createTableBuilder.append(DbManager.colHiddenItemIds + " varchar, ");
 		}
+
+		if (DbManager.schema_version >= 12) {
+			createTableBuilder.append(DbManager.colRejection + " varchar, ");
+		}
+
+		createTableBuilder.append("PRIMARY KEY (" + DbManager.colID + "))");
+		return new String(createTableBuilder);
 	}
 
 	public String getPercent(){
@@ -221,11 +185,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		}
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-			for (int hiddenItemIds : hidden) {
-				WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
-				workFormItem.visible = false;
-				workFormItem.save();
-			}
+			if (hidden != null)
+				for (int hiddenItemIds : hidden) {
+					WorkFormItemModel workFormItem = WorkFormItemModel.getWorkFormItemById(hiddenItemIds);
+					workFormItem.visible = false;
+					workFormItem.save();
+				}
 		}
 
 		if (schedule_values!=null)
@@ -257,104 +222,115 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	private void insert() {
 
+		int colIndex;
 		String sql;
-		switch (DbManager.schema_version) {
+		String format;
+		StringBuilder formatBuilder = new StringBuilder("INSERT OR REPLACE INTO %s(");
+		StringBuilder valuesBuilder = new StringBuilder(" VALUES(");
+		ArrayList<String> argsList = new ArrayList<>();
+		argsList.add(DbManager.mSchedule);
+		argsList.add(DbManager.colID);
+		argsList.add(DbManager.colUserId);
+		argsList.add(DbManager.colSiteId);
+		argsList.add(DbManager.colOperatorIds);
+		argsList.add(DbManager.colProjectId);
+		argsList.add(DbManager.colProjectName);
+		argsList.add(DbManager.colWorkTypeId);
+		argsList.add(DbManager.colWorkDate);
+		argsList.add(DbManager.colProgress);
+		argsList.add(DbManager.colStatus);
+		argsList.add(DbManager.colDayDate);
+		argsList.add(DbManager.colWorkDateStr);
+		argsList.add(DbManager.colSumTask);
+		argsList.add(DbManager.colSumDone);
+		argsList.add(DbManager.colOperatorNumber);
 
-			case 9 :
-				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-						DbManager.mSchedule , DbManager.colID,
-						DbManager.colUserId,DbManager.colSiteId,
-						DbManager.colOperatorIds,DbManager.colProjectId,
-						DbManager.colProjectName,DbManager.colWorkTypeId,
-						DbManager.colWorkDate,DbManager.colProgress,
-						DbManager.colStatus,DbManager.colDayDate,
-						DbManager.colWorkDateStr,DbManager.colSumTask,
-						DbManager.colSumDone, DbManager.colOperatorNumber);
-				break;
-			case 12:
-				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-						DbManager.mSchedule , DbManager.colID,
-						DbManager.colUserId,DbManager.colSiteId,
-						DbManager.colOperatorIds,DbManager.colProjectId,
-						DbManager.colProjectName,DbManager.colWorkTypeId,
-						DbManager.colWorkDate,DbManager.colProgress,
-						DbManager.colStatus,DbManager.colDayDate,
-						DbManager.colWorkDateStr,DbManager.colSumTask,
-						DbManager.colSumDone, DbManager.colOperatorNumber,
-						DbManager.colRejection);
-				break;
-			default :
-				sql = String.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-						DbManager.mSchedule , DbManager.colID,
-						DbManager.colUserId,DbManager.colSiteId,
-						DbManager.colOperatorIds,DbManager.colProjectId,
-						DbManager.colProjectName,DbManager.colWorkTypeId,
-						DbManager.colWorkDate,DbManager.colProgress,
-						DbManager.colStatus,DbManager.colDayDate,
-						DbManager.colWorkDateStr,DbManager.colSumTask,
-						DbManager.colSumDone, DbManager.colOperatorNumber,
-						DbManager.colHiddenItemIds);
+		if (DbManager.schema_version >= 10) {
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+				argsList.add(DbManager.colHiddenItemIds);
+			}
 		}
 
-		DbRepository.getInstance().open(TowerApplication.getInstance());
+		if (DbManager.schema_version >= 12) {
+			argsList.add(DbManager.colRejection);
+		}
 
+		String[] args = new String[argsList.size()];
+		args = argsList.toArray(args);
+
+		int size = argsList.size() - 1;
+		for (int i = 0; i < size; i++) {
+			formatBuilder.append("%s");
+			valuesBuilder.append("?");
+			if (i < size - 1) {
+				formatBuilder.append(",");
+				valuesBuilder.append(",");
+			}
+		}
+		formatBuilder.append(")");
+		valuesBuilder.append(")");
+
+		format = new String(formatBuilder) + new String(valuesBuilder);
+		sql = String.format(format, args);
+
+		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
-		bindAndCheckNullString(stmt, 1, id);
+		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colColId), id);
 		if (user == null)
-			bindAndCheckNullString(stmt, 2, null);
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colUserId), null);
 		else
-			bindAndCheckNullString(stmt, 2, user.id);
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colUserId), user.id);
 
 		if (site == null){
-			stmt.bindLong(3, -1);
+			stmt.bindLong(getColIndex(argsList, DbManager.colSiteId), -1);
 		}else{
-			stmt.bindLong(3, site.id);
+			stmt.bindLong(getColIndex(argsList, DbManager.colSiteId), site.id);
 		}
 
 		if (operators == null || operators.size() < 1){
-			bindAndCheckNullString(stmt, 4, null);
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colOperatorIds), null);
 		}
 		else{
-			bindAndCheckNullString(stmt, 4, getOperatorIds(operators));
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colOperatorIds), getOperatorIds(operators));
 		}
 
 		if (project == null){
-			bindAndCheckNullString(stmt, 5, null);
-			bindAndCheckNullString(stmt, 6, null);
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colProjectId), null);
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colProjectName), null);
 		}else{
-			bindAndCheckNullString(stmt, 5, project.id);
-			bindAndCheckNullString(stmt, 6, project.name);
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colProjectId), project.id);
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colProjectName), project.name);
 		}
 		if (work_type == null){
-			stmt.bindLong(7, -1);
+			stmt.bindLong(getColIndex(argsList, DbManager.colWorkTypeId), -1);
 		}else{
-			stmt.bindLong(7, work_type.id);
+			stmt.bindLong(getColIndex(argsList, DbManager.colWorkTypeId), work_type.id);
 		}
-		bindAndCheckNullString(stmt, 8, work_date);
-		stmt.bindLong(9, (long) progress);
+		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colWorkDate), work_date);
+		stmt.bindLong(getColIndex(argsList, DbManager.colProgress), (long) progress);
 		//		bindAndCheckNullString(stmt, 13, progress);
-		bindAndCheckNullString(stmt, 10, status);
+		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colStatus), status);
 		//		bindAndCheckNullString(stmt, 11, day_date == null ? work_date_str.substring(0, 10) : day_date);
-		bindAndCheckNullString(stmt, 11, work_date_str.substring(0, 10));
-		bindAndCheckNullString(stmt, 12, work_date_str);
+		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colDayDate), work_date_str.substring(0, 10));
+		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colWorkDateStr), work_date_str);
 		//		bindAndCheckNullString(stmt, 13, id);
-		stmt.bindLong(13, task);
-		stmt.bindLong(14, sumTaskDone);
-		stmt.bindLong(15, operator_number);
+		stmt.bindLong(getColIndex(argsList, DbManager.colSumTask), task);
+		stmt.bindLong(getColIndex(argsList, DbManager.colSumDone), sumTaskDone);
+		stmt.bindLong(getColIndex(argsList, DbManager.colOperatorNumber), operator_number);
 
-		if (DbManager.schema_version == 10) {
-			if (hidden == null || hidden.size() < 1) {
-				bindAndCheckNullString(stmt, 16, null);
-			} else {
-				bindAndCheckNullString(stmt, 16, toStringHiddenItemIds(hidden));
+		if (DbManager.schema_version >= 10) {
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+				bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colHiddenItemIds), toStringHiddenItemIds(hidden));
 			}
-		} else if (DbManager.schema_version == 12) {
+		}
+
+		if (DbManager.schema_version >= 12) {
 			String rejectionJson = null;
 			if (rejection != null) {
 				rejectionJson =  new Gson().toJson(rejection);
 			}
-			bindAndCheckNullString(stmt, 16, rejectionJson);
+			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colRejection), rejectionJson);
 		}
 		stmt.executeInsert();
 		stmt.close();
@@ -488,22 +464,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return model;
 	}
 
-	//penambahan irwan method getScheduleByForm
-//	public ScheduleBaseModel getScheduleByForm(String id){
-//
-//		ScheduleBaseModel model = null;
-//
-//		String table = DbManager.mWorkForm;
-//		String[] columns = null;
-//		String where = DbManager.mWorkType;
-//
-//		return model;
-//	}
-
-
 	public Vector<ScheduleBaseModel> getListScheduleForScheduleAdapter(Vector<ScheduleBaseModel> rawList) {
 		Vector<ScheduleBaseModel> listPerDay = new Vector<>();
-
 		for (ScheduleBaseModel scheduleBaseModel : rawList) {
 			DebugLog.d("listPerDay.size() : " + listPerDay.size());
 			DebugLog.d("scheduleBaseModel.day_date : " + scheduleBaseModel.day_date);
@@ -598,22 +560,23 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		scheduleBase.work_type = scheduleBase.work_type.getworkTypeById(scheduleBase.work_type.id);
 
 		// hidden item ids
-		if (DbManager.schema_version == 10) {
-			scheduleBase.hidden = new Vector<>();
-			scheduleBase.hidden = toVectorHiddenItemIds(c.getString(c.getColumnIndex(DbManager.colHiddenItemIds)));
-		} else if (DbManager.schema_version == 12) {
+		if (DbManager.schema_version >= 10) {
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+				scheduleBase.hidden = toVectorHiddenItemIds(c.getString(c.getColumnIndex(DbManager.colHiddenItemIds)));
+			}
+		}
+
+		if (DbManager.schema_version >= 12) {
 			scheduleBase.rejection = new Gson().fromJson(c.getString(c.getColumnIndex(DbManager.colRejection)), RejectionModel.class);
 		}
 		return scheduleBase;
 	}
 
 	public static void resetAllSchedule(){
-
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		ContentValues cv = new ContentValues();
 		cv.put(DbManager.colProgress, -1);
 		cv.put(DbManager.colSumDone, 0);
-
 		DbRepository.getInstance().getDB().update(DbManager.mSchedule, cv, null, null);
 		DbRepository.getInstance().close();
 	}
@@ -669,6 +632,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	private static String toStringHiddenItemIds(Vector<Integer> hidden) {
+		if (hidden == null) return null;
+
 		StringBuilder hiddenItems = new StringBuilder();
 		for (int i = 0; i < hidden.size(); i++) {
 			hiddenItems.append( i == hidden.size()-1 ? hidden.get(i) : hidden.get(i) + ",");
@@ -685,5 +650,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			}
 		}
 		return hidden;
+	}
+
+	private static int getColIndex(ArrayList<String> cols, String colKeyword) {
+		return cols.indexOf(colKeyword);
 	}
 }

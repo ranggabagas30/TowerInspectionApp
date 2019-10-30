@@ -188,7 +188,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
                         if (!GlobalVar.getInstance().anyNetwork(this)) {
                             hideDialog();
-                            MyApplication.getInstance().toast(getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
+                            TowerApplication.getInstance().toast(getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
                             return;
                         }
 

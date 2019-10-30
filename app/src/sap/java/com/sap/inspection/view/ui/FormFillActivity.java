@@ -4,16 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
-import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,16 +31,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -62,14 +57,13 @@ import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
-import com.sap.inspection.util.LocationRequestProvider;
 import com.sap.inspection.util.StringUtil;
+import com.sap.inspection.view.adapter.FormFillAdapter;
 import com.sap.inspection.view.customview.FormItem;
 import com.sap.inspection.view.customview.PhotoItemRadio;
-import com.sap.inspection.util.DialogUtil;
-import com.sap.inspection.view.adapter.FormFillAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -383,16 +377,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				photoItem = (PhotoItemRadio) v.getTag();
 				takePicture(photoItem.getItemId());
 			} else
-				DialogUtil.showGPSdialog(FormFillActivity.this).show();
+				DialogUtil.showGPSdialog(FormFillActivity.this);
 		}
 	};
 
     OnClickListener uploadClickListener = new OnClickListener() {
-
         @Override
         public void onClick(View v) {
 			if (!GlobalVar.getInstance().anyNetwork(activity)) {
-				TowerApplication.getInstance().toast(getString(R.string.failed_nointernetconnection), Toast.LENGTH_SHORT);
+				TowerApplication.getInstance().toast(getString(R.string.error_no_internet_connection), Toast.LENGTH_SHORT);
 				return;
 			}
 			int pos = (int)v.getTag();
@@ -402,7 +395,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			if (uploadItem != null)
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
 			else
-				TowerApplication.getInstance().toast(getString(R.string.failed_noitem), Toast.LENGTH_LONG);
+				TowerApplication.getInstance().toast(getString(R.string.error_no_item), Toast.LENGTH_LONG);
         }
     };
 
@@ -424,7 +417,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
 				intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 				startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
-				return;
+				return true;
 			} catch (NullPointerException npe) {
 				DebugLog.e("take picture: " + npe.getMessage());
 			} catch (IOException e ) {
@@ -436,6 +429,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		// if failed, then show toast with failed message
 		Toast.makeText(activity, getString(R.string.error_take_picture), Toast.LENGTH_SHORT).show();
+		return false;
 	}
 
 	//called after camera intent finished
@@ -451,6 +445,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			return true;
 		}));
 
+		Pair<String, String> photoLocation;
 		String currentLat  = String.valueOf(currentLocation.getLatitude());
 		String currentLong = String.valueOf(currentLocation.getLongitude());
 		int accuracy	   = (int) currentLocation.getAccuracy();
@@ -458,51 +453,46 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
 
 			if (photoItem != null && mImageUri != null){
-<<<<<<< HEAD
 				if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
 					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
-=======
-				if (MyApplication.getInstance().isScheduleNeedCheckIn()) {
-					Pair<String, String> photoLocation = CommonUtil.getPersistentLocation(scheduleId);
->>>>>>> currentwork-sap
 					if (photoLocation != null) {
 						currentLat  = photoLocation.first();
 						currentLong = photoLocation.second();
 					} else {
-						Crashlytics.log(Log.ERROR, "photolocation", "Persistent photo location error (null)");
+						DebugLog.e("Persistent photo location error (null)");
 					}
 				}
 
 				String[] textMarks = new String[3];
 				String photoDate = DateTools.getCurrentDate();
 
-<<<<<<< HEAD
-				textMarks[0] = "Lat. : "+  latitude + ", Long. : "+ longitude;
-				textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
-=======
 				textMarks[0] = "Lat. : "+  currentLat + ", Long. : "+ currentLong;
->>>>>>> currentwork-sap
+				textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
 				textMarks[2] = "Photo date : "+photoDate;
 
-				ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
-				ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photoFile.toString());
-                CommonUtil.encryptFileBase64(photoFile, photoFile.toString());
+				try {
+					ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
+					ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photoFile.toString());
+					CommonUtil.encryptFileBase64(photoFile, photoFile.toString());
 
-                // reget filePhotoResult
-                File filePhotoResult = new File(photoFile.toString());
+					// reget filePhotoResult
+					File filePhotoResult = new File(photoFile.toString());
 
-                if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
-                    photoItem.deletePhoto();
-                    photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
-                } else {
-                    if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
-                        photoItem.deletePhoto();
-                        photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
-                    } else {
-                        DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-                        TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
-                    }
-                }
+					if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
+						photoItem.deletePhoto();
+						photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
+					} else {
+						if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
+							photoItem.deletePhoto();
+							photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
+						} else {
+							DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
+							TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+						}
+					}
+				} catch (IOException e) {
+					DebugLog.e("ERROR: resize and save image check", e);
+				}
             }
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -711,9 +701,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			String barangLabel = pageTitle;
 			String barangID = barangId;
 			String barangName = StringUtil.getName(scheduleId, wargaId, barangId, workFormGroupId);
-
 			StringBuilder barangLabelBuilder = new StringBuilder(barangLabel).append(barangID);
-
 			if (!TextUtils.isEmpty(barangName))
 				barangLabelBuilder.append(" (").append(barangName).append(")");
 

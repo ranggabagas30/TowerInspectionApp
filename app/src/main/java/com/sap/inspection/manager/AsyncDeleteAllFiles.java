@@ -7,13 +7,13 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
-import com.sap.inspection.view.ui.MyApplication;
 
 import java.io.File;
 
@@ -56,7 +56,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 			}
 
 		if (TextUtils.isEmpty(mScheduleId)) {// if there is no specific dir by scheduleId, then clear all application data
-			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
 			mPref.edit().clear().apply();
 			CommonUtil.clearApplicationData();
 			ScheduleBaseModel.delete();

@@ -87,7 +87,7 @@ public class DbManager extends SQLiteOpenHelper {
 	public static final String colSumTask 		= "sumTask";
 	public static final String colSumDone 		= "sumDone";
 	public static final String colOperatorNumber= "operatorNumber";
-	public static final String colHiddenItemIds	= "hiddenItemIds";
+	public static final String colHiddenItemIds	= "hiddenItemIds"; // SAP only
 	public static final String colRejection		= "rejection"; // STP ONLY
 
 	// work form
@@ -200,7 +200,6 @@ public class DbManager extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
 		for (int i=oldVersion; i<newVersion; i++) {
 			PATCHES[i].apply(db);
 		}
@@ -221,11 +220,11 @@ public class DbManager extends SQLiteOpenHelper {
 			new GeneralPatch5(),				// 4
 			new GeneralPatch6(),				// 5
 			new GeneralPatch7(),				// 6
-			new GeneralPatch8(),				// 8
-			new GeneralPatch9(),				// 9
-			new GeneralPatch10(),				// 10
-			new GeneralPatch11(),				// 11
-			new GeneralPatch12()
+			new GeneralPatch8(),				// 7
+			new GeneralPatch9(),				// 8
+			new GeneralPatch10(),				// 9
+			new GeneralPatch11(),				// 10
+			new GeneralPatch12()				// 11
 	};
 
 	public static void dropTable(SQLiteDatabase db){

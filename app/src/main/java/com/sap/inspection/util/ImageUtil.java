@@ -78,25 +78,20 @@ public class ImageUtil {
     }
 
     public static void addWaterMark(Context context, int res, String imagePath) {
-
         try {
-
             Bitmap bitmap = stickWatermark(context, res, imagePath);
             File file = new File(imagePath);
-
             try {
-
                 FileOutputStream out = new FileOutputStream(file);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
                 out.close();
-
             } catch (Exception e) {
-                e.printStackTrace();
+                DebugLog.e(e.getMessage(), e);
             }
             System.gc();
 
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            DebugLog.e(e.getMessage(), e);
         }
     }
 
@@ -110,7 +105,7 @@ public class ImageUtil {
                 out.close();
                 return true;
             } catch (Exception e) {
-                e.printStackTrace();
+                DebugLog.e(e.getMessage(), e);
                 return false;
             }
     }

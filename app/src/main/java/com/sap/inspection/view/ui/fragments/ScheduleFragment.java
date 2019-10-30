@@ -5,11 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-<<<<<<< HEAD
 import android.text.TextUtils;
-=======
 import android.support.annotation.Nullable;
->>>>>>> currentwork-sap
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -142,15 +139,17 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		} else if (resId == R.string.fiber_optic){
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.fiber_optic)));
-		} else if (resId == R.string.foto_imbas_petir) {
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.foto_imbas_petir)));
-			checkImbasPetirConfig(models);
 		} else if (resId == R.string.hasil_PM){
 			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
-		} else if (resId == R.string.routing_segment) {
+		}
+		// SAP only
+		 else if (resId == R.string.foto_imbas_petir) {
+			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
+			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.foto_imbas_petir)));
+			checkImbasPetirConfig(models);
+		}  else if (resId == R.string.routing_segment) {
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.routing_segment)));
 		} else if (resId == R.string.handhole) {
@@ -167,29 +166,20 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	}
 
 	private void checkImbasPetirConfig(Vector<ScheduleBaseModel> listSchedules) {
-
 		FormImbasPetirConfig formImbasPetirConfig = FormImbasPetirConfig.getImbasPetirConfig();
-
 		if (formImbasPetirConfig == null) {
-
 			DebugLog.d("Form imbas petir config not found, create config");
 			FormImbasPetirConfig.createImbasPetirConfig();
 		}
 
 		DebugLog.d("== checking config data over schedules === ");
 		for (ScheduleBaseModel schedule : listSchedules) {
-
 			if (schedule.id != null) {
-
 				// if schedule data config not found, then add new data to the config
-
 				if (!FormImbasPetirConfig.isDataExist(schedule.id)) {
-
 					DebugLog.d("schedule data for scheduleid " + schedule.id + " not found, add new data !");
 					FormImbasPetirConfig.insertNewData(schedule.id);
-
 				}
-
 			}
 		}
 	}
@@ -198,11 +188,9 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 		CorrectiveScheduleResponseModel correctiveData = CorrectiveScheduleConfig.getCorrectiveScheduleConfig();
 		if (correctiveData == null) {
-
 			DebugLog.d("Corrective schedule config not found, create config");
 			baseActivity.showMessageDialog("Loading corrective schedules data");
 			APIHelper.getCorrectiveSchedule(getContext(), correctiveScheduleHandler, userId);
-
 		} else {
 
 			Vector<ScheduleBaseModel> correctiveScheduleModels = new Vector<>();
@@ -223,13 +211,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		DebugLog.d("set item schedule ");
 		DebugLog.d("schedule id : " + scheduleId);
 		DebugLog.d("user id : " + userId);
-
-<<<<<<< HEAD
-		/*dialog.setMessage("Loading data please wait");
-		dialog.show();*/
-=======
-		//baseActivity.showMessageDialog("Loading data please wait");
->>>>>>> currentwork-sap
 	    APIHelper.getItemSchedules(getContext(), itemScheduleHandler, scheduleId, userId);
 	}
 
@@ -237,13 +218,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	private Handler itemScheduleHandler = new Handler(){
 
 		public void handleMessage(android.os.Message msg) {
-
-<<<<<<< HEAD
-			//dialog.dismiss();
-
-=======
 			baseActivity.hideDialog();
->>>>>>> currentwork-sap
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
 
@@ -374,13 +349,11 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		log("-=-="+ userId +"-=-=-=");
 
 		if (userId != null && !userId.equalsIgnoreCase("") && !TowerApplication.getInstance().IS_CHECKING_HASIL_PM()) {
-
 			setItemScheduleModelBy(scheduleId, userId);
 		}
 
 		if (workTypeName.matches(Constants.regexPREVENTIVE) && !TowerApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 		    TowerApplication.getInstance().setIsScheduleNeedCheckIn(true);
-
 			BaseActivity.navigateToCheckinActivity(
 					getActivity(),
 					userId,
@@ -390,9 +363,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 					workTypeId,
 					workTypeName
 			);
-
 		} else {
-
 			BaseActivity.navigateToGroupActivity(
 					getActivity(),
 					scheduleId,
