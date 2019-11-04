@@ -1,7 +1,13 @@
-package com.sap.inspection.tools;
+package com.sap.inspection.util;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.provider.Settings;
 import android.text.format.DateUtils;
+
+import com.sap.inspection.tools.DebugLog;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,7 +16,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-public class DateTools {
+public class DateUtil {
 
 	public static String getCurrentDate(){
 		Date currentDate = Calendar.getInstance().getTime();
@@ -50,6 +56,12 @@ public class DateTools {
 		Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
 		calendar.setTime(date);
 		return calendar;
+	}
+
+	public static String toDate(long timeInMillis, String pattern) {
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		Date date = new Date(timeInMillis);
+		return sdf.format(date);
 	}
 
 	public static String timeElapse(Context context, Calendar timeToCheck){
@@ -119,4 +131,15 @@ public class DateTools {
 		
 	}
 
+	public static boolean isTimeAutomatic(Context c) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			return Settings.Global.getInt(c.getContentResolver(), Settings.Global.AUTO_TIME, 0) == 1;
+		} else {
+			return android.provider.Settings.System.getInt(c.getContentResolver(), android.provider.Settings.System.AUTO_TIME, 0) == 1;
+		}
+	}
+
+	public static void openDateTimeSetting(Activity activity, final int RC) {
+		activity.startActivityForResult(new Intent(Settings.ACTION_DATE_SETTINGS), RC);
+	}
 }

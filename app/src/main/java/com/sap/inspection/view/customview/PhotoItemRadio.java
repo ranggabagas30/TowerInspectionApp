@@ -33,7 +33,7 @@ import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.responsemodel.CheckApprovalResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
-import com.sap.inspection.tools.DateTools;
+import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
@@ -509,7 +509,7 @@ public class PhotoItemRadio extends RelativeLayout {
 		value.longitude = longitude;
 		value.gpsAccuracy = accuracy;
 		value.photoStatus = Constants.OK;
-		value.photoDate = DateTools.getCurrentDate();
+		value.photoDate = DateUtil.getCurrentDate();
 
 		this.latitude.setText("Lat. : "+ latitude);
 		this.longitude.setText("Long. : "+ longitude);

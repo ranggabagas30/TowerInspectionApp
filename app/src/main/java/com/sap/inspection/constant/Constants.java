@@ -83,6 +83,7 @@ public class Constants {
 	public static final int RC_CAMERA_PERMISSION = 4;
 	public static final int RC_INSTALL_APK = 101;
 	public static final int RC_TAKE_PHOTO = 102;
+	public static final int RC_CHANGE_DATE_TIME_SETTING = 103;
 
 
 	/**

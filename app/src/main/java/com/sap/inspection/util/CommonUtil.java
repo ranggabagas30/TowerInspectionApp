@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.RequiresPermission;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -104,7 +105,7 @@ public class CommonUtil {
     }
 
     public static void sendReportFakeGPS(Context context, String message, String siteId, Handler handler) {
-        String timeDetected = CommonUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN2);
+        String timeDetected = DateUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN2);
         String appVersion = BuildConfig.VERSION_NAME;
         APIHelper.reportFakeGPS(context, handler, timeDetected, appVersion, message, siteId);
     }
@@ -630,14 +631,5 @@ public class CommonUtil {
         }
 
         return null;
-    }
-
-    /**
-     * Time Util
-     * */
-    public static String toDate(long timeInMillis, String pattern) {
-        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-        Date date = new Date(timeInMillis);
-        return sdf.format(date);
     }
 }

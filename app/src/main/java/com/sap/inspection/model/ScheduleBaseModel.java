@@ -276,7 +276,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 
-		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colColId), id);
+		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colID), id);
 		if (user == null)
 			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colUserId), null);
 		else
@@ -339,7 +339,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public static void delete(){
-
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mSchedule;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
@@ -350,7 +349,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 	public static int getTaskDone(String scheduleId){
 		int result = 0;
-
 		String table = DbManager.mSchedule;
 		String[] columns = new String[] {DbManager.colSumDone};
 		String where =DbManager.colID + "=?";
@@ -607,9 +605,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	private void printDefaultValueSchedules() {
-
 		if (default_value_schedule != null && !default_value_schedule.isEmpty()) {
-
 			int i = 1;
 			for (DefaultValueScheduleModel itemDefaultValue : default_value_schedule) {
 

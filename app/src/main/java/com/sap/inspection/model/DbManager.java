@@ -24,6 +24,7 @@ import com.sap.inspection.model.migrate.GeneralPatch6;
 import com.sap.inspection.model.migrate.GeneralPatch7;
 import com.sap.inspection.model.migrate.GeneralPatch8;
 import com.sap.inspection.model.migrate.GeneralPatch9;
+import com.sap.inspection.tools.DebugLog;
 
 public class DbManager extends SQLiteOpenHelper {
 
@@ -200,6 +201,7 @@ public class DbManager extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		DebugLog.d("(old version, new version) : (" + oldVersion + ", " + newVersion + ")");
 		for (int i=oldVersion; i<newVersion; i++) {
 			PATCHES[i].apply(db);
 		}

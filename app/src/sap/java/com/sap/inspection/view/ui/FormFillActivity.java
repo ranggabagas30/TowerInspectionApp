@@ -54,7 +54,7 @@ import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
-import com.sap.inspection.tools.DateTools;
+import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.DialogUtil;
@@ -436,65 +436,70 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-		CommonUtil.checkFakeGPSAvailable(FormFillActivity.this, currentLocation, String.valueOf(schedule.site.id), new Handler(message -> {
-			Bundle bundle = message.getData();
-			if (!TextUtils.isEmpty(bundle.getString("json"))) {
-				FakeGPSResponseModel fakeGPSResponseModel = new Gson().fromJson(bundle.getString("json"), FakeGPSResponseModel.class);
-				DebugLog.d(fakeGPSResponseModel.toString());
-			}
-			return true;
-		}));
-
-		Pair<String, String> photoLocation;
-		String currentLat  = String.valueOf(currentLocation.getLatitude());
-		String currentLong = String.valueOf(currentLocation.getLongitude());
-		int accuracy	   = (int) currentLocation.getAccuracy();
-
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
-
-			if (photoItem != null && mImageUri != null){
-				if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
-					photoLocation = CommonUtil.getPersistentLocation(scheduleId);
-					if (photoLocation != null) {
-						currentLat  = photoLocation.first();
-						currentLong = photoLocation.second();
-					} else {
-						DebugLog.e("Persistent photo location error (null)");
+			if (DateUtil.isTimeAutomatic(FormFillActivity.this)) {
+				CommonUtil.checkFakeGPSAvailable(FormFillActivity.this, currentLocation, String.valueOf(schedule.site.id), new Handler(message -> {
+					Bundle bundle = message.getData();
+					if (!TextUtils.isEmpty(bundle.getString("json"))) {
+						FakeGPSResponseModel fakeGPSResponseModel = new Gson().fromJson(bundle.getString("json"), FakeGPSResponseModel.class);
+						DebugLog.d(fakeGPSResponseModel.toString());
 					}
-				}
+					return true;
+				}));
 
-				String[] textMarks = new String[3];
-				String photoDate = DateTools.getCurrentDate();
+				Pair<String, String> photoLocation;
+				String currentLat  = String.valueOf(currentLocation.getLatitude());
+				String currentLong = String.valueOf(currentLocation.getLongitude());
+				int accuracy	   = (int) currentLocation.getAccuracy();
 
-				textMarks[0] = "Lat. : "+  currentLat + ", Long. : "+ currentLong;
-				textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
-				textMarks[2] = "Photo date : "+photoDate;
+				if (photoItem != null && mImageUri != null){
+					if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
+						photoLocation = CommonUtil.getPersistentLocation(scheduleId);
+						if (photoLocation != null) {
+							currentLat  = photoLocation.first();
+							currentLong = photoLocation.second();
+						} else {
+							DebugLog.e("Persistent photo location error (null)");
+						}
+					}
 
-				try {
-					ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
-					ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photoFile.toString());
-					CommonUtil.encryptFileBase64(photoFile, photoFile.toString());
+					String[] textMarks = new String[3];
+					String photoDate = DateUtil.getCurrentDate();
 
-					// reget filePhotoResult
-					File filePhotoResult = new File(photoFile.toString());
+					textMarks[0] = "Lat. : "+  currentLat + ", Long. : "+ currentLong;
+					textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
+					textMarks[2] = "Photo date : "+photoDate;
 
-					if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
-						photoItem.deletePhoto();
-						photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
-					} else {
-						if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
+					try {
+						ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
+						ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photoFile.toString());
+						CommonUtil.encryptFileBase64(photoFile, photoFile.toString());
+
+						// reget filePhotoResult
+						File filePhotoResult = new File(photoFile.toString());
+
+						if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
 							photoItem.deletePhoto();
 							photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
 						} else {
-							DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-							TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+							if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
+								photoItem.deletePhoto();
+								photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
+							} else {
+								DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
+								TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+							}
 						}
+					} catch (IOException e) {
+						DebugLog.e("ERROR: resize and save image check", e);
 					}
-				} catch (IOException e) {
-					DebugLog.e("ERROR: resize and save image check", e);
 				}
-            }
+			} else {
+				Toast.makeText(activity, getString(R.string.error_using_manual_date_time), Toast.LENGTH_LONG).show();
+				DateUtil.openDateTimeSetting(FormFillActivity.this, 0);
+			}
 		}
+
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
 

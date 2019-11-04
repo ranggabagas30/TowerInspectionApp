@@ -33,7 +33,7 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.responsemodel.CheckinRepsonseModel;
 import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
-import com.sap.inspection.tools.DateTools;
+import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.CommonUtil;
@@ -431,7 +431,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mParamObject.setCurrentLat(String.valueOf(mCurrentCoordinate.getLatitude()));
         mParamObject.setCurrentLong(String.valueOf(mCurrentCoordinate.getLongitude()));
         mParamObject.setDistance(mDistanceMeasurment);
-        mParamObject.setTime(DateTools.now());
+        mParamObject.setTime(DateUtil.now());
         mParamObject.setStatus(localValidation() ? "success" : "failed");
         mParamObject.setAccuracy(mAccuracy);
     }

@@ -15,7 +15,7 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
-import com.sap.inspection.tools.DateTools;
+import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
@@ -314,7 +314,7 @@ public class ItemFormRenderModel extends BaseModel {
             return "no action yet";
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(when);
-        return DateTools.timeElapse(calendar);
+        return DateUtil.timeElapse(calendar);
     }
 
     public void add(ItemFormRenderModel child) {

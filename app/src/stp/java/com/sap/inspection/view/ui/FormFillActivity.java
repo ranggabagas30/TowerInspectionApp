@@ -49,9 +49,9 @@ import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
-import com.sap.inspection.tools.DateTools;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
@@ -442,54 +442,59 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	//called after camera intent finished
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		String siteLatitude = String.valueOf(currentGeoPoint.latitude);
-		String siteLongitude = String.valueOf(currentGeoPoint.longitude);
-		Pair<String, String> photoLocation;
 
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
-			try {
-				if (mImageUri != null && !TextUtils.isEmpty(photoFile.toString())) {
-					File filePhotoResult = new File(photoFile.toString());
-					if (filePhotoResult.exists()) {
+			if (DateUtil.isTimeAutomatic(this)) {
+				String siteLatitude = String.valueOf(currentGeoPoint.latitude);
+				String siteLongitude = String.valueOf(currentGeoPoint.longitude);
+				Pair<String, String> photoLocation;
+				try {
+					if (mImageUri != null && !TextUtils.isEmpty(photoFile.toString())) {
+						File filePhotoResult = new File(photoFile.toString());
+						if (filePhotoResult.exists()) {
 
-						if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
-							photoLocation = CommonUtil.getPersistentLocation(scheduleId);
-							if (photoLocation != null) {
-								siteLatitude = photoLocation.first();
-								siteLongitude = photoLocation.second();
-							} else {
-								DebugLog.e("Persistent photo location error (null)");
+							if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
+								photoLocation = CommonUtil.getPersistentLocation(scheduleId);
+								if (photoLocation != null) {
+									siteLatitude = photoLocation.first();
+									siteLongitude = photoLocation.second();
+								} else {
+									DebugLog.e("Persistent photo location error (null)");
+								}
 							}
-						}
 
-						String[] textMarks = new String[3];
-						String photoDate = DateTools.getCurrentDate();
-						String latitude = siteLatitude;
-						String longitude = siteLongitude;
+							String[] textMarks = new String[3];
+							String photoDate = DateUtil.getCurrentDate();
+							String latitude = siteLatitude;
+							String longitude = siteLongitude;
 
-						textMarks[0] = "Lat. : " + latitude + ", Long. : " + longitude;
-						textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
-						textMarks[2] = "Photo date : " + photoDate;
+							textMarks[0] = "Lat. : " + latitude + ", Long. : " + longitude;
+							textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
+							textMarks[2] = "Photo date : " + photoDate;
 
-						ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
-						System.gc();
-						if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
-							photoItem.deletePhoto();
-							photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
+							ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
+							System.gc();
+							if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
+								photoItem.deletePhoto();
+								photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
+							} else {
+								DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
+								TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+							}
 						} else {
-							DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-							TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+							throw new NullPointerException("Failed take picture. File not exists");
 						}
-					} else {
-						throw new NullPointerException("Failed take picture. File not exists");
-					}
-				} else throw new NullPointerException("Failed take picture. Image URI or photo path is null");
-			} catch (IOException e) {
-				DebugLog.e("resize and save image: " + e.getMessage());
-				Toast.makeText(activity, "Gagal menyimpan foto", Toast.LENGTH_LONG).show();
-			} catch (NullPointerException e) {
-				DebugLog.e("resize and save image: " + e.getMessage());
-				Toast.makeText(activity, "Gagal menyimpan foto", Toast.LENGTH_LONG).show();
+					} else throw new NullPointerException("Failed take picture. Image URI or photo path is null");
+				} catch (IOException e) {
+					DebugLog.e("resize and save image: " + e.getMessage());
+					Toast.makeText(activity, "Gagal menyimpan foto", Toast.LENGTH_LONG).show();
+				} catch (NullPointerException e) {
+					DebugLog.e("resize and save image: " + e.getMessage());
+					Toast.makeText(activity, "Gagal menyimpan foto", Toast.LENGTH_LONG).show();
+				}
+			} else {
+				Toast.makeText(activity, getString(R.string.error_using_manual_date_time), Toast.LENGTH_LONG).show();
+				DateUtil.openDateTimeSetting(FormFillActivity.this, 0);
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);

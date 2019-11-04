@@ -108,7 +108,7 @@
     <string name="error_delete_file">Gagal menghapus data file</string>
     <string name="error_input_amount_warga">Mohon masukkan jumlah warga dengan benar</string>
     <string name="error_input_amount_barang">Mohon masukkan jumlah barang dengan benar</string>
-
+    <string name="error_using_manual_date_time">Gagal menyimpan foto. Pastikan menggunakan "Automatic date and time" di pengaturan device</string>
     <!-- success messages-->
     <string name="success_copydatabase">Berhasil salin database</string>
     <string name="success_createdir">Berhasil membuat direktori</string>
