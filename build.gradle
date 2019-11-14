@@ -21,11 +21,11 @@ buildscript {
 // To avoid manually setting the same values in all Android modules, set the value on the root
 // project and then reference this from the modules
 ext {
-    compileSdkVersion = 27
+    compileSdkVersion = 28
     buildToolsVersion = "28.0.3"
-    supportLibVersion = "27.1.1"
+    supportLibVersion = "28.0.0"
     minSdkVersion  = 19
-    targetSdkVersion = 27
+    targetSdkVersion = 28
     constraintLayoutVersion = "1.1.3"
     playServicesLocationVersion = "16.0.0"
     playServicesMapsVersion = "16.0.0"

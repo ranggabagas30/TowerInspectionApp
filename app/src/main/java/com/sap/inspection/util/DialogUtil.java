@@ -13,6 +13,7 @@ import com.sap.inspection.view.dialog.DeleteAllDataDialog;
 import com.sap.inspection.view.dialog.DeleteAllSchedulesDialog;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
+import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
 import java.util.ArrayList;
 
@@ -120,5 +121,16 @@ public class DialogUtil {
                 .setPositiveButton(android.R.string.ok, positiveClickListener)
                 .setNegativeButton(android.R.string.cancel, negativeClickListener)
                 .create().show();
+    }
+
+    public static void showCreateFoCutScheduleDialog(Context context, LovelyTextInputDialog.OnTextInputConfirmListener onTextInputConfirmListener) {
+        new LovelyTextInputDialog(context, R.color.theme_color)
+                .setTopColorRes(R.color.item_drill_red)
+                .setTopTitle(R.string.app_name)
+                .setTitle("Create FO CUT schedule")
+                .setMessage("Input TT Number")
+                .setConfirmButton(android.R.string.ok, onTextInputConfirmListener)
+                .setCancelable(true)
+                .show();
     }
 }

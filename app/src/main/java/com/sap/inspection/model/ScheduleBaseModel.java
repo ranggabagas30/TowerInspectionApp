@@ -271,7 +271,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		valuesBuilder.append(")");
 
 		format = new String(formatBuilder) + new String(valuesBuilder);
-		sql = String.format(format, args);
+		sql = String.format(format, (Object[]) args);
 
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);

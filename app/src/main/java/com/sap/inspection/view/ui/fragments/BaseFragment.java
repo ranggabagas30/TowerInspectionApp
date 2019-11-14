@@ -7,9 +7,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import io.reactivex.disposables.CompositeDisposable;
+
 public abstract class BaseFragment extends Fragment{
 
 	protected Activity activity;
+	protected CompositeDisposable compositeDisposable;
 
 	@Override
 	public void onAttach(Context context) {
@@ -23,6 +26,7 @@ public abstract class BaseFragment extends Fragment{
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		compositeDisposable = new CompositeDisposable();
 	}
 
 	@Override
@@ -33,6 +37,18 @@ public abstract class BaseFragment extends Fragment{
 	@Override
 	public void onStop() {
 		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		compositeDisposable.clear();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		compositeDisposable.dispose();
 	}
 
 	protected void log(String logString){

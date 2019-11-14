@@ -2,9 +2,11 @@ package com.sap.inspection.connection.rest;
 
 import com.sap.inspection.model.responsemodel.DeviceRegistrationResponseModel;
 import com.sap.inspection.model.responsemodel.FormVersionResponseModel;
+import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -29,5 +31,13 @@ public interface TowerAPI {
     Observable<UserResponseModel> rxPostLogin(
             @Field("username") String username,
             @Field("password") String password
+    );
+
+    @FormUrlEncoded
+    @POST("schedule/create/fo_cut")
+    Single<ScheduleResponseModel> rxPostCreateScheduleFOCUT(
+            @Field("tt_number") String ttNumber, // text
+            @Field("work_date") String workDate, // yyyy-MM-dd
+            @Field("user_id") String userId
     );
 }

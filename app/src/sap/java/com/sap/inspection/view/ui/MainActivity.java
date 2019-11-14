@@ -67,6 +67,7 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 		mSlidingLayer = findViewById(R.id.slidingLayer1);
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
+
 		LayoutParams rlp = (LayoutParams) mSlidingLayer.getLayoutParams();
 		rlp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		rlp.width = LayoutParams.MATCH_PARENT;

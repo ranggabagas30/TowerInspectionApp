@@ -18,6 +18,7 @@ import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.DefaultValueScheduleModel;
@@ -29,6 +30,8 @@ import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.DateUtil;
+import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.view.adapter.ScheduleAdapter;
 import com.sap.inspection.view.ui.BaseActivity;
@@ -38,12 +41,19 @@ import com.sap.inspection.view.ui.MainActivity;
 import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.HttpException;
 
 public class ScheduleFragment extends BaseListTitleFragment implements OnItemClickListener{
+
 	private ScheduleAdapter adapter;
+	private BaseActivity baseActivity;
 	private Vector<ScheduleBaseModel> models;
 	private String userId;
-	private BaseActivity baseActivity;
+	private String ttNumber; // SAP for creating FO CUT schedule
+
 	private int filterBy = 0;
 
 	public static ScheduleFragment newInstance() {
@@ -99,7 +109,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			case Constants.CALLENDAR_ACTIVITY:
 				scrollTo(data.getExtras().getString("date"));
 				break;
-
 			default:
 				break;
 			}
@@ -113,6 +122,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	}
 
 	public void setScheduleBy(int resId){
+		actionAdd.setVisibility(View.INVISIBLE);
 		filterBy = resId;
 		if (resId == R.string.schedule){
 			ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
@@ -161,6 +171,8 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		} else if (resId == R.string.focut) {
 			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
 			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.focut)));
+			actionAdd.setVisibility(View.VISIBLE);
+			actionAdd.setOnClickListener(view -> openCreateScheduleFOCUT());
 		}
 		adapter.setItems(models);
 	}
@@ -183,7 +195,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			}
 		}
 	}
-
 	private void checkCorrectiveScheduleConfig(String userId) {
 
 		CorrectiveScheduleResponseModel correctiveData = CorrectiveScheduleConfig.getCorrectiveScheduleConfig();
@@ -206,7 +217,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
             adapter.setItems(models);
 		}
 	}
-
 	public void setItemScheduleModelBy(String scheduleId, String userId) {
 		DebugLog.d("set item schedule ");
 		DebugLog.d("schedule id : " + scheduleId);
@@ -286,13 +296,10 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	private Handler correctiveScheduleHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-
 			baseActivity.hideDialog();
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
-
 			boolean isResponseOK = bundle.getBoolean("isresponseok");
-
 			if (isResponseOK) {
 
 				if (bundle.getString("json") != null) {
@@ -380,4 +387,44 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
         if (event.done) baseActivity.hideDialog();
         else baseActivity.showMessageDialog(event.progressString);
     }
+
+    private void openCreateScheduleFOCUT() {
+		DialogUtil.showCreateFoCutScheduleDialog(getContext(), ttNumber -> {
+			createScheduleFOCUT(ttNumber, DateUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN3), this.userId);
+		});
+	}
+
+	@SuppressLint("CheckResult")
+	private void createScheduleFOCUT(String ttNumber, String workDate, String userId) {
+		DebugLog.d("ttnumber: " + ttNumber);
+		DebugLog.d("workdate: " + workDate);
+		DebugLog.d("userId: " + userId);
+
+		baseActivity.showMessageDialog("Creating schedule FOCUT");
+		compositeDisposable.add(TowerAPIHelper.createScheduleFOCUT(ttNumber, workDate, userId)
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(response -> {
+					baseActivity.hideDialog();
+					if (response.status == 200) {
+						onSuccessCreateScheduleFOCUT(response);
+					} else {
+						// error
+						Toast.makeText(getContext(), response.messages, Toast.LENGTH_LONG).show();
+					}
+				}, error -> {
+					baseActivity.hideDialog();
+					Toast.makeText(getContext(), "ERROR: creating schedule FOCUT", Toast.LENGTH_LONG).show();
+					DebugLog.e(error.getMessage(), error);
+				})
+		);
+
+	}
+
+	private void onSuccessCreateScheduleFOCUT(ScheduleResponseModel response) {
+		if (response != null) {
+			ScheduleGeneral schedule = response.data.get(0);
+			schedule.save();
+		}
+	}
 }

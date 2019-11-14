@@ -29,6 +29,7 @@ android {
         versionCode minAPIlevel * 1000000 + versionMajor * 10000 + versionMinor * 100 + versionPatch
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         setProperty("archivesBaseName", "sap" + "-v" + "(" + versionName + ")")
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -109,6 +110,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':baseassets')
+    implementation 'com.android.support:multidex:1.0.3'
     implementation "com.google.android.gms:play-services-location:${rootProject.ext.playServicesLocationVersion}"
     implementation "com.google.android.gms:play-services-maps:${rootProject.ext.playServicesMapsVersion}"
     implementation "com.google.firebase:firebase-core:${rootProject.ext.firebaseCoreVersion}"

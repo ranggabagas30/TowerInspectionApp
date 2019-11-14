@@ -22,6 +22,8 @@ public class Constants {
 	public static final String[] MONTHS 	= {"Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"};
 	public static final String DATETIME_PATTERN1 = "dd:MM:yyyy HH:mm:ss";
 	public static final String DATETIME_PATTERN2 = "yyyy-MM-dd HH:mm:ss";
+	public static final String DATETIME_PATTERN3 = "yyyy-MM-dd";
+
 	/**
 	 * ============================ ACTIVITY MAPPING ===================================================== 
 	 */
