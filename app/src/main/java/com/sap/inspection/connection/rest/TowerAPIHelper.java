@@ -31,4 +31,8 @@ public class TowerAPIHelper {
     public static Single<BaseResponseModel> deleteSchedule(String scheduleId) {
         return TowerAPIClient.createService(TowerAPI.class).rxDeleteSchedule(scheduleId);
     }
+
+    public static Single<BaseResponseModel> editSchedule(String oldTTNumber, String newTTNumber) {
+        return TowerAPIClient.createService(TowerAPI.class).rxEditSchedule(oldTTNumber, newTTNumber);
+    }
 }

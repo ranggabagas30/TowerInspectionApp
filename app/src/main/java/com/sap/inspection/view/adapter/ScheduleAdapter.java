@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
+import com.sap.inspection.connection.rest.TowerAPI;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
@@ -40,6 +41,7 @@ import de.greenrobot.event.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.HttpException;
 
 public class ScheduleAdapter extends MyBaseAdapter {
 
@@ -65,6 +67,11 @@ public class ScheduleAdapter extends MyBaseAdapter {
 		this.scheduleItems.remove(position);
 		notifyDataSetChanged();
 	}
+
+	public void editItem(int position, ScheduleBaseModel newSchedule) {
+	    this.scheduleItems.set(position, newSchedule);
+	    notifyDataSetChanged();
+    }
 
 	@Override
 	public int getCount() {
@@ -126,8 +133,9 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				holder.statusLayout = view.findViewById(R.id.item_schedule_statuslayout);
 				holder.title = view.findViewById(R.id.item_schedule_title);
 				holder.task = view.findViewById(R.id.item_schedule_task);
-				holder.upload = view.findViewById(R.id.item_schedule_upload);
-				holder.deleteAndUpdateSchedule = view.findViewById(R.id.item_schedule_delete);
+				holder.editSchedule   = view.findViewById(R.id.item_schedule_edit);
+				holder.uploadSchedule = view.findViewById(R.id.item_schedule_upload);
+				holder.deleteSchedule = view.findViewById(R.id.item_schedule_delete);
 
 				break;
 			default:
@@ -152,19 +160,23 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.task.setText(schedule.getTask());
 			holder.task.setTextColor(Color.parseColor(schedule.getTaskColor()));
 			holder.task.setVisibility(View.VISIBLE);
-			holder.upload.setOnClickListener(onUploadClickListener);
-            holder.upload.setTag(schedule.id);
-            holder.upload.setVisibility(View.VISIBLE);
-			holder.deleteAndUpdateSchedule.setOnClickListener(onDeleteClickListener);
-            holder.deleteAndUpdateSchedule.setTag(position);
-			holder.deleteAndUpdateSchedule.setVisibility(View.VISIBLE);
+			holder.editSchedule.setVisibility(View.INVISIBLE);
+			holder.editSchedule.setTag(position);
+            holder.editSchedule.setOnClickListener(onEditClickListener);
+			holder.uploadSchedule.setOnClickListener(onUploadClickListener);
+            holder.uploadSchedule.setTag(schedule.id);
+            holder.uploadSchedule.setVisibility(View.VISIBLE);
+			holder.deleteSchedule.setOnClickListener(onDeleteClickListener);
+            holder.deleteSchedule.setTag(position);
+			holder.deleteSchedule.setVisibility(View.VISIBLE);
 
 			if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
-				holder.upload.setVisibility(View.GONE);
-				holder.deleteAndUpdateSchedule.setVisibility(View.GONE);
+				holder.uploadSchedule.setVisibility(View.GONE);
+				holder.deleteSchedule.setVisibility(View.GONE);
 			} else if (schedule.work_type.name.matches(Constants.regexFOCUT)) {
 				holder.title.setText(TextUtils.isEmpty(schedule.tt_number) ? "NULL" : schedule.tt_number);
 				holder.task.setVisibility(View.GONE);
+				holder.editSchedule.setVisibility(View.VISIBLE);
 			}
 
 			if (schedule.rejection != null) {
@@ -198,16 +210,55 @@ public class ScheduleAdapter extends MyBaseAdapter {
 		public TextView title;
 		public TextView task;
 		public ImageView arrow;
-        public View upload;
-        public ImageView deleteAndUpdateSchedule;
+		public ImageView editSchedule;
+        public ImageView uploadSchedule;
+        public ImageView deleteSchedule;
 	}
+
+	// edit TT number from selected fo cut schedule
+	View.OnClickListener onEditClickListener = v -> {
+	    int editSchedulePosition = (int) v.getTag();
+	    ScheduleBaseModel editSchedule = getItem(editSchedulePosition);
+
+        DialogUtil.showEditFoCutScheduleDialog(context, data -> {
+
+            if (!TextUtils.isEmpty(data)) {
+
+                if (!GlobalVar.getInstance().anyNetwork(context)) {
+                    TowerApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
+                    return;
+                }
+
+                EventBus.getDefault().post(new DeleteAllProgressEvent("Editing schedule", false, false));
+                TowerAPIHelper.editSchedule(editSchedule.tt_number, data)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                response -> {
+                                    if (response.status == HttpStatus.SC_OK) {
+                                        EventBus.getDefault().post(new DeleteAllProgressEvent(response.messages, true, false));
+                                        editSchedule.tt_number = data;
+                                        editSchedule.save();
+                                        editItem(editSchedulePosition, editSchedule);
+                                    } else {
+                                        EventBus.getDefault().post(new DeleteAllProgressEvent("Failed (error code: " + response.status + ")", true, false));
+                                    }
+                                }, error -> {
+                                    DebugLog.e(error.getMessage(), error);
+                                    EventBus.getDefault().post(new DeleteAllProgressEvent("Failed edit schedule with error: " + error.getMessage() , true, false));
+                                }
+                        );
+            } else {
+                EventBus.getDefault().post(new DeleteAllProgressEvent("Mohon masukkan TT Number baru" , true, false));
+            }
+        });
+    };
 
     View.OnClickListener onUploadClickListener = v -> {
 		if (!GlobalVar.getInstance().anyNetwork(TowerApplication.getContext())) {
 			TowerApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
 		} else {
 			String scheduleId = (String) v.getTag();
-
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, FormValueModel.UNSPECIFIED, Constants.EMPTY, Constants.EMPTY).execute();
 			else
@@ -221,46 +272,76 @@ public class ScheduleAdapter extends MyBaseAdapter {
 		ScheduleBaseModel deleteSchedule = getItem(deletedSchedulePosition);
 		DialogUtil.deleteAllDataDialog(context, deleteSchedule)
 				.setOnPositiveClickListener(schedule -> {
-					DebugLog.d("delete all files by scheduleId " + schedule.id + " with position: " + deletedSchedulePosition);
-					EventBus.getDefault().post(new DeleteAllProgressEvent("Deleting schedule on progress", false, false));
-					String path = Constants.DIR_PHOTOS + File.separator + schedule.id + File.separator;
-					CommonUtil.deleteAllData(schedule)
-							.subscribeOn(Schedulers.io())
-							.observeOn(AndroidSchedulers.mainThread())
-							.subscribe(
-									() -> {
-									    CommonUtil.deleteFiles(path);
-                                        if (!TextUtils.isEmpty(schedule.id)) {
-                                            if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && schedule.work_type.name.matches(Constants.regexFOCUT)) {
-                                                TowerAPIHelper.deleteSchedule(schedule.id)
-                                                        .subscribeOn(Schedulers.io())
-                                                        .observeOn(AndroidSchedulers.mainThread())
-                                                        .subscribe(
-                                                                response -> {
-                                                                    if (response.status == HttpStatus.SC_OK) {
+
+                    if (!TextUtils.isEmpty(schedule.id)) {
+                        DebugLog.d("delete all files by scheduleId " + schedule.id + " with position: " + deletedSchedulePosition);
+
+                        // delete schedule for FO CUT type
+                        // delete schedule data on server
+                        // delete files and schedule local data by schedule id
+                        if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && schedule.work_type.name.matches(Constants.regexFOCUT)) {
+
+                            if (!GlobalVar.getInstance().anyNetwork(context)) {
+                                TowerApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
+                                return;
+                            }
+
+                            EventBus.getDefault().post(new DeleteAllProgressEvent("Deleting schedule on progress", false, false));
+                            TowerAPIHelper.deleteSchedule(schedule.id)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                            response -> {
+                                                if (response.status == HttpStatus.SC_OK) {
+                                                    String path = Constants.DIR_PHOTOS + File.separator + schedule.id + File.separator;
+                                                    CommonUtil.deleteAllData(schedule)
+                                                            .subscribeOn(Schedulers.io())
+                                                            .observeOn(AndroidSchedulers.mainThread())
+                                                            .subscribe(
+                                                                    () -> {
+                                                                        CommonUtil.deleteFiles(path);
                                                                         ScheduleBaseModel.delete(schedule.id);
                                                                         removeItem(deletedSchedulePosition);
                                                                         EventBus.getDefault().post(new DeleteAllProgressEvent(response.messages, true, false));
-                                                                    } else {
-                                                                        EventBus.getDefault().post(new DeleteAllProgressEvent("Failed (error code: " + response.status + ")", true, false));
+                                                                    },
+                                                                    error -> {
+                                                                        EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete local data for schedule " + schedule.id, true, false));
+                                                                        DebugLog.e(error.getMessage(), error);
                                                                     }
-                                                                }, error ->  {
-                                                                    EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete schedule", true, false));
-                                                                    DebugLog.e(error.getMessage(), error);
-                                                                }
-                                                        );
-                                            } else {
-                                                EventBus.getDefault().post(new DeleteAllProgressEvent("Success delete all " + schedule.id + " data", true, false));
+                                                            );
+                                                } else {
+                                                    EventBus.getDefault().post(new DeleteAllProgressEvent("Failed (error code: " + response.status + ")", true, false));
+                                                }
+                                            }, error ->  {
+                                                EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete schedule", true, false));
+                                                DebugLog.e(error.getMessage(), error);
                                             }
-                                        } else {
-                                            EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete schedule. Schedule id not found", true, false));
-                                        }
-									},
-                                    error -> {
-                                        EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete local data for schedule " + schedule.id, true, false));
-                                        DebugLog.e(error.getMessage(), error);
-                                    }
-							);
+                                    );
+                        } else {
+
+                            // delete schedule for form with non-focut type
+                            // delete files and schedule local data by schedule id
+                            EventBus.getDefault().post(new DeleteAllProgressEvent("Deleting schedule on progress", false, false));
+                            String path = Constants.DIR_PHOTOS + File.separator + schedule.id + File.separator;
+                            CommonUtil.deleteAllData(schedule)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                            () -> {
+                                                CommonUtil.deleteFiles(path);
+                                                ScheduleBaseModel.delete(schedule.id);
+                                                EventBus.getDefault().post(new DeleteAllProgressEvent("Success delete schedule data", true, false));
+                                            },
+                                            error -> {
+                                                EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete local data for schedule " + schedule.id, true, false));
+                                                DebugLog.e(error.getMessage(), error);
+                                            }
+                                    );
+                        }
+                    } else {
+                        EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete schedule. Schedule id not found", true, false));
+                    }
+
 				}).show();
 	};
 

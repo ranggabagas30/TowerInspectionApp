@@ -49,4 +49,11 @@ public interface TowerAPI {
     Single<BaseResponseModel> rxDeleteSchedule(
             @Field("schedule_id") String scheduleId
     );
+
+    @FormUrlEncoded
+    @POST("edit/ticket")
+    Single<BaseResponseModel> rxEditSchedule(
+            @Field("tt_number") String oldTTNumber,
+            @Field("tt_number_new") String newTTNumber
+    );
 }

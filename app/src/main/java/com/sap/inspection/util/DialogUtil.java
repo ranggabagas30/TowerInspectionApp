@@ -137,4 +137,15 @@ public class DialogUtil {
                 .setCancelable(true)
                 .show();
     }
+
+    public static void showEditFoCutScheduleDialog(Context context, LovelyTextInputDialog.OnTextInputConfirmListener onTextInputConfirmListener) {
+        new LovelyTextInputDialog(context, R.color.theme_color)
+                .setTopColorRes(R.color.item_drill_red)
+                .setTopTitle(R.string.app_name)
+                .setTitle("Edit FO CUT schedule")
+                .setMessage("Input new TT Number")
+                .setConfirmButton(android.R.string.ok, onTextInputConfirmListener)
+                .setCancelable(true)
+                .show();
+    }
 }

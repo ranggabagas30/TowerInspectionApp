@@ -20,6 +20,7 @@ import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.DefaultValueScheduleModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -38,6 +39,8 @@ import com.sap.inspection.view.adapter.ScheduleAdapter;
 import com.sap.inspection.view.ui.BaseActivity;
 import com.sap.inspection.view.ui.CallendarActivity;
 import com.sap.inspection.view.ui.MainActivity;
+
+import org.apache.http.HttpStatus;
 
 import java.util.Vector;
 
@@ -394,6 +397,11 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
     private void openCreateScheduleFOCUT() {
 		DialogUtil.showCreateFoCutScheduleDialog(getContext(), ttNumber -> {
+			if (!GlobalVar.getInstance().anyNetwork(getActivity())) {
+				TowerApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
+				return;
+			}
+
 			if (!TextUtils.isEmpty(ttNumber))
 				createScheduleFOCUT(ttNumber, DateUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN3), this.userId);
 			else Toast.makeText(baseActivity, "TT Number tidak boleh kosong", Toast.LENGTH_SHORT).show();
@@ -412,7 +420,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(response -> {
 					baseActivity.hideDialog();
-					if (response.status == 201) {
+					if (response.status == HttpStatus.SC_CREATED) {
 						onSuccessCreateScheduleFOCUT(response);
 					} else {
 						// error

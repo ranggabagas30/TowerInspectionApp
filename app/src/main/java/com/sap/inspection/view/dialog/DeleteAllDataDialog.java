@@ -39,10 +39,17 @@ public class DeleteAllDataDialog {
 		AlertDialog.Builder dialog = new AlertDialog.Builder(context);
 		View v = LayoutInflater.from(context).inflate(R.layout.dialog_send_feedback, null);
 		initializeView(v);
-		dialog.setView(v);
-		dialog.setTitle("Delete All Data");
-		dialog.setCancelable(true);
-		if (schedule != null) dialog.setTitle("Delete schedule");
+        dialog.setView(v);
+        dialog.setCancelable(true);
+        dialog.setTitle("Delete All Data");
+        dialog.setMessage("Aplikasi akan menghapus seluruh data isian form, file foto, dan cache. " +
+                " Mohon upload data terlebih dahulu jika diperlukan");
+		if (schedule != null) {
+		    dialog.setTitle("Delete schedule");
+		    dialog.setMessage("Aplikasi akan menghapus seluruh data isian form dan file foto untuk schedule site ini. " +
+                    " Mohon upload data terlebih dahulu jika diperlukan");
+
+        }
 		this.dialog = dialog.show();
 	}
 
@@ -76,7 +83,7 @@ public class DeleteAllDataDialog {
 				}
 			}
 			else
-				Toast.makeText(context, "Please enter the correct password", Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, "Password salah", Toast.LENGTH_SHORT).show();
 		}
 	};
 

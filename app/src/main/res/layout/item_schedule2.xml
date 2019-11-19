@@ -78,13 +78,21 @@
                 android:orientation="horizontal"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.25"
+                android:layout_weight="0.45"
                 android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/item.schedule.edit"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:clickable="true"
+                    android:background="@drawable/ic_edit_white_24dp" />
 
                 <ImageButton
                     android:id="@+id/item.schedule.delete"
                     android:layout_width="35dp"
                     android:layout_height="35dp"
+                    android:layout_marginStart="10dp"
                     android:clickable="true"
                     android:background="@drawable/ic_collapse"/>
 
