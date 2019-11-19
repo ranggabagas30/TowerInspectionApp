@@ -43,7 +43,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public WorkFormModel work_form;
 	public ProjectModel project;
 	public RejectionModel rejection;
-	public Vector<Integer> hidden; // SAP only
+	public Vector<Integer> hidden; // SAP
+	public String tt_number; // SAP
 	public Vector<FormValueModel> schedule_values;
 	public Vector<DefaultValueScheduleModel> default_value_schedule;
 	public String statusColor;
@@ -93,6 +94,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			createTableBuilder.append(DbManager.colRejection + " varchar, ");
 		}
 
+		if (DbManager.schema_version >= 13) {
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+				createTableBuilder.append(DbManager.colTTNumber + " varchar, ");
+		}
 		createTableBuilder.append("PRIMARY KEY (" + DbManager.colID + "))");
 		return new String(createTableBuilder);
 	}
@@ -255,6 +260,11 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			argsList.add(DbManager.colRejection);
 		}
 
+		if (DbManager.schema_version >= 13) {
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+				argsList.add(DbManager.colTTNumber);
+		}
+
 		String[] args = new String[argsList.size()];
 		args = argsList.toArray(args);
 
@@ -332,6 +342,12 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			}
 			bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colRejection), rejectionJson);
 		}
+
+		if (DbManager.schema_version >= 13) {
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+				bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colTTNumber), tt_number);
+		}
+
 		stmt.executeInsert();
 		stmt.close();
 		DbRepository.getInstance().close();
@@ -341,6 +357,15 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public static void delete(){
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mSchedule;
+		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
+		stmt.executeUpdateDelete();
+		stmt.close();
+		DbRepository.getInstance().close();
+	}
+
+	public static void delete(String scheduleId) {
+		DbRepository.getInstance().open(TowerApplication.getInstance());
+		String sql = "DELETE FROM " + DbManager.mSchedule + " WHERE " + DbManager.colID + " = '" + scheduleId + "'";
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
@@ -431,9 +456,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public ScheduleBaseModel getScheduleById(Context context,String id) {
-
 		ScheduleBaseModel model = getScheduleById(id);
-
 		return model;
 	}
 
@@ -566,6 +589,11 @@ public abstract class ScheduleBaseModel extends BaseModel {
 
 		if (DbManager.schema_version >= 12) {
 			scheduleBase.rejection = new Gson().fromJson(c.getString(c.getColumnIndex(DbManager.colRejection)), RejectionModel.class);
+		}
+
+		if (DbManager.schema_version >= 13) {
+			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+				scheduleBase.tt_number = c.getString(c.getColumnIndex(DbManager.colTTNumber));
 		}
 		return scheduleBase;
 	}

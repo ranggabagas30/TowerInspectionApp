@@ -1,5 +1,7 @@
 package com.sap.inspection.connection.rest;
 
+import com.sap.inspection.model.responsemodel.BaseResponseModel;
+import com.sap.inspection.model.responsemodel.CreateScheduleFOCUTResponseModel;
 import com.sap.inspection.model.responsemodel.DeviceRegistrationResponseModel;
 import com.sap.inspection.model.responsemodel.FormVersionResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
@@ -22,7 +24,11 @@ public class TowerAPIHelper {
         return TowerAPIClient.createService(TowerAPI.class).rxPostLogin(username, password);
     }
 
-    public static Single<ScheduleResponseModel> createScheduleFOCUT(String ttNumber, String workDate, String userId) {
+    public static Single<CreateScheduleFOCUTResponseModel> createScheduleFOCUT(String ttNumber, String workDate, String userId) {
         return TowerAPIClient.createService(TowerAPI.class).rxPostCreateScheduleFOCUT(ttNumber, workDate, userId);
+    }
+
+    public static Single<BaseResponseModel> deleteSchedule(String scheduleId) {
+        return TowerAPIClient.createService(TowerAPI.class).rxDeleteSchedule(scheduleId);
     }
 }

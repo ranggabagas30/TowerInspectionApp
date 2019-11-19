@@ -74,6 +74,7 @@ public class Constants {
 	public static final String regexCHECKLIST = "(.*)CHECKLIST(.*)";
 	public static final String regexSITEINFORMATION = "(.*)SITE INFORMATION(.*)";
 	public static final String regexPREVENTIVE = "(.*)PREVENTIVE(.*)";
+	public static final String regexFOCUT = "(.*)FO CUT(.*)";
 
 	/**
 	 * ============================= REQUEST CODE =================================================

@@ -19,6 +19,7 @@ import com.sap.inspection.model.migrate.GeneralDropCreatePatch;
 import com.sap.inspection.model.migrate.GeneralPatch10;
 import com.sap.inspection.model.migrate.GeneralPatch11;
 import com.sap.inspection.model.migrate.GeneralPatch12;
+import com.sap.inspection.model.migrate.GeneralPatch13;
 import com.sap.inspection.model.migrate.GeneralPatch5;
 import com.sap.inspection.model.migrate.GeneralPatch6;
 import com.sap.inspection.model.migrate.GeneralPatch7;
@@ -88,8 +89,9 @@ public class DbManager extends SQLiteOpenHelper {
 	public static final String colSumTask 		= "sumTask";
 	public static final String colSumDone 		= "sumDone";
 	public static final String colOperatorNumber= "operatorNumber";
-	public static final String colHiddenItemIds	= "hiddenItemIds"; // SAP only
-	public static final String colRejection		= "rejection"; // STP ONLY
+	public static final String colRejection		= "rejection";
+	public static final String colHiddenItemIds	= "hiddenItemIds";  // SAP v2.5.2 (GeneralPatch 10)
+	public static final String colTTNumber		= "ttNumber"; 		// SAP
 
 	// work form
 	public static final String mWorkForm 		= "WorkForms";
@@ -226,7 +228,8 @@ public class DbManager extends SQLiteOpenHelper {
 			new GeneralPatch9(),				// 8
 			new GeneralPatch10(),				// 9
 			new GeneralPatch11(),				// 10
-			new GeneralPatch12()				// 11
+			new GeneralPatch12(),				// 11
+			new GeneralPatch13()				// 12
 	};
 
 	public static void dropTable(SQLiteDatabase db){

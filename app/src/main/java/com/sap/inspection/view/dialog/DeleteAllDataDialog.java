@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.sap.inspection.R;
+import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.util.PrefUtil;
 
 public class DeleteAllDataDialog {
@@ -21,12 +22,17 @@ public class DeleteAllDataDialog {
 	private EditText password;
 	private AlertDialog dialog;
 	private String scheduleId;
+	private ScheduleBaseModel schedule;
 
 	public Context context;
 
-	public DeleteAllDataDialog(Context prompt, String scheduleId) {
+	public DeleteAllDataDialog(Context context) {
+		this(context, null);
+	}
+
+	public DeleteAllDataDialog(Context prompt, ScheduleBaseModel schedule) {
 		this.context = prompt;
-		this.scheduleId = scheduleId;
+		this.schedule = schedule;
 	}
 
 	public void show(){
@@ -35,6 +41,8 @@ public class DeleteAllDataDialog {
 		initializeView(v);
 		dialog.setView(v);
 		dialog.setTitle("Delete All Data");
+		dialog.setCancelable(true);
+		if (schedule != null) dialog.setTitle("Delete schedule");
 		this.dialog = dialog.show();
 	}
 
@@ -64,7 +72,7 @@ public class DeleteAllDataDialog {
 			boolean passTrue = PrefUtil.getStringPref(R.string.password, null).equals(password.getText().toString());
 			if (passTrue) {
 				if (onPositiveClickListener != null) {
-					onPositiveClickListener.onPositiveClick(scheduleId);
+					onPositiveClickListener.onPositiveClick(schedule);
 				}
 			}
 			else
@@ -78,8 +86,6 @@ public class DeleteAllDataDialog {
 	}
 
 	public interface OnPositiveClickListener {
-
-		void onPositiveClick(String scheduleId);
-
+		void onPositiveClick(ScheduleBaseModel schedule);
 	}
 }

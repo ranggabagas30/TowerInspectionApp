@@ -70,7 +70,7 @@ android {
             applicationId 'com.sap.inspection'
             dimension "default"
             buildConfigField("int", "DBMANAGERVALUE_SCHEMA_VERSION", "9")
-            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "12")
+            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "13")
             buildConfigField("String", "FOLDER_CAMERA", '"Camera"')
             buildConfigField("String", "FOLDER_TOWER_INSPECTION", '".TowerInspection"')
         }

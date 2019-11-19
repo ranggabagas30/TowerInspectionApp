@@ -28,6 +28,7 @@ import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
+import com.sap.inspection.model.responsemodel.CreateScheduleFOCUTResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.DateUtil;
@@ -384,13 +385,18 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	}
 
     public void onEvent(UploadProgressEvent event){
-        if (event.done) baseActivity.hideDialog();
+        if (event.done) {
+        	baseActivity.hideDialog();
+			Toast.makeText(baseActivity, event.progressString, Toast.LENGTH_SHORT).show();
+		}
         else baseActivity.showMessageDialog(event.progressString);
     }
 
     private void openCreateScheduleFOCUT() {
 		DialogUtil.showCreateFoCutScheduleDialog(getContext(), ttNumber -> {
-			createScheduleFOCUT(ttNumber, DateUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN3), this.userId);
+			if (!TextUtils.isEmpty(ttNumber))
+				createScheduleFOCUT(ttNumber, DateUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN3), this.userId);
+			else Toast.makeText(baseActivity, "TT Number tidak boleh kosong", Toast.LENGTH_SHORT).show();
 		});
 	}
 
@@ -406,25 +412,28 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(response -> {
 					baseActivity.hideDialog();
-					if (response.status == 200) {
+					if (response.status == 201) {
 						onSuccessCreateScheduleFOCUT(response);
 					} else {
 						// error
+                        DebugLog.e("ERROR: " + response.messages + ", status: " + response.status);
 						Toast.makeText(getContext(), response.messages, Toast.LENGTH_LONG).show();
 					}
 				}, error -> {
 					baseActivity.hideDialog();
-					Toast.makeText(getContext(), "ERROR: creating schedule FOCUT", Toast.LENGTH_LONG).show();
+					Toast.makeText(getContext(), "Failed to create schedule FO CUT (error: " + error.getMessage() + ")", Toast.LENGTH_LONG).show();
 					DebugLog.e(error.getMessage(), error);
 				})
 		);
-
 	}
 
-	private void onSuccessCreateScheduleFOCUT(ScheduleResponseModel response) {
+	private void onSuccessCreateScheduleFOCUT(CreateScheduleFOCUTResponseModel response) {
 		if (response != null) {
-			ScheduleGeneral schedule = response.data.get(0);
+			baseActivity.showMessageDialog("Loading schedules");
+			ScheduleGeneral schedule = response.data;
 			schedule.save();
+			setScheduleBy(R.string.focut);
+			baseActivity.hideDialog();
 		}
 	}
 }

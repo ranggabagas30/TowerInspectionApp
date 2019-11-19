@@ -85,22 +85,16 @@ public class FormValueModel extends BaseModel {
 	}
 
 	public static void deleteAll(){
-
 		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManagerValue.mFormValue;
 		SQLiteStatement stmt = DbRepositoryValue.getInstance().getDB().compileStatement(sql);
 		stmt.executeUpdateDelete();
 		stmt.close();
 		DbRepositoryValue.getInstance().close();
-
-		TowerApplication.getInstance().toast("Sukses delete seluruh data", Toast.LENGTH_SHORT);
 	}
 
 	public static void deleteAllBy(String scheduleId) {
-
 		deleteAllBy(scheduleId, null, null);
-
-		TowerApplication.getInstance().toast("Sukses delete seluruh data schedule " + scheduleId, Toast.LENGTH_SHORT);
 	}
 
 	public static void deleteAllBy(String scheduleId, String wargaId, String barangId) {

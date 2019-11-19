@@ -133,7 +133,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
         versionInfo.setText("Version " + BuildConfig.VERSION_NAME + " Build " + BuildConfig.VERSION_CODE);
 
-        delete.setOnClickListener(deleteClickListener);
+        delete.setOnClickListener(deleteAllData);
         deleteAndUpdateSchedule.setOnClickListener(deleteAndUpdateScheduleClickListener);
         update.setOnClickListener(updateClickListener);
         updateForm.setOnClickListener(updateFormClickListener);
@@ -222,13 +222,11 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         writePreference(R.string.heightbackgroundwatermarklandscape, Integer.parseInt(inputheightwatermarklandscape.getText().toString()));
     };
 
-    OnClickListener deleteClickListener = view -> DialogUtil.deleteAllDataDialog(activity, null)
+    OnClickListener deleteAllData = view -> DialogUtil.deleteAllDataDialog(activity)
             .setOnPositiveClickListener(scheduleId -> {
-                if (TextUtils.isEmpty(scheduleId)) {
-                    trackEvent("user_delete_all_data");
-                    AsyncDeleteAllFiles task = new AsyncDeleteAllFiles();
-                    task.execute();
-                }
+                trackEvent("user_delete_all_data");
+                AsyncDeleteAllFiles task = new AsyncDeleteAllFiles();
+                task.execute();
             }).show();
 
     OnClickListener deleteAndUpdateScheduleClickListener = view -> DialogUtil.deleteAllSchedulesDialog(activity)

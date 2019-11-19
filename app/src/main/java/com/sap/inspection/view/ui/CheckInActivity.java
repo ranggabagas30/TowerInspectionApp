@@ -405,6 +405,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mScheduleData = new ScheduleGeneral();
         mScheduleData = mScheduleData.getScheduleById(mExtraScheduleId);
 
+        // TODO: fix on location str null
         String[] siteCoordinate = mScheduleData.site.locationStr.split(",");
         mSiteCoordinate.setLatitude(Double.parseDouble(siteCoordinate[0]));
         mSiteCoordinate.setLongitude(Double.parseDouble(siteCoordinate[1]));

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresPermission;
 import android.support.v4.content.ContextCompat;
@@ -23,11 +25,14 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
@@ -53,9 +58,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
+
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class CommonUtil {
 
@@ -469,6 +483,42 @@ public class CommonUtil {
         return val.matches(regex);
     }
 
+    public static Completable deleteAllData(ScheduleBaseModel schedule) {
+        return Completable.fromAction(
+                () -> {
+                    if (schedule == null) {// clear all data
+                        clearImageCache(); // clear image loader cache
+                        FormValueModel.deleteAll(); // clear form value data
+                        CommonUtil.clearApplicationData(); // clear application cache
+                        SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
+                        mPref.edit().clear().apply(); // clear shared pref
+                    } else {
+                        if (!TextUtils.isEmpty(schedule.id))
+                            FormValueModel.deleteAllBy(schedule.id);
+                    }
+                }
+        );
+    }
+
+    public static Single<Integer> countFiles(String path) {
+        return Single.fromCallable(() -> getFileCount(path));
+    }
+
+    public static boolean deleteFiles(String path) {
+        File f = new File(path);
+        File[] files = f.listFiles();
+        if (files != null) {
+            for(int i=0; i < files.length; i++)
+            {
+                File file = files[i];
+                DebugLog.d("delete file : "+file.getAbsolutePath());
+                file.delete();
+            }
+            return true;
+        }
+        return false;
+    }
+
     public static void clearApplicationData() {
         File cache = TowerApplication.getContext().getCacheDir();
         File appDir = new File(cache.getParent());
@@ -497,6 +547,28 @@ public class CommonUtil {
         } else {
             return false;
         }
+    }
+
+    public static int getFileCount(String dirPath) {
+        int count = 0;
+        File f = new File(dirPath);
+        File[] files  = f.listFiles();
+        if(files != null)
+            for(int i=0; i < files.length; i++)
+            {
+                count++;
+                File file = files[i];
+                if(file.isDirectory())
+                {
+                    getFileCount(file.getAbsolutePath());
+                }
+            }
+        return count;
+    }
+
+    public static void clearImageCache(){
+        ImageLoader.getInstance().clearDiscCache();
+        ImageLoader.getInstance().clearMemoryCache();
     }
 
     public static boolean isUpdateAvailable(Context context) {
@@ -584,52 +656,43 @@ public class CommonUtil {
     }
 
     private static void saveFile(byte[] fileBytes, String filePathOutput) throws IOException {
-
         FileOutputStream fos = new FileOutputStream(filePathOutput);
         fos.write(fileBytes);
         fos.close();
-
     }
 
     public static void encryptFileBase64(File file, String fileOutput) {
-
         DebugLog.d("encrypt file");
         try {
             byte[] fileBytes = FileUtils.readFileToByteArray(file);
             byte[] encryptedBytes = new Base64().encode(fileBytes);
             FileUtils.writeByteArrayToFile(new File(fileOutput), encryptedBytes);
             //saveFile(encryptedBytes, fileOutput);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void decryptFileBase64(File file, String fileOutput) {
-
         DebugLog.d("decrypt file");
         try {
             byte[] fileBytes = FileUtils.readFileToByteArray(file);
             byte[] decryptedBytes = new Base64().decode(fileBytes);
             FileUtils.writeByteArrayToFile(new File(fileOutput), decryptedBytes);
             //saveFile(decryptedBytes, fileSource);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static byte[] getDecryptedByteBase64(File file) {
-
         DebugLog.d("get decrypted bytes base64");
-
         try {
             byte[] fileBytes = FileUtils.readFileToByteArray(file);
             return new Base64().decode(fileBytes);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 }

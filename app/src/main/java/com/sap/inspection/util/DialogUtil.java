@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 
 import com.sap.inspection.R;
 import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.view.dialog.DeleteAllDataDialog;
 import com.sap.inspection.view.dialog.DeleteAllSchedulesDialog;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
@@ -85,9 +86,12 @@ public class DialogUtil {
                 .show();
     }
 
+    public static DeleteAllDataDialog deleteAllDataDialog(Context context) {
+        return new DeleteAllDataDialog(context);
+    }
 
-    public static DeleteAllDataDialog deleteAllDataDialog(Context context, String scheduleId) {
-        return new DeleteAllDataDialog(context, scheduleId);
+    public static DeleteAllDataDialog deleteAllDataDialog(Context context, ScheduleBaseModel schedule) {
+        return new DeleteAllDataDialog(context, schedule);
     }
 
     public static DeleteAllSchedulesDialog deleteAllSchedulesDialog(Context context) {

@@ -3,18 +3,21 @@ package com.sap.inspection.model.migrate;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.sap.inspection.BuildConfig;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.DbManager;
 
 public class GeneralPatch11 extends DBPatch {
 
     /**
      * 29 July 2019
-     * add column colHiddenItemIds to Schedule table
+     * add column color RTPO to Site table
      * */
     @Override
     public void apply(SQLiteDatabase db) {
         Log.d(getClass().getName(), "general patch 11");
-        db.execSQL("ALTER TABLE "+ DbManager.mSite+" ADD COLUMN "+DbManager.colColorRTPO+" VARCHAR");
+        if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+            db.execSQL("ALTER TABLE "+ DbManager.mSite+" ADD COLUMN "+DbManager.colColorRTPO+" VARCHAR");
     }
 
     @Override

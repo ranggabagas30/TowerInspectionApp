@@ -3,6 +3,8 @@ package com.sap.inspection.model.migrate;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.sap.inspection.BuildConfig;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.DbManager;
 
 public class GeneralPatch10 extends DBPatch {
@@ -14,7 +16,8 @@ public class GeneralPatch10 extends DBPatch {
     @Override
     public void apply(SQLiteDatabase db) {
         Log.d(getClass().getName(), "general patch 10");
-        db.execSQL("ALTER TABLE "+ DbManager.mSchedule+" ADD COLUMN "+DbManager.colHiddenItemIds+" VARCHAR");
+        if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+            db.execSQL("ALTER TABLE "+ DbManager.mSchedule+" ADD COLUMN "+DbManager.colHiddenItemIds+" VARCHAR");
     }
 
     @Override
