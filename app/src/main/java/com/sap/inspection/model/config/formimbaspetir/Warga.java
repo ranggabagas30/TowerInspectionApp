@@ -15,7 +15,7 @@ public class Warga
         return wargaid;
     }
 
-    public void setWargaid (String wargaid)
+    public void setWargaId (String wargaid)
     {
         this.wargaid = wargaid;
     }

@@ -1,19 +1,9 @@
 package com.sap.inspection.model;
 
-import android.os.Parcel;
+import org.parceler.Parcel;
 
+@Parcel(Parcel.Serialization.BEAN)
 public class DefaultValueScheduleModel extends BaseModel {
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-    }
-
     private int item_id;
     private int group_id;
     private int form_id;

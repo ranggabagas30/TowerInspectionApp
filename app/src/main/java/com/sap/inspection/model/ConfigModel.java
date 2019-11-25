@@ -2,30 +2,19 @@ package com.sap.inspection.model;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 import android.support.annotation.NonNull;
 
-import com.google.gson.Gson;
 import com.sap.inspection.TowerApplication;
-import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
-import com.sap.inspection.model.config.formimbaspetir.ImbasPetirData;
-import com.sap.inspection.model.config.formimbaspetir.Warga;
 import com.sap.inspection.tools.DebugLog;
 
-public class ConfigModel extends BaseModel {
+import org.parceler.Parcel;
 
+@Parcel
+public class ConfigModel extends BaseModel {
     public String configName;
     public String configData;
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-    }
+    public ConfigModel() {}
 
     public enum CONFIG_ENUM {
         IMBAS_PETIR_CONFIG,

@@ -55,8 +55,8 @@ public class PhotoItem extends RelativeLayout {
 
 	public void setItemFormRenderModel(ItemFormRenderModel itemFormRenderModel) {
 		this.itemFormRenderModel = itemFormRenderModel;
-		DebugLog.d("value : "+itemFormRenderModel.itemValue.value);
-		if (itemFormRenderModel.itemValue.value == null || (value !=null && value.value == null))
+		DebugLog.d("value : "+itemFormRenderModel.getItemValue().value);
+		if (itemFormRenderModel.getItemValue().value == null || (value !=null && value.value == null))
 			onTaskDone = false;
 	}
 
@@ -149,10 +149,10 @@ public class PhotoItem extends RelativeLayout {
 	public void notifyDataChanged(FormValueModel value) {
 		this.value = value;
 		imageView.setImageResource(R.drawable.logo_app);
-		if (itemFormRenderModel.label != null)
-			label.setText(itemFormRenderModel.label);
-		else if (itemFormRenderModel.operator != null)
-			label.setText(itemFormRenderModel.operator.name);
+		if (itemFormRenderModel.getLabel() != null)
+			label.setText(itemFormRenderModel.getLabel());
+		else if (itemFormRenderModel.getOperator() != null)
+			label.setText(itemFormRenderModel.getOperator().name);
 
 		if (value != null){
 			// if no picture then show no picture icon
@@ -167,20 +167,20 @@ public class PhotoItem extends RelativeLayout {
 	}
 
 	private void setItemFormRenderedValue(){
-		DebugLog.d("itemFormRenderModel.itemValue.value : "+itemFormRenderModel.itemValue.value);
+		DebugLog.d("itemFormRenderModel.getItemValue().value : "+itemFormRenderModel.getItemValue().value);
 		//		CorrectiveValueModel temp = new CorrectiveValueModel();
 		//		try{
-		//			temp = temp.getItemValue(itemFormRenderModel.schedule.id, itemFormRenderModel.workItemModel.id, itemFormRenderModel.operatorId);
+		//			temp = temp.getItemValue(itemFormRenderModel.schedule.id, itemFormRenderModel.getWorkItemModel().id, itemFormRenderModel.operatorId);
 		//		}catch(Exception e){}
 		if (!onTaskDone){
-			itemFormRenderModel.schedule.sumTaskDone++;
-			itemFormRenderModel.schedule.save();
+			itemFormRenderModel.getSchedule().sumTaskDone++;
+			itemFormRenderModel.getSchedule().save();
 			DebugLog.d("-=-=-=-=-");
 		}
 		onTaskDone = true;
-		DebugLog.d("task done : "+itemFormRenderModel.schedule.sumTaskDone);
+		DebugLog.d("task done : "+itemFormRenderModel.getSchedule().sumTaskDone);
 		if (itemFormRenderModel != null)
-			itemFormRenderModel.itemValue = value;
+			itemFormRenderModel.setItemValue(value);
 	}
 
 	public void save(Context context){
@@ -194,12 +194,12 @@ public class PhotoItem extends RelativeLayout {
 		if (!DbRepositoryValue.getInstance().getDB().isOpen())
 			DbRepositoryValue.getInstance().open(context);*/
 		DebugLog.d(value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+value.value);
-		DebugLog.d("scope type : "+itemFormRenderModel.workItemModel.scope_type);
+		DebugLog.d("scope type : "+itemFormRenderModel.getWorkItemModel().scope_type);
 		setItemFormRenderedValue();
 		if (savingRule == null)
 			savingRule = new PreventiveSave();
 		savingRule.save(itemFormRenderModel, value);
-		//		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
+		//		if(!itemFormRenderModel.getWorkItemModel().scope_type.equalsIgnoreCase("operator")){
 		//			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
 		//				value.operatorId = operatorModel.id;
 		//				value.uploadStatus = FormValueModel.UPLOAD_NONE;
@@ -372,9 +372,9 @@ public class PhotoItem extends RelativeLayout {
 		if (value == null){
 			value = new FormValueModel();
 			if (itemFormRenderModel != null){
-				value.itemId = itemFormRenderModel.workItemModel.id;
-				value.scheduleId = itemFormRenderModel.schedule.id;
-				value.operatorId = itemFormRenderModel.operatorId;
+				value.itemId = itemFormRenderModel.getWorkItemModel().id;
+				value.scheduleId = itemFormRenderModel.getSchedule().id;
+				value.operatorId = itemFormRenderModel.getOperatorId();
 			}
 		}
 	}

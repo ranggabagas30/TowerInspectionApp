@@ -577,7 +577,7 @@
 //					
 //					form = new ItemFormRenderModel();
 //					form.setSchedule(schedule);
-//					form.setColumn(column);
+//					form.setColumns(column);
 //					form.setRowColumnModels(rowModel.row_columns, null);
 //					if (form.hasInput){
 //						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
@@ -601,7 +601,7 @@
 //				log("-----------------------------------------------");
 //				form = new ItemFormRenderModel();
 //				form.setSchedule(schedule);
-//				form.setColumn(column);
+//				form.setColumns(column);
 //				form.setRowColumnModels(model.row_columns,parentLabel);
 //				if (form.hasInput){
 //					indexes.add(indexes.get(indexes.size()-1) + form.getCount());

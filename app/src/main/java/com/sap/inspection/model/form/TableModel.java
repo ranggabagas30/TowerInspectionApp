@@ -1,29 +1,18 @@
 package com.sap.inspection.model.form;
 
 import android.content.Context;
-import android.os.Parcel;
 
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
+
+import org.parceler.Parcel;
 
 import java.util.Vector;
 
+@Parcel
 public class TableModel extends BaseModel {
 
 	public Vector<ColumnModel> headers;
 	public Vector<WorkFormRowModel> rows;
-
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-
-	}
 
 	public void save(Context context){
 		save();

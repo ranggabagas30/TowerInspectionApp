@@ -393,7 +393,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 			int pos = (int)v.getTag(); DebugLog.d("pos = "+pos);
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			FormValueModel uploadItem = itemFormRenderModel.itemValue;
+			FormValueModel uploadItem = itemFormRenderModel.getItemValue();
 			if (uploadItem != null)
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, null, null).execute();
 			else
@@ -539,7 +539,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					checkHeaderName(parentRow);
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
-					form.setColumn(column);
+					form.setColumns(column);
 					form.setWorkFormGroupName(workFormGroupName);
 					form.setWorkTypeName(workTypeName);
 					form.setRowColumnModels(parentRow.row_columns, null);
@@ -580,7 +580,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				finishInflate = false;
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
-				form.setColumn(column);
+				form.setColumns(column);
 				form.setWorkTypeName(workTypeName);
 				form.setWorkFormGroupName(workFormGroupName);
 				form.setWorkFormGroupId(workFormGroupId);
@@ -637,8 +637,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				boolean ada = false;
 				DebugLog.d("total formModels items : " + formModels.size());
 				for (ItemFormRenderModel item : formModels) {
-					if (item.workItemModel!=null&&!item.workItemModel.search) {
-						DebugLog.d("search="+item.workItemModel.search);
+					if (item.getWorkItemModel()!=null&&!item.getWorkItemModel().search) {
+						DebugLog.d("search="+item.getWorkItemModel().search);
 						ada = true;
 						break;
 					}
@@ -754,20 +754,20 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				ItemFormRenderModel item = adapter.getItem(i);
 
 				DebugLog.d("no. " + i);
-				DebugLog.d("\titem type = " + item.type);
-				if (item.workItemModel != null) {
-					DebugLog.d("\titem label = " + item.workItemModel.label);
-					DebugLog.d("\titem isMandatory = " + item.workItemModel.mandatory);
-					DebugLog.d("\titem isDisabled = " + item.workItemModel.disable);
+				DebugLog.d("\titem type = " + item.getType());
+				if (item.getWorkItemModel() != null) {
+					DebugLog.d("\titem label = " + item.getWorkItemModel().label);
+					DebugLog.d("\titem isMandatory = " + item.getWorkItemModel().mandatory);
+					DebugLog.d("\titem isDisabled = " + item.getWorkItemModel().disable);
 				} else
 					DebugLog.d("\titem workitemmodel = null");
 
-				if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value))
-					DebugLog.d("\titem value = " + item.itemValue.value);
+				if (item.getItemValue() != null && !TextUtils.isEmpty(item.getItemValue().value))
+					DebugLog.d("\titem value = " + item.getItemValue().value);
 
-				if (list.contains(item.type) && item.workItemModel != null) {
-					if (!FormValueModel.isItemValueValidated(item.workItemModel, item.itemValue)) {
-						mandatoryLabel = item.workItemModel.label;
+				if (list.contains(item.getType()) && item.getWorkItemModel() != null) {
+					if (!FormValueModel.isItemValueValidated(item.getWorkItemModel(), item.getItemValue())) {
+						mandatoryLabel = item.getWorkItemModel().label;
 						mandatoryFound = true;
 						break;
 					}

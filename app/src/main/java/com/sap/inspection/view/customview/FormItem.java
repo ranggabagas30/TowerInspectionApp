@@ -111,7 +111,7 @@ public class FormItem extends RelativeLayout {
 		return "";
 	}
 
-	public void setColumn(ArrayList<ColumnModel> column) {
+	public void setColumns(ArrayList<ColumnModel> column) {
 		this.column = column;
 	}
 

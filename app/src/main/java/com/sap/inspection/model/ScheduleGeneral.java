@@ -4,11 +4,13 @@ package com.sap.inspection.model;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.constant.Constants;
 
+import org.parceler.Parcel;
+
+@Parcel
 public class ScheduleGeneral extends ScheduleBaseModel {
 
 	@Override
 	public String getTitle() {
-//		return project != null ? project.name : "";
 		return site != null ? site.name : "";
 	}
 
@@ -25,11 +27,6 @@ public class ScheduleGeneral extends ScheduleBaseModel {
 	@Override
 	public String getPlace() {
 		return site != null ? site.name : "";
-	}
-
-	@Override
-	protected ScheduleBaseModel newObject() {
-		return new ScheduleGeneral();
 	}
 
 	@Override

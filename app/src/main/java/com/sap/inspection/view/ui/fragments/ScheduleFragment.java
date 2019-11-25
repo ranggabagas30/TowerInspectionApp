@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,24 +45,21 @@ import org.apache.http.HttpStatus;
 import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.HttpException;
 
 public class ScheduleFragment extends BaseListTitleFragment implements OnItemClickListener{
 
 	private ScheduleAdapter adapter;
 	private BaseActivity baseActivity;
-	private Vector<ScheduleBaseModel> models;
+	private Vector<ScheduleGeneral> models;
 	private String userId;
 	private String ttNumber; // SAP for creating FO CUT schedule
 
 	private int filterBy = 0;
 
 	public static ScheduleFragment newInstance() {
-		ScheduleFragment fragment = new ScheduleFragment();
-		return fragment;
+		return new ScheduleFragment();
 	}
 
 	@Override
@@ -129,59 +126,46 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		actionAdd.setVisibility(View.INVISIBLE);
 		filterBy = resId;
 		if (resId == R.string.schedule){
-			ScheduleGeneral scheduleGeneral = new ScheduleGeneral();
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-				Vector<ScheduleBaseModel> modelsImbasPetir = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getScheduleByWorktype(getActivity(), getString(R.string.foto_imbas_petir)));
+				Vector<ScheduleGeneral> modelsImbasPetir = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.foto_imbas_petir)));
 				checkImbasPetirConfig(modelsImbasPetir);
 			}
-			models = scheduleGeneral.getListScheduleForScheduleAdapter(scheduleGeneral.getAllSchedule(getActivity()));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getAllSchedule(getActivity()));
 		}else if (resId == R.string.preventive){
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
 		}else if (resId == R.string.corrective){
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.corrective)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.corrective)));
 		}else if (resId == R.string.newlocation){
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.newlocation)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.newlocation)));
 		}else if (resId == R.string.colocation){
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.colocation)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.colocation)));
 		}else if (resId == R.string.site_audit){
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.site_audit)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.site_audit)));
 		} else if (resId == R.string.fiber_optic){
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.fiber_optic)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.fiber_optic)));
 		} else if (resId == R.string.hasil_PM){
 			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
 		}
 		// SAP only
 		 else if (resId == R.string.foto_imbas_petir) {
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(),getString(R.string.foto_imbas_petir)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.foto_imbas_petir)));
 			checkImbasPetirConfig(models);
 		}  else if (resId == R.string.routing_segment) {
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.routing_segment)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.routing_segment)));
 		} else if (resId == R.string.handhole) {
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.handhole)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.handhole)));
 		} else if (resId == R.string.hdpe) {
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.hdpe)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.hdpe)));
 		} else if (resId == R.string.focut) {
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models = schedulePrecise.getListScheduleForScheduleAdapter(schedulePrecise.getScheduleByWorktype(getActivity(), getString(R.string.focut)));
+			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.focut)));
 			actionAdd.setVisibility(View.VISIBLE);
 			actionAdd.setOnClickListener(view -> openCreateScheduleFOCUT());
 		}
 		adapter.setItems(models);
 	}
 
-	private void checkImbasPetirConfig(Vector<ScheduleBaseModel> listSchedules) {
+	private void checkImbasPetirConfig(Vector<ScheduleGeneral> listSchedules) {
 		FormImbasPetirConfig formImbasPetirConfig = FormImbasPetirConfig.getImbasPetirConfig();
 		if (formImbasPetirConfig == null) {
 			DebugLog.d("Form imbas petir config not found, create config");
@@ -189,7 +173,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		}
 
 		DebugLog.d("== checking config data over schedules === ");
-		for (ScheduleBaseModel schedule : listSchedules) {
+		for (ScheduleGeneral schedule : listSchedules) {
 			if (schedule.id != null) {
 				// if schedule data config not found, then add new data to the config
 				if (!FormImbasPetirConfig.isDataExist(schedule.id)) {
@@ -199,6 +183,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			}
 		}
 	}
+
 	private void checkCorrectiveScheduleConfig(String userId) {
 
 		CorrectiveScheduleResponseModel correctiveData = CorrectiveScheduleConfig.getCorrectiveScheduleConfig();
@@ -208,16 +193,14 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			APIHelper.getCorrectiveSchedule(getContext(), correctiveScheduleHandler, userId);
 		} else {
 
-			Vector<ScheduleBaseModel> correctiveScheduleModels = new Vector<>();
+			Vector<ScheduleGeneral> correctiveScheduleModels = new Vector<>();
 			for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveData.getData()) {
 
 				String scheduleId = String.valueOf(correctiveSchedule.getId());
-				ScheduleBaseModel correctiveScheduleModel = new ScheduleGeneral();
-				correctiveScheduleModel = correctiveScheduleModel.getScheduleById(scheduleId);
+				ScheduleGeneral correctiveScheduleModel = ScheduleBaseModel.getScheduleById(scheduleId);
 				correctiveScheduleModels.add(correctiveScheduleModel);
 			}
-			ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-			models.addAll(schedulePrecise.getListScheduleForScheduleAdapter(correctiveScheduleModels));
+			models.addAll(ScheduleGeneral.getListScheduleForScheduleAdapter(correctiveScheduleModels));
             adapter.setItems(models);
 		}
 	}
@@ -311,15 +294,13 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 					CorrectiveScheduleResponseModel correctiveData = gson.fromJson(jsonCorrectiveSchedule, CorrectiveScheduleResponseModel.class);
 					if (correctiveData != null) {
 						CorrectiveScheduleConfig.setCorrectiveScheduleConfig(correctiveData);
-						Vector<ScheduleBaseModel> correctiveScheduleModels = new Vector<>();
+						Vector<ScheduleGeneral> correctiveScheduleModels = new Vector<>();
 						for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveData.getData()) {
 							String scheduleId = String.valueOf(correctiveSchedule.getId());
-							ScheduleBaseModel correctiveScheduleModel = new ScheduleGeneral();
-							correctiveScheduleModel = correctiveScheduleModel.getScheduleById(scheduleId);
+							ScheduleGeneral correctiveScheduleModel = ScheduleGeneral.getScheduleById(scheduleId);
 							correctiveScheduleModels.add(correctiveScheduleModel);
 						}
-						ScheduleGeneral schedulePrecise = new ScheduleGeneral();
-						models.addAll(schedulePrecise.getListScheduleForScheduleAdapter(correctiveScheduleModels));
+						models.addAll(ScheduleBaseModel.getListScheduleForScheduleAdapter(correctiveScheduleModels));
 						adapter.setItems(models);
 					}
 				} else {

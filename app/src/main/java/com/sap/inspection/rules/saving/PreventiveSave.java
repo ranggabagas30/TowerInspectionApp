@@ -9,8 +9,8 @@ public class PreventiveSave extends SavingRule{
 
 	@Override
 	public void save(ItemFormRenderModel itemFormRenderModel, FormValueModel value){
-		if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator")){
-			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
+		if(!itemFormRenderModel.getWorkItemModel().scope_type.equalsIgnoreCase("operator")){
+			for (OperatorModel operatorModel : itemFormRenderModel.getSchedule().operators) {
 				value.operatorId = operatorModel.id;
 				value.uploadStatus = FormValueModel.UPLOAD_NONE;
 				value.save();

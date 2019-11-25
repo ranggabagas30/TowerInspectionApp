@@ -1,10 +1,11 @@
 package com.sap.inspection.model.value;
 
-import android.os.Parcel;
-
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 
+import org.parceler.Parcel;
+
+@Parcel
 public class QueueModel extends BaseModel {
 	
 	public String scheduleId;
@@ -13,14 +14,7 @@ public class QueueModel extends BaseModel {
 	public String value;
 	public boolean typePhoto;
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-	}
+	public QueueModel() {}
 
 	public static String createDB(){
 		return "create table if not exists " + DbManager.mWorkFormGroup

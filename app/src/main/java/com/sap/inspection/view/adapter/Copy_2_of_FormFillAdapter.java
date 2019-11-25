@@ -70,7 +70,7 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 
 	@Override
 	public int getItemViewType(int position) {
-		return getItem(position).type;
+		return getItem(position).getType();
 	}
 
 	@Override
@@ -142,41 +142,41 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 
 		switch (getItemViewType(position)) {
 		case ItemFormRenderModel.TYPE_COLUMN:
-			holder.label.setText(getItem(position).column.column_name);
+			holder.label.setText(getItem(position).getColumn().column_name);
 			break;
 		case ItemFormRenderModel.TYPE_LABEL:
-			holder.label.setText(getItem(position).workItemModel.label);
+			holder.label.setText(getItem(position).getWorkItemModel().label);
 			break;
 		case ItemFormRenderModel.TYPE_OPERATOR:
-			holder.label.setText(getItem(position).operator.name);
+			holder.label.setText(getItem(position).getOperator().name);
 			break;
 		case ItemFormRenderModel.TYPE_CHECKBOX:
-			if (getItem(position).workItemModel.label != null)
-				holder.label.setText(getItem(position).workItemModel.label);
-			reviseCheckBox(holder.checkBox, getItem(position).workItemModel, getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
+			if (getItem(position).getWorkItemModel().label != null)
+				holder.label.setText(getItem(position).getWorkItemModel().label);
+			reviseCheckBox(holder.checkBox, getItem(position).getWorkItemModel(), getItem(position).getItemValue() == null ? null : getItem(position).getItemValue().value.split("[|]"), getItem(position).getRowId(), getItem(position).getOperatorId());
 			break;
 		case ItemFormRenderModel.TYPE_RADIO:
-			holder.label.setText(getItem(position).workItemModel.label);
-			reviseRadio(holder.radio, getItem(position).workItemModel, getItem(position).itemValue == null ? null : getItem(position).itemValue.value.split("[|]"), getItem(position).rowId, getItem(position).operatorId);
+			holder.label.setText(getItem(position).getWorkItemModel().label);
+			reviseRadio(holder.radio, getItem(position).getWorkItemModel(), getItem(position).getItemValue() == null ? null : getItem(position).getItemValue().value.split("[|]"), getItem(position).getRowId(), getItem(position).getOperatorId());
 			break;
 		case ItemFormRenderModel.TYPE_HEADER:
-			holder.label.setText(getItem(position).workItemModel.label);
-			holder.colored.setText(getItem(position).getPercent());
-			holder.plain.setText(getItem(position).getWhen());
+			holder.label.setText(getItem(position).getWorkItemModel().label);
+			holder.colored.setText(getItem(position).getPercentage());
+			holder.plain.setText(getItem(position).getWhenExact());
 			break;
 		case ItemFormRenderModel.TYPE_PICTURE_RADIO:
-			holder.photo.setItemValue(getItem(position).itemValue, true);
+			holder.photo.setItemValue(getItem(position).getItemValue(), true);
 			break;
 		case ItemFormRenderModel.TYPE_TEXT_INPUT:
-			holder.label.setText(getItem(position).workItemModel.label);
-			if(getItem(position).workItemModel.description == null)
+			holder.label.setText(getItem(position).getWorkItemModel().label);
+			if(getItem(position).getWorkItemModel().description == null)
 				holder.description.setVisibility(View.GONE);
 			else{
 				holder.description.setVisibility(View.VISIBLE);
-				holder.description.setText(getItem(position).workItemModel.description);
+				holder.description.setText(getItem(position).getWorkItemModel().description);
 			}
-			if (getItem(position).itemValue != null)
-				holder.input.setText(getItem(position).itemValue.value);
+			if (getItem(position).getItemValue() != null)
+				holder.input.setText(getItem(position).getItemValue().value);
 			else
 				holder.input.setText("");
 			break;
@@ -280,6 +280,5 @@ public class Copy_2_of_FormFillAdapter extends MyBaseAdapter {
 		FormInputText input;
 		RadioGroup radio;
 	}
-
 
 }

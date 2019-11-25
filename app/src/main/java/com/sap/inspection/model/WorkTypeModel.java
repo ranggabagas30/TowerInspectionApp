@@ -3,27 +3,20 @@ package com.sap.inspection.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.tools.DebugLog;
 
+import org.parceler.Parcel;
+
+@Parcel
 public class WorkTypeModel extends BaseModel {
 
 	public int id;
 	public String name;
 
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	public WorkTypeModel() {}
 
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-	}
-	
 	public void save(Context context){
 
 		save();

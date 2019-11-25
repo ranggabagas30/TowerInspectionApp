@@ -1,12 +1,13 @@
 package com.sap.inspection.model.value;
 
-import android.os.Parcel;
-
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 
+import org.parceler.Parcel;
+
 import java.util.Vector;
 
+@Parcel
 public class FormModel extends BaseModel {
 
 	public boolean isOpen;
@@ -15,6 +16,8 @@ public class FormModel extends BaseModel {
 	public String text;
 	public String position;
 	public Vector<WorkFormRowModel> children;
+
+	public FormModel() {}
 
 	public int getCount(){
 		int count = 0;
@@ -36,15 +39,6 @@ public class FormModel extends BaseModel {
 			}
 		}
 		return models;
-	}
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
 	}
 
 }

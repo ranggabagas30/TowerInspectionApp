@@ -74,7 +74,7 @@
 //		return "";
 //	}
 //
-//	public void setColumn(Vector<ColumnModel> column) {
+//	public void setColumns(Vector<ColumnModel> column) {
 //		this.column = column;
 //	}
 //

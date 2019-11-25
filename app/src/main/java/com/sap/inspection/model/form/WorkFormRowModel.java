@@ -3,9 +3,7 @@ package com.sap.inspection.model.form;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 import android.text.TextUtils;
-
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
@@ -15,10 +13,11 @@ import com.sap.inspection.model.config.formimbaspetir.Barang;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
-
+import org.parceler.Parcel;
 import java.util.ArrayList;
 import java.util.Vector;
 
+@Parcel
 public class WorkFormRowModel extends BaseModel {
 
 	public int id;
@@ -31,22 +30,13 @@ public class WorkFormRowModel extends BaseModel {
 	public String updated_at;
 	public static int maxLevel;
 	public Vector<RowColumnModel> row_columns;
-
 	public boolean isOpen;
 	public boolean hasForm = false;
 	public int level;
 	public String text;
 	public Vector<WorkFormRowModel> children;
 
-	private Context context;
-
-	public WorkFormRowModel() {
-
-	}
-
-	public WorkFormRowModel(Context context) {
-		this.context = context;
-	}
+	public WorkFormRowModel() {}
 
 	public int getCount(){
 		int count = 0;
@@ -68,16 +58,6 @@ public class WorkFormRowModel extends BaseModel {
 			}
 		}
 		return models;
-	}
-
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
 	}
 
 	public static String createDB(){

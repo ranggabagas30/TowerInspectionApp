@@ -1,10 +1,9 @@
 package com.sap.inspection.model;
 
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcelable;
 
 
-public abstract class BaseModel implements Parcelable {
+public abstract class BaseModel {
 	
 	protected static void bindAndCheckNullString (SQLiteStatement statement,int index,String value){
 		if (null == value)

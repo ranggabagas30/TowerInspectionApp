@@ -3,12 +3,13 @@ package com.sap.inspection.model.value;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 
+import org.parceler.Parcel;
 
+@Parcel
 public class RowValueModel extends BaseModel {
 
 	public String siteId;
@@ -20,14 +21,7 @@ public class RowValueModel extends BaseModel {
 	public int filled;
 	public int uploaded;
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-	}
+	public RowValueModel() {}
 
 	public void save(Context context){
 		save();

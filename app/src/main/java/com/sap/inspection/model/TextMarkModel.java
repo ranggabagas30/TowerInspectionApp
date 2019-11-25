@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.Parcel;
 
 import com.sap.inspection.util.ImageUtil;
 
@@ -34,9 +33,7 @@ public class TextMarkModel extends BaseModel {
         return instance;
     }
 
-    private TextMarkModel(){
-
-    }
+    private TextMarkModel(){ }
 
     public synchronized void init(TextMarkDisplayOptionsModel textOptions) {
         if (textOptions == null) {
@@ -65,7 +62,7 @@ public class TextMarkModel extends BaseModel {
                 Typeface.create(defaultTexkMarkOptions.getTextFamilyName(), defaultTexkMarkOptions.getTextStyle());
         this.textPaint = new Paint();
         textPaint.setTypeface(this.textStyleApplied);
-        textPaint.setStyle(defaultTexkMarkOptions.gettextColorStyle());
+        textPaint.setStyle(defaultTexkMarkOptions.getTextColorStyle());
         textPaint.setColor(defaultTexkMarkOptions.getTextColor());
         textPaint.setTextAlign(defaultTexkMarkOptions.getTextAlign());
         textPaint.setTextSize(ImageUtil.convertToPixels(this.context, defaultTexkMarkOptions.getTextSize()));
@@ -76,15 +73,5 @@ public class TextMarkModel extends BaseModel {
 
     public synchronized Rect getTextRect() {
         return this.textRect;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
     }
 }

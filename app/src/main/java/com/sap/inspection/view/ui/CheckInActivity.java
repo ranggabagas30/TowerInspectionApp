@@ -33,10 +33,10 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.responsemodel.CheckinRepsonseModel;
 import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
-import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.util.LocationRequestProvider;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.StringUtil;
@@ -96,7 +96,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     InputStream data;
     HttpResponse response;
     CheckinBackgroundTask checkinBackgroundTask;
-    ScheduleBaseModel mScheduleData;
+    ScheduleGeneral mScheduleData;
     CheckinDataModel mParamObject;
 
     /* variabel handlers*/
@@ -254,23 +254,12 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         stopLocationServices();
         mCheckGPSHandler.removeCallbacks(mRunnableCheckGPSHandler);
         mCheckoutHandler.removeCallbacks(mRunnableCheckoutHandler);
-        /*if (DbRepository.getInstance().getDB() != null && DbRepository.getInstance().getDB().isOpen()){
-            DbRepository.getInstance().close();
-        }*/
-
-        //DbRepository.getInstance().close();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         DebugLog.d("onDestroy");
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
     }
 
     @Override
@@ -401,9 +390,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private void preparingScheduleAndSiteData() {
         mSiteCoordinate    = new Location(LocationManager.GPS_PROVIDER);
         mParamObject = new CheckinDataModel();
-
-        mScheduleData = new ScheduleGeneral();
-        mScheduleData = mScheduleData.getScheduleById(mExtraScheduleId);
+        mScheduleData = ScheduleBaseModel.getScheduleById(mExtraScheduleId);
 
         // TODO: fix on location str null
         String[] siteCoordinate = mScheduleData.site.locationStr.split(",");
@@ -529,20 +516,14 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private boolean receiveDataFromSERVER(String response) {
-        Gson gson = new Gson();
-
-        CheckinRepsonseModel saveCheckinResponse = gson.fromJson(response, CheckinRepsonseModel.class);
+        CheckinRepsonseModel saveCheckinResponse = new Gson().fromJson(response, CheckinRepsonseModel.class);
         saveCheckinResponse.printLogResponse();
         DebugLog.d("status : " + saveCheckinResponse.status);
         DebugLog.d("status_code : " + saveCheckinResponse.status_code);
-
-        //TowerApplication.getInstance().toast("post data check in berhasil", Toast.LENGTH_LONG);
-//TowerApplication.getInstance().toast("post data check in gagal", Toast.LENGTH_LONG);
         return saveCheckinResponse.status == 201 || saveCheckinResponse.status == 200;
     }
 
     private class CheckinBackgroundTask extends AsyncTask<Void, String, Void> {
-
         private Gson gson = new Gson();
         private String response = null;
         private boolean taskDone = false;
@@ -558,7 +539,6 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             super.onPreExecute();
             runningTask = true;
             mBtnCheckin.setEnabled(false);
-            //TowerApplication.getInstance().toast("Start check in", Toast.LENGTH_SHORT);
         }
 
         @Override
@@ -575,7 +555,6 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
                 validatedByServer = receiveDataFromSERVER(response);
             } else {
                 DebugLog.d("Error response from server");
-                //TowerApplication.getInstance().toast("Error response from server", Toast.LENGTH_SHORT);
             }
             return null;
         }

@@ -5,22 +5,20 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.TowerApplication;
-import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.protocol.HTTP;
 
 import java.io.File;
 
@@ -32,12 +30,12 @@ import io.reactivex.schedulers.Schedulers;
 public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 
 	private String mPath = Constants.DIR_PHOTOS + "/";
-	private ScheduleBaseModel mSchedule;
+	private ScheduleGeneral mSchedule;
 	private CompositeDisposable compositeDisposable;
 
 	public AsyncDeleteAllFiles() {}
 
-	public AsyncDeleteAllFiles(ScheduleBaseModel schedule) {
+	public AsyncDeleteAllFiles(ScheduleGeneral schedule) {
 		this.mSchedule = schedule;
 	}
 

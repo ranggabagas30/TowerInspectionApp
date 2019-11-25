@@ -1,5 +1,8 @@
 package com.sap.inspection.model;
 
+import org.parceler.Parcel;
+
+@Parcel(Parcel.Serialization.BEAN)
 public class InformasiBarangModel {
 
     private int id;
@@ -20,6 +23,7 @@ public class InformasiBarangModel {
     private String created_at;
     private String updated_at;
 
+    public InformasiBarangModel() {}
 
     // Getter Methods
 

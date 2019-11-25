@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
-import android.os.Parcel;
 import android.text.TextUtils;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -18,10 +17,13 @@ import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
 
+import org.parceler.Parcel;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+@Parcel
 public class WorkFormItemModel extends BaseModel {
 
 	public int id;
@@ -48,16 +50,7 @@ public class WorkFormItemModel extends BaseModel {
 	public boolean search = true;
 	public boolean expand;
 
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-	}
+	public WorkFormItemModel() {}
 
 	public static String createDB(){
 		return "create table if not exists " + DbManager.mWorkFormItem
@@ -91,7 +84,6 @@ public class WorkFormItemModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkFormItem;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);

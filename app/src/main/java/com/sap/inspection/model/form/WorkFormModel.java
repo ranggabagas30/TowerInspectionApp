@@ -4,7 +4,6 @@ package com.sap.inspection.model.form;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
@@ -15,8 +14,11 @@ import com.sap.inspection.model.SiteModel;
 import com.sap.inspection.model.WorkTypeModel;
 import com.sap.inspection.tools.DebugLog;
 
+import org.parceler.Parcel;
+
 import java.util.Vector;
 
+@Parcel
 public class WorkFormModel extends BaseModel {
 	
     public int id;
@@ -30,18 +32,8 @@ public class WorkFormModel extends BaseModel {
     public String created_at;
     public String updated_at;
 
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public WorkFormModel() {}
 
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-
-	}
-	
 	public static String createDB(){
 		return "create table if not exists " + DbManager.mWorkForm
 				+ " (" + DbManager.colID + " integer, "
@@ -90,7 +82,7 @@ public class WorkFormModel extends BaseModel {
 		if (groups != null)
 			for (WorkFormGroupModel group : groups) {
 				group.save();
-				count += group.getInput(group.id);
+				count += group.getInputCount(group.id);
 			}
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?)",
@@ -116,8 +108,6 @@ public class WorkFormModel extends BaseModel {
 	}
 
 	public static void delete(Context ctx){
-
-
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mWorkForm;
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);

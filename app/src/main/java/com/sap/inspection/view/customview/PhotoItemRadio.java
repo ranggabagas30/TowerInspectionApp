@@ -146,24 +146,24 @@ public class PhotoItemRadio extends RelativeLayout {
 	public void setItemFormRenderModel(ItemFormRenderModel itemFormRenderModel) {
 		this.itemFormRenderModel = itemFormRenderModel;
 
-		if (itemFormRenderModel.operator != null && itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
-			label.setText(itemFormRenderModel.operator.name+"\n"+itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
-		else if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.label != null)
-			label.setText(itemFormRenderModel.workItemModel.label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
+		if (itemFormRenderModel.getOperator() != null && itemFormRenderModel.getWorkItemModel().scope_type.equalsIgnoreCase("operator"))
+			label.setText(itemFormRenderModel.getOperator().name+"\n"+itemFormRenderModel.getWorkItemModel().label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
+		else if (itemFormRenderModel.getWorkItemModel() != null && itemFormRenderModel.getWorkItemModel().label != null)
+			label.setText(itemFormRenderModel.getWorkItemModel().label.replaceAll("(?i)Photo Pengukuran Tegangan KWH", ""));
 
-		if (itemFormRenderModel.workItemModel != null && itemFormRenderModel.workItemModel.mandatory)
+		if (itemFormRenderModel.getWorkItemModel() != null && itemFormRenderModel.getWorkItemModel().mandatory)
 			mandatory.setVisibility(VISIBLE);
 
 		if (!TowerApplication.getInstance().IS_CHECKING_HASIL_PM())
 			enable();
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
-				(itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 1") ||
-						itemFormRenderModel.workItemModel.label.equalsIgnoreCase("Photo Penghancuran 2"))) {
+				(itemFormRenderModel.getWorkItemModel().label.equalsIgnoreCase("Photo Penghancuran 1") ||
+						itemFormRenderModel.getWorkItemModel().label.equalsIgnoreCase("Photo Penghancuran 2"))) {
 
 			// ignore mandatory when did not get any approval yet
-			itemFormRenderModel.workItemModel.disable = true;
-			itemFormRenderModel.workItemModel.save();
+			itemFormRenderModel.getWorkItemModel().disable = true;
+			itemFormRenderModel.getWorkItemModel().save();
 
 			disable();
 
@@ -177,10 +177,10 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	public void setItemValue(FormValueModel value, boolean initValue) {
 
-		DebugLog.d("itemid : " + itemFormRenderModel.workItemModel.id);
-		DebugLog.d("label : " + itemFormRenderModel.workItemModel.label);
-		DebugLog.d("value : " + (itemFormRenderModel.itemValue == null ? "null" : itemFormRenderModel.itemValue.remark));
-		DebugLog.d("photo status : " + (itemFormRenderModel.itemValue == null ? "null" : itemFormRenderModel.itemValue.photoStatus));
+		DebugLog.d("itemid : " + itemFormRenderModel.getWorkItemModel().id);
+		DebugLog.d("label : " + itemFormRenderModel.getWorkItemModel().label);
+		DebugLog.d("value : " + (itemFormRenderModel.getItemValue() == null ? "null" : itemFormRenderModel.getItemValue().remark));
+		DebugLog.d("photo status : " + (itemFormRenderModel.getItemValue() == null ? "null" : itemFormRenderModel.getItemValue().photoStatus));
 		DebugLog.d("radio check : " + (radioGroup.getCheckedRadioButtonId() == -1 ? "no check" : radioGroup.getCheckedRadioButtonId()));
 
 		imageView.setImageResource(R.drawable.logo_app);
@@ -224,9 +224,9 @@ public class PhotoItemRadio extends RelativeLayout {
 		if (value == null){
 			value = new FormValueModel();
 			if (itemFormRenderModel != null){
-				value.itemId = itemFormRenderModel.workItemModel.id;
-				value.scheduleId = itemFormRenderModel.schedule.id;
-				value.operatorId = itemFormRenderModel.operatorId;
+				value.itemId = itemFormRenderModel.getWorkItemModel().id;
+				value.scheduleId = itemFormRenderModel.getSchedule().id;
+				value.operatorId = itemFormRenderModel.getOperatorId();
 
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
 					value.wargaId  = itemFormRenderModel.getWargaId();
@@ -318,7 +318,7 @@ public class PhotoItemRadio extends RelativeLayout {
 
             // notify button take picture and textview mandatory
 			mandatory.setVisibility(VISIBLE);
-            if (!itemFormRenderModel.workItemModel.mandatory) {
+            if (!itemFormRenderModel.getWorkItemModel().mandatory) {
 
                 // init mandatory label visibility to GONE while it's not a mandatory item
             	mandatory.setVisibility(GONE);
@@ -364,27 +364,27 @@ public class PhotoItemRadio extends RelativeLayout {
 
 	private void setItemFormRenderedValue(){
 
-		if (itemFormRenderModel.itemValue == null){
-			DebugLog.d("itemFormRenderModel.itemValue == null");
-			if(!itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("operator"))
-				itemFormRenderModel.schedule.sumTaskDone+=itemFormRenderModel.schedule.operators.size();
+		if (itemFormRenderModel.getItemValue() == null){
+			DebugLog.d("itemFormRenderModel.getItemValue() == null");
+			if(!itemFormRenderModel.getWorkItemModel().scope_type.equalsIgnoreCase("operator"))
+				itemFormRenderModel.getSchedule().sumTaskDone+=itemFormRenderModel.getSchedule().operators.size();
 			else
-				itemFormRenderModel.schedule.sumTaskDone++;
-			itemFormRenderModel.schedule.save();
+				itemFormRenderModel.getSchedule().sumTaskDone++;
+			itemFormRenderModel.getSchedule().save();
 		}
-		DebugLog.d("task done : " + itemFormRenderModel.schedule.sumTaskDone);
+		DebugLog.d("task done : " + itemFormRenderModel.getSchedule().sumTaskDone);
 		if (itemFormRenderModel != null){
 			DebugLog.d("itemFormRenderModel != null");
-			itemFormRenderModel.itemValue = value;
+			itemFormRenderModel.setItemValue(value);
 		}
 	}
 
 	public void save(){
 		setItemFormRenderedValue();
 		DebugLog.d( value.scheduleId +" | "+value.itemId+" | "+value.operatorId+" | "+ value.value+ " | " + value.wargaId + " | " + value.barangId + " | " + value.createdAt );
-		if(itemFormRenderModel.workItemModel.scope_type.equalsIgnoreCase("all")){
+		if(itemFormRenderModel.getWorkItemModel().scope_type.equalsIgnoreCase("all")){
 			DebugLog.d("scopeType : All");
-			for (OperatorModel operatorModel : itemFormRenderModel.schedule.operators) {
+			for (OperatorModel operatorModel : itemFormRenderModel.getSchedule().operators) {
 				value.operatorId = operatorModel.id;
 				value.save();
 			}
@@ -533,7 +533,7 @@ public class PhotoItemRadio extends RelativeLayout {
 	}
 
 	public int getItemId() {
-		return itemFormRenderModel.workItemModel.id;
+		return itemFormRenderModel.getWorkItemModel().id;
 	}
 
 	private void toggleEditable() {
@@ -592,8 +592,8 @@ public class PhotoItemRadio extends RelativeLayout {
 
                         DebugLog.d("check approval success");
 
-						itemFormRenderModel.workItemModel.disable = false;
-						itemFormRenderModel.workItemModel.save();
+						itemFormRenderModel.getWorkItemModel().disable = false;
+						itemFormRenderModel.getWorkItemModel().save();
 
                         FormImbasPetirConfig.setScheduleApproval(scheduleId, true);
 

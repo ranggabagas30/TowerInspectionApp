@@ -3,11 +3,13 @@ package com.sap.inspection.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.tools.DebugLog;
 
+import org.parceler.Parcel;
+
+@Parcel
 public class SiteModel extends BaseModel {
 	
     public int id;
@@ -15,20 +17,7 @@ public class SiteModel extends BaseModel {
     public String locationStr;
     public String site_id_customer;
     public LocationModel location;
-
-    // SAP ONLY
-	public String color_rtpo;
-
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-	}
+	public String color_rtpo; // SAP ONLY
 	
 	public void save(Context context){
 

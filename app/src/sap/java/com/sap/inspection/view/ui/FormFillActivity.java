@@ -54,12 +54,13 @@ import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
-import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.adapter.FormFillAdapter;
 import com.sap.inspection.view.customview.FormItem;
@@ -70,6 +71,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+
+import pub.devrel.easypermissions.AppSettingsDialog;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
@@ -85,7 +88,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private int workFormGroupId;
 	private int rowId;
 
-	private ScheduleBaseModel schedule;
+	private ScheduleGeneral schedule;
 	private FormValueModel itemValueForShare;
 	private Uri mImageUri;
 	public ArrayList<Integer> indexes;
@@ -143,14 +146,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 
 		if (indexes == null)
-			indexes = new ArrayList<Integer>();
+			indexes = new ArrayList<>();
 		indexes.add(0);
 		if (labels == null)
-			labels = new ArrayList<String>();
+			labels = new ArrayList<>();
 		if (formItems == null)
-			formItems = new ArrayList<FormItem>();
+			formItems = new ArrayList<>();
 		if (formModels == null)
-			formModels = new ArrayList<ItemFormRenderModel>();
+			formModels = new ArrayList<>();
 
 		googleApiClient = new GoogleApiClient.Builder(this)
 				.addApi(LocationServices.API)
@@ -159,8 +162,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				.build();
 
 		// init schedule
-		schedule = new ScheduleGeneral();
-		schedule = schedule.getScheduleById(scheduleId);
+		schedule = ScheduleBaseModel.getScheduleById(scheduleId);
 
 		adapter = new FormFillAdapter(this);
 		adapter.setScheduleId(scheduleId);
@@ -193,7 +195,31 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		new FormLoader().execute();
 	}
-	
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		// Connect the client.
+		googleApiClient.connect();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+	}
+
+	@Override
+	protected void onStop() {
+		// Disconnecting the client invalidates it.
+		googleApiClient.disconnect();
+		super.onStop();
+	}
+
 	OnItemSelectedListener itemSelected = new OnItemSelectedListener() {
 
 		public void onItemSelected(AdapterView<?> listView, View view, int position, long id)
@@ -344,40 +370,19 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			hideDialog();
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		//EventBus.getDefault().unregister(this);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		//EventBus.getDefault().register(this);
-	}
-
-	@Override
-	protected void onStop() {
-		// Disconnecting the client invalidates it.
-		googleApiClient.disconnect();
-		super.onStop();
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		// Connect the client.
-		googleApiClient.connect();
-	}
-
 	OnClickListener photoClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
-				photoItem = (PhotoItemRadio) v.getTag();
-				takePicture(photoItem.getItemId());
-			} else
-				DialogUtil.showGPSdialog(FormFillActivity.this);
+			if (PermissionUtil.hasAllPermissions(FormFillActivity.this)) {
+				if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
+					photoItem = (PhotoItemRadio) v.getTag();
+					takePicture(photoItem.getItemId());
+				} else
+					DialogUtil.showGPSdialog(FormFillActivity.this);
+			} else {
+				// open app settings
+				new AppSettingsDialog.Builder(FormFillActivity.this).build().show();
+			}
 		}
 	};
 
@@ -391,7 +396,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			int pos = (int)v.getTag();
 			DebugLog.d("pos = "+pos);
 			ItemFormRenderModel itemFormRenderModel = adapter.getItem(pos);
-			FormValueModel uploadItem = itemFormRenderModel.itemValue;
+			FormValueModel uploadItem = itemFormRenderModel.getItemValue();
 			if (uploadItem != null)
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, workFormGroupId, uploadItem.itemId, uploadItem.wargaId, uploadItem.barangId).execute();
 			else
@@ -515,7 +520,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			parentRow = new WorkFormRowModel(FormFillActivity.this);
+			parentRow = new WorkFormRowModel();
 
 		    if (workTypeName.equalsIgnoreCase(getString(R.string.corrective))) {
 
@@ -553,13 +558,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					checkHeaderName(parentRow);
 					form = new ItemFormRenderModel();
 					form.setSchedule(schedule);
-					form.setColumn(column);
-					form.setWargaid(wargaId);
-					form.setBarangid(barangId);
+					form.setColumns(column);
+					form.setWargaId(wargaId);
+					form.setBarangId(barangId);
 					form.setWorkFormGroupId(workFormGroupId);
 					form.setWorkTypeName(workTypeName);
 					form.setRowColumnModels(parentRow.row_columns, null);
-					if (form.hasInput){
+					if (form.isHasInput()){
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 						String label = form.getLabel();
 
@@ -568,7 +573,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						}
 						labels.add(label);
 						formModels.add(form);
-					} else if (form.hasPicture){
+					} else if (form.isHasPicture()){
 						String label = form.getLabel();
 
 						if (TextUtils.isEmpty(label)) {
@@ -594,14 +599,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				finishInflate = false;
 				form = new ItemFormRenderModel();
 				form.setSchedule(schedule);
-				form.setColumn(column);
-				form.setWargaid(wargaId);
-				form.setBarangid(barangId);
+				form.setColumns(column);
+				form.setWargaId(wargaId);
+				form.setBarangId(barangId);
 				form.setWorkTypeName(workTypeName);
 				form.setWorkFormGroupName(workFormGroupName);
 				form.setWorkFormGroupId(workFormGroupId);
 				form.setRowColumnModels(rowChildren.row_columns,parentLabel);
-				if (form.hasInput){
+				if (form.isHasInput()){
 					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 					String label = form.getLabel();
 					while (labels.indexOf(label) != -1){
@@ -654,8 +659,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
                 boolean ada = false;
                 DebugLog.d("total formModels items : " + formModels.size());
                 for (ItemFormRenderModel item : formModels) {
-                    if (item.workItemModel!=null&&!item.workItemModel.search) {
-                        DebugLog.d("search="+item.workItemModel.search);
+                    if (item.getWorkItemModel()!=null&&!item.getWorkItemModel().search) {
+                        DebugLog.d("search="+item.getWorkItemModel().search);
                         ada = true;
                         break;
                     }
@@ -776,11 +781,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				ItemFormRenderModel item = adapter.getItem(i);
 
 				DebugLog.d("no. "+ i);
-				DebugLog.d("\titem type = " + item.type);
-				if (item.workItemModel!=null) {
-					DebugLog.d("\titem label = " + item.workItemModel.label);
-					DebugLog.d("\titem isMandatory = " + item.workItemModel.mandatory);
-					DebugLog.d("\titem isDisabled = " + item.workItemModel.disable);
+				DebugLog.d("\titem type = " + item.getType());
+				if (item.getWorkItemModel()!=null) {
+					DebugLog.d("\titem label = " + item.getWorkItemModel().label);
+					DebugLog.d("\titem isMandatory = " + item.getWorkItemModel().mandatory);
+					DebugLog.d("\titem isDisabled = " + item.getWorkItemModel().disable);
 				} else
 					DebugLog.d("\titem workitemmodel = null");
 
@@ -789,11 +794,11 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					DebugLog.d("\titem barangId = " + item.getBarangId());
 				}
 
-				if (item.itemValue != null && !TextUtils.isEmpty(item.itemValue.value)) DebugLog.d("\titem value = " +item.itemValue.value);
+				if (item.getItemValue() != null && !TextUtils.isEmpty(item.getItemValue().value)) DebugLog.d("\titem value = " +item.getItemValue().value);
 
-				if (list.contains(item.type) && item.workItemModel != null) {
-					if (!FormValueModel.isItemValueValidated(item.workItemModel, item.itemValue, workTypeName)) {
-						mandatoryLabel = item.workItemModel.label;
+				if (list.contains(item.getType()) && item.getWorkItemModel() != null) {
+					if (!FormValueModel.isItemValueValidated(item.getWorkItemModel(), item.getItemValue(), workTypeName)) {
+						mandatoryLabel = item.getWorkItemModel().label;
 						mandatoryFound = true;
 						break;
 					}

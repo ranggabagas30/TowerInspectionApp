@@ -5,15 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
-import android.os.Parcel;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.manager.ItemUploadManager;
@@ -27,6 +26,8 @@ import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
 
+import org.parceler.Parcel;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,17 +40,12 @@ import de.greenrobot.event.EventBus;
 
 import static com.crashlytics.android.Crashlytics.log;
 
-//import static com.sap.inspection.model.value.DbManagerValue.material_request;
-
-//import static com.sap.inspection.model.value.DbManagerValue.material_request;
-
-
+@Parcel
 public class FormValueModel extends BaseModel {
 	public static final int UPLOAD_NONE = 0;
 	public static final int UPLOAD_ONGOING = 1;
 	public static final int UPLOAD_DONE = 2;
 	public static final int UPLOAD_FAIL = 3;
-
 	public static final int UNSPECIFIED = -1;
 
 	public String scheduleId;
@@ -70,19 +66,10 @@ public class FormValueModel extends BaseModel {
 	public boolean typePhoto;
 	public String picture;
 	public boolean disable;
+	public String wargaId; // SAP
+	public String barangId; // SAP
 
-	// STP only
-	public String wargaId;
-	public String barangId;
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-	}
+	public FormValueModel() {}
 
 	public static void deleteAll(){
 		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());

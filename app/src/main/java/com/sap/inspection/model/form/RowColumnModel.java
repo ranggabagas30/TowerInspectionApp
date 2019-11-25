@@ -3,7 +3,6 @@ package com.sap.inspection.model.form;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
@@ -11,8 +10,11 @@ import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.tools.DebugLog;
 
+import org.parceler.Parcel;
+
 import java.util.Vector;
 
+@Parcel
 public class RowColumnModel extends BaseModel {
 	
     public int id;
@@ -23,15 +25,8 @@ public class RowColumnModel extends BaseModel {
     public int work_form_group_id;
     public Vector<WorkFormItemModel> items;
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
+    public RowColumnModel() {}
 
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-	}
-	
 	public static String createDB(){
 		return "create table if not exists " + DbManager.mWorkFormRowCol
 				+ " (" + DbManager.colID + " integer, "

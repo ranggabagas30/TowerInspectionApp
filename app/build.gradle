@@ -146,6 +146,9 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1' // rxAndroid 2.0 to subscribe on AndroidSchedulers class
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10' // rxJava2
 
+    // Parceler (easy Parcelable) 
+    implementation 'org.parceler:parceler-api:1.1.12'
+    annotationProcessor 'org.parceler:parceler:1.1.12'
 }
 
 apply plugin: 'com.google.gms.google-services'

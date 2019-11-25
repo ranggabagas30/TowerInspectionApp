@@ -3,15 +3,17 @@ package com.sap.inspection.model.form;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 
+import org.parceler.Parcel;
+
 import java.util.Vector;
 
+@Parcel
 public class WorkFormGroupModel extends BaseModel {
 	
     public int id;
@@ -23,19 +25,10 @@ public class WorkFormGroupModel extends BaseModel {
     public String ancestry;
     public String created_at;
     public String updated_at;
-    private int input = -1;
+    public int input = -1;
 
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public WorkFormGroupModel() {}
 
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-	}
-	
 	public static String createDB(){
 		return "create table if not exists " + DbManager.mWorkFormGroup
 				+ " (" + DbManager.colID + " integer, "
@@ -51,7 +44,6 @@ public class WorkFormGroupModel extends BaseModel {
 	}
 	
 	private int countInput(int groupId) {
-
 		String table = DbManager.mWorkFormItem;
 		String[] columns = null;
 		String where =DbManager.colWorkFormGroupId+" = ? AND "+DbManager.colFieldType+" != 'label'";
@@ -119,7 +111,7 @@ public class WorkFormGroupModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
-	public int getInput(int groupId) {
+	public int getInputCount(int groupId) {
 		if (input == -1)
 			countInput(groupId);
 		return input;

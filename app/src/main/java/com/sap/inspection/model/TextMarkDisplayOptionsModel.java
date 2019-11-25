@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.os.Parcel;
 
 /**
  * Created by domikado on 3/15/18.
@@ -20,16 +19,6 @@ public class TextMarkDisplayOptionsModel extends BaseModel {
     private int textStyle;
     private int textSize;
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-    }
-
     private TextMarkDisplayOptionsModel(TextMarkDisplayOptionsModel.Builder builder) {
         this.context = builder.context;
         this.textColorStyle = builder.textColorStyle;
@@ -44,7 +33,7 @@ public class TextMarkDisplayOptionsModel extends BaseModel {
         return this.context;
     }
 
-    public Paint.Style gettextColorStyle() {
+    public Paint.Style getTextColorStyle() {
         return textColorStyle;
     }
 
@@ -66,6 +55,34 @@ public class TextMarkDisplayOptionsModel extends BaseModel {
 
     public int getTextSize() {
         return textSize;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public void setTextColorStyle(Paint.Style textColorStyle) {
+        this.textColorStyle = textColorStyle;
+    }
+
+    public void setTextAlign(Paint.Align textAlign) {
+        this.textAlign = textAlign;
+    }
+
+    public void setTextFamilyName(String textFamilyName) {
+        this.textFamilyName = textFamilyName;
+    }
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
+    }
+
+    public void setTextStyle(int textStyle) {
+        this.textStyle = textStyle;
+    }
+
+    public void setTextSize(int textSize) {
+        this.textSize = textSize;
     }
 
     public static TextMarkDisplayOptionsModel createSimple(Context context){

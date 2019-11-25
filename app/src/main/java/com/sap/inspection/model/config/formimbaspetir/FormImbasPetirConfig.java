@@ -234,7 +234,7 @@ public class FormImbasPetirConfig {
                 int wargaindex = getWargaIndex(wargas, oldWargaId);
 
                 Warga warga = wargas.get(wargaindex);
-                warga.setWargaid(newWargaId);
+                warga.setWargaId(newWargaId);
                 warga.setRegistered(true);
 
                 wargas.set(wargaindex, warga);
@@ -258,7 +258,7 @@ public class FormImbasPetirConfig {
             ArrayList<Barang> barangs = warga.getBarang();
 
             int barangIndex = getBarangIndex(dataIndex, wargaId, oldBarangId);
-            barangs.get(barangIndex).setBarangid(newBarangId);
+            barangs.get(barangIndex).setBarangId(newBarangId);
 
             warga.setBarang(barangs);
 
@@ -344,7 +344,7 @@ public class FormImbasPetirConfig {
 
                 Warga warga = new Warga();  //\\ init warga
                 warga.setWargake(wargaId);    // temporary id
-                warga.setWargaid(wargaId);   // real id
+                warga.setWargaId(wargaId);   // real id
                 warga.setBarang(new ArrayList<>());
 
                 wargas.add(warga);
@@ -399,7 +399,7 @@ public class FormImbasPetirConfig {
 
                         Barang barang = new Barang();
                         barang.setBarangke(barangId);
-                        barang.setBarangid(barangId);
+                        barang.setBarangId(barangId);
 
                         barangs.add(barang);
                     }

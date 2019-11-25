@@ -11,7 +11,7 @@ public class Barang
         return barangid;
     }
 
-    public void setBarangid (String barangid)
+    public void setBarangId (String barangid)
     {
         this.barangid = barangid;
     }

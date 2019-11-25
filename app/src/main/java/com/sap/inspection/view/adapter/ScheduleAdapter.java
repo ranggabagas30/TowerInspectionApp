@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,19 +17,17 @@ import android.widget.Toast;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
-import com.sap.inspection.connection.rest.TowerAPI;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.DeleteAllProgressEvent;
-import com.sap.inspection.manager.AsyncDeleteAllFiles;
 import com.sap.inspection.model.RejectionModel;
 import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.DialogUtil;
-import com.yarolegovich.lovelydialog.LovelyProgressDialog;
 
 import org.apache.http.HttpStatus;
 
@@ -39,26 +36,23 @@ import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.HttpException;
 
 public class ScheduleAdapter extends MyBaseAdapter {
 
 	private Context context;
-	private Vector<ScheduleBaseModel> scheduleItems = new Vector<>();
-	private AdapterView.OnItemClickListener onItemClickListener;
+	private Vector<ScheduleGeneral> scheduleItems = new Vector<>();
 
 	public ScheduleAdapter(Context context) {
 		this.context = context;
 	}
 
-	public void setItems(Vector<ScheduleBaseModel> scheduleItems) {
+	public void setItems(Vector<ScheduleGeneral> scheduleItems) {
 		this.scheduleItems = scheduleItems;
 		notifyDataSetChanged();
 	}
 
-	public void addItem(ScheduleBaseModel model) {
+	public void addItem(ScheduleGeneral model) {
 		this.scheduleItems.add(model);
 		notifyDataSetChanged();
 	}
@@ -68,7 +62,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 		notifyDataSetChanged();
 	}
 
-	public void editItem(int position, ScheduleBaseModel newSchedule) {
+	public void editItem(int position, ScheduleGeneral newSchedule) {
 	    this.scheduleItems.set(position, newSchedule);
 	    notifyDataSetChanged();
     }
@@ -84,7 +78,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 	}
 
 	@Override
-	public ScheduleBaseModel getItem(int position) {
+	public ScheduleGeneral getItem(int position) {
 		return scheduleItems.get(position);
 	}
 
@@ -216,9 +210,10 @@ public class ScheduleAdapter extends MyBaseAdapter {
 	}
 
 	// edit TT number from selected fo cut schedule
+	@SuppressLint("CheckResult")
 	View.OnClickListener onEditClickListener = v -> {
 	    int editSchedulePosition = (int) v.getTag();
-	    ScheduleBaseModel editSchedule = getItem(editSchedulePosition);
+	    ScheduleGeneral editSchedule = getItem(editSchedulePosition);
 
         DialogUtil.showEditFoCutScheduleDialog(context, data -> {
 

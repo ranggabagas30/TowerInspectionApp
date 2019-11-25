@@ -5,13 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
-import android.os.Parcel;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.sap.inspection.BuildConfig;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -35,19 +33,8 @@ public class CorrectiveValueModel extends FormValueModel {
 
 	private static final int ALL_OP_ID = -1;
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-	}
-
 	public static void delete(Context ctx, String scheduleId, int itemId, int operatorId){
-
 		delete(scheduleId, itemId, operatorId);
-
 	}
 
 	public static void delete(String scheduleId, int itemId, int operatorId){

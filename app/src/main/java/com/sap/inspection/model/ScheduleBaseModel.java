@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
-import android.os.Parcel;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -54,17 +53,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public boolean isSeparator = false;
 	public boolean isAnimated = false;
 	public int operator_number = 0;
-	private int task = -1;
+	public int task = -1;
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-
-	}
+	public ScheduleBaseModel() {}
 
 	public static String createDB(){
 		StringBuilder createTableBuilder = new StringBuilder("create table if not exists " + DbManager.mSchedule + " ("
@@ -394,9 +385,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return result;
 	}
 
-	public Vector<ScheduleBaseModel> getAllSchedule(Context context) {
+	public static Vector<ScheduleGeneral> getAllSchedule(Context context) {
 
-		Vector<ScheduleBaseModel> result = new Vector<ScheduleBaseModel>();
+		Vector<ScheduleGeneral> result = new Vector<ScheduleGeneral>();
 
 		String table = DbManager.mSchedule;
 		String[] columns = null;
@@ -422,9 +413,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return result;
 	}
 
-	public Vector<ScheduleBaseModel> getScheduleByWorktype(Context context,String workType) {
+	public static Vector<ScheduleGeneral> getScheduleByWorktype(Context context,String workType) {
 
-		Vector<ScheduleBaseModel> result = new Vector<ScheduleBaseModel>();
+		Vector<ScheduleGeneral> result = new Vector<ScheduleGeneral>();
 
 		String table = DbManager.mSchedule;
 		String[] columns = null;
@@ -455,14 +446,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return result;
 	}
 
-	public ScheduleBaseModel getScheduleById(Context context,String id) {
-		ScheduleBaseModel model = getScheduleById(id);
-		return model;
-	}
+	public static ScheduleGeneral getScheduleById(String id) {
 
-	public ScheduleBaseModel getScheduleById(String id) {
-
-		ScheduleBaseModel model = null;
+		ScheduleGeneral model = null;
 
 		String table = DbManager.mSchedule;
 		String[] columns = null;
@@ -485,31 +471,30 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return model;
 	}
 
-	public Vector<ScheduleBaseModel> getListScheduleForScheduleAdapter(Vector<ScheduleBaseModel> rawList) {
-		Vector<ScheduleBaseModel> listPerDay = new Vector<>();
-		for (ScheduleBaseModel scheduleBaseModel : rawList) {
+	public static Vector<ScheduleGeneral> getListScheduleForScheduleAdapter(Vector<ScheduleGeneral> rawList) {
+		Vector<ScheduleGeneral> listPerDay = new Vector<>();
+		for (ScheduleGeneral schedule : rawList) {
 			DebugLog.d("listPerDay.size() : " + listPerDay.size());
-			DebugLog.d("scheduleBaseModel.day_date : " + scheduleBaseModel.day_date);
-			if (listPerDay.size() == 0 || !scheduleBaseModel.day_date.equalsIgnoreCase(listPerDay.get(listPerDay.size()-1).day_date)){
+			DebugLog.d("schedule.day_date : " + schedule.day_date);
+			if (listPerDay.size() == 0 || !schedule.day_date.equalsIgnoreCase(listPerDay.get(listPerDay.size()-1).day_date)){
 				if (listPerDay.size() >0 )
 					DebugLog.d("listPerDay.get(listPerDay.size()-1).day_date : " + listPerDay.get(listPerDay.size()-1).day_date);
-				ScheduleBaseModel scheduleBaseModel2 = newObject();
+				ScheduleGeneral scheduleBaseModel2 = new ScheduleGeneral();
 				scheduleBaseModel2.isSeparator = true;
-				//				scheduleBaseModel2.work_date = scheduleBaseModel.work_date;
-				scheduleBaseModel2.day_date = scheduleBaseModel.day_date;
+				scheduleBaseModel2.day_date = schedule.day_date;
 				listPerDay.add(scheduleBaseModel2);
 			}
-			listPerDay.add(scheduleBaseModel);
+			listPerDay.add(schedule);
 		}
 		return listPerDay;
 	}
 
-	public LinkedHashMap<String, Vector<CallendarModel>> getListScheduleForCallendarAdapter(Vector<ScheduleBaseModel> rawList) {
+	public static LinkedHashMap<String, Vector<CallendarModel>> getListScheduleForCallendarAdapter(Vector<ScheduleGeneral> rawList) {
 		LinkedHashMap<String, Vector<CallendarModel>> filter = new LinkedHashMap<String, Vector<CallendarModel>>();
 		Vector<CallendarModel> callendarModels = null;
 		CallendarModel callendarModel = null;
 		int count = 0;
-		for (ScheduleBaseModel scheduleBaseModel : rawList) {
+		for (ScheduleGeneral scheduleBaseModel : rawList) {
 			if (callendarModels == null
 					|| !scheduleBaseModel.day_date.substring(0, 7).equalsIgnoreCase(callendarModels.get(callendarModels.size()-1).date.substring(0, 7))){
 				callendarModels = new Vector<CallendarModel>();
@@ -527,75 +512,73 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return filter;
 	}
 
-	protected abstract ScheduleBaseModel newObject();
-
-	protected ScheduleBaseModel getScheduleFromCursor(Cursor c, boolean fromInnerJoin) {
-		ScheduleBaseModel scheduleBase = newObject();
+	private static ScheduleGeneral getScheduleFromCursor(Cursor c, boolean fromInnerJoin) {
+		ScheduleGeneral schedule = new ScheduleGeneral();
 
 		if (null == c)
-			return scheduleBase;
+			return schedule;
 
 		if (fromInnerJoin)
-			scheduleBase.id = (c.getString(c.getColumnIndex("sched_id")));
+			schedule.id = (c.getString(c.getColumnIndex("sched_id")));
 		else
-			scheduleBase.id = (c.getString(c.getColumnIndex(DbManager.colID)));
-		scheduleBase.day_date = (c.getString(c.getColumnIndex(DbManager.colDayDate)));
-		scheduleBase.work_date = (c.getString(c.getColumnIndex(DbManager.colWorkDate)));
-		scheduleBase.work_date_str = (c.getString(c.getColumnIndex(DbManager.colWorkDateStr)));
-		scheduleBase.progress = (int) (c.getLong(c.getColumnIndex(DbManager.colProgress)));
-		scheduleBase.sumTask = (int) (c.getLong(c.getColumnIndex(DbManager.colSumTask)));
-		scheduleBase.sumTaskDone = (int) (c.getLong(c.getColumnIndex(DbManager.colSumDone)));
-		scheduleBase.status = (c.getString(c.getColumnIndex(DbManager.colStatus)));
-		scheduleBase.operator_number = (int) (c.getLong(c.getColumnIndex(DbManager.colOperatorNumber)));
+			schedule.id = (c.getString(c.getColumnIndex(DbManager.colID)));
+		schedule.day_date = (c.getString(c.getColumnIndex(DbManager.colDayDate)));
+		schedule.work_date = (c.getString(c.getColumnIndex(DbManager.colWorkDate)));
+		schedule.work_date_str = (c.getString(c.getColumnIndex(DbManager.colWorkDateStr)));
+		schedule.progress = (int) (c.getLong(c.getColumnIndex(DbManager.colProgress)));
+		schedule.sumTask = (int) (c.getLong(c.getColumnIndex(DbManager.colSumTask)));
+		schedule.sumTaskDone = (int) (c.getLong(c.getColumnIndex(DbManager.colSumDone)));
+		schedule.status = (c.getString(c.getColumnIndex(DbManager.colStatus)));
+		schedule.operator_number = (int) (c.getLong(c.getColumnIndex(DbManager.colOperatorNumber)));
 
 		//user
-		scheduleBase.user = new UserModel();
-		scheduleBase.user.id = (c.getString(c.getColumnIndex(DbManager.colUserId)));
+		schedule.user = new UserModel();
+		schedule.user.id = (c.getString(c.getColumnIndex(DbManager.colUserId)));
 
 		//site
-		scheduleBase.site = new SiteModel();
-		scheduleBase.site.id = (c.getInt(c.getColumnIndex(DbManager.colSiteId)));
-		scheduleBase.site = scheduleBase.site.getSiteById(scheduleBase.site.id);
+		schedule.site = new SiteModel();
+		schedule.site.id = (c.getInt(c.getColumnIndex(DbManager.colSiteId)));
+		schedule.site = schedule.site.getSiteById(schedule.site.id);
 
 		OperatorModel tempOp;
 
 		String temp = c.getString(c.getColumnIndex(DbManager.colOperatorIds));
-		scheduleBase.operators = new Vector<OperatorModel>();
+		schedule.operators = new Vector<OperatorModel>();
 		if (temp != null){
 			String[] tempOpId = temp.split("[,]");
 			for (int i = 0; i < tempOpId.length; i++) {
 				tempOp = new OperatorModel();
 				tempOp  = OperatorModel.getOperatorById(Integer.parseInt(tempOpId[i]));
-				scheduleBase.operators.add(tempOp);
+				schedule.operators.add(tempOp);
 			}
 		}
 
 		//project
-		scheduleBase.project = new ProjectModel();
-		scheduleBase.project.id = (c.getString(c.getColumnIndex(DbManager.colProjectId)));
-		scheduleBase.project.name = (c.getString(c.getColumnIndex(DbManager.colProjectName)));
+		schedule.project = new ProjectModel();
+		schedule.project.id = (c.getString(c.getColumnIndex(DbManager.colProjectId)));
+		schedule.project.name = (c.getString(c.getColumnIndex(DbManager.colProjectName)));
 
 		//worktype
-		scheduleBase.work_type = new WorkTypeModel();
-		scheduleBase.work_type.id = (c.getInt(c.getColumnIndex(DbManager.colWorkTypeId)));
-		scheduleBase.work_type = scheduleBase.work_type.getworkTypeById(scheduleBase.work_type.id);
+		schedule.work_type = new WorkTypeModel();
+		schedule.work_type.id = (c.getInt(c.getColumnIndex(DbManager.colWorkTypeId)));
+		schedule.work_type = schedule.work_type.getworkTypeById(schedule.work_type.id);
 
 		// hidden item ids
 		if (DbManager.schema_version >= 10) {
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-				scheduleBase.hidden = toVectorHiddenItemIds(c.getString(c.getColumnIndex(DbManager.colHiddenItemIds)));
+				schedule.hidden = toVectorHiddenItemIds(c.getString(c.getColumnIndex(DbManager.colHiddenItemIds)));
 			}
 		}
 
 		if (DbManager.schema_version >= 12) {
-			scheduleBase.rejection = new Gson().fromJson(c.getString(c.getColumnIndex(DbManager.colRejection)), RejectionModel.class);
+			schedule.rejection = new Gson().fromJson(c.getString(c.getColumnIndex(DbManager.colRejection)), RejectionModel.class);
 		}
 
 		if (DbManager.schema_version >= 13) {
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-				scheduleBase.tt_number = c.getString(c.getColumnIndex(DbManager.colTTNumber));
+				schedule.tt_number = c.getString(c.getColumnIndex(DbManager.colTTNumber));
 		}
-		return scheduleBase;
+		return schedule;
 	}
 
 	public static void resetAllSchedule(){
@@ -612,7 +595,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	 * Schedule utils
 	 *
 	 * */
-
 	private boolean downloadImage(String url, String path) {
 		if (url==null) return true;
 		else {

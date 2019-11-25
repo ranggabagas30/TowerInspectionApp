@@ -1,29 +1,26 @@
 package com.sap.inspection.model.form;
 
-import android.os.Parcel;
-import android.view.View;
 import android.widget.TextView;
 
 import com.sap.inspection.model.BaseModel;
 
+import org.parceler.Parcel;
+import org.parceler.Transient;
+
+@Parcel
 public class ItemUpdateResultViewModel extends BaseModel {
-	
+
+	@Transient
 	public TextView colored;
+
+	@Transient
 	public TextView plain;
-	public View backGround;
+
 	public int sumTask = 0;
-	
-	@Override
-	public int describeContents() {
-		return 0;
-	}
 
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
+	public ItemUpdateResultViewModel() {}
 
-	}
-	
-	public int getPercentage(int taskDone){
+	public int getPercent(int taskDone){
 		if (sumTask != 0)
 			return 100 * taskDone / sumTask;
 		return 0;

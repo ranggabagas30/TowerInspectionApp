@@ -3,15 +3,17 @@ package com.sap.inspection.model.form;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Parcel;
 
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 
+import org.parceler.Parcel;
+
 import java.util.Vector;
 
+@Parcel
 public class WorkFormOptionsModel extends BaseModel {
 
 	public int id;
@@ -21,16 +23,7 @@ public class WorkFormOptionsModel extends BaseModel {
 	public String created_at;
 	public String updated_at;
 
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-	}
+	public WorkFormOptionsModel() {}
 
 	public static String createDB(){
 		return "create table if not exists " + DbManager.mWorkFormOption

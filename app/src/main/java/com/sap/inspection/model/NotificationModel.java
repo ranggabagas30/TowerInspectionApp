@@ -1,13 +1,12 @@
 package com.sap.inspection.model;
 
-import android.os.Parcel;
-
 import org.apache.http.NameValuePair;
+import org.parceler.Parcel;
 
 import java.util.ArrayList;
 
+@Parcel
 public class NotificationModel extends BaseModel {
-	
     public String category;
     public String action;
     public String message;
@@ -15,17 +14,8 @@ public class NotificationModel extends BaseModel {
     public String version;
     public String json;
 
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public NotificationModel() {}
 
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-	}
-	
 	public ArrayList<NameValuePair> getData(){
 		ArrayList<NameValuePair> nvps = new ArrayList<NameValuePair>();
 		return nvps;

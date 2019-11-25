@@ -1,5 +1,8 @@
 package com.sap.inspection.model;
 
+import org.parceler.Parcel;
+
+@Parcel(Parcel.Serialization.BEAN)
 public class InformasiDiriModel {
 
     private int id;
@@ -16,6 +19,7 @@ public class InformasiDiriModel {
     private String created_at;
     private String updated_at;
 
+    public InformasiDiriModel() {}
 
     // Getter Methods
     public int getId() {

@@ -1,27 +1,27 @@
 package com.sap.inspection.model.form;
 
-import android.os.Parcel;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.sap.inspection.BuildConfig;
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
 import com.sap.inspection.model.OperatorModel;
-import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
-import com.sap.inspection.util.DateUtil;
 import com.sap.inspection.tools.DebugLog;
+import com.sap.inspection.util.DateUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Vector;
 
+@org.parceler.Parcel(org.parceler.Parcel.Serialization.BEAN)
 public class ItemFormRenderModel extends BaseModel {
 
     public static final int TYPE_NONE = 0;
@@ -39,49 +39,44 @@ public class ItemFormRenderModel extends BaseModel {
     public static final int TYPE_EXPAND = 12;
     public static final int MAX_TYPE = 13;
 
-    public RowColumnModel firstItem;
-    public WorkFormItemModel workItemModel;
-    public FormValueModel itemValue;
-    public ItemFormRenderModel parent;
-    public OperatorModel operator;
-    public int operatorId;
-    public int rowId;
-    public int workFormGroupId;
-    public String workFormGroupName;
-    public String workTypeName;
-    public ArrayList<ItemFormRenderModel> children;
-    public int type = TYPE_NONE;
-    public boolean open = true;
-    public boolean hasInput = false;
-    public boolean hasPicture = false;
-    public ColumnModel column;
-    public String label = null;
-    public ScheduleBaseModel schedule;
-
+    private RowColumnModel firstItem;
+    private WorkFormItemModel workItemModel;
+    private FormValueModel itemValue;
+    private ItemFormRenderModel parent;
+    private OperatorModel operator;
+    private int operatorId;
+    private int rowId;
+    private int workFormGroupId;
+    private String workFormGroupName;
+    private String workTypeName;
+    private ArrayList<ItemFormRenderModel> children;
+    private int type = TYPE_NONE;
+    private boolean open = true;
+    private boolean hasInput = false;
+    private boolean hasPicture = false;
+    private ColumnModel column;
+    private String label = null;
+    private ScheduleGeneral schedule;
     private ArrayList<ColumnModel> columns;
     private boolean isHeader = false;
     private long when = 0;
     private int percent = 10;
     private int fillableTask = 0;
     private int filledTask = 0;
+    private String wargaId; // SAP
+    private String barangId; // SAP
 
-    // SAP only
-    private String wargaId;
-    private String barangId;
+    public ItemFormRenderModel() {}
 
     public void setParent(ItemFormRenderModel parent) {
         this.parent = parent;
-    }
-
-    public void setColumn(ArrayList<ColumnModel> column) {
-        this.columns = column;
     }
 
     public void setRowId(int rowId) {
         this.rowId = rowId;
     }
 
-    public void setSchedule(ScheduleBaseModel schedule) {
+    public void setSchedule(ScheduleGeneral schedule) {
         this.schedule = schedule;
     }
 
@@ -98,18 +93,178 @@ public class ItemFormRenderModel extends BaseModel {
         DebugLog.d("workTypeName : " + workTypeName);
     }
 
-    public void setWargaid(String wargaId) {
-        this.wargaId = wargaId;
-        DebugLog.d("wargaid : " + wargaId);
+    public RowColumnModel getFirstItem() {
+        return firstItem;
     }
 
-    public void setBarangid(String barangId) {
+    public void setFirstItem(RowColumnModel firstItem) {
+        this.firstItem = firstItem;
+    }
+
+    public WorkFormItemModel getWorkItemModel() {
+        return workItemModel;
+    }
+
+    public void setWorkItemModel(WorkFormItemModel workItemModel) {
+        this.workItemModel = workItemModel;
+    }
+
+    public FormValueModel getItemValue() {
+        return itemValue;
+    }
+
+    public void setItemValue(FormValueModel itemValue) {
+        this.itemValue = itemValue;
+    }
+
+    public ItemFormRenderModel getParent() {
+        return parent;
+    }
+
+    public OperatorModel getOperator() {
+        return operator;
+    }
+
+    public void setOperator(OperatorModel operator) {
+        this.operator = operator;
+    }
+
+    public int getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(int operatorId) {
+        this.operatorId = operatorId;
+    }
+
+    public int getRowId() {
+        return rowId;
+    }
+
+    public int getWorkFormGroupId() {
+        return workFormGroupId;
+    }
+
+    public String getWorkFormGroupName() {
+        return workFormGroupName;
+    }
+
+    public String getWorkTypeName() {
+        return workTypeName;
+    }
+
+    public ArrayList<ItemFormRenderModel> getChildren() {
+        return children;
+    }
+
+    public void setChildren(ArrayList<ItemFormRenderModel> children) {
+        this.children = children;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
+    }
+
+    public boolean isHasInput() {
+        return hasInput;
+    }
+
+    public void setHasInput(boolean hasInput) {
+        this.hasInput = hasInput;
+    }
+
+    public boolean isHasPicture() {
+        return hasPicture;
+    }
+
+    public void setHasPicture(boolean hasPicture) {
+        this.hasPicture = hasPicture;
+    }
+
+    public ColumnModel getColumn() {
+        return column;
+    }
+
+    public void setColumn(ColumnModel column) {
+        this.column = column;
+    }
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public ScheduleGeneral getSchedule() {
+        return schedule;
+    }
+
+    public ArrayList<ColumnModel> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(ArrayList<ColumnModel> columns) {
+        this.columns = columns;
+    }
+
+    public boolean isHeader() {
+        return isHeader;
+    }
+
+    public void setHeader(boolean header) {
+        isHeader = header;
+    }
+
+    public void setWhen(long when) {
+        this.when = when;
+    }
+
+    public long getWhen() {
+        return when;
+    }
+
+    public void setPercent(int percent) {
+        this.percent = percent;
+    }
+
+    public int getPercent() {
+        return percent;
+    }
+
+    public int getFillableTask() {
+        return fillableTask;
+    }
+
+    public void setFillableTask(int fillableTask) {
+        this.fillableTask = fillableTask;
+    }
+
+    public int getFilledTask() {
+        return filledTask;
+    }
+
+    public void setFilledTask(int filledTask) {
+        this.filledTask = filledTask;
+    }
+
+    public void setWargaId(String wargaId) {
+        this.wargaId = wargaId;
+    }
+
+    public void setBarangId(String barangId) {
         this.barangId = barangId;
-        DebugLog.d("barangid : " + barangId);
     }
 
     public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels, String parentLabel) {
-
         if (schedule.operators == null || schedule.operators.size() == 0) {
             DebugLog.d("operator none");
             TowerApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
@@ -164,10 +319,9 @@ public class ItemFormRenderModel extends BaseModel {
         DebugLog.d("firstitem.items.size() = " + firstItem.items.size());
 
         if (firstItem.items.size() != 0) {
-
             DebugLog.d("> generate first cell (header) ");
             boolean isFirstItemVisible = firstItem.items.get(0).visible;
-            this.type = TYPE_HEADER;                                        DebugLog.d("TYPE\t:\t" + this.type);
+            this.type= TYPE_HEADER;                                        DebugLog.d("TYPE\t:\t" + this.getType());
             this.workItemModel = firstItem.items.get(0);                    DebugLog.d("-WORKFORMITEM id\t:\t" + this.workItemModel.id);
             this.label = workItemModel.label;                               DebugLog.d("-WORKFORMITEM label\t:\t" + this.label);
             this.hasPicture = workItemModel.pictureEndPoint != null;        DebugLog.d("HASPICTURE ?\t" + this.hasPicture);
@@ -276,7 +430,8 @@ public class ItemFormRenderModel extends BaseModel {
             }
         }
     }
-    public String getPercent() {
+
+    public String getPercentage() {
         return percent == 0 ? "" : percent + "%";
     }
 
@@ -309,7 +464,7 @@ public class ItemFormRenderModel extends BaseModel {
         DebugLog.d("-=--=-=- fillable task : " + fillableTask);
     }
 
-    public String getWhen() {
+    public String getWhenExact() {
         if (percent == 0)
             return "no action yet";
         Calendar calendar = Calendar.getInstance();
@@ -324,8 +479,8 @@ public class ItemFormRenderModel extends BaseModel {
 
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
             child.setSchedule(schedule);
-            child.setWargaid(getWargaId());
-            child.setBarangid(getBarangId());
+            child.setWargaId(getWargaId());
+            child.setBarangId(getBarangId());
         }
 
         children.add(child);
@@ -342,15 +497,6 @@ public class ItemFormRenderModel extends BaseModel {
         models.add(this);
         models.addAll(children);
         return models;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel arg0, int arg1) {
     }
 
     private void generateItemsPerOperator(RowColumnModel rowCol, int operatorId) {

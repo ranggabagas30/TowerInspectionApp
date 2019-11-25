@@ -33,9 +33,9 @@ import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.rules.saving.PreventiveSave;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.ImageUtil;
+import com.sap.inspection.view.adapter.FormFillAdapter;
 import com.sap.inspection.view.customview.FormItem;
 import com.sap.inspection.view.customview.PhotoItem;
-import com.sap.inspection.view.adapter.FormFillAdapter;
 
 import java.util.ArrayList;
 
@@ -45,7 +45,7 @@ public class FormCorrectiveActivity extends BaseActivity {
 
 
 	public static final int REQUEST_CODE = 100;
-	private ScheduleBaseModel schedule;
+	private ScheduleGeneral schedule;
 	private Uri mImageUri;
 	public ArrayList<Integer> indexes;
 	public ArrayList<String> labels;
@@ -88,54 +88,18 @@ public class FormCorrectiveActivity extends BaseActivity {
 				.addConnectionCallbacks(connectionCallbacks)
 				.addOnConnectionFailedListener(onConnectionFailedListener)
 				.build();
-		/*
-		locationListener = new LocationListener() {
-
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onProviderEnabled(String provider) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onProviderDisabled(String provider) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onLocationChanged(Location location) {
-				currentlocation = new LatLng(location.getLatitude(), location.getLongitude());
-				// TODO Update the Latitude and Longitude of the location
-				accuracy = initiateLocation();
-			}
-		};
-
-		locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-		// initiate the location using GPS
-		setCurrentLocation(new LatLng(0, 0));
-		accuracy = initiateLocation();*/
 
 		setContentView(R.layout.activity_form_fill);
 
 		list = findViewById(R.id.list);
-//		list.setOnItemSelectedListener(itemSelected);
 		adapter = new FormFillAdapter(this);
 		adapter.setSavingRule(new PreventiveSave());
 		adapter.setPhotoListener(photoClickListener);
 		list.setAdapter(adapter);
 		progressDialog = new ProgressDialog(activity);
 		Bundle bundle = getIntent().getExtras();
-//		rowId = bundle.getInt(Constants.KEY_ROWID);
-//		workFormGroupId = bundle.getInt(Constants.KEY_WORKFORMGROUPID);
 
-		/*DbRepository.getInstance().open(activity);
-		DbRepositoryValue.getInstance().open(activity);*/
-		schedule = new ScheduleGeneral();
-		schedule = schedule.getScheduleById(bundle.getString(Constants.KEY_SCHEDULEID));
+		schedule = ScheduleBaseModel.getScheduleById(bundle.getString(Constants.KEY_SCHEDULEID));
 
 		search = findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);
@@ -148,29 +112,6 @@ public class FormCorrectiveActivity extends BaseActivity {
 		FormLoader loader = new FormLoader();
 		loader.execute();
 	}
-
-	/*
-	public int initiateLocation(){
-		if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
-//			setCurrentLocation(new LatLng( 
-//					(int)(locationManager.getLastKnownLocation(
-//							LocationManager.GPS_PROVIDER).getLatitude()*1000000.0),
-//							(int)(locationManager.getLastKnownLocation(
-//									LocationManager.GPS_PROVIDER).getLongitude()*1000000.0)));
-			return (int) locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER).getAccuracy();
-		}
-		else if (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) != null){
-//			setCurrentLocation(new LatLng( 
-//					(int)(locationManager.getLastKnownLocation(
-//							LocationManager.NETWORK_PROVIDER).getLatitude()*1000000.0),
-//							(int)(locationManager.getLastKnownLocation(
-//									LocationManager.NETWORK_PROVIDER).getLongitude()*1000000.0)));
-			return (int) locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getAccuracy();
-		}
-		setCurrentLocation(new LatLng(0,0));
-		return 0;
-
-	}*/
 
 	public void setCurrentLocation(LatLng currentGeoPoint) {
 		this.currentlocation = currentGeoPoint;
@@ -209,32 +150,32 @@ public class FormCorrectiveActivity extends BaseActivity {
 					continue;
 				}
 				DebugLog.d( "permited to add item");
-				OperatorModel operatorModel = new OperatorModel();
-				operatorModel = OperatorModel.getOperatorById(correctiveValueModel.operatorId);
+				new OperatorModel();
+				OperatorModel operatorModel = OperatorModel.getOperatorById(correctiveValueModel.operatorId);
 				DebugLog.d("Corrective : "+item.label);
 				ItemFormRenderModel header = new ItemFormRenderModel();
 				if (lastModel == null || lastModel.itemId != correctiveValueModel.itemId || lastModel.operatorId != correctiveValueModel.operatorId){
-					header.type = ItemFormRenderModel.TYPE_HEADER;
-					header.workItemModel = item;
-					header.itemValue = correctiveValueModel;
+					header.setType(ItemFormRenderModel.TYPE_HEADER);
+					header.setWorkItemModel(item);
+					header.setItemValue(correctiveValueModel);
 					header.setSchedule(schedule);
 					item.labelHeader = item.label+"\n"+operatorNameForHeader(item, operatorModel);
 					DebugLog.d("after changed : "+item.label);
-					header.label = item.label;
+					header.setLabel(item.label);
 					formModels.add(header);
 					
 					ItemFormRenderModel child = new ItemFormRenderModel();
 					child.setSchedule(schedule);
-					child.type = ItemFormRenderModel.TYPE_HEADER_DIVIDER;
+					child.setType(ItemFormRenderModel.TYPE_HEADER_DIVIDER);
 					formModels.get(formModels.size() - 1).add(child);
 				}
 
 				lastModel = correctiveValueModel;
 				ItemFormRenderModel form = new ItemFormRenderModel();
-				form.type = ItemFormRenderModel.TYPE_PICTURE;
-				form.workItemModel = item;
-				form.itemValue = correctiveValueModel;
-				form.label = correctiveValueModel.photoStatus;
+				form.setType(ItemFormRenderModel.TYPE_PICTURE);
+				form.setWorkItemModel(item);
+				form.setItemValue(correctiveValueModel);
+				form.setLabel(correctiveValueModel.photoStatus);
 				form.setSchedule(schedule);
 				formModels.get(formModels.size() - 1).add(form);
 				publishProgress(x*100/correctiveValueModels.size());

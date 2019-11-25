@@ -1,38 +1,29 @@
 package com.sap.inspection.model;
 
-import android.os.Parcel;
-
 import com.sap.inspection.tools.DebugLog;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.parceler.Parcel;
 
 import java.util.ArrayList;
 
+@Parcel(Parcel.Serialization.BEAN)
 public class CheckinDataModel extends BaseModel {
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-    }
 
     /* contants for parameter field */
-    public static final String FIELD_SCHEDULE_ID            = "schedule_id";
-    public static final String FIELD_SITE_ID_CUSTOMER       = "site_id_customer";
-    public static final String FIELD_SITE_NAME              = "site_name";
-    public static final String FIELD_PERIOD                 = "period";
-    public static final String FIELD_SITE_LAT               = "site_lat";
-    public static final String FIELD_SITE_LONG              = "site_long";
-    public static final String FIELD_CURRENT_LAT            = "current_lat";
-    public static final String FIELD_CURRENT_LONG           = "current_long";
-    public static final String FIELD_DISTANCE               = "distance";
-    public static final String FIELD_TIME                   = "time";
-    public static final String FIELD_STATUS                 = "status";
-    public static final String FIELD_ACCURACY               = "accuracy";
+    private static final String FIELD_SCHEDULE_ID            = "schedule_id";
+    private static final String FIELD_SITE_ID_CUSTOMER       = "site_id_customer";
+    private static final String FIELD_SITE_NAME              = "site_name";
+    private static final String FIELD_PERIOD                 = "period";
+    private static final String FIELD_SITE_LAT               = "site_lat";
+    private static final String FIELD_SITE_LONG              = "site_long";
+    private static final String FIELD_CURRENT_LAT            = "current_lat";
+    private static final String FIELD_CURRENT_LONG           = "current_long";
+    private static final String FIELD_DISTANCE               = "distance";
+    private static final String FIELD_TIME                   = "time";
+    private static final String FIELD_STATUS                 = "status";
+    private static final String FIELD_ACCURACY               = "accuracy";
 
     private int scheduleId;
     private String siteIdCustomer;
