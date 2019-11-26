@@ -233,7 +233,6 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     protected void onStart() {
         super.onStart();
         requestLocationPermission();
-        //initLocationServices();
     }
 
     @Override
@@ -711,6 +710,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
                 DebugLog.d("access fine location allowed, start request location");
                 initLocationServices();
+            } else {
+                finish();
             }
         }
     }
