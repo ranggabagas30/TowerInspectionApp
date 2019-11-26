@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.sap.inspection.R;
 import com.sap.inspection.listener.GroupActivityListener;
-import com.sap.inspection.model.ScheduleBaseModel;
+import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.view.adapter.GroupsAdapter;
@@ -20,7 +20,7 @@ public class GroupFragment extends BaseFragment {
 	private View back, mainmenu;
 	private TextView title, subTitle;
 	private WorkFormRowModel groupItems;
-	private ScheduleBaseModel schedule;
+	private ScheduleGeneral schedule;
     private String workTypeName;
 
 	private GroupActivityListener backPressedListener;
@@ -60,7 +60,7 @@ public class GroupFragment extends BaseFragment {
 		return root;
 	}
 
-	public void setSchedule(ScheduleBaseModel schedule) {
+	public void setSchedule(ScheduleGeneral schedule) {
 		this.schedule = schedule;
 	}
 

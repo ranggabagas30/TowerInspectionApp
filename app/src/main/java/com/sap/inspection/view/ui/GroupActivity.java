@@ -12,7 +12,6 @@ import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.GroupActivityListener;
-import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
@@ -36,7 +35,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 	private WorkFormRowModel parentGroupRow = null;
 	private WorkFormModel workForm;
 	private Vector<WorkFormGroupModel> workFormGroups;
-	private ScheduleBaseModel schedule;
+	private ScheduleGeneral schedule;
 
 	private String dayDate;
 	private String scheduleId;
