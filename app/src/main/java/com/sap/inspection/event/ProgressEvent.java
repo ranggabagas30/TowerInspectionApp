@@ -5,6 +5,8 @@ public class ProgressEvent {
 	public int progress;
 	public String progressString;
 	public boolean done = false;
+	public boolean isSuccess = false;
+
 	
 	public ProgressEvent(int progress) {
 		this.progress = progress;
@@ -22,5 +24,11 @@ public class ProgressEvent {
 	public ProgressEvent(String progress, boolean done) {
 		this.progressString = progress;
 		this.done = done;
+	}
+
+	public ProgressEvent(String progress, boolean done, boolean isSuccess) {
+		this.progressString = progress;
+		this.done = done;
+		this.isSuccess = isSuccess;
 	}
 }
