@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import io.reactivex.Single;
+
 public abstract class ScheduleBaseModel extends BaseModel {
 
 	public String id;
@@ -413,10 +415,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return result;
 	}
 
-	public static Vector<ScheduleGeneral> getScheduleByWorktype(Context context,String workType) {
-
-		Vector<ScheduleGeneral> result = new Vector<ScheduleGeneral>();
-
+	public static Vector<ScheduleGeneral> getScheduleByWorktype(Context context, String workType) {
+		Vector<ScheduleGeneral> result = new Vector<>();
 		String table = DbManager.mSchedule;
 		String[] columns = null;
 		String where = DbManager.colWorkTypeName+"= UPPER(?)";
@@ -444,6 +444,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		cursor.close();
 		DbRepository.getInstance().close();
 		return result;
+	}
+
+	public static Single<Vector<ScheduleGeneral>> loadScheduleByWorkType(Context context, String workType){
+		return Single.fromCallable(() -> getScheduleByWorktype(context, workType));
 	}
 
 	public static ScheduleGeneral getScheduleById(String id) {
@@ -474,11 +478,11 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public static Vector<ScheduleGeneral> getListScheduleForScheduleAdapter(Vector<ScheduleGeneral> rawList) {
 		Vector<ScheduleGeneral> listPerDay = new Vector<>();
 		for (ScheduleGeneral schedule : rawList) {
-			DebugLog.d("listPerDay.size() : " + listPerDay.size());
+			int listPerDaySize = listPerDay.size();
 			DebugLog.d("schedule.day_date : " + schedule.day_date);
-			if (listPerDay.size() == 0 || !schedule.day_date.equalsIgnoreCase(listPerDay.get(listPerDay.size()-1).day_date)){
-				if (listPerDay.size() >0 )
-					DebugLog.d("listPerDay.get(listPerDay.size()-1).day_date : " + listPerDay.get(listPerDay.size()-1).day_date);
+			if (listPerDaySize == 0 || !schedule.day_date.equalsIgnoreCase(listPerDay.get(listPerDaySize-1).day_date)){
+				if (listPerDaySize >0 )
+					DebugLog.d("listPerDay.get(listPerDay.size()-1).day_date : " + listPerDay.get(listPerDaySize-1).day_date);
 				ScheduleGeneral scheduleBaseModel2 = new ScheduleGeneral();
 				scheduleBaseModel2.isSeparator = true;
 				scheduleBaseModel2.day_date = schedule.day_date;
@@ -487,6 +491,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			listPerDay.add(schedule);
 		}
 		return listPerDay;
+	}
+
+	public static Single<Vector<ScheduleGeneral>> loadListSchedule(Vector<ScheduleGeneral> rawList) {
+		return Single.fromCallable(() -> getListScheduleForScheduleAdapter(rawList));
 	}
 
 	public static LinkedHashMap<String, Vector<CallendarModel>> getListScheduleForCallendarAdapter(Vector<ScheduleGeneral> rawList) {
