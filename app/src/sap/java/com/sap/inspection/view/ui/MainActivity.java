@@ -119,10 +119,10 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					DebugLog.d("corrective");
 					scheduleFragment.setScheduleBy(R.string.corrective);
 					mSlidingLayer.openLayer(true);
+					hideDialog();
 					break;
 				case R.string.foto_imbas_petir: //R.id.s5
 					DebugLog.d("foto imbas petir");
-					trackEvent(getString(R.string.foto_imbas_petir));
 					scheduleFragment.setScheduleBy(R.string.foto_imbas_petir);
 					mSlidingLayer.openLayer(true);
 					break;
@@ -133,13 +133,11 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 					return;
 				case R.string.hasil_PM: // R.id.s7
 					DebugLog.d("hasil PM");
-					trackEvent(getResources().getString(R.string.hasil_PM));
 					scheduleFragment.setScheduleBy(R.string.hasil_PM);
 					mSlidingLayer.openLayer(true);
 					break;
 				case R.string.routing: // R.id.s8
 					DebugLog.d("routing");
-					trackEvent("routing");
 					DialogUtil.singleChoiceScheduleRoutingDialog(MainActivity.this, (position, item) -> {
 						String result = "(pos, item) : (" + position + ", " + item + ")";
 						DebugLog.d(result);

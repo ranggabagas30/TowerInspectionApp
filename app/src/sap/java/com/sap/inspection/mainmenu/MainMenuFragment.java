@@ -35,7 +35,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 	@Override
 	public View onGetLayout(LayoutInflater inflater) {
 		View root = inflater.inflate(R.layout.fragment_mainmenu, null, false);
-		viewPager = (ViewPager) root.findViewById(R.id.viewPager);
+		viewPager = root.findViewById(R.id.viewPager);
 		viewPager.setAdapter(adapter);
 		return root;
 	}
