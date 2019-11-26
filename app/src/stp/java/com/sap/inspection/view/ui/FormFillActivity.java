@@ -41,7 +41,6 @@ import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.listener.FormTextChange;
-import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
@@ -74,7 +73,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private int workFormGroupId;
 	private int rowId;
 
-	private ScheduleBaseModel schedule;
+	private ScheduleGeneral schedule;
 	private WorkFormRowModel parentRow;
 	private ArrayList<ColumnModel> column;
 	private FormValueModel itemValueForShare;
@@ -543,9 +542,9 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 					form.setWorkFormGroupName(workFormGroupName);
 					form.setWorkTypeName(workTypeName);
 					form.setRowColumnModels(parentRow.row_columns, null);
-					DebugLog.d("has input ? " + form.hasInput);
-					DebugLog.d("has picture ? " + form.hasPicture);
-					if (form.hasInput){
+					DebugLog.d("has input ? " + form.isHasInput());
+					DebugLog.d("has picture ? " + form.isHasPicture());
+					if (form.isHasInput()){
 						indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 						String label = form.getLabel();
 						if (TextUtils.isEmpty(label)) {
@@ -554,7 +553,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						DebugLog.d("label added : " + label + " has input");
 						labels.add(label);
 						formModels.add(form);
-					} else if (form.hasPicture){
+					} else if (form.isHasPicture()){
 						String label = form.getLabel();
 						if (TextUtils.isEmpty(label)) {
 							label = "item with no label";
@@ -585,8 +584,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				form.setWorkFormGroupName(workFormGroupName);
 				form.setWorkFormGroupId(workFormGroupId);
 				form.setRowColumnModels(rowChildren.row_columns, parentLabel);
-				DebugLog.d("has input ? " + form.hasInput);
-				if (form.hasInput){
+				DebugLog.d("has input ? " + form.isHasInput());
+				if (form.isHasInput()){
 					indexes.add(indexes.get(indexes.size()-1) + form.getCount());
 					String label = form.getLabel();
 					while (labels.indexOf(label) != -1){
