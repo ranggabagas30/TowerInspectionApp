@@ -21,6 +21,7 @@ import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
+import com.sap.inspection.event.ProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.DefaultValueScheduleModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -46,10 +47,12 @@ import java.util.Vector;
 
 import de.greenrobot.event.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class ScheduleFragment extends BaseListTitleFragment implements OnItemClickListener{
 
+	private CompositeDisposable compositeDisposable;
 	private ScheduleAdapter adapter;
 	private BaseActivity baseActivity;
 	private Vector<ScheduleGeneral> models;
@@ -67,6 +70,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		super.onCreate(savedInstanceState);
 		baseActivity = (BaseActivity) getActivity();
 		adapter = new ScheduleAdapter(getActivity());
+		compositeDisposable = new CompositeDisposable();
 	}
 
 	@Override
@@ -101,7 +105,19 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
         EventBus.getDefault().unregister(this);
     }
 
-    @Override
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		compositeDisposable.clear();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		compositeDisposable.dispose();
+	}
+
+	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		log("==== getActivity() result ==== "+requestCode+" "+resultCode);
@@ -122,6 +138,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		return "Jadwal";
 	}
 
+	@SuppressLint("CheckResult")
 	public void setScheduleBy(int resId){
 		actionAdd.setVisibility(View.INVISIBLE);
 		filterBy = resId;
@@ -131,38 +148,72 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 				checkImbasPetirConfig(modelsImbasPetir);
 			}
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getAllSchedule(getActivity()));
+			adapter.setItems(models);
 		}else if (resId == R.string.preventive){
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
+			EventBus.getDefault().post(new ProgressEvent("Loading schedules"));
+			compositeDisposable.add(
+					ScheduleBaseModel.loadScheduleByWorkType(getActivity(), getString(R.string.preventive))
+							.subscribeOn(Schedulers.io())
+							.observeOn(AndroidSchedulers.mainThread())
+							.subscribe(
+									schedulesByWorkType -> {
+										ScheduleBaseModel.loadListSchedule(schedulesByWorkType)
+												.subscribeOn(Schedulers.io())
+												.observeOn(AndroidSchedulers.mainThread())
+												.subscribe(
+														schedules -> {
+															models = schedules;
+															adapter.setItems(models);
+															EventBus.getDefault().post(new ProgressEvent("Success", true, true));
+														},
+														error -> {
+															EventBus.getDefault().post(new ProgressEvent("Failed", true, false));
+														}
+												);
+									},
+									error -> EventBus.getDefault().post(new ProgressEvent("Failed load schedules", true, false))
+							)
+			);
 		}else if (resId == R.string.corrective){
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.corrective)));
+			adapter.setItems(models);
 		}else if (resId == R.string.newlocation){
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.newlocation)));
+			adapter.setItems(models);
 		}else if (resId == R.string.colocation){
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.colocation)));
+			adapter.setItems(models);
 		}else if (resId == R.string.site_audit){
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.site_audit)));
+			adapter.setItems(models);
 		} else if (resId == R.string.fiber_optic){
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.fiber_optic)));
+			adapter.setItems(models);
 		} else if (resId == R.string.hasil_PM){
 			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
+			adapter.setItems(models);
 		}
 		// SAP only
 		 else if (resId == R.string.foto_imbas_petir) {
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.foto_imbas_petir)));
 			checkImbasPetirConfig(models);
+			adapter.setItems(models);
 		}  else if (resId == R.string.routing_segment) {
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.routing_segment)));
+			adapter.setItems(models);
 		} else if (resId == R.string.handhole) {
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.handhole)));
+			adapter.setItems(models);
 		} else if (resId == R.string.hdpe) {
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.hdpe)));
+			adapter.setItems(models);
 		} else if (resId == R.string.focut) {
 			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.focut)));
 			actionAdd.setVisibility(View.VISIBLE);
 			actionAdd.setOnClickListener(view -> openCreateScheduleFOCUT());
+			adapter.setItems(models);
 		}
-		adapter.setItems(models);
 	}
 
 	private void checkImbasPetirConfig(Vector<ScheduleGeneral> listSchedules) {
@@ -375,6 +426,14 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		}
         else baseActivity.showMessageDialog(event.progressString);
     }
+
+    public void onEvent(ProgressEvent event) {
+		if (event.done) {
+			baseActivity.hideDialog();
+			if (!event.isSuccess)
+				Toast.makeText(baseActivity, event.progressString, Toast.LENGTH_LONG).show();
+		} else baseActivity.showMessageDialog(event.progressString);
+	}
 
     private void openCreateScheduleFOCUT() {
 		DialogUtil.showCreateFoCutScheduleDialog(getContext(), ttNumber -> {
