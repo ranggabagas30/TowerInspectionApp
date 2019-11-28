@@ -22,9 +22,8 @@ import com.sap.inspection.util.ImageUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 
-import io.reactivex.Single;
+import io.reactivex.Observable;
 
 public abstract class ScheduleBaseModel extends BaseModel {
 
@@ -37,17 +36,17 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public ClientModel client;
 	public SiteModel site;
 	public String operatorIds;
-	public Vector<OperatorModel> operators;
+	public ArrayList<OperatorModel> operators;
 	public ArrayList<Integer> general_corrective_item_ids;
 	public UserModel user;
 	public WorkTypeModel work_type;
 	public WorkFormModel work_form;
 	public ProjectModel project;
 	public RejectionModel rejection;
-	public Vector<Integer> hidden; // SAP
+	public ArrayList<Integer> hidden; // SAP
 	public String tt_number; // SAP
-	public Vector<FormValueModel> schedule_values;
-	public Vector<DefaultValueScheduleModel> default_value_schedule;
+	public ArrayList<FormValueModel> schedule_values;
+	public ArrayList<DefaultValueScheduleModel> default_value_schedule;
 	public String statusColor;
 	public String taskColor;
 	public int sumTask = 0;
@@ -387,9 +386,9 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return result;
 	}
 
-	public static Vector<ScheduleGeneral> getAllSchedule(Context context) {
+	public static ArrayList<ScheduleGeneral> getAllSchedule() {
 
-		Vector<ScheduleGeneral> result = new Vector<ScheduleGeneral>();
+		ArrayList<ScheduleGeneral> result = new ArrayList<ScheduleGeneral>();
 
 		String table = DbManager.mSchedule;
 		String[] columns = null;
@@ -415,8 +414,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return result;
 	}
 
-	public static Vector<ScheduleGeneral> getScheduleByWorktype(Context context, String workType) {
-		Vector<ScheduleGeneral> result = new Vector<>();
+	public static ArrayList<ScheduleGeneral> getScheduleByWorktype(String workType) {
+		ArrayList<ScheduleGeneral> result = new ArrayList<>();
 		String table = DbManager.mSchedule;
 		String[] columns = null;
 		String where = DbManager.colWorkTypeName+"= UPPER(?)";
@@ -446,8 +445,13 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return result;
 	}
 
-	public static Single<Vector<ScheduleGeneral>> loadScheduleByWorkType(Context context, String workType){
-		return Single.fromCallable(() -> getScheduleByWorktype(context, workType));
+	public static Observable<ArrayList<ScheduleGeneral>> loadSchedules(String workType){
+		if (!TextUtils.isEmpty(workType)) return Observable.fromArray(getScheduleByWorktype(workType));
+		else return Observable.fromArray(getAllSchedule());
+	}
+
+	public static Observable<ArrayList<ScheduleGeneral>> loadScheduleList(ArrayList<ScheduleGeneral> rawList) {
+		return Observable.fromArray(getListScheduleForScheduleAdapter(rawList));
 	}
 
 	public static ScheduleGeneral getScheduleById(String id) {
@@ -475,8 +479,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return model;
 	}
 
-	public static Vector<ScheduleGeneral> getListScheduleForScheduleAdapter(Vector<ScheduleGeneral> rawList) {
-		Vector<ScheduleGeneral> listPerDay = new Vector<>();
+	public static ArrayList<ScheduleGeneral> getListScheduleForScheduleAdapter(ArrayList<ScheduleGeneral> rawList) {
+		ArrayList<ScheduleGeneral> listPerDay = new ArrayList<>();
 		for (ScheduleGeneral schedule : rawList) {
 			int listPerDaySize = listPerDay.size();
 			DebugLog.d("schedule.day_date : " + schedule.day_date);
@@ -493,19 +497,15 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return listPerDay;
 	}
 
-	public static Single<Vector<ScheduleGeneral>> loadListSchedule(Vector<ScheduleGeneral> rawList) {
-		return Single.fromCallable(() -> getListScheduleForScheduleAdapter(rawList));
-	}
-
-	public static LinkedHashMap<String, Vector<CallendarModel>> getListScheduleForCallendarAdapter(Vector<ScheduleGeneral> rawList) {
-		LinkedHashMap<String, Vector<CallendarModel>> filter = new LinkedHashMap<String, Vector<CallendarModel>>();
-		Vector<CallendarModel> callendarModels = null;
+	public static LinkedHashMap<String, ArrayList<CallendarModel>> getListScheduleForCallendarAdapter(ArrayList<ScheduleGeneral> rawList) {
+		LinkedHashMap<String, ArrayList<CallendarModel>> filter = new LinkedHashMap<String, ArrayList<CallendarModel>>();
+		ArrayList<CallendarModel> callendarModels = null;
 		CallendarModel callendarModel = null;
 		int count = 0;
 		for (ScheduleGeneral scheduleBaseModel : rawList) {
 			if (callendarModels == null
 					|| !scheduleBaseModel.day_date.substring(0, 7).equalsIgnoreCase(callendarModels.get(callendarModels.size()-1).date.substring(0, 7))){
-				callendarModels = new Vector<CallendarModel>();
+				callendarModels = new ArrayList<CallendarModel>();
 				filter.put(scheduleBaseModel.day_date.substring(0, 7), callendarModels);
 			}
 			if (callendarModel == null || !scheduleBaseModel.day_date.equalsIgnoreCase(callendarModel.date)){
@@ -551,7 +551,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		OperatorModel tempOp;
 
 		String temp = c.getString(c.getColumnIndex(DbManager.colOperatorIds));
-		schedule.operators = new Vector<OperatorModel>();
+		schedule.operators = new ArrayList<OperatorModel>();
 		if (temp != null){
 			String[] tempOpId = temp.split("[,]");
 			for (int i = 0; i < tempOpId.length; i++) {
@@ -638,14 +638,14 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 
-	private static String getOperatorIds(Vector<OperatorModel> operators){
+	private static String getOperatorIds(ArrayList<OperatorModel> operators){
 		String s = "";
 		for (int i = 0; i < operators.size(); i++)
 			s += i == operators.size() - 1 ? operators.get(i).id : operators.get(i).id+",";
 		return s;
 	}
 
-	private static String toStringHiddenItemIds(Vector<Integer> hidden) {
+	private static String toStringHiddenItemIds(ArrayList<Integer> hidden) {
 		if (hidden == null) return null;
 
 		StringBuilder hiddenItems = new StringBuilder();
@@ -655,8 +655,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		return new String(hiddenItems);
 	}
 
-	private static Vector<Integer> toVectorHiddenItemIds(String hiddenItems) {
-		Vector<Integer> hidden = new Vector<>();
+	private static ArrayList<Integer> toVectorHiddenItemIds(String hiddenItems) {
+		ArrayList<Integer> hidden = new ArrayList<>();
 		if (!TextUtils.isEmpty(hiddenItems)) {
 			String[] hiddenArray = hiddenItems.split(",");
 			for (String hiddenId : hiddenArray) {

@@ -19,7 +19,7 @@ import com.sap.inspection.util.DateUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Vector;
+import java.util.ArrayList;
 
 @org.parceler.Parcel(org.parceler.Parcel.Serialization.BEAN)
 public class ItemFormRenderModel extends BaseModel {
@@ -264,7 +264,7 @@ public class ItemFormRenderModel extends BaseModel {
         this.barangId = barangId;
     }
 
-    public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels, String parentLabel) {
+    public void setRowColumnModels(ArrayList<RowColumnModel> rowColumnModels, String parentLabel) {
         if (schedule.operators == null || schedule.operators.size() == 0) {
             DebugLog.d("operator none");
             TowerApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
@@ -375,7 +375,7 @@ public class ItemFormRenderModel extends BaseModel {
         }
     }
 
-    private void generateOtherCells(Vector<RowColumnModel> rowColumnModels) {
+    private void generateOtherCells(ArrayList<RowColumnModel> rowColumnModels) {
 
         //generate other cell
         DebugLog.d("> generate other cell for header " + this.label);
@@ -395,15 +395,15 @@ public class ItemFormRenderModel extends BaseModel {
                     generateItemsPerOperator(rowcol, schedule.operators.get(0).id);
                 } else {
                     DebugLog.d("input type found");
-                    Vector<OperatorModel> operatorItems = schedule.operators;
+                    ArrayList<OperatorModel> operatorItems = schedule.operators;
                     if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) &&
                             workTypeName.equalsIgnoreCase(TowerApplication.getContext().getString(R.string.corrective))) {
                         int inputTypeItemId = getInputTypeItemId(rowcol.items);
                         if (inputTypeItemId != -1) {
                             CorrectiveScheduleResponseModel.CorrectiveItem correctiveItem = CorrectiveScheduleConfig.getCorrectiveItem(Integer.valueOf(schedule.id), workFormGroupId, inputTypeItemId);
                             if (correctiveItem != null) {
-                                Vector<Integer> operatorIds = correctiveItem.getOperator();
-                                operatorItems = new Vector<>();
+                                ArrayList<Integer> operatorIds = correctiveItem.getOperator();
+                                operatorItems = new ArrayList<>();
                                 for (int operatorId : operatorIds) {
                                     OperatorModel operatorItem = OperatorModel.getOperatorById(operatorId);
                                     operatorItems.add(operatorItem);
@@ -514,7 +514,7 @@ public class ItemFormRenderModel extends BaseModel {
     }
 
     //check if any input type
-    private boolean checkAnyInput(Vector<WorkFormItemModel> items) {
+    private boolean checkAnyInput(ArrayList<WorkFormItemModel> items) {
         for (WorkFormItemModel item : items) {
             if (item.field_type != null && !item.field_type.equalsIgnoreCase("label") && item.scope_type != null && !item.scope_type.equalsIgnoreCase("all")) {
                 DebugLog.d("(id, label, field type, scope type) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.scope_type + ") --> found ");
@@ -525,7 +525,7 @@ public class ItemFormRenderModel extends BaseModel {
         return false;
     }
 
-    private boolean checkAnyInputHead(Vector<WorkFormItemModel> items) {
+    private boolean checkAnyInputHead(ArrayList<WorkFormItemModel> items) {
         for (WorkFormItemModel item : items) {
             DebugLog.d("scope type : " + item.scope_type);
             if (item.field_type != null && !item.field_type.equalsIgnoreCase("label") && item.scope_type != null)
@@ -534,7 +534,7 @@ public class ItemFormRenderModel extends BaseModel {
         return false;
     }
 
-    private int checkHiddenHeadItem(Vector<WorkFormItemModel> items) {
+    private int checkHiddenHeadItem(ArrayList<WorkFormItemModel> items) {
         for (WorkFormItemModel item : items) {
             DebugLog.d("item (id, label, type, isVisible) : (" + item.id + ", " + item.label + ", " + item.field_type + ", " + item.visible + ")");
             if (!item.visible){
@@ -545,7 +545,7 @@ public class ItemFormRenderModel extends BaseModel {
         return -1;
     }
 
-    private int getInputTypeItemId(Vector<WorkFormItemModel> items) {
+    private int getInputTypeItemId(ArrayList<WorkFormItemModel> items) {
 
         int itemId = -1;
         for (WorkFormItemModel item : items) {

@@ -56,6 +56,14 @@ public class Constants {
 	public static final String LOADSCHEDULE = "load_schedule";
 
 	/**
+	 * ============================ PREF KEYS =====================================================
+	 */
+
+	public static final String KEY_LATEST_APK_VERSION = "latest_apk_version";
+	public static final String KEY_LATEST_FORM_VERSION = "latest_form_version";
+	public static final String KEY_APK_UPDATE_URL = "apk_update_url";
+
+	/**
 	 * ============================== WATERMARK CONFIG ===============================================
 	 * */
 
@@ -87,7 +95,7 @@ public class Constants {
 	public static final int RC_INSTALL_APK = 101;
 	public static final int RC_TAKE_PHOTO = 102;
 	public static final int RC_CHANGE_DATE_TIME_SETTING = 103;
-
+	public static final int RC_PLAY_SERVICES_RESOLUTION_REQUEST = 104;
 
 	/**
 	 * ============================= PHOTO STATUS =================================================
@@ -117,7 +125,7 @@ public class Constants {
 	 * */
 	public static final String DIR_PHOTOS = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator + BuildConfig.FOLDER_CAMERA + File.separator + BuildConfig.FOLDER_TOWER_INSPECTION;
 	public static final String DIR_APK = Environment.getExternalStorageDirectory() + File.separator + "Download";
-	public static final String PATH_APK = DIR_APK + File.separator + "sapInspection" + PrefUtil.getStringPref(R.string.latest_version, "")+".apk";
-	public static final String URL_APK = PrefUtil.getStringPref(R.string.url_update, "");
+	public static final String PATH_APK = DIR_APK + File.separator + "sapInspection" + PrefUtil.getStringPref(R.string.latest_apk_version, "")+".apk";
+	public static final String URL_APK = PrefUtil.getStringPref(R.string.apk_update_url, "");
 
 } 

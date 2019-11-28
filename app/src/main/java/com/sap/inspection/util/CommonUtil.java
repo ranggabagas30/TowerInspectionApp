@@ -15,7 +15,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.RequiresPermission;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -23,7 +22,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.model.LatLng;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
@@ -49,56 +49,56 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Key;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
 
 import io.reactivex.Completable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 
 public class CommonUtil {
 
-    public static boolean checkGpsStatus(Context context){
-        boolean gps_enabled = false;
-
-        LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-        /*return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);*/
-        try {
-            gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Crashlytics.logException(ex);
+    public static boolean checkPlayServices(Activity activity) {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(activity);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(activity, resultCode, Constants.RC_PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else
+                activity.finish();
+            return false;
         }
+        return true;
+    }
 
-        return (gps_enabled);
+    public static boolean checkGpsStatus(Context context){
+        try {
+            LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager == null) throw new NullPointerException("Location manager is null. Couldn't check GPS location provider status");
+            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+            DebugLog.e(ex.getMessage(), ex);
+        }
+        return false;
     }
 
     public static boolean checkNetworkStatus(Context context) {
-        boolean network_enabled = false;
-
-        LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         try {
-            network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Crashlytics.logException(ex);
+            LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager == null) throw new NullPointerException("Location manager is null. Couldn't check Network location provider status");
+            return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (NullPointerException ex) {
+            DebugLog.e(ex.getMessage(), ex);
         }
-        return network_enabled;
+        return false;
     }
 
     public static boolean checkFakeGPSAvailable(Context context, Location location, String siteId, Handler handler) {
@@ -437,7 +437,6 @@ public class CommonUtil {
     }
 
     public static void installAPK(Activity activity, Context context) {
-
         File tempFile = getNewAPKpath();
         if (tempFile != null && tempFile.exists()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -573,7 +572,7 @@ public class CommonUtil {
 
     public static boolean isUpdateAvailable(Context context) {
         boolean isUpdateAvailable = false;
-        String latestVersion = PrefUtil.getStringPref(R.string.latest_version, "");
+        String latestVersion = PrefUtil.getStringPref(R.string.latest_apk_version, "");
         String appVersion = Constants.APPLICATION_VERSION;
         DebugLog.d("latestVersion\t: " + latestVersion);
         DebugLog.d("appVersion\t\t: " + appVersion);

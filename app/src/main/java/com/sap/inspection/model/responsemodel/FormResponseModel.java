@@ -2,8 +2,8 @@ package com.sap.inspection.model.responsemodel;
 
 import com.sap.inspection.model.form.WorkFormModel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class FormResponseModel extends BaseResponseModel {
-	public Vector<WorkFormModel> data;
+	public ArrayList<WorkFormModel> data;
 }

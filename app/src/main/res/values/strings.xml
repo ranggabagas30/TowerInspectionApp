@@ -5,9 +5,9 @@
 
     <!-- permission -->
     <string name="rationale_allpermissions">Mohon berikan izin agar bisa menggunakan aplikasi</string>
-    <string name="rationale_readphonestate">Mohon berikan izin agar bisa meregister device ke server</string>
+    <string name="rationale_readphonestate">Mohon berikan izin untuk menggunakan aplikasi. Aplikasi akan terlogout otomatis jika tidak diberikan izin</string>
     <string name="rationale_externalstorage">Mohon berikan izin agar bisa mengakses direktori</string>
-    <string name="rationale_requestlocation">Mohon berikn izin agar bisa mengakses lokasi</string>
+    <string name="rationale_requestlocation">Mohon berikan izin agar bisa mengakses lokasi</string>
     <string name="rationale_storageandcamera">Mohon berikan izin agar bisa mengambil foto dan menyimpan</string>
     
     <!-- shared prefs key -->
@@ -16,9 +16,9 @@
     <!-- Push -->
     <string name="push_sender_id">494949404342</string>
     <string name="push_reg_id_key">push_reg_id_key</string>
-    <string name="url_update">url_update</string>
-    <string name="latest_version">latest_version</string>
-    <string name="latest_version_form">latest_version_form</string>
+    <string name="apk_update_url">apk_update_url</string>
+    <string name="latest_apk_version">latest_apk_version</string>
+    <string name="latest_form_version">latest_form_version</string>
     <string name="push_sender_id_key">push_sender_id_key</string>
     <string name="pref_push_notification_key">pref_push_notification_key</string>
 
@@ -78,6 +78,12 @@
     <string name="event_take_picture">User memulai pengambilan foto</string>
 
     <!-- error messages -->
+    <string name="error_fcm_token_empty">Token FCM kosong. Gagal registrasi device</string>
+    <string name="error_access_token_empty">Access token kosong. Gagal registrasi device</string>
+    <string name="error_response_null">Gagal mendapatkan response dari server</string>
+    <string name="error_not_json_type">Respon bukan tipe json</string>
+    <string name="error_failed_download_forms">Gagal mengunduh form</string>
+    <string name="error_failed_download_schedules">Gagal mengunduh schedule</string>
     <string name="error_latest_version_not_found">Tidak ada informasi versi terakhir</string>
     <string name="error_failed_check_apk_version">Gagal mengecek versi aplikasi</string>
     <string name="error_update_apk">Gagal mengupdate apk</string>
@@ -85,15 +91,13 @@
     <string name="error_login_unauthorized">Username and Password salah</string>
     <string name="error_login_field_blanked">Mohon masukkan dengan benar username dan password</string>
     <string name="error_feature_not_supported_or_removed_from_server">Fitur ini belum didukung oleh server atau dihapus dari server</string>
-    <string name="error_pasword_doesnt_match">Password salah</string>
+    <string name="error_password_doesnt_match">Password salah</string>
     <string name="error_network_connection_problem">Masalah pada jaringan</string>
     <string name="error_disconnected">Jaringan terputus. Periksa jaringan Anda</string>
     <string name="error_comment_can_not_blank">Pesan tidak boleh kosong</string>
     <string name="error_search_product_not_found">Maaf, kami tidak menemui produk apapun yang sesuai</string>
     <string name="error_search_people_not_found">Maaf, kami tidak menemui orang yang sesuai</string>
-    <string name="error_not_json_type">Respon bukan tipe json</string>
     <string name="error_copy_database">Gagal salin database</string>
-    <string name="error_download_schedule">Tidak dapat mendapatkan Schedule dari server\nsilahkan login ulang untuk mendapatkan internet yang cepat</string>
     <string name="error_no_internet_connection">Tidak ada koneksi internet, silahkan periksa jaringan anda.</string>
     <string name="error_no_upload_item">Tidak ada item yang baru untuk di upload</string>
     <string name="error_upload_item">Gagal upload item</string>
@@ -109,6 +113,8 @@
     <string name="error_input_amount_warga">Mohon masukkan jumlah warga dengan benar</string>
     <string name="error_input_amount_barang">Mohon masukkan jumlah barang dengan benar</string>
     <string name="error_using_manual_date_time">Gagal menyimpan foto. Pastikan menggunakan "Automatic date and time" di pengaturan device</string>
+    <string name="error_permission_denied">Mohon berikan izin agar dapat melanjutkan</string>
+
     <!-- success messages-->
     <string name="success_copydatabase">Berhasil salin database</string>
     <string name="success_createdir">Berhasil membuat direktori</string>
@@ -121,6 +127,8 @@
     <string name="warning_update_form_title">Mengupdate ulang form</string>
     <string name="warning_update_form_message">Anda akan melakukan update form. Pastikan Anda sedang dalam jaringan internet yang stabil dan kencang agar proses update form berjalan sempurna.
      Klik tombol "OK" untuk mengupdate form.</string>
+    <string name="warning_check_play_service">Error</string>
+    <string name="warning_check_play_service_message">Mohon install Google Play</string>
     <string name="warning_input_amount_warga_barang">Jumlah maksimal untuk ditambahkan adalah 10. Lakukan penambahan kembali jika diperlukan penambahan</string>
 
     <string name="informationGPS">Information</string>
@@ -128,12 +136,15 @@
     <string name="getScheduleFromServer">Mendapatkan Schedule dari server</string>
     <string name="checkapplicationpermission">Memeriksa izin aplikasi</string>
     <string name="thereisnewapllicationupdatefromsetting">Yang terbaru dari SAP Mobile Aplikasi, Silahkan Update aplikasi dari menu pengaturan</string>
-    <string name="checkfromversion">Mengecek Versi</string>
+    <string name="check_app_version">Memeriksa versi aplikasi</string>
+    <string name="check_form_version">Mengecek Versi Form</string>
     <string name="generatingInspectionForm">Silahkan tunggu..\membangkitkan Inspection form</string>
     <string name="progressUpload">Upload dalam proses. Silahkan tunggu</string>
     <string name="downloadfile">Mengunduh file. Silahkan tunggu..</string>
     <string name="gettingnewform">Mendapatkan form terbaru dari server..</string>
     <string name="gettingnewformimbaspetir">Mendapatkan form imbas petir dari server</string>
+    <string name="savingformspreparation">Persiapan menyimpan forms</string>
+    <string name="savingformscomplete">saving forms complete</string>
     <string name="formUpdateFailedFastInternet">Pembaharuan form gagal\nsilahkan login ulang untuk mendapatkan internet yang cepat</string>
     <string name="preparingItemForUpload">Persiapan item untuk di Upload</string>
     <string name="reuploadAllData">mengupload ulang semua data</string>
@@ -142,7 +153,6 @@
     <string name="install">Memasang</string>
     <string name="uploadProses">Proses upload sedang berjalan, silahkan tunggu sampai proses selesai</string>
     <string name="masuk">Masuk</string>
-    <string name="checkversionapplication">Memeriksa versi aplikasi</string>
 
     <!--"There is new update for STP Mobile Application\nPlease update the aplication from setting"-->
     <string name="newUpdateSTPapplication">Pembaharuan STP Mobile Application\nSilahkan perbaharui dari menu pengaturan</string>

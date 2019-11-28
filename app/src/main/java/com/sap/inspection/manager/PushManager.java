@@ -2,14 +2,14 @@ package com.sap.inspection.manager;
 
 import com.sap.inspection.listener.PushListener;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 //import android.util.Log;
 
 public class PushManager {
 	public static final int UNHANDLED_EXEPTION = -1;
 	public static final int TIMEOUT_EXCEPTION = 1; 
-	public Vector<PushListener> pushListeners;
+	public ArrayList<PushListener> pushListeners;
 	private PushListener notificationFragmentPush;
 	
 	private static PushManager instance;
@@ -30,7 +30,7 @@ public class PushManager {
 	
 	public void addPushListener(PushListener pushListener){
 		if (this.pushListeners == null)
-			this.pushListeners = new Vector<PushListener>();
+			this.pushListeners = new ArrayList<PushListener>();
 		this.pushListeners.add(pushListener);
 	}
 	

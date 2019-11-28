@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 public class BaseFragmentAdapter extends FragmentPagerAdapter{
 
-	protected int mCount;// = CONTENT.length;
     protected ArrayList<Fragment> fragmentList;
     protected FragmentManager fragManager;
 	public BaseFragmentAdapter(FragmentManager fm) {

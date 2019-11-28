@@ -33,7 +33,7 @@ import com.sap.inspection.view.customview.MyTextView;
 import com.sap.inspection.view.dialog.DeleteWargaAndBarangDialog;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class GroupWargaActivity extends BaseActivity {
 
@@ -42,8 +42,8 @@ public class GroupWargaActivity extends BaseActivity {
     private LovelyTextInputDialog mInputJumlahBarangDialog;
     private DeleteWargaAndBarangDialog mDeleteBarangDialog;
     private RecyclerNavigationAdapter mNavigationAdapter;
-    private Vector<WorkFormRowModel> mNavigationItemsParentOnly = new Vector<>();
-    private Vector<WorkFormRowModel> mNavigationItems = new Vector<>();
+    private ArrayList<WorkFormRowModel> mNavigationItemsParentOnly = new ArrayList<>();
+    private ArrayList<WorkFormRowModel> mNavigationItems = new ArrayList<>();
 
     private final int NAVIGATION_ITEM_PARENT = 0;
     private final int NAVIGATION_ITEM_CHILD  = 1;
@@ -183,10 +183,10 @@ public class GroupWargaActivity extends BaseActivity {
         mNavigationAdapter.setItems(mNavigationItems);
     }
 
-    public Vector<WorkFormRowModel> generateNavigationItemsChanged() {
+    public ArrayList<WorkFormRowModel> generateNavigationItemsChanged() {
 
         DebugLog.d("generate navigation items changed");
-        Vector<WorkFormRowModel> newNavigationItems = new Vector<>();
+        ArrayList<WorkFormRowModel> newNavigationItems = new ArrayList<>();
 
         for (WorkFormRowModel navigationItem : mNavigationItemsParentOnly) {
             newNavigationItems.add(navigationItem);
@@ -352,7 +352,7 @@ public class GroupWargaActivity extends BaseActivity {
 
     private class RecyclerNavigationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        private Vector<WorkFormRowModel> navigationItems = new Vector<>();
+        private ArrayList<WorkFormRowModel> navigationItems = new ArrayList<>();
 
         @NonNull
         @Override
@@ -421,12 +421,12 @@ public class GroupWargaActivity extends BaseActivity {
             return position;
         }
 
-        public void setItems(Vector<WorkFormRowModel> navigationItems) {
+        public void setItems(ArrayList<WorkFormRowModel> navigationItems) {
             this.navigationItems = navigationItems;
             notifyDataSetChanged();
         }
 
-        public Vector<WorkFormRowModel> getItems() {
+        public ArrayList<WorkFormRowModel> getItems() {
             return navigationItems;
         }
 

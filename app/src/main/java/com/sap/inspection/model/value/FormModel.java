@@ -5,7 +5,7 @@ import com.sap.inspection.model.form.WorkFormRowModel;
 
 import org.parceler.Parcel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 @Parcel
 public class FormModel extends BaseModel {
@@ -15,7 +15,7 @@ public class FormModel extends BaseModel {
 	public int level;
 	public String text;
 	public String position;
-	public Vector<WorkFormRowModel> children;
+	public ArrayList<WorkFormRowModel> children;
 
 	public FormModel() {}
 
@@ -30,8 +30,8 @@ public class FormModel extends BaseModel {
 		return count;
 	}
 
-	public Vector<WorkFormRowModel> getModels(){
-		Vector<WorkFormRowModel> models = new Vector<WorkFormRowModel>();
+	public ArrayList<WorkFormRowModel> getModels(){
+		ArrayList<WorkFormRowModel> models = new ArrayList<WorkFormRowModel>();
 		if (isOpen && children != null){
 			for (WorkFormRowModel child : children) {
 				models.add(child);

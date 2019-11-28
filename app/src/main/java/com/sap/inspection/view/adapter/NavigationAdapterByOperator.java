@@ -16,13 +16,13 @@ import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.tools.DebugLog;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class NavigationAdapterByOperator extends MyBaseAdapter {
 
 	private Context context;
 	private WorkFormRowModel model;
-	private Vector<WorkFormRowModel> shown;
+	private ArrayList<WorkFormRowModel> shown;
 	private ScheduleBaseModel scheduleModel;
 	private String workFormGroupId;
 	
@@ -39,7 +39,7 @@ public class NavigationAdapterByOperator extends MyBaseAdapter {
 		if (null == model)
 			model = new WorkFormRowModel();
 		if (null == shown)
-			shown = new Vector<WorkFormRowModel>();
+			shown = new ArrayList<WorkFormRowModel>();
 	}
 
 	public void setItems(WorkFormRowModel model){

@@ -21,7 +21,7 @@ import org.parceler.Parcel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 @Parcel
 public class WorkFormItemModel extends BaseModel {
@@ -32,7 +32,7 @@ public class WorkFormItemModel extends BaseModel {
 	public boolean mandatory = false;
 	public boolean visible;
 	public boolean listable;
-	public Vector<WorkFormOptionsModel> options;
+	public ArrayList<WorkFormOptionsModel> options;
 	public int work_form_group_id;
 	public String field_type;
 	public String label;
@@ -202,14 +202,14 @@ public class WorkFormItemModel extends BaseModel {
 
 	}
 
-	public Vector<WorkFormItemModel> getAllItemByWorkFormRowColumnId(Context context, int workFormRowColumnId) {
-		Vector<WorkFormItemModel> result = getAllItemByWorkFormRowColumnId(workFormRowColumnId);
+	public ArrayList<WorkFormItemModel> getAllItemByWorkFormRowColumnId(Context context, int workFormRowColumnId) {
+		ArrayList<WorkFormItemModel> result = getAllItemByWorkFormRowColumnId(workFormRowColumnId);
 		return result;
 	}
 
-	public static Vector<WorkFormItemModel> getAllItemByWorkFormRowColumnId(int workFormRowColumnId) {
+	public static ArrayList<WorkFormItemModel> getAllItemByWorkFormRowColumnId(int workFormRowColumnId) {
 
-		Vector<WorkFormItemModel> result = new Vector<WorkFormItemModel>();
+		ArrayList<WorkFormItemModel> result = new ArrayList<WorkFormItemModel>();
 
 		String table = DbManager.mWorkFormItem;
 		String[] columns = null;
@@ -380,7 +380,7 @@ public class WorkFormItemModel extends BaseModel {
 		return result;
 	}
 
-	private static Vector<WorkFormOptionsModel> getWorkFormOptionsModels(int workFormItemId){
+	private static ArrayList<WorkFormOptionsModel> getWorkFormOptionsModels(int workFormItemId){
 
 		return WorkFormOptionsModel.getAllItemByWorkFormItemId(workFormItemId);
 

@@ -25,14 +25,14 @@ import com.sap.inspection.model.form.WorkFormOptionsModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class CopyOfFormItem extends RelativeLayout {
 
 	private LinearLayout rootItem;
-	//	private Vector<RowColumnModel> rowColumnModels;
-	//	private Vector<WorkFormItemModel> items;
-	private Vector<ColumnModel> column;
+	//	private ArrayList<RowColumnModel> rowColumnModels;
+	//	private ArrayList<WorkFormItemModel> items;
+	private ArrayList<ColumnModel> column;
 	private Context context;
 	private String label;
 	private TextView rowTitle;
@@ -110,11 +110,11 @@ public class CopyOfFormItem extends RelativeLayout {
 		return "";
 	}
 
-	public void setColumns(Vector<ColumnModel> column) {
+	public void setColumns(ArrayList<ColumnModel> column) {
 		this.column = column;
 	}
 
-	public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels) {
+	public void setRowColumnModels(ArrayList<RowColumnModel> rowColumnModels) {
 		//		this.rowColumnModels = rowColumnModels;
 		RowColumnModel firstItem;
 		do {
@@ -209,7 +209,7 @@ public class CopyOfFormItem extends RelativeLayout {
 	}
 
 	//check if any input type
-	private boolean checkAnyInput(Vector<WorkFormItemModel> items){
+	private boolean checkAnyInput(ArrayList<WorkFormItemModel> items){
 		for (WorkFormItemModel item : items) {
 			log("scope type : "+item.scope_type);
 			if (item.field_type != null && !item.field_type.equalsIgnoreCase("label") && item.scope_type != null && !item.scope_type.equalsIgnoreCase("all"))

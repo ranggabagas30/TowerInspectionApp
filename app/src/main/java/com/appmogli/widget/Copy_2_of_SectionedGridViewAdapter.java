@@ -18,7 +18,7 @@ import com.sap.inspection.model.CallendarModel;
 
 import java.util.Calendar;
 import java.util.LinkedHashMap;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class Copy_2_of_SectionedGridViewAdapter extends BaseAdapter implements
 View.OnClickListener {
@@ -36,7 +36,7 @@ View.OnClickListener {
 	private int childSpacing = -1;
 	private int itemSpace = -1;
 
-	private LinkedHashMap<String, Vector<CallendarModel>> sectionCursors = null;
+	private LinkedHashMap<String, ArrayList<CallendarModel>> sectionCursors = null;
 
 	private LinkedHashMap<String, Integer> sectionRowsCount = new LinkedHashMap<String, Integer>();
 
@@ -55,7 +55,7 @@ View.OnClickListener {
 	private OnGridItemClickListener listener = null;
 
 	public Copy_2_of_SectionedGridViewAdapter(Context context,
-			LinkedHashMap<String, Vector<CallendarModel>> sectionCursors, int listItemRowSize,
+			LinkedHashMap<String, ArrayList<CallendarModel>> sectionCursors, int listItemRowSize,
 			int listViewHeight, int gridItemSquareSize, int itemSpace) {
 
 		this.sectionCursors = sectionCursors;
@@ -211,7 +211,7 @@ View.OnClickListener {
 			boolean isLastRowInSection = isLastRowInSection(position);
 			int positionInSection = positionInSection(position);
 
-			Vector<CallendarModel> c = sectionCursors.get(sectionName);
+			ArrayList<CallendarModel> c = sectionCursors.get(sectionName);
 
 			// --
 			int cursorStartAt = numberOfChildrenInRow * positionInSection;

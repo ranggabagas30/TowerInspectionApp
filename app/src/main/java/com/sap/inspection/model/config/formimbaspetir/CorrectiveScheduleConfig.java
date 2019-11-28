@@ -5,7 +5,7 @@ import com.sap.inspection.model.ConfigModel;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class CorrectiveScheduleConfig {
 
@@ -23,7 +23,7 @@ public class CorrectiveScheduleConfig {
         return null;
     }
 
-    public static Vector<CorrectiveScheduleResponseModel.CorrectiveSchedule> getListCorrectiveSchedule() {
+    public static ArrayList<CorrectiveScheduleResponseModel.CorrectiveSchedule> getListCorrectiveSchedule() {
 
         CorrectiveScheduleResponseModel correctiveData = getCorrectiveScheduleConfig();
         if (correctiveData != null) {
@@ -34,7 +34,7 @@ public class CorrectiveScheduleConfig {
 
     public static CorrectiveScheduleResponseModel.CorrectiveSchedule getCorrectiveSchedule(int scheduleId) {
 
-        Vector<CorrectiveScheduleResponseModel.CorrectiveSchedule> correctiveSchedules = getListCorrectiveSchedule();
+        ArrayList<CorrectiveScheduleResponseModel.CorrectiveSchedule> correctiveSchedules = getListCorrectiveSchedule();
         if (correctiveSchedules != null) {
             for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveSchedules) {
                 if (correctiveSchedule.getId().equals(scheduleId)){
@@ -45,7 +45,7 @@ public class CorrectiveScheduleConfig {
         return null;
     }
 
-    public static Vector<CorrectiveScheduleResponseModel.CorrectiveGroup> getListCorrectiveGroup(int scheduleId) {
+    public static ArrayList<CorrectiveScheduleResponseModel.CorrectiveGroup> getListCorrectiveGroup(int scheduleId) {
 
         CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule = getCorrectiveSchedule(scheduleId);
         if (correctiveSchedule != null) {
@@ -56,7 +56,7 @@ public class CorrectiveScheduleConfig {
 
     public static CorrectiveScheduleResponseModel.CorrectiveGroup getCorrectiveGroup(int scheduleId, int groupId) {
 
-        Vector<CorrectiveScheduleResponseModel.CorrectiveGroup> correctiveGroups = getListCorrectiveGroup(scheduleId);
+        ArrayList<CorrectiveScheduleResponseModel.CorrectiveGroup> correctiveGroups = getListCorrectiveGroup(scheduleId);
         if (correctiveGroups != null) {
             for (CorrectiveScheduleResponseModel.CorrectiveGroup correctiveGroup : correctiveGroups) {
                 if (correctiveGroup.getId().equals(groupId)) {
@@ -67,7 +67,7 @@ public class CorrectiveScheduleConfig {
         return null;
     }
 
-    public static Vector<CorrectiveScheduleResponseModel.CorrectiveItem> getListCorrectiveItem(int scheduleId, int groupId) {
+    public static ArrayList<CorrectiveScheduleResponseModel.CorrectiveItem> getListCorrectiveItem(int scheduleId, int groupId) {
 
         CorrectiveScheduleResponseModel.CorrectiveGroup correctiveGroup = getCorrectiveGroup(scheduleId, groupId);
         if (correctiveGroup != null) {
@@ -78,7 +78,7 @@ public class CorrectiveScheduleConfig {
 
     public static CorrectiveScheduleResponseModel.CorrectiveItem getCorrectiveItem(int scheduleId, int groupId, int itemId) {
 
-        Vector<CorrectiveScheduleResponseModel.CorrectiveItem> correctiveItems = getListCorrectiveItem(scheduleId, groupId);
+        ArrayList<CorrectiveScheduleResponseModel.CorrectiveItem> correctiveItems = getListCorrectiveItem(scheduleId, groupId);
         if (correctiveItems != null) {
             for (CorrectiveScheduleResponseModel.CorrectiveItem correctiveItem : correctiveItems) {
                 if (correctiveItem.getId().equals(itemId)) {

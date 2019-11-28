@@ -1,7 +1,8 @@
 package com.sap.inspection.view.ui;
 
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -13,6 +14,7 @@ import com.rindang.pushnotification.NotificationProcessor;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.UploadListener;
 import com.sap.inspection.manager.AsyncDeleteAllFiles;
@@ -22,12 +24,20 @@ import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.DialogUtil;
+import com.sap.inspection.util.NetworkUtil;
+import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.view.customview.FormInputText;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class SettingActivity extends BaseActivity implements UploadListener, EasyPermissions.PermissionCallbacks {
@@ -58,6 +68,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     FormInputText inputheightwatermarkportrait;
     FormInputText inputheightwatermarklandscape;
     LinearLayout layout_debug;
+    String[] perms = new String[]{PermissionUtil.READ_EXTERNAL_STORAGE, PermissionUtil.WRITE_EXTERNAL_STORAGE};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -196,6 +207,35 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         uploadInfo.setText(ItemUploadManager.getInstance().syncDone);
     }
 
+    @AfterPermissionGranted(Constants.RC_STORAGE_PERMISSION)
+    private void requestStoragePermission() {
+        PermissionUtil.requestPermission(this, getString(R.string.rationale_externalstorage), Constants.RC_STORAGE_PERMISSION, perms);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == Constants.RC_STORAGE_PERMISSION) {
+            if (PermissionUtil.hasPermission(this, perms)) {
+                updateAPK();
+            } else requestStoragePermission();
+        }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+        if (requestCode == Constants.RC_STORAGE_PERMISSION) {
+            updateAPK();
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        new AppSettingsDialog.Builder(this).build().show();
+    }
+
     /**
      *
      * EVENT CLICK LISTENERS
@@ -238,12 +278,16 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
     OnClickListener updateClickListener = v -> {
         trackEvent("user_update_apk");
-        updateAPKwithStoragePermission();
+        if (PermissionUtil.hasPermission(this, perms)) {
+            updateAPK();
+        } else requestStoragePermission();
     };
 
     OnClickListener updateFormClickListener = v -> {
         trackEvent("user_update_form");
-        DialogUtil.showWarningUpdateFormDialog(this, (dialogInterface, i) -> {dialogInterface.dismiss(); downloadNewForm();}, (dialogInterface, i) -> dialogInterface.dismiss());
+        DialogUtil.showWarningUpdateFormDialog(this,
+                (dialogInterface, i) -> downloadWorkForms(),
+                (dialogInterface, i) -> dialogInterface.dismiss());
     };
 
     OnClickListener updateFormImbasPetirClickListener = v -> {
@@ -293,7 +337,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
     OnClickListener updateScheduleListener = view -> {
         trackEvent("user_refresh_schedule");
-        downloadSchedules();
+        downloadWorkSchedules();
     };
 
     OnClickListener updateCorrectiveScheduleListener = view -> {
@@ -302,7 +346,6 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     };
 
     OnClickListener pushNotificationClickListener = view -> {
-
         int id = view.getId();
         Bundle extras = new Bundle();
         switch (id) {
@@ -326,10 +369,76 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
             .setTitle("Konfirmasi")
             .setMessage("Apa anda yakin ingin keluar?")
             .setPositiveButton(android.R.string.yes, v -> {
-                trackEvent("user_logout");
-                writePreference(R.string.keep_login,false);
-                navigateToLoginActivity();
+                navigateToLoginActivity(this);
             })
             .setNegativeButton(android.R.string.no, null)
             .show();
+
+    private void downloadWorkForms() {
+        DebugLog.d("--> DOWNLOADING WORK FORMS");
+        showMessageDialog(getString(R.string.gettingnewform));
+        compositeDisposable.add(
+                TowerAPIHelper.downloadWorkForms()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                downloadResponse -> {
+                                    if (downloadResponse != null) {
+                                        if (downloadResponse.status == HttpURLConnection.HTTP_OK) {
+                                            new FormSaver(new Handler(
+                                                    message -> {
+                                                        hideDialog();
+                                                        String result = message.getData().getString("response");
+                                                        if (result != null && result.equals("success")) {
+                                                            Toast.makeText(this, "Selesai menyimpan form", Toast.LENGTH_SHORT).show();
+                                                            return true;
+                                                        }
+                                                        return false;
+                                                    }
+                                            )).execute(downloadResponse.data.toArray());
+                                        } else {
+                                            hideDialog();
+                                            Toast.makeText(this, getString(R.string.error_failed_download_forms), Toast.LENGTH_LONG).show();
+                                        }
+                                    } else {
+                                        hideDialog();
+                                        Toast.makeText(this, getString(R.string.error_response_null), Toast.LENGTH_LONG).show();
+                                    }
+                                }, error -> {
+                                    hideDialog();
+                                    String errorMsg = NetworkUtil.handleApiError(error);
+                                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                                }
+                        )
+        );
+    }
+
+    private void downloadWorkSchedules() {
+        DebugLog.d("--> DOWNLOADING SCHEDULES");
+        showMessageDialog(getString(R.string.getScheduleFromServer));
+        compositeDisposable.add(
+                TowerAPIHelper.downloadSchedules()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                scheduleResponse -> {
+                                    if (scheduleResponse != null) {
+                                        if (scheduleResponse.status == HttpURLConnection.HTTP_OK) {
+                                            saveSchedule(scheduleResponse.data.toArray());
+                                        } else {
+                                            hideDialog();
+                                            Toast.makeText(this, getString(R.string.error_failed_download_schedules), Toast.LENGTH_LONG).show();
+                                        }
+                                    } else {
+                                        hideDialog();
+                                        Toast.makeText(this, getString(R.string.error_response_null), Toast.LENGTH_LONG).show();
+                                    }
+                                }, error -> {
+                                    hideDialog();
+                                    String errorMsg = NetworkUtil.handleApiError(error);
+                                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                                }
+                        )
+        );
+    }
 }

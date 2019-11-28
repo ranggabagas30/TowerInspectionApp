@@ -98,7 +98,7 @@
 //
 ////	public FormModel generateSample(){
 ////		FormModel root = new FormModel();
-////		root.children = new Vector<FormModel>();
+////		root.children = new ArrayList<FormModel>();
 ////		root.isOpen = true;
 ////		root.position = "";
 ////		for (int x = 1;x <= 3; x++){
@@ -109,14 +109,14 @@
 ////			if (x % 2 == 0)
 ////				root2.isOpen = true;
 ////			root.children.add(root2);
-////			root2.children = new Vector<FormModel>();
+////			root2.children = new ArrayList<FormModel>();
 ////			for (int y = 1;y <= 3; y++){
 ////				FormModel root3 = new FormModel();
 ////				root3.text = " x "+x + " y "+y;
 ////				root3.position = ""+x+y;
 ////				root3.level = 2;
 ////				root2.children.add(root3);
-////				root3.children = new Vector<FormModel>();
+////				root3.children = new ArrayList<FormModel>();
 ////				for (int z = 1;z <= 3; z++){
 ////					FormModel root4 = new FormModel();
 ////					root4.text = " x "+x + " y "+y+ " z "+z;
@@ -131,7 +131,7 @@
 ////
 ////	public FormModel generateSampleForm(){
 ////		FormModel root = new FormModel();
-////		root.children = new Vector<FormModel>();
+////		root.children = new ArrayList<FormModel>();
 ////		root.isOpen = true;
 ////		root.position = "";
 ////
@@ -142,7 +142,7 @@
 ////		root2.level = 1;
 ////		root2.isOpen = false;
 ////		root.children.add(root2);
-////		root2.children = new Vector<FormModel>();
+////		root2.children = new ArrayList<FormModel>();
 ////		
 //////		1.1.Tower ( SST / Minitower / Monopole / Pole )
 ////		FormModel root3 = new FormModel();
@@ -150,7 +150,7 @@
 ////		root3.position = "1.1";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////
 //////		1.1.1.Nuts and bolts
 ////		FormModel root4 = new FormModel();
@@ -221,7 +221,7 @@
 ////		root3.position = "1.2";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////		
 //////		1.2.1.Foundation
 ////		root4 = new FormModel();
@@ -264,7 +264,7 @@
 ////		root3.position = "1.3";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////		
 //////		1.3.1.Wall panel
 ////		root4 = new FormModel();
@@ -328,7 +328,7 @@
 ////		root3.position = "1.4";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////		
 //////		1.4.1.Wall surface
 ////		root4 = new FormModel();
@@ -385,7 +385,7 @@
 ////		root3.position = "1.5";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////		
 //////		1.5.1.Concrete Block
 ////		root4 = new FormModel();
@@ -407,7 +407,7 @@
 ////		root3.position = "1.6";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////		
 //////		1.6.1.Concrete Road/Concrete Block/Asphalt Mix
 ////		root4 = new FormModel();
@@ -432,7 +432,7 @@
 ////		root2.level = 1;
 ////		root2.isOpen = false;
 ////		root.children.add(root2);
-////		root2.children = new Vector<FormModel>();
+////		root2.children = new ArrayList<FormModel>();
 ////		
 //////		2.1.Pole KWH Panel
 ////		root3 = new FormModel();
@@ -440,7 +440,7 @@
 ////		root3.position = "2.1";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////
 //////		2.1.1.Pole
 ////		root4 = new FormModel();
@@ -469,7 +469,7 @@
 ////		root3.position = "2.2";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////		
 //////		2.2.1.Phase to Phase Voltage (3 Phase)
 ////		root4 = new FormModel();
@@ -498,7 +498,7 @@
 ////		root3.position = "2.3";
 ////		root3.level = 2;
 ////		root2.children.add(root3);
-////		root3.children = new Vector<FormModel>();
+////		root3.children = new ArrayList<FormModel>();
 ////		
 //////		2.3.1.Measurement Reading Result on KWH meter
 ////		root4 = new FormModel();

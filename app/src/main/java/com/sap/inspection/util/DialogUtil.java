@@ -148,4 +148,12 @@ public class DialogUtil {
                 .setCancelable(true)
                 .show();
     }
+
+    public static void showWarningDialog(Context context, DialogInterface.OnClickListener positiveClickListener) {
+        new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.warning_update_form_title))
+                .setMessage(context.getString(R.string.warning_update_form_message))
+                .setPositiveButton(android.R.string.ok, positiveClickListener)
+                .create().show();
+    }
 }

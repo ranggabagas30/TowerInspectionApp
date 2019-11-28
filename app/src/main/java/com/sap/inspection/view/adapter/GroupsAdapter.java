@@ -35,13 +35,13 @@ import com.sap.inspection.view.ui.BaseActivity;
 import com.sap.inspection.view.ui.GroupActivity;
 
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class GroupsAdapter extends MyBaseAdapter {
 
 	private Context context;
 	private WorkFormRowModel groupItems;
-	private Vector<WorkFormRowModel> shown;
+	private ArrayList<WorkFormRowModel> shown;
 	private String scheduleId;
 	private String workTypeName;
     private int positionAncestry;
@@ -52,7 +52,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 		if (null == groupItems)
 			groupItems = new WorkFormRowModel();
 		if (null == shown)
-			shown = new Vector<WorkFormRowModel>();
+			shown = new ArrayList<WorkFormRowModel>();
 	}
 
 	public void setScheduleId(String scheduleId) {
@@ -78,7 +78,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 	public void removeItem(WorkFormRowModel removeItem) {
 
     	WorkFormRowModel newGroupItems = groupItems;
-		Vector<WorkFormRowModel> dummyGroupItems = new Vector<>();
+		ArrayList<WorkFormRowModel> dummyGroupItems = new ArrayList<>();
 
     	DebugLog.d("initial new row items size = " + newGroupItems.children.size());
 		DebugLog.d("shown size = " + shown.size());
@@ -92,7 +92,7 @@ public class GroupsAdapter extends MyBaseAdapter {
 
 				if (groupItem.children != null && !groupItem.children.isEmpty()) {
 
-					Vector<WorkFormRowModel> subGroupItems = new Vector<>();
+					ArrayList<WorkFormRowModel> subGroupItems = new ArrayList<>();
 					for (WorkFormRowModel subGroupItem : groupItem.children) {
 
 						DebugLog.d("== sub nav label : " + subGroupItem.text);

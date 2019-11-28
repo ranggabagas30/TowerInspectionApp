@@ -12,7 +12,7 @@ import com.sap.inspection.tools.DebugLog;
 
 import org.parceler.Parcel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 @Parcel
 public class RowColumnModel extends BaseModel {
@@ -23,7 +23,7 @@ public class RowColumnModel extends BaseModel {
     public String created_at;
     public String updated_at;
     public int work_form_group_id;
-    public Vector<WorkFormItemModel> items;
+    public ArrayList<WorkFormItemModel> items;
 
     public RowColumnModel() {}
 
@@ -78,16 +78,16 @@ public class RowColumnModel extends BaseModel {
 			}
 	}
 	
-	public Vector<RowColumnModel> getAllItemByWorkFormRowId(Context context, int workFormRowId) {
+	public ArrayList<RowColumnModel> getAllItemByWorkFormRowId(Context context, int workFormRowId) {
 
-		Vector<RowColumnModel> result = getAllItemByWorkFormRowId(workFormRowId);
+		ArrayList<RowColumnModel> result = getAllItemByWorkFormRowId(workFormRowId);
 
 		return result;
 	}
 	
-	public static Vector<RowColumnModel> getAllItemByWorkFormRowId(int workFormRowId) {
+	public static ArrayList<RowColumnModel> getAllItemByWorkFormRowId(int workFormRowId) {
 
-		Vector<RowColumnModel> result = new Vector<RowColumnModel>();
+		ArrayList<RowColumnModel> result = new ArrayList<RowColumnModel>();
 
 		Cursor cursor;
 
@@ -113,7 +113,7 @@ public class RowColumnModel extends BaseModel {
 		return result;
 	}
 	
-	private static Vector<WorkFormItemModel> getWorkFormItemModels(int rowColumnId){
+	private static ArrayList<WorkFormItemModel> getWorkFormItemModels(int rowColumnId){
 
 		return WorkFormItemModel.getAllItemByWorkFormRowColumnId(rowColumnId);
 

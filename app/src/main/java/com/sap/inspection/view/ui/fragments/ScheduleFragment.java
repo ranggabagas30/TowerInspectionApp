@@ -21,7 +21,6 @@ import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.event.ProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.DefaultValueScheduleModel;
 import com.sap.inspection.model.ScheduleBaseModel;
@@ -43,9 +42,10 @@ import com.sap.inspection.view.ui.MainActivity;
 
 import org.apache.http.HttpStatus;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -55,7 +55,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	private CompositeDisposable compositeDisposable;
 	private ScheduleAdapter adapter;
 	private BaseActivity baseActivity;
-	private Vector<ScheduleGeneral> models;
+	private ArrayList<ScheduleGeneral> schedules;
 	private String userId;
 	private String ttNumber; // SAP for creating FO CUT schedule
 
@@ -71,6 +71,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		baseActivity = (BaseActivity) getActivity();
 		adapter = new ScheduleAdapter(getActivity());
 		compositeDisposable = new CompositeDisposable();
+		schedules = new ArrayList<>();
 	}
 
 	@Override
@@ -85,6 +86,14 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			intent.putExtra("filterBy", filterBy);
 			startActivityForResult(intent,MainActivity.REQUEST_CODE);
 		});
+
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			FormImbasPetirConfig formImbasPetirConfig = FormImbasPetirConfig.getImbasPetirConfig();
+			if (formImbasPetirConfig == null) {
+				DebugLog.d("Form imbas petir config not found, create config");
+				FormImbasPetirConfig.createImbasPetirConfig();
+			}
+		}
 	}
 
 	@Override
@@ -134,7 +143,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	
 	@Override
 	public String getTitle() {
-		//Schedule
 		return "Jadwal";
 	}
 
@@ -142,101 +150,51 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	public void setScheduleBy(int resId){
 		actionAdd.setVisibility(View.INVISIBLE);
 		filterBy = resId;
-		if (resId == R.string.schedule){
-			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-				Vector<ScheduleGeneral> modelsImbasPetir = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.foto_imbas_petir)));
-				checkImbasPetirConfig(modelsImbasPetir);
-			}
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getAllSchedule(getActivity()));
-			adapter.setItems(models);
-		}else if (resId == R.string.preventive){
-			EventBus.getDefault().post(new ProgressEvent("Loading schedules"));
-			compositeDisposable.add(
-					ScheduleBaseModel.loadScheduleByWorkType(getActivity(), getString(R.string.preventive))
-							.subscribeOn(Schedulers.io())
-							.observeOn(AndroidSchedulers.mainThread())
-							.subscribe(
-									schedulesByWorkType -> {
-										ScheduleBaseModel.loadListSchedule(schedulesByWorkType)
-												.subscribeOn(Schedulers.io())
-												.observeOn(AndroidSchedulers.mainThread())
-												.subscribe(
-														schedules -> {
-															models = schedules;
-															adapter.setItems(models);
-															EventBus.getDefault().post(new ProgressEvent("Success", true, true));
-														},
-														error -> {
-															EventBus.getDefault().post(new ProgressEvent("Failed", true, false));
-														}
-												);
-									},
-									error -> EventBus.getDefault().post(new ProgressEvent("Failed load schedules", true, false))
-							)
-			);
-		}else if (resId == R.string.corrective){
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.corrective)));
-			adapter.setItems(models);
-		}else if (resId == R.string.newlocation){
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.newlocation)));
-			adapter.setItems(models);
-		}else if (resId == R.string.colocation){
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.colocation)));
-			adapter.setItems(models);
-		}else if (resId == R.string.site_audit){
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.site_audit)));
-			adapter.setItems(models);
-		} else if (resId == R.string.fiber_optic){
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.fiber_optic)));
-			adapter.setItems(models);
-		} else if (resId == R.string.hasil_PM){
+
+		if (resId == R.string.hasil_PM){
 			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.preventive)));
-			adapter.setItems(models);
-		}
-		// SAP only
-		 else if (resId == R.string.foto_imbas_petir) {
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(),getString(R.string.foto_imbas_petir)));
-			checkImbasPetirConfig(models);
-			adapter.setItems(models);
-		}  else if (resId == R.string.routing_segment) {
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.routing_segment)));
-			adapter.setItems(models);
-		} else if (resId == R.string.handhole) {
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.handhole)));
-			adapter.setItems(models);
-		} else if (resId == R.string.hdpe) {
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.hdpe)));
-			adapter.setItems(models);
 		} else if (resId == R.string.focut) {
-			models = ScheduleBaseModel.getListScheduleForScheduleAdapter(ScheduleBaseModel.getScheduleByWorktype(getActivity(), getString(R.string.focut)));
 			actionAdd.setVisibility(View.VISIBLE);
 			actionAdd.setOnClickListener(view -> openCreateScheduleFOCUT());
-			adapter.setItems(models);
 		}
+
+		String workType = resId == R.string.schedule ? null : getString(resId);
+		baseActivity.showMessageDialog("Memuat jadwal");
+		schedules.clear();
+		compositeDisposable.add(
+				ScheduleBaseModel.loadSchedules(workType)
+						.flatMapIterable(schedules -> schedules)
+						.flatMap(this::checkImbasPetirSchedule)
+						.subscribe(
+								schedule -> {
+									if (schedule != null) schedules.add(schedule);
+								}, error -> {
+									baseActivity.hideDialog();
+									DebugLog.e(error.getMessage(), error);
+									Toast.makeText(getActivity(), "Gagal memuat jadwal", Toast.LENGTH_LONG).show();
+								}, () -> {
+									schedules = ScheduleBaseModel.getListScheduleForScheduleAdapter(schedules);
+									adapter.setItems(schedules);
+									baseActivity.hideDialog();
+									if (schedules.isEmpty()) {
+										Toast.makeText(getActivity(), "Tidak ada jadwal", Toast.LENGTH_SHORT).show();
+									}
+								})
+		);
 	}
 
-	private void checkImbasPetirConfig(Vector<ScheduleGeneral> listSchedules) {
-		FormImbasPetirConfig formImbasPetirConfig = FormImbasPetirConfig.getImbasPetirConfig();
-		if (formImbasPetirConfig == null) {
-			DebugLog.d("Form imbas petir config not found, create config");
-			FormImbasPetirConfig.createImbasPetirConfig();
-		}
-
-		DebugLog.d("== checking config data over schedules === ");
-		for (ScheduleGeneral schedule : listSchedules) {
-			if (schedule.id != null) {
-				// if schedule data config not found, then add new data to the config
-				if (!FormImbasPetirConfig.isDataExist(schedule.id)) {
-					DebugLog.d("schedule data for scheduleid " + schedule.id + " not found, add new data !");
-					FormImbasPetirConfig.insertNewData(schedule.id);
-				}
+	private Observable<ScheduleGeneral> checkImbasPetirSchedule(ScheduleGeneral schedule) {
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && schedule.id != null && schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
+			// if schedule data config not found, then add new data to the config
+			if (!FormImbasPetirConfig.isDataExist(schedule.id)) {
+				DebugLog.d("schedule data for scheduleid " + schedule.id + " not found, add new data !");
+				FormImbasPetirConfig.insertNewData(schedule.id);
 			}
 		}
+		return Observable.just(schedule);
 	}
 
 	private void checkCorrectiveScheduleConfig(String userId) {
-
 		CorrectiveScheduleResponseModel correctiveData = CorrectiveScheduleConfig.getCorrectiveScheduleConfig();
 		if (correctiveData == null) {
 			DebugLog.d("Corrective schedule config not found, create config");
@@ -244,17 +202,18 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 			APIHelper.getCorrectiveSchedule(getContext(), correctiveScheduleHandler, userId);
 		} else {
 
-			Vector<ScheduleGeneral> correctiveScheduleModels = new Vector<>();
+			ArrayList<ScheduleGeneral> correctiveScheduleModels = new ArrayList<>();
 			for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveData.getData()) {
 
 				String scheduleId = String.valueOf(correctiveSchedule.getId());
 				ScheduleGeneral correctiveScheduleModel = ScheduleBaseModel.getScheduleById(scheduleId);
 				correctiveScheduleModels.add(correctiveScheduleModel);
 			}
-			models.addAll(ScheduleGeneral.getListScheduleForScheduleAdapter(correctiveScheduleModels));
-            adapter.setItems(models);
+			schedules.addAll(ScheduleGeneral.getListScheduleForScheduleAdapter(correctiveScheduleModels));
+            adapter.setItems(schedules);
 		}
 	}
+
 	public void setItemScheduleModelBy(String scheduleId, String userId) {
 		DebugLog.d("set item schedule ");
 		DebugLog.d("schedule id : " + scheduleId);
@@ -283,10 +242,8 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 					if (!itemScheduleResponse.data.isEmpty()) {
 
 						if (itemScheduleResponse.status == 200) {
-
 							DebugLog.d("response OK");
 							ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
-
 							DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
 
 							for (DefaultValueScheduleModel item_default_value : itemScheduleGeneral.default_value_schedule) {
@@ -345,14 +302,14 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 					CorrectiveScheduleResponseModel correctiveData = gson.fromJson(jsonCorrectiveSchedule, CorrectiveScheduleResponseModel.class);
 					if (correctiveData != null) {
 						CorrectiveScheduleConfig.setCorrectiveScheduleConfig(correctiveData);
-						Vector<ScheduleGeneral> correctiveScheduleModels = new Vector<>();
+						ArrayList<ScheduleGeneral> correctiveScheduleModels = new ArrayList<>();
 						for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveData.getData()) {
 							String scheduleId = String.valueOf(correctiveSchedule.getId());
 							ScheduleGeneral correctiveScheduleModel = ScheduleGeneral.getScheduleById(scheduleId);
 							correctiveScheduleModels.add(correctiveScheduleModel);
 						}
-						models.addAll(ScheduleBaseModel.getListScheduleForScheduleAdapter(correctiveScheduleModels));
-						adapter.setItems(models);
+						schedules.addAll(ScheduleBaseModel.getListScheduleForScheduleAdapter(correctiveScheduleModels));
+						adapter.setItems(schedules);
 					}
 				} else {
 
@@ -367,9 +324,9 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 	public void scrollTo(String date){
 		int i = 0;
-		for(; i < models.size(); i++){
-			if ( 0 == models.get(i).day_date.indexOf(date)) {
-				models.get(i).isAnimated = true;
+		for(; i < schedules.size(); i++){
+			if ( 0 == schedules.get(i).day_date.indexOf(date)) {
+				schedules.get(i).isAnimated = true;
 				break;
 			}
 		}
@@ -380,11 +337,11 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 
-		int workTypeId = models.get(position).work_type.id;
-		int siteId = models.get(position).site.id;
-		String workTypeName = models.get(position).work_type.name;
-		String dayDate = models.get(position).day_date;
-		String scheduleId = models.get(position).id;
+		int workTypeId = schedules.get(position).work_type.id;
+		int siteId = schedules.get(position).site.id;
+		String workTypeName = schedules.get(position).work_type.name;
+		String dayDate = schedules.get(position).day_date;
+		String scheduleId = schedules.get(position).id;
 
 		log("-=-="+ workTypeName +"-=-=-=");
 		log("-=-="+ workTypeId +"-=-=-=");
@@ -426,14 +383,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		}
         else baseActivity.showMessageDialog(event.progressString);
     }
-
-    public void onEvent(ProgressEvent event) {
-		if (event.done) {
-			baseActivity.hideDialog();
-			if (!event.isSuccess)
-				Toast.makeText(baseActivity, event.progressString, Toast.LENGTH_LONG).show();
-		} else baseActivity.showMessageDialog(event.progressString);
-	}
 
     private void openCreateScheduleFOCUT() {
 		DialogUtil.showCreateFoCutScheduleDialog(getContext(), ttNumber -> {

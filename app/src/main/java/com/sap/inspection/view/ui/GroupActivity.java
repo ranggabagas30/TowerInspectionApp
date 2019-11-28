@@ -12,6 +12,7 @@ import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.GroupActivityListener;
+import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
@@ -27,14 +28,13 @@ import com.slidinglayer.SlidingLayer;
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 public class GroupActivity extends BaseActivity implements GroupActivityListener {
 
 	private SlidingLayer mSlidingLayer;
 	private WorkFormRowModel parentGroupRow = null;
 	private WorkFormModel workForm;
-	private Vector<WorkFormGroupModel> workFormGroups;
+	private ArrayList<WorkFormGroupModel> workFormGroups;
 	private ScheduleGeneral schedule;
 
 	private String dayDate;
@@ -45,7 +45,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 
 	private FragmentManager fm;
 	private Fragment currentFragment;
-	private GroupFragment groupFragment = GroupFragment.newInstance();
+	private GroupFragment groupFragment;
 
 	public LovelyTextInputDialog inputJumlahWargaDialog;
 
@@ -57,7 +57,6 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
         // get data bundle from ScheduleFragment
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-
             scheduleId 	 = bundle.getString(Constants.KEY_SCHEDULEID);
             siteId		 = bundle.getInt(Constants.KEY_SITEID);
             workTypeId	 = bundle.getInt(Constants.KEY_WORKTYPEID);
@@ -92,24 +91,21 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 		mSlidingLayer.setStickTo(SlidingLayer.STICK_TO_LEFT);
 
         // get schedule base model by scheduleid
-        schedule = new ScheduleGeneral();
-        schedule = schedule.getScheduleById(scheduleId);
+        schedule = ScheduleBaseModel.getScheduleById(scheduleId);
 
 		//generate form
 		parentGroupRow = new WorkFormRowModel();
 		parentGroupRow.isOpen = true;
 		parentGroupRow.position = 0;
 		parentGroupRow.text = "this is just";
-		parentGroupRow.children = new Vector<>();
+		parentGroupRow.children = new ArrayList<>();
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && workTypeName.equalsIgnoreCase(getString(R.string.corrective))) {
-
 			int correctiveScheduleId = Integer.valueOf(scheduleId);
 			CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule = CorrectiveScheduleConfig.getCorrectiveSchedule(correctiveScheduleId);
-			workFormGroups = new Vector<>();
+			workFormGroups = new ArrayList<>();
 			if (correctiveSchedule != null) {
 				for (CorrectiveScheduleResponseModel.CorrectiveGroup correctiveGroup : correctiveSchedule.getGroup()) {
-
 					WorkFormGroupModel groupModel = WorkFormGroupModel.getWorkFormGroupById(String.valueOf(correctiveGroup.getId()));
 					workFormGroups.add(groupModel);
 				}
@@ -141,7 +137,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 
 		} else{
 
-			// get workformid by worktypeid
+			// get workform by worktypeid
 			workForm = new WorkFormModel();
 			workForm = workForm.getItemByWorkTypeId(schedule.work_type.id);
 
@@ -165,6 +161,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 			}
 		}
 
+		groupFragment = GroupFragment.newInstance();
 		groupFragment.setGroupActivityListener(this);
 		groupFragment.setSchedule(schedule);
 		groupFragment.setGroupItems(parentGroupRow);
@@ -182,13 +179,11 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//EventBus.getDefault().register(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		//EventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -237,7 +232,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 
 	private WorkFormRowModel generateOthersModel(){
 		WorkFormRowModel groupRow = new WorkFormRowModel();
-		groupRow.children = new Vector<>();
+		groupRow.children = new ArrayList<>();
 		groupRow.children.add(generateOthersChildModel());
 		groupRow.text = "Others";
 		groupRow.level = 0;
@@ -290,7 +285,7 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 
 			int wargaSize = wargas.size();
 
-			parentGroupRow.children = new Vector<>();
+			parentGroupRow.children = new ArrayList<>();
 
 			// get all workformgroup submenu
 			DebugLog.d("get all workformgroup submenu");
@@ -304,11 +299,11 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 
 				if (group.name.equalsIgnoreCase("Warga")) {
 
-					Vector<WorkFormRowModel> childRows = new Vector<>();
+					ArrayList<WorkFormRowModel> childRows = new ArrayList<>();
 
 					for (int i = 0; i < wargaSize; i++) {
 
-						Vector<WorkFormRowModel> wargaIdRows = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
+						ArrayList<WorkFormRowModel> wargaIdRows = parentGroupRow.getAllItemByWorkFormGroupId(group.id);
 						WorkFormRowModel wargaIdRow;
 						if (!wargaIdRows.isEmpty())
 							wargaIdRow = wargaIdRows.get(0);

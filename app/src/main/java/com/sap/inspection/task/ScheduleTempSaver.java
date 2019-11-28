@@ -55,11 +55,8 @@ public class ScheduleTempSaver extends AsyncTask<Object,Integer,Void> {
 	protected void onPostExecute(Void result) {
 		super.onPostExecute(result);
 		DebugLog.d("on post db...");
-		//DbRepositoryValue.getInstance().close();
 		EventBus.getDefault().post(new ScheduleTempProgressEvent(100,true));
-		if (mainActivity != null) {
-			mainActivity.setFlagScheduleSaved(true);
-		if (activity != null)
+		if (activity != null) {
 			try {
 				if (activity instanceof SettingActivity)
 				    ((SettingActivity)activity).hideDialog();

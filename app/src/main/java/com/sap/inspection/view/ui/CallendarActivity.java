@@ -16,7 +16,7 @@ import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.tools.DebugLog;
 
 import java.util.LinkedHashMap;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class CallendarActivity extends BaseActivity implements OnGridItemClickListener {
 
@@ -24,7 +24,7 @@ public class CallendarActivity extends BaseActivity implements OnGridItemClickLi
 	private ListView listView;
 	private Dataset dataSet;
 	private SectionedGridViewAdapter adapter = null;
-	private LinkedHashMap<String, Vector<CallendarModel>> cursorMap;
+	private LinkedHashMap<String, ArrayList<CallendarModel>> cursorMap;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,27 +37,27 @@ public class CallendarActivity extends BaseActivity implements OnGridItemClickLi
 		switch (filterBy) {
 		case R.string.schedule:
 			DebugLog.d("schedule");
-			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getAllSchedule(activity));
+			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getAllSchedule());
 			break;
 		case R.string.preventive:
 			DebugLog.d("preventive");
-			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.preventive)));
+			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(getString(R.string.preventive)));
 			break;
 		case R.string.corrective:
 			DebugLog.d("corrective");
-			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.corrective)));
+			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(getString(R.string.corrective)));
 			break;
 		case R.string.newlocation:
 			DebugLog.d("new location");
-			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.newlocation)));
+			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(getString(R.string.newlocation)));
 			break;
 		case R.string.colocation:
 			DebugLog.d("colocation");
-			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.colocation)));
+			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(getString(R.string.colocation)));
 			break;
 		case R.string.hasil_PM :
 			DebugLog.d("Hasil PM");
-			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(activity, getString(R.string.hasil_PM)));
+			cursorMap = scheduleGeneral.getListScheduleForCallendarAdapter(scheduleGeneral.getScheduleByWorktype(getString(R.string.hasil_PM)));
 			break;
 		default:
 			break;

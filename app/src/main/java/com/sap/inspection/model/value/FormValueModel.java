@@ -34,7 +34,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
@@ -391,12 +391,12 @@ public class FormValueModel extends BaseModel {
 		return model;
 	}
 
-	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, Vector<WorkFormGroupModel> groupModels) {
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, ArrayList<WorkFormGroupModel> groupModels) {
 
 		return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, groupModels, null, null);
     }
 
-	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, Vector<WorkFormGroupModel> groupModels, String wargaId, String barangId) {
+	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, ArrayList<WorkFormGroupModel> groupModels, String wargaId, String barangId) {
 
 		DebugLog.d("upload items by scheduleId = " + scheduleId);
 		ArrayList<FormValueModel> uploadItems = new ArrayList<>();
@@ -510,7 +510,7 @@ public class FormValueModel extends BaseModel {
 
 		private ScheduleBaseModel scheduleBaseModel;
 		private WorkFormModel workFormModel;
-		private Vector<WorkFormGroupModel> workFormGroupModels;
+		private ArrayList<WorkFormGroupModel> workFormGroupModels;
 
 		public AsyncCollectItemValuesForUpload(String scheduleId, int workFormGroupId, String wargaId, String barangId) {
 			this(scheduleId, workFormGroupId, -1, wargaId, barangId);

@@ -29,20 +29,18 @@ import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.StringUtil;
-import com.sap.inspection.util.DialogUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class LoginActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
+public class LoginActivity extends BaseActivity implements EasyPermissions.RationaleCallbacks {
 
 	//skipper
 	private ImageView imagelogo;
@@ -58,9 +56,11 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	private LoginLogModel loginLogModel;
 	private View developmentLayout;
 	private ACTION_AFTER_GRANTED ACTION = ACTION_AFTER_GRANTED.NONE;
+
 	private enum ACTION_AFTER_GRANTED {
 		NONE,
 		LOGIN,
+		KEEP_LOGIN,
 		UPDATE,
 		COPYDB
 	}
@@ -100,40 +100,42 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 		endpoint.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
 		change.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
 		copy.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
-		if (!CommonUtil.isUpdateAvailable(this)) update.setVisibility(View.GONE);
+		if (!CommonUtil.isUpdateAvailable(this))
+			update.setVisibility(View.GONE);
 
-		if (!PermissionUtil.hasAllPermissions(this))
-			requestAllPermissions();
+		checkLoginSession();
 	}
 
-	/** Ensure that Location GPS and Location Network had been enabled when app is resumed **/
 	@Override
 	protected void onResume() {
 		super.onResume();
+		/** Ensure that Location GPS and Location Network had been enabled when app is resumed **/
 		if (!CommonUtil.checkGpsStatus(this) && !CommonUtil.checkNetworkStatus(this)) {
 			DialogUtil.showGPSdialog(this);
-		} else {
-			getLoginSessionFromPreference();
 		}
 	}
 
 	/** Get login session from preference **/
-	private void getLoginSessionFromPreference() {
+	private void checkLoginSession() {
 		if (getPreference(R.string.keep_login,false) && !getPreference(R.string.user_authToken,"").isEmpty()) {
-			Intent intent = new Intent(this, MainActivity.class);
-			if (getIntent().getBooleanExtra(Constants.LOADSCHEDULE,false))
-				intent.putExtra(Constants.LOADSCHEDULE,true);
-			startActivity(intent);
-			finish();
+			if (PermissionUtil.hasAllPermissions(this))
+				navigateToMainMenu();
+			else {
+				ACTION = ACTION_AFTER_GRANTED.KEEP_LOGIN;
+				requestAllPermissions();
+			}
+		} else {
+			if (!PermissionUtil.hasAllPermissions(this)) {
+				ACTION = ACTION_AFTER_GRANTED.NONE;
+				requestAllPermissions();
+			}
 		}
 	}
 
 	/** Get version, checking update, and triggering update if need update **/
 	@SuppressLint("HandlerLeak")
 	Handler loginHandler = new Handler(){
-
 		public void handleMessage(android.os.Message msg) {
-
 			hideDialog();
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
@@ -160,17 +162,14 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 
 	private void checkLoginState(boolean canLogin) {
 		if (canLogin) {
-			Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-			intent.putExtra(Constants.LOADAFTERLOGIN, true);
-			startActivityForResult(intent, Constants.DEFAULT_REQUEST_CODE);
-			finish();
+			navigateToMainMenu();
 		} else {
 			loginLogModel.statusLogin = "failed";
-			Toast.makeText(LoginActivity.this, R.string.error_pasword_doesnt_match, Toast.LENGTH_SHORT).show();
+			Toast.makeText(LoginActivity.this, R.string.error_password_doesnt_match, Toast.LENGTH_SHORT).show();
 		}
 	}
 
-	private void onlineLogin(UserModel userModel){
+	private void processLogin(UserModel userModel){
 		showMessageDialog("Masuk ke server, silahkan tunggu");
 		APIHelper.login(activity, loginHandler, userModel.username, userModel.password);
 	}
@@ -180,46 +179,39 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 	 * */
 	@AfterPermissionGranted(Constants.RC_ALL_PERMISSION)
 	private void requestAllPermissions() {
-		// Do not have permissions, request them now
-		DebugLog.d("Do not have permissions, request them now");
 		PermissionUtil.requestAllPermissions(this, getString(R.string.rationale_allpermissions), Constants.RC_ALL_PERMISSION);
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		DebugLog.d("request permission result");
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
 		if (requestCode == Constants.RC_ALL_PERMISSION) {
 			if (PermissionUtil.hasAllPermissions(this)) {
 				permissionGranted();
-			} else requestAllPermissions(); // ask permission again
+			} else Toast.makeText(this, getString(R.string.rationale_allpermissions), Toast.LENGTH_LONG).show();
 		}
 	}
 
 	@Override
-	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-		permissionGranted();
+	public void onRationaleAccepted(int requestCode) {
+
 	}
 
 	@Override
-	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-		DebugLog.d("onPermissionsDenied:" + requestCode + ":" + perms.size());
-		// (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
-		// This will display a dialog directing them to enable the permission in app settings.
-		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-			new AppSettingsDialog.Builder(this).build().show();
+	public void onRationaleDenied(int requestCode) {
+		if (requestCode == Constants.RC_ALL_PERMISSION) {
+			Toast.makeText(this, getString(R.string.rationale_allpermissions), Toast.LENGTH_LONG).show();
 		}
 	}
 
 	private void permissionGranted() {
 		switch (ACTION) {
 			case LOGIN: login(); break;
+			case KEEP_LOGIN: navigateToMainMenu();break;
 			case UPDATE: updateAPK(); break;
 			case COPYDB: copyDB(); break;
-			case NONE: DebugLog.d("permission granted");
-				Toast.makeText(LoginActivity.this, this.getString(R.string.success_permissions_granted), Toast.LENGTH_SHORT).show(); break;
+			case NONE: DebugLog.d("permission granted"); break;
 		}
 	}
 
@@ -243,17 +235,21 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
 		loginLogModel.userName = username.getText().toString();
 
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
 		loginLogModel.time = simpleDateFormat.format(new Date());
 		loginLogModel.fileName = loginLogModel.time + " " + loginLogModel.userName;
 
 		if (GlobalVar.getInstance().anyNetwork(this)){
-			onlineLogin(userModel);
-		}else{
-			DebugLog.e(getString(R.string.error_network_connection_problem));
+			processLogin(userModel);
+		} else{
 			hideDialog();
 			Toast.makeText(activity, R.string.error_network_connection_problem, Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void navigateToMainMenu() {
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);
+		finish();
 	}
 
 	private void copyDB() {

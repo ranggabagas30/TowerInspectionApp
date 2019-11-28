@@ -1,6 +1,5 @@
 package com.sap.inspection.mainmenu;
 
-import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +7,7 @@ import android.view.View.OnClickListener;
 
 import com.sap.inspection.R;
 import com.sap.inspection.mainmenu.fragmentadapter.MainMenuFragmentAdapter;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.view.ui.fragments.BaseTitleFragment;
 
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
  * STP MainMenuFragment
  * */
 public class MainMenuFragment extends BaseTitleFragment {
-
 	private ArrayList<Integer> titles;
 	private ArrayList<Integer> icons;
 
@@ -25,20 +24,15 @@ public class MainMenuFragment extends BaseTitleFragment {
 	private ViewPager viewPager;
 
 	public static MainMenuFragment newInstance() {
-		MainMenuFragment fragment = new MainMenuFragment();
-		return fragment;
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		adapter = new MainMenuFragmentAdapter(getActivity().getSupportFragmentManager(), getIcons(), getTitles(), mainMenuClickListener);
+		return new MainMenuFragment();
 	}
 
 	@Override
 	public View onGetLayout(LayoutInflater inflater) {
+		DebugLog.d("onGetLayout");
 		View root = inflater.inflate(R.layout.fragment_mainmenu, null, false);
 		viewPager = root.findViewById(R.id.viewPager);
+		adapter = new MainMenuFragmentAdapter(getChildFragmentManager(), getIcons(), getTitles(), mainMenuClickListener);
 		viewPager.setAdapter(adapter);
 		return root;
 	}

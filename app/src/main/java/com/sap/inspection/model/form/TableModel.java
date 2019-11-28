@@ -6,13 +6,13 @@ import com.sap.inspection.model.BaseModel;
 
 import org.parceler.Parcel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 @Parcel
 public class TableModel extends BaseModel {
 
-	public Vector<ColumnModel> headers;
-	public Vector<WorkFormRowModel> rows;
+	public ArrayList<ColumnModel> headers;
+	public ArrayList<WorkFormRowModel> rows;
 
 	public void save(Context context){
 		save();

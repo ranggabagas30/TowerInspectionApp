@@ -1,18 +1,18 @@
 package com.sap.inspection.model.responsemodel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class CorrectiveScheduleResponseModel extends BaseResponseModel {
 
-    private Vector<CorrectiveSchedule> data;
+    private ArrayList<CorrectiveSchedule> data;
 
     private long updated_at;
 
-    public Vector<CorrectiveSchedule> getData() {
+    public ArrayList<CorrectiveSchedule> getData() {
         return data;
     }
 
-    public void setData(Vector<CorrectiveSchedule> data) {
+    public void setData(ArrayList<CorrectiveSchedule> data) {
         this.data = data;
     }
 
@@ -28,7 +28,7 @@ public class CorrectiveScheduleResponseModel extends BaseResponseModel {
 
         private Integer id;
 
-        private Vector<CorrectiveGroup> group = null;
+        private ArrayList<CorrectiveGroup> group = null;
 
         public Integer getId() {
             return id;
@@ -38,11 +38,11 @@ public class CorrectiveScheduleResponseModel extends BaseResponseModel {
             this.id = id;
         }
 
-        public Vector<CorrectiveGroup> getGroup() {
+        public ArrayList<CorrectiveGroup> getGroup() {
             return group;
         }
 
-        public void setGroup(Vector<CorrectiveGroup> group) {
+        public void setGroup(ArrayList<CorrectiveGroup> group) {
             this.group = group;
         }
     }
@@ -51,7 +51,7 @@ public class CorrectiveScheduleResponseModel extends BaseResponseModel {
 
         private Integer id;
 
-        private Vector<CorrectiveItem> items = null;
+        private ArrayList<CorrectiveItem> items = null;
 
         public Integer getId() {
             return id;
@@ -61,11 +61,11 @@ public class CorrectiveScheduleResponseModel extends BaseResponseModel {
             this.id = id;
         }
 
-        public Vector<CorrectiveItem> getItems() {
+        public ArrayList<CorrectiveItem> getItems() {
             return items;
         }
 
-        public void setItems(Vector<CorrectiveItem> items) {
+        public void setItems(ArrayList<CorrectiveItem> items) {
             this.items = items;
         }
     }
@@ -84,7 +84,7 @@ public class CorrectiveScheduleResponseModel extends BaseResponseModel {
 
         private String ancestry;
 
-        private Vector<Integer> operator = null;
+        private ArrayList<Integer> operator = null;
 
         public Integer getId() {
             return id;
@@ -134,11 +134,11 @@ public class CorrectiveScheduleResponseModel extends BaseResponseModel {
             this.ancestry = ancestry;
         }
 
-        public Vector<Integer> getOperator() {
+        public ArrayList<Integer> getOperator() {
             return operator;
         }
 
-        public void setOperator(Vector<Integer> operator) {
+        public void setOperator(ArrayList<Integer> operator) {
             this.operator = operator;
         }
     }

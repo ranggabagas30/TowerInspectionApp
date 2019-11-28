@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,8 +20,8 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.pixplicity.easyprefs.library.Prefs;
 import com.rindang.pushnotification.notificationchannel.DefaultNotificationChannel;
-import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.listener.ActivityLifecycleHandler;
 import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.DbRepository;
@@ -38,7 +39,6 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 
 import io.fabric.sdk.android.Fabric;
-import io.reactivex.schedulers.Schedulers;
 
 /*import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;*/
@@ -76,16 +76,24 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 	public void onCreate() {
 		super.onCreate();
 
-		//1. initialization crashlytics
+		// initialization crashlytics
 		Fabric.with(this, new Crashlytics());
 
-		//2. initialization stetho facebook debug
+		// initialization stetho facebook debug
 		if (BuildConfig.DEBUG) {
 			Stetho.initializeWithDefaults(this);
 			AESCrypt.DEBUG_LOG_ENABLED = true;
 		}
 
-		//3. initialization image loader configuration
+		// Prefs initialization
+		new Prefs.Builder()
+				.setContext(this)
+				.setMode(ContextWrapper.MODE_PRIVATE)
+				.setPrefsName(getPackageName())
+				.setUseDefaultSharedPreference(true)
+				.build();
+
+		// initialization image loader configuration
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
 				.memoryCacheSize(20 * 1024 * 1024)
 				.discCacheSize(104857600)
@@ -95,7 +103,7 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 		// Initialize ImageLoader with configuration.
 		ImageLoader.getInstance().init(config);
 
-		//4. initialization text mark settings for photo item
+		// initialization text mark settings for photo item
 		TextMarkDisplayOptionsModel textOption = new TextMarkDisplayOptionsModel.Builder(getApplicationContext())
 				.setTextColor(Color.WHITE)
 				.setTextColorStyle(Paint.Style.FILL)
@@ -106,7 +114,7 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 
 		TextMarkModel.getInstance().init(textOption);
 
-		//5. initialization firebase FCM
+		// initialization firebase FCM
 		FirebaseInstanceId.getInstance().getInstanceId()
 				.addOnSuccessListener(instanceIdResult -> {
 
@@ -116,14 +124,14 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 				}).addOnFailureListener(Throwable::printStackTrace);
 
 
-		//6.initialization SQLite DB manager
+		// initialization SQLite DB manager
 		DbRepository.initializedInstance();
 		DbRepositoryValue.initializedInstance();
 
-		//7. register activity lifecycle callbacks
+		// register activity lifecycle callbacks
 		registerActivityLifecycleCallbacks(new ActivityLifecycleHandler(this));
 
-		//8. create notification channels
+		// create notification channels
 		DefaultNotificationChannel defaultNotificationChannel = new DefaultNotificationChannel();
 		defaultNotificationChannel.createNotificationChannel(this);
 
@@ -264,27 +272,6 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 
         return mFirebaseAnalytics;
     }
-
-	public static void sendRegIdtoServer(String token) {
-		TowerAPIHelper.sendRegistrationFCMToken(token, CommonUtil.getIMEI(TowerApplication.getContext()), BuildConfig.VERSION_NAME)
-				.subscribeOn(Schedulers.io())
-				.subscribe(response -> {
-					if (response != null) {
-						switch (response.status) {
-							case 201 : // success
-								DebugLog.d("== device registration success ==");
-								DebugLog.d("token : " + response.token);
-								DebugLog.d("message : " + response.messages);
-								DebugLog.d("app version : " + response.app_version);
-								DebugLog.d("should update : " + response.should_udpate);
-								break;
-						}
-					} else {
-						DebugLog.e("== device registration failed. JSON response null ==");
-					}
-				}, throwable -> { DebugLog.e("== device registration failed with error " + throwable.getMessage() + " ==");
-				}, () -> DebugLog.d("== device registration complete =="));
-	}
 
 	public void setON_FORM_IMBAS_PETIR(boolean onFormImbasPetir) {
 		this.ON_FORM_IMBAS_PETIR = onFormImbasPetir;

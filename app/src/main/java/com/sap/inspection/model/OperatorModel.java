@@ -9,14 +9,14 @@ import com.sap.inspection.tools.DebugLog;
 
 import org.parceler.Parcel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 @Parcel
 public class OperatorModel extends BaseModel {
 	
     public int id;
-    public Vector<Integer> without_form_item_ids;
-    public Vector<Integer> corrective_item_ids;
+    public ArrayList<Integer> without_form_item_ids;
+    public ArrayList<Integer> corrective_item_ids;
     public String name;
 
 	public OperatorModel() {}

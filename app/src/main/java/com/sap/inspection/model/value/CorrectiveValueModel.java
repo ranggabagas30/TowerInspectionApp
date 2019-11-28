@@ -24,7 +24,7 @@ import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
@@ -202,7 +202,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		return model;
 	}
 
-	public static ArrayList<CorrectiveValueModel> getCorrectiveValuesForUploadWithMandatoryCheck(String scheduleId, Vector<WorkFormGroupModel> groupModels) {
+	public static ArrayList<CorrectiveValueModel> getCorrectiveValuesForUploadWithMandatoryCheck(String scheduleId, ArrayList<WorkFormGroupModel> groupModels) {
 
 		DebugLog.d("upload corrective value items by scheduleId = " + scheduleId);
 		ArrayList<CorrectiveValueModel> uploadItems = new ArrayList<>();
@@ -300,7 +300,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		private ScheduleBaseModel scheduleBaseModel;
 		private WorkFormModel workFormModel;
 		private WorkFormGroupModel groupModel;
-		private Vector<WorkFormGroupModel> workFormGroupModels;
+		private ArrayList<WorkFormGroupModel> workFormGroupModels;
 
 		public AsyncCollectCorrectiveValuesForUpload(String scheduleId, int work_form_group_id) {
 			this.scheduleId = scheduleId;

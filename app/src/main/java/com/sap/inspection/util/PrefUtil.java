@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.sap.inspection.TowerApplication;
-import com.sap.inspection.model.value.Pair;
 
 public class PrefUtil {
 
@@ -62,7 +61,5 @@ public class PrefUtil {
 		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getInstance());
 		mPref.edit().remove(TowerApplication.getInstance().getString(resId)).commit();
 	}
-
-
 
 }

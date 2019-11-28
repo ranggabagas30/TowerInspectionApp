@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.text.TextUtils;
+
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.BaseModel;
@@ -13,9 +14,10 @@ import com.sap.inspection.model.config.formimbaspetir.Barang;
 import com.sap.inspection.model.config.formimbaspetir.FormImbasPetirConfig;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.StringUtil;
+
 import org.parceler.Parcel;
+
 import java.util.ArrayList;
-import java.util.Vector;
 
 @Parcel
 public class WorkFormRowModel extends BaseModel {
@@ -29,12 +31,12 @@ public class WorkFormRowModel extends BaseModel {
 	public String created_at;
 	public String updated_at;
 	public static int maxLevel;
-	public Vector<RowColumnModel> row_columns;
+	public ArrayList<RowColumnModel> row_columns;
 	public boolean isOpen;
 	public boolean hasForm = false;
 	public int level;
 	public String text;
-	public Vector<WorkFormRowModel> children;
+	public ArrayList<WorkFormRowModel> children;
 
 	public WorkFormRowModel() {}
 
@@ -49,8 +51,8 @@ public class WorkFormRowModel extends BaseModel {
 		return count;
 	}
 
-	public Vector<WorkFormRowModel> getModels(){
-		Vector<WorkFormRowModel> models = new Vector<WorkFormRowModel>();
+	public ArrayList<WorkFormRowModel> getModels(){
+		ArrayList<WorkFormRowModel> models = new ArrayList<WorkFormRowModel>();
 		if (isOpen && children != null){
 			for (WorkFormRowModel child : children) {
 				models.add(child);
@@ -132,9 +134,9 @@ public class WorkFormRowModel extends BaseModel {
 			}
 	}
 
-	public Vector<WorkFormRowModel> getAllItemByWorkFormGroupId(Context context, int workFormGroupId) {
+	public ArrayList<WorkFormRowModel> getAllItemByWorkFormGroupId(Context context, int workFormGroupId) {
 
-		Vector<WorkFormRowModel> result = getAllItemByWorkFormGroupId(workFormGroupId);
+		ArrayList<WorkFormRowModel> result = getAllItemByWorkFormGroupId(workFormGroupId);
 
 		return result;
 	}
@@ -158,8 +160,8 @@ public class WorkFormRowModel extends BaseModel {
 		return temp;
 	}
 
-	public Vector<WorkFormRowModel> getAllItemByWorkFormGroupId(int workFormGroupId) {
-		Vector<WorkFormRowModel> result;
+	public ArrayList<WorkFormRowModel> getAllItemByWorkFormGroupId(int workFormGroupId) {
+		ArrayList<WorkFormRowModel> result;
 		result = getAllItemByWorkFormGroupIdAndAncestry(workFormGroupId, null);
 		for (WorkFormRowModel rowModel : result) {
 			rowModel.hasForm = true;
@@ -167,10 +169,10 @@ public class WorkFormRowModel extends BaseModel {
 		return result;
 	}
 
-	public Vector<WorkFormRowModel> getAllItemByWorkFormGroupIdAndAncestry(int workFormGroupId, String ancestry) {
+	public ArrayList<WorkFormRowModel> getAllItemByWorkFormGroupIdAndAncestry(int workFormGroupId, String ancestry) {
 
 		DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry);
-		Vector<WorkFormRowModel> result = new Vector<>();
+		ArrayList<WorkFormRowModel> result = new ArrayList<>();
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
 		String where = null;
@@ -221,14 +223,14 @@ public class WorkFormRowModel extends BaseModel {
 		return result;
 	}
 	
-	public Vector<WorkFormRowModel> getChildrenItemsByGroupIdAndLikeAncestry(int workFormGroupId, String ancestry) {
+	public ArrayList<WorkFormRowModel> getChildrenItemsByGroupIdAndLikeAncestry(int workFormGroupId, String ancestry) {
 	    return getChildrenItemsByGroupIdAndLikeAncestry(workFormGroupId, ancestry, null);
 	}
 
-	public static Vector<WorkFormRowModel> getChildrenItemsByGroupIdAndLikeAncestry(int workFormGroupId, String ancestry, int ... rowIds) {
+	public static ArrayList<WorkFormRowModel> getChildrenItemsByGroupIdAndLikeAncestry(int workFormGroupId, String ancestry, int ... rowIds) {
 
         DebugLog.d("workFormGroupId : " + workFormGroupId + ", ancestry LIKE : " + ancestry + ", and rowIds");
-        Vector<WorkFormRowModel> result = new Vector<WorkFormRowModel>();
+        ArrayList<WorkFormRowModel> result = new ArrayList<WorkFormRowModel>();
         String table = DbManager.mWorkFormRow;
         String[] columns = null;
 
@@ -394,7 +396,7 @@ public class WorkFormRowModel extends BaseModel {
 		return result;
 	}
 
-	public static Vector<WorkFormRowModel> getWargaKeNavigationItemsRowModel(String parentId, String scheduleId, String wargaId) {
+	public static ArrayList<WorkFormRowModel> getWargaKeNavigationItemsRowModel(String parentId, String scheduleId, String wargaId) {
 
 	    DebugLog.d("get wargaKe navigation menu items ");
 
@@ -410,7 +412,7 @@ public class WorkFormRowModel extends BaseModel {
             return null;
         }
 
-        Vector<WorkFormRowModel> navigationItemRowModels = new Vector<>();
+        ArrayList<WorkFormRowModel> navigationItemRowModels = new ArrayList<>();
 
         do {
 
@@ -499,7 +501,7 @@ public class WorkFormRowModel extends BaseModel {
 				if (parentItem.level == 1) {
 
 					DebugLog.d("==== get children navigation ===");
-					Vector<WorkFormRowModel> childItems = getWargaKeNavigationItemsRowModel(String.valueOf(parentItem.id), scheduleId, wargaId);
+					ArrayList<WorkFormRowModel> childItems = getWargaKeNavigationItemsRowModel(String.valueOf(parentItem.id), scheduleId, wargaId);
 
 					if (childItems != null && !childItems.isEmpty()) {
 						parentItem.children = childItems;
@@ -517,7 +519,7 @@ public class WorkFormRowModel extends BaseModel {
 
     private static String getRowLabel(int rowId) {
 
-		Vector<RowColumnModel> rowColumnModels = getRowColumnModels(rowId);
+		ArrayList<RowColumnModel> rowColumnModels = getRowColumnModels(rowId);
 
 		for (RowColumnModel row_col : rowColumnModels) {
 			DebugLog.d("== row_col "+row_col.id);
@@ -531,7 +533,7 @@ public class WorkFormRowModel extends BaseModel {
 		return null;
 	}
 
-	private static Vector<RowColumnModel> getRowColumnModels(int rowId){
+	private static ArrayList<RowColumnModel> getRowColumnModels(int rowId){
 
 		return RowColumnModel.getAllItemByWorkFormRowId(rowId);
 

@@ -89,7 +89,7 @@ public class DownloadFileFromURL extends AsyncTask<String, String, Boolean> {
             }
             DebugLog.d("get exist dir");
             // Output stream
-            OutputStream output = new FileOutputStream(tempDir.getAbsolutePath() + "/sapInspection" + prefs.getString(context.getString(R.string.latest_version), "") + ".apk");
+            OutputStream output = new FileOutputStream(tempDir.getAbsolutePath() + "/sapInspection" + prefs.getString(context.getString(R.string.latest_apk_version), "") + ".apk");
             DebugLog.d("get output sream");
             byte[] data = new byte[1024];
 

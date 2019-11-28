@@ -1,7 +1,7 @@
 package com.sap.inspection.view.adapter;
 //package com.sap.inspection.model.form;
 //
-//import java.util.Vector;
+//import java.util.ArrayList;
 //
 //import android.content.Context;
 //import android.graphics.Color;
@@ -32,9 +32,9 @@ package com.sap.inspection.view.adapter;
 //public class FormItem extends RelativeLayout {
 //
 //	private LinearLayout rootItem;
-//	//	private Vector<RowColumnModel> rowColumnModels;
-//	//	private Vector<WorkFormItemModel> items;
-//	private Vector<ColumnModel> column;
+//	//	private ArrayList<RowColumnModel> rowColumnModels;
+//	//	private ArrayList<WorkFormItemModel> items;
+//	private ArrayList<ColumnModel> column;
 //	private Context context;
 //	private String label;
 //	private TextView rowTitle;
@@ -112,11 +112,11 @@ package com.sap.inspection.view.adapter;
 //		return "";
 //	}
 //
-//	public void setColumns(Vector<ColumnModel> column) {
+//	public void setColumns(ArrayList<ColumnModel> column) {
 //		this.column = column;
 //	}
 //
-//	public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels) {
+//	public void setRowColumnModels(ArrayList<RowColumnModel> rowColumnModels) {
 //		//		this.rowColumnModels = rowColumnModels;
 //		RowColumnModel firstItem;
 //		do {
@@ -211,7 +211,7 @@ package com.sap.inspection.view.adapter;
 //	}
 //
 //	//check if any input type
-//	private boolean checkAnyInput(Vector<WorkFormItemModel> items){
+//	private boolean checkAnyInput(ArrayList<WorkFormItemModel> items){
 //		for (WorkFormItemModel item : items) {
 //			log("scope type : "+item.scope_type);
 //			if (item.field_type != null && !item.field_type.equalsIgnoreCase("label") && item.scope_type != null && !item.scope_type.equalsIgnoreCase("all"))

@@ -32,7 +32,7 @@ import com.sap.inspection.util.DialogUtil;
 import org.apache.http.HttpStatus;
 
 import java.io.File;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -41,13 +41,13 @@ import io.reactivex.schedulers.Schedulers;
 public class ScheduleAdapter extends MyBaseAdapter {
 
 	private Context context;
-	private Vector<ScheduleGeneral> scheduleItems = new Vector<>();
+	private ArrayList<ScheduleGeneral> scheduleItems = new ArrayList<>();
 
 	public ScheduleAdapter(Context context) {
 		this.context = context;
 	}
 
-	public void setItems(Vector<ScheduleGeneral> scheduleItems) {
+	public void setItems(ArrayList<ScheduleGeneral> scheduleItems) {
 		this.scheduleItems = scheduleItems;
 		notifyDataSetChanged();
 	}

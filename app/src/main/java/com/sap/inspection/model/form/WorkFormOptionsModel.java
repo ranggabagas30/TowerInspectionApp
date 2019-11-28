@@ -11,7 +11,7 @@ import com.sap.inspection.model.DbRepository;
 
 import org.parceler.Parcel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 @Parcel
 public class WorkFormOptionsModel extends BaseModel {
@@ -75,17 +75,17 @@ public class WorkFormOptionsModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
-	public Vector<WorkFormOptionsModel> getAllItemByWorkFormItemId(Context context, int workFormRowColumnId) {
+	public ArrayList<WorkFormOptionsModel> getAllItemByWorkFormItemId(Context context, int workFormRowColumnId) {
 
 		//DbRepository.getInstance().open(context);
-		Vector<WorkFormOptionsModel> result = getAllItemByWorkFormItemId(workFormRowColumnId);
+		ArrayList<WorkFormOptionsModel> result = getAllItemByWorkFormItemId(workFormRowColumnId);
 		//DbRepository.getInstance().close();
 		return result;
 	}
 
-	public static Vector<WorkFormOptionsModel> getAllItemByWorkFormItemId(int workFormItemId) {
+	public static ArrayList<WorkFormOptionsModel> getAllItemByWorkFormItemId(int workFormItemId) {
 
-		Vector<WorkFormOptionsModel> result = new Vector<WorkFormOptionsModel>();
+		ArrayList<WorkFormOptionsModel> result = new ArrayList<WorkFormOptionsModel>();
 
 		String table = DbManager.mWorkFormOption;
 		String[] columns = null;
@@ -111,10 +111,10 @@ public class WorkFormOptionsModel extends BaseModel {
 		return result;
 	}
 
-	//	public Vector<WorkFormItemModel> getAllItemByWorkFormId(Context context, String workFormId) {
+	//	public ArrayList<WorkFormItemModel> getAllItemByWorkFormId(Context context, String workFormId) {
 	//
 	//		DbRepository.getInstance().open(context);
-	//		Vector<WorkFormItemModel> result = new Vector<WorkFormItemModel>();
+	//		ArrayList<WorkFormItemModel> result = new ArrayList<WorkFormItemModel>();
 	//
 	//		String table = DbManager.mWorkFormItem;
 	//		String[] columns = null;

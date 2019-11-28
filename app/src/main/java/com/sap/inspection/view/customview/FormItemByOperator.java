@@ -1,6 +1,6 @@
 //package com.sap.inspection.view;
 //
-//import java.util.Vector;
+//import java.util.ArrayList;
 //
 //import android.content.Context;
 //import android.graphics.Color;
@@ -24,9 +24,9 @@
 //public class FormItemByOperator extends RelativeLayout {
 //
 //	private LinearLayout rootItem;
-//	private Vector<RowColumnModel> rowColumnModels;
-//	//	private Vector<WorkFormItemModel> items;
-//	private Vector<ColumnModel> column;
+//	private ArrayList<RowColumnModel> rowColumnModels;
+//	//	private ArrayList<WorkFormItemModel> items;
+//	private ArrayList<ColumnModel> column;
 //	private Context context;
 //	private TextView rowTitle;
 //	private TextView rowSubColored;
@@ -74,11 +74,11 @@
 //		return "";
 //	}
 //
-//	public void setColumns(Vector<ColumnModel> column) {
+//	public void setColumns(ArrayList<ColumnModel> column) {
 //		this.column = column;
 //	}
 //
-//	public void setRowColumnModels(Vector<RowColumnModel> rowColumnModels) {
+//	public void setRowColumnModels(ArrayList<RowColumnModel> rowColumnModels) {
 //		this.rowColumnModels = rowColumnModels;
 //		RowColumnModel firstItem = rowColumnModels.remove(0);
 //		rowTitle.setText(firstItem.items.get(0).label);

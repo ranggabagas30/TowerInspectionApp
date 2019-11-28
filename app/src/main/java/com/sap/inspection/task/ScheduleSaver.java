@@ -2,6 +2,7 @@ package com.sap.inspection.task;
 
 import android.os.AsyncTask;
 
+import com.sap.inspection.event.ProgressEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.tools.DebugLog;
@@ -31,6 +32,12 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 		super.onProgressUpdate(values);
 		DebugLog.d( "saving schedule "+values[0]+" %...");
 		EventBus.getDefault().post(new ScheduleProgressEvent(values[0]));
+	}
+
+	@Override
+	protected void onCancelled() {
+		super.onCancelled();
+		EventBus.getDefault().post(new ProgressEvent("Penyimpanan schedule dibatalkan", true, false));
 	}
 
 	@Override

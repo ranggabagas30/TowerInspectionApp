@@ -62,7 +62,7 @@ import java.net.SocketTimeoutException;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class CheckInActivity extends BaseActivity implements LocationRequestProvider.LocationCallback{
+public class CheckInActivity extends BaseActivity implements LocationRequestProvider.LocationCallback, EasyPermissions.RationaleCallbacks{
 
     private final int DISTANCE_MINIMUM_IN_METERS = 100;
     private final int ACCURACY_MINIMUM = 50;
@@ -522,6 +522,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         return saveCheckinResponse.status == 201 || saveCheckinResponse.status == 200;
     }
 
+
+
     private class CheckinBackgroundTask extends AsyncTask<Void, String, Void> {
         private Gson gson = new Gson();
         private String response = null;
@@ -713,6 +715,19 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
             } else {
                 finish();
             }
+        }
+    }
+
+    @Override
+    public void onRationaleAccepted(int requestCode) {
+
+    }
+
+    @Override
+    public void onRationaleDenied(int requestCode) {
+        if (requestCode == Constants.RC_LOCATION_PERMISSION) {
+            Toast.makeText(activity, "Checkin dibatalkan. Mohon izinkan akses lokasi (Location Permission)", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 }

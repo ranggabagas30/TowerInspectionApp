@@ -3,11 +3,11 @@ package com.appmogli.widget;
 import com.sap.inspection.model.ScheduleBaseModel;
 
 import java.util.LinkedHashMap;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class Dataset {
 
-	private LinkedHashMap<String, Vector<ScheduleBaseModel>> sectionItems = new LinkedHashMap<String, Vector<ScheduleBaseModel>>();
+	private LinkedHashMap<String, ArrayList<ScheduleBaseModel>> sectionItems = new LinkedHashMap<String, ArrayList<ScheduleBaseModel>>();
 
 	public static final String DATA_COLUMN = "data";
 
@@ -19,22 +19,22 @@ public class Dataset {
 	
 	private static volatile int INDEX = 1;
 	
-	private LinkedHashMap<String, Vector<ScheduleBaseModel>> sectionCursors = new LinkedHashMap<String, Vector<ScheduleBaseModel>>();
+	private LinkedHashMap<String, ArrayList<ScheduleBaseModel>> sectionCursors = new LinkedHashMap<String, ArrayList<ScheduleBaseModel>>();
 
-	public void addSection(String sectionName, Vector<ScheduleBaseModel> vector) {
+	public void addSection(String sectionName, ArrayList<ScheduleBaseModel> vector) {
 		sectionItems.put(sectionName, vector);
 	}
 
-	public Vector<ScheduleBaseModel> getSectionCursor(String sectionName) {
-		Vector<ScheduleBaseModel> cursor = sectionCursors.get(sectionName);
+	public ArrayList<ScheduleBaseModel> getSectionCursor(String sectionName) {
+		ArrayList<ScheduleBaseModel> cursor = sectionCursors.get(sectionName);
 		if( cursor == null) {
-			cursor = new Vector<ScheduleBaseModel>();
+			cursor = new ArrayList<ScheduleBaseModel>();
 			sectionCursors.put(sectionName, cursor);
 		}
 		return cursor;
 	}
 	
-	public LinkedHashMap<String, Vector<ScheduleBaseModel>> getSectionCursorMap() {
+	public LinkedHashMap<String, ArrayList<ScheduleBaseModel>> getSectionCursorMap() {
 		if(sectionCursors.isEmpty()) {
 			 for(String sectionName : sectionItems.keySet()) {
 				 getSectionCursor(sectionName);

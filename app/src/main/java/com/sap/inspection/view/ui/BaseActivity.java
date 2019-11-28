@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import android.support.annotation.RequiresPermission;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -26,20 +26,23 @@ import android.widget.Toast;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.sap.inspection.BuildConfig;
+import com.pixplicity.easyprefs.library.Prefs;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.event.DeleteAllScheduleEvent;
+import com.sap.inspection.event.ProgressEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.manager.ScreenManager;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
@@ -47,14 +50,11 @@ import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
-import com.sap.inspection.model.responsemodel.FormVersionResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
-import com.sap.inspection.util.PermissionUtil;
-import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.view.ui.fragments.BaseFragment;
 
 import java.io.BufferedInputStream;
@@ -63,20 +63,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 
 import de.greenrobot.event.EventBus;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.AppSettingsDialog;
-import pub.devrel.easypermissions.EasyPermissions;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
-public abstract class BaseActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+public abstract class BaseActivity extends AppCompatActivity {
 
 	protected FragmentActivity activity;
 	protected SharedPreferences mPref;
+	protected CompositeDisposable compositeDisposable;
 
 	public static ImageLoader imageLoader = ImageLoader.getInstance();
 
@@ -86,21 +88,16 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	private ProgressDialog progressDialog, pDialog;
 	private String formVersion;
 	private boolean instanceStateSaved;
-	private boolean flagScheduleSaved = false;
-	private boolean flagFormSaved = false;
-	private boolean isAccessStorageAllowed = false;
-	private boolean isReadStorageAllowed = false;
-	private boolean isWriteStorageAllowed = false;
 	protected boolean isUpdateAvailable = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		activity = this;
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setCancelable(false);
 		mPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		compositeDisposable = new CompositeDisposable();
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -130,11 +127,14 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		super.onStop();
 		EventBus.getDefault().unregister(this);
 	}
+
 	@Override
 	protected void onDestroy() {
 		if (!instanceStateSaved) {
 //			imageLoader.stop();
 		}
+
+		if (compositeDisposable != null) compositeDisposable.dispose();
 		super.onDestroy();
 	}
 
@@ -168,10 +168,20 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		}
 	}
 
+	public void onEvent(ProgressEvent event) {
+		if (event.done) {
+			hideDialog();
+
+			if (event.isSuccess)
+				Toast.makeText(this, event.progressString, Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(this, event.progressString, Toast.LENGTH_LONG).show();
+
+		} else showMessageDialog(event.progressString);
+	}
 	public void onEvent(ScheduleTempProgressEvent event) {
 		if (event.done) {
 			hideDialog();
-			Toast.makeText(activity, getString(R.string.success_update_schedule), Toast.LENGTH_SHORT).show();
 		} else
 			showMessageDialog("Menyimpan schedule " + event.progress + " %");
 	}
@@ -179,7 +189,6 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     public void onEvent(ScheduleProgressEvent event) {
         if (event.done) {
             hideDialog();
-            Toast.makeText(activity, getString(R.string.success_update_schedule), Toast.LENGTH_SHORT).show();
         } else
             showMessageDialog("Menyimpan schedule " + event.progress + " %");
     }
@@ -198,7 +207,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 			hideDialog();
 			Toast.makeText(activity, event.progressString, Toast.LENGTH_SHORT).show();
 			if (event.shouldRelogin)
-				navigateToLoginActivity();
+				navigateToLoginActivity(this);
 		} else {
 			showMessageDialog(event.progressString);
 		}
@@ -244,7 +253,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		return ContextCompat.getColor(this, colorRes);
 	}
 
-	protected void trackEvent(String name) {
+	protected static void trackEvent(String name) {
 		Bundle bundle = new Bundle();
 		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
 		FirebaseAnalytics mFirebaseAnalytics = TowerApplication.getInstance().getDefaultAnalytics();
@@ -277,6 +286,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				return null;
 		}
 	}
+
 	public void showMessageDialog(String message) {
 		if (progressDialog != null) {
 			progressDialog.setMessage(message);
@@ -286,25 +296,16 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	}
 
 	public void hideDialog() {
-
 		if (progressDialog != null && progressDialog.isShowing())
 			progressDialog.dismiss();
-
-	}
-
-	protected void downloadNewForm() {
-		showMessageDialog(getString(R.string.gettingnewform));
-		APIHelper.getForms(activity, formSaverHandler, getPreference(R.string.user_id, ""));
 	}
 
 	protected void downloadNewFormImbasPetir() {
-
 		showMessageDialog(getString(R.string.gettingnewformimbaspetir));
 		APIHelper.getFormImbasPetir(activity, formImbasPetirSaverHandler);
 	}
 
 	protected void downloadAndDeleteSchedules() {
-
 		showMessageDialog(getString(R.string.getScheduleFromServer));
 		APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
 
@@ -320,75 +321,13 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		APIHelper.getCorrectiveSchedule(activity, correctiveScheduleHandler, getPreference(R.string.user_id, ""));
 	}
 
-	private void initFormOffline(){
-		WorkFormModel form = new WorkFormModel();
-		//DbRepository.getInstance().open(this);
-		if (form.countItem() != 0){
-			//			DbRepository.getInstance().close();
-			//			setFlagFormSaved(true);
-			return;
-		}
-		byte[] buffer = null;
-		InputStream is;
-		try {
-			is = this.getAssets().open("forms_14_10_2014.txt");
-			int size = is.available();
-			buffer = new byte[size];
-			is.read(buffer);
-			is.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String bufferString = new String(buffer);
-		initForm(bufferString);
-	}
-
-	private void initForm(String json){
-		Gson gson = new Gson();
-		FormResponseModel formResponseModel = gson.fromJson(json,FormResponseModel.class);
-		if (formResponseModel.status == 200){
-			FormSaver formSaver = new FormSaver();
-			formSaver.execute(formResponseModel.data.toArray());
-		}
-	}
-
-    private void initFormImbasPetir(String json){
+    protected void initFormImbasPetir(String json){
         Gson gson = new Gson();
         FormResponseModel formResponseModel = gson.fromJson(json, FormResponseModel.class);
         if (formResponseModel.status == 200) {
             new FormImbasPetirSaver().execute(formResponseModel.data.toArray());
         }
     }
-
-	protected void checkLatestAPKVersion(){
-		DebugLog.d("check apk version");
-		showMessageDialog(getString(R.string.checkversionapplication));
-		APIHelper.getAPKVersion(activity, apkHandler, getPreference(R.string.user_id, ""));
-	}
-
-	protected void checkFormVersion(){
-		DebugLog.d("check form version");
-		showMessageDialog(getString(R.string.checkfromversion));
-		APIHelper.getFormVersion(activity, formVersionHandler, getPreference(R.string.user_id, ""));
-	}
-
-	protected void checkFormVersionOffline(){
-		DebugLog.d("check form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
-		DebugLog.d("check form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
-		if (getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null) != null){
-			downloadSchedules();
-		}
-		else{
-			showMessageDialog("Generate offline form");
-			initFormOffline();
-		}
-	}
-
-	public void setFlagScheduleSaved(boolean flagScheduleSaved) {
-		this.flagScheduleSaved = flagScheduleSaved;
-		hideDialog();
-	}
 
 	/**
      *  navigation
@@ -410,16 +349,19 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     }
 
 	protected void replaceFragmentWith(FragmentManager fragmentManager, BaseFragment fragment, int viewContainerResId) {
+		DebugLog.d("replace fragment");
 		FragmentTransaction ft = fragmentManager.beginTransaction();
 		ft.replace(viewContainerResId, fragment);
 		ft.setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		ft.commit();
 	}
 
-	public static void navigateToLoginActivity() {
-		Intent i = new Intent(TowerApplication.getContext(), LoginActivity.class);
+	public static void navigateToLoginActivity(Context context) {
+		trackEvent("user_logout");
+		Prefs.putBoolean(context.getString(R.string.keep_login),false);
+		Intent i = new Intent(context, LoginActivity.class);
 		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		TowerApplication.getContext().startActivity(i);
+		context.startActivity(i);
 	}
 
 	public static void navigateToGroupActivity(Context context, String scheduleId, int siteId, int workTypeId, String workTypeName, String dayDate) {
@@ -486,62 +428,45 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	public Handler correctiveScheduleHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-
 			hideDialog();
-
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
-
 			boolean isResponseOK = bundle.getBoolean("isresponseok");
-
 			if (isResponseOK) {
-
 				if (bundle.getString("json") != null) {
 					String jsonCorrectiveSchedule = bundle.getString("json");
-
 					CorrectiveScheduleResponseModel correctiveData = gson.fromJson(jsonCorrectiveSchedule, CorrectiveScheduleResponseModel.class);
 					if (correctiveData != null) {
-
 						CorrectiveScheduleConfig.setCorrectiveScheduleConfig(correctiveData);
-
 						DebugLog.d("save corrective schedule config");
 						TowerApplication.getInstance().toast("Corrective schedules data berhasil diunduh", Toast.LENGTH_SHORT);
 					}
 				} else {
-
 					TowerApplication.getInstance().toast("JSON == null. Gagal mengunduh data schedule Corrective", Toast.LENGTH_LONG);
 				}
-
 			} else {
-
 				TowerApplication.getInstance().toast("Response not OK. Gagal mengunduh data schedule Corrective", Toast.LENGTH_LONG);
 			}
 		}
 	};
 
 	@SuppressLint("HandlerLeak")
-	Handler scheduleHandler = new Handler(){
+	Handler scheduleHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
-
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
-
 			boolean isResponseOK = bundle.getBoolean("isresponseok");
-
 			if (isResponseOK) {
-
 				if (bundle.getString("json") != null) {
 					ScheduleResponseModel scheduleResponseModel = gson.fromJson(bundle.getString("json"), ScheduleResponseModel.class);
-					if (scheduleResponseModel.status == 200){
+					if (scheduleResponseModel.status == 200) {
 						ScheduleSaver scheduleSaver = new ScheduleSaver();
 						scheduleSaver.execute(scheduleResponseModel.data.toArray());
 					}
 				} else {
 					hideDialog();
-					setFlagScheduleSaved(true);
-					Toast.makeText(activity, getString(R.string.error_download_schedule),Toast.LENGTH_LONG).show();
+					Toast.makeText(activity, getString(R.string.error_failed_download_schedules), Toast.LENGTH_LONG).show();
 				}
-
 			} else {
 				hideDialog();
 				DebugLog.d("repsonse not ok");
@@ -564,136 +489,16 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 				}
 			} else {
 				hideDialog();
-				Toast.makeText(activity, getString(R.string.error_download_schedule), Toast.LENGTH_LONG).show();
+				Toast.makeText(activity, getString(R.string.error_failed_download_schedules), Toast.LENGTH_LONG).show();
 			}
 		}
 	};
 
     @SuppressLint("HandlerLeak")
-    private Handler apkHandler = new Handler(){
-        public void handleMessage(android.os.Message msg) {
-
-            Bundle bundle = msg.getData();
-            Gson gson = new Gson();
-
-            boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-            if (isResponseOK) {
-
-                if (bundle.getString("json") != null){
-                    FormVersionResponseModel versionModel = gson.fromJson(msg.getData().getString("json"), FormVersionResponseModel.class);
-                    DebugLog.d("latest_version from server : " + versionModel.version);
-                    writePreference(R.string.latest_version, versionModel.version);
-                    writePreference(R.string.url_update, versionModel.download);
-
-                    if (CommonUtil.isUpdateAvailable(getApplicationContext())) {
-
-                        //update is mandatory, go to Settings screen to manually update apk
-                        Toast.makeText(activity, getString(R.string.newUpdateSTPapplication), Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(BaseActivity.this, SettingActivity.class));
-
-                    } else {
-
-                        // lakukan cek dan unduh form ketika belum update apk
-                        checkFormVersion();
-                    }
-
-                }else{
-
-                    hideDialog();
-                    Toast.makeText(activity, getString(R.string.memriksaUpdateGagal), Toast.LENGTH_LONG).show();
-                }
-
-            } else {
-
-                hideDialog();
-                DebugLog.d("repsonse not ok");
-            }
-        }
-    };
-
-    @SuppressLint("HandlerLeak")
-    private Handler formVersionHandler = new Handler(){
-        public void handleMessage(android.os.Message msg) {
-
-            Bundle bundle = msg.getData();
-            Gson gson = new Gson();
-
-            boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-            if (isResponseOK) {
-
-                if (bundle.getString("json") != null){
-                    FormVersionResponseModel model = gson.fromJson(msg.getData().getString("json"), FormVersionResponseModel.class);
-                    formVersion = model.version;
-                    DebugLog.d("check version : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
-                    DebugLog.d("check version value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
-                    DebugLog.d("check version value from web: "+formVersion);
-
-                    if (!formVersion.equals(getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"))){
-
-                        DebugLog.d("form needs update");
-                        downloadNewForm();
-
-                    }else{
-
-                        DebugLog.d("form doesn't need to be updated");
-                        if (!TowerApplication.getInstance().getDEVICE_REGISTRATION_STATE()) {
-
-                            // have never register the device, then register it now
-                            requestReadPhoneStatePermission();
-
-                        }
-                        downloadSchedules();
-                    }
-
-                }else{
-
-                    hideDialog();
-                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-                }
-
-            } else {
-
-                hideDialog();
-                DebugLog.d("repsonse not ok");
-            }
-        }
-    };
-
-    @SuppressLint("HandlerLeak")
-    private Handler formSaverHandler = new Handler(){
-        public void handleMessage(android.os.Message msg) {
-
-            Bundle bundle = msg.getData();
-
-            boolean isResponseOK = bundle.getBoolean("isresponseok");
-
-            if (isResponseOK) {
-
-                if (bundle.getString("json") != null){
-                    initForm(bundle.getString("json"));
-                }else{
-                    hideDialog();
-                    Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
-                }
-
-            } else {
-
-                hideDialog();
-                DebugLog.d("repsonse not ok");
-            }
-        }
-    };
-
-    @SuppressLint("HandlerLeak")
     private Handler formImbasPetirSaverHandler = new Handler(){
         public void handleMessage(android.os.Message msg) {
-
             Bundle bundle = msg.getData();
-
             boolean isResponseOK = bundle.getBoolean("isresponseok");
-
             if (isResponseOK) {
                 if (bundle.getString("json") != null){
                     initFormImbasPetir(bundle.getString("json"));
@@ -702,158 +507,98 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                     Toast.makeText(activity, getString(R.string.formUpdateFailedFastInternet), Toast.LENGTH_LONG).show();
                 }
             } else {
-
                 hideDialog();
                 DebugLog.d("repsonse not ok");
             }
         }
     };
 
-	/**
-	 * Permission
-	 *
-	 **/
-	@AfterPermissionGranted(Constants.RC_STORAGE_PERMISSION)
-	 void updateAPKwithStoragePermission() {
-
-		String[] perms = new String[]{PermissionUtil.READ_EXTERNAL_STORAGE, PermissionUtil.WRITE_EXTERNAL_STORAGE};
-		if (PermissionUtil.hasPermission(this, perms)) {
-
-			// Already has permission
-			DebugLog.d("Already have permission, do the thing");
-			updateAPK();
-
-		} else {
-
-			// Do not have permissions, request them now
-			DebugLog.d("Do not have permissions, request them now");
-			PermissionUtil.requestPermission(this, getString(R.string.rationale_externalstorage), Constants.RC_STORAGE_PERMISSION, perms);
-		}
-	}
-
-	@AfterPermissionGranted(Constants.RC_READ_PHONE_STATE)
-	protected void requestReadPhoneStatePermission() {
-
-		DebugLog.d("request read phone state permisson");
-		if (PermissionUtil.hasPermission(this, PermissionUtil.READ_PHONE_STATE_PERMISSION)) {
-
-			// Already has permission, do the thing
-			DebugLog.d("Already have permission, do the thing");
-			setFCMTokenRegistration();
-
-		} else {
-
-			// Do not have permissions, request them now
-			DebugLog.d("Do not have permissions, request them now");
-			PermissionUtil.requestPermission(this, getString(R.string.rationale_readphonestate), Constants.RC_READ_PHONE_STATE, PermissionUtil.READ_PHONE_STATE_PERMISSION);
-		}
-	}
-
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		DebugLog.d("request permission result");
-
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-		if (requestCode == Constants.RC_READ_PHONE_STATE) {
-
-			if (PermissionUtil.hasPermission(this, PermissionUtil.READ_PHONE_STATE_PERMISSION)) {
-
-				DebugLog.d("read phone state allowed, start sending FCM token");
-				setFCMTokenRegistration();
-			}
-
-		} else if (requestCode == Constants.RC_STORAGE_PERMISSION) {
-
-			for (String permission : permissions) {
-
-				if (permission.equalsIgnoreCase(PermissionUtil.READ_EXTERNAL_STORAGE) && PermissionUtil.hasPermission(this, PermissionUtil.READ_EXTERNAL_STORAGE)) {
-					DebugLog.d("read external storage allowed");
-					isReadStorageAllowed = true;
-				}
-
-				if (permission.equalsIgnoreCase(PermissionUtil.WRITE_EXTERNAL_STORAGE) && PermissionUtil.hasPermission(this, PermissionUtil.WRITE_EXTERNAL_STORAGE)) {
-					DebugLog.d("write external storage allowed");
-					isWriteStorageAllowed = true;
-				}
-			}
-
-			isAccessStorageAllowed = isReadStorageAllowed & isWriteStorageAllowed;
-
-			if (isAccessStorageAllowed) {
-				updateAPK();
-			} else {
-				DebugLog.e(getString(R.string.error_update_apk));
-				Toast.makeText(this, getString(R.string.error_update_apk), Toast.LENGTH_LONG).show();
-			}
-		}
-	}
-
-	@Override
-	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-		DebugLog.d("permission granted");
-
-		for (String permission : perms) {
-
-			if (permission.equalsIgnoreCase(Manifest.permission.READ_PHONE_STATE)) {
-				// read phone state allowed, i.e. read IMEI
-
-				DebugLog.d("read phone state allowed, start sending FCM token");
-				setFCMTokenRegistration();
-			}
-		}
-	}
-
-	@Override
-	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-		DebugLog.d("onPermissionsDenied:" + requestCode + ":" + perms.size());
-
-		// (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
-		// This will display a dialog directing them to enable the permission in app settings.
-		if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-			new AppSettingsDialog.Builder(this).build().show();
-		}
-	}
-
-	private void setFCMTokenRegistration() {
-
-		String FCMRegToken = PrefUtil.getStringPref(R.string.app_fcm_reg_id, "");
-		String AccessToken = APIHelper.getAccessToken(this);
-
-		if (!TextUtils.isEmpty(AccessToken)) {
-
-			if (!TextUtils.isEmpty(FCMRegToken)) {
-				TowerApplication.sendRegIdtoServer(FCMRegToken);
-				TowerApplication.getInstance().setDEVICE_REGISTRATION_STATE(false);
-			} else {
-				DebugLog.e("FCM TOKEN is empty");
-			}
-
-		} else {
-			DebugLog.e("ACCESS TOKEN is empty, unable to send FCM TOKEN to server");
-		}
-	}
-
 	protected void updateAPK() {
-
 		if (GlobalVar.getInstance().isNetworkOnline(this)) {
-			new DownloadFileFromURL().execute(Constants.URL_APK);
+			new DownloadFileFromURL(new Handler(message -> {
+				String response = message.getData().getString("response");
+				if (!TextUtils.isEmpty(response) && response.equalsIgnoreCase("success")) {
+					// install apk
+					CommonUtil.installAPK(activity, this);
+				} else {
+					Toast.makeText(this, getString(R.string.error_update_apk), Toast.LENGTH_LONG).show();
+				}
+				return true;
+			})).execute(Constants.URL_APK);
 		} else {
 			Toast.makeText(this, getString(R.string.error_disconnected), Toast.LENGTH_LONG).show();
 		}
+	}
+
+	@SuppressLint("CheckResult")
+	@RequiresPermission(Manifest.permission.READ_PHONE_STATE)
+	public void sendRegIdtoServer(String token, String deviceId, String appVersion) {
+		TowerAPIHelper.sendRegistrationFCMToken(token, deviceId, appVersion)
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread())
+				.doOnSubscribe(disposable -> compositeDisposable.add(disposable))
+				.subscribe(response -> {
+					if (response != null) {
+						if (response.status == HttpURLConnection.HTTP_CREATED) {
+							DebugLog.d("== device registration success ==");
+							DebugLog.d("token : " + response.token);
+							DebugLog.d("message : " + response.messages);
+							DebugLog.d("app version : " + response.app_version);
+							DebugLog.d("should update : " + response.should_udpate);
+						}
+					} else {
+						DebugLog.e("== device registration failed. JSON response null ==");
+					}
+				}, throwable -> { DebugLog.e("== device registration failed with error " + throwable.getMessage() + " =="); });
 	}
 
 	/**
 	 * async task class
 	 *
 	 * */
-	private class FormSaver extends AsyncTask<Object, Integer, Void> {
+	@SuppressLint("CheckResult")
+	protected void saveSchedule(Object ... schedules) {
+		Observable.create(emitter -> {
+			if (schedules == null) {
+				emitter.onError(new NullPointerException("Schedules kosong"));
+			}
+			for (int i = 0; i < schedules.length; i++) {
+				int progress = (i+1)*100/schedules.length;
+				emitter.onNext(progress);
+				((ScheduleBaseModel)schedules[i]).save();
+			}
+			emitter.onNext(100);
+			emitter.onComplete(); })
+				.doOnSubscribe(disposable -> compositeDisposable.add(disposable))
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(
+						progress -> {
+							DebugLog.d("-- menyimpan schedule " + progress + " % --");
+							showMessageDialog("Menyimpan schedule " + progress + " %");
+						}, error -> {
+							hideDialog();
+							Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+							DebugLog.e(error.getMessage(), error);
+						}, () -> {
+							DebugLog.d("-- complete -- ");
+							hideDialog();
+						}
+				);
+
+	}
+
+	public class FormSaver extends AsyncTask<Object, Integer, Void> {
+		private Handler handler;
+
+		public FormSaver(Handler handler) {
+			this.handler = handler;
+		}
+
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			showMessageDialog("Persiapan menyimpan forms");
+			showMessageDialog(getString(R.string.savingformspreparation));
 			DbRepository.getInstance().open(TowerApplication.getInstance());
 			DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
@@ -901,13 +646,6 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 						}
 					}
 			}
-			DebugLog.d("version saved : "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form));
-			DebugLog.d("version saved value : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), "no value"));
-			DebugLog.d("version saved value from web: "+ formVersion);
-			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.latest_version_form), formVersion);
-			writePreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form),"not null");
-			DebugLog.d("form ofline user pref: "+PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form));
-			DebugLog.d("form ofline user : "+getPreference(PrefUtil.getStringPref(R.string.user_id, "")+getString(R.string.offline_form), null));
 			return null;
 		}
 
@@ -919,20 +657,32 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		}
 
 		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			hideDialog();
+			Bundle bundle = new Bundle();
+			bundle.putString("response", "failed");
+			Message message = new Message();
+			message.setData(bundle);
+
+			handler.sendMessage(message);
+		}
+
+		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			//			setFlagFormSaved(true);
-			showMessageDialog("saving forms complete");
+			showMessageDialog(getString(R.string.savingformscomplete));
 
-			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
-                downloadNewFormImbasPetir();
-			else
-				downloadSchedules();
+			Bundle bundle = new Bundle();
+			bundle.putString("response", "success");
+			Message message = new Message();
+			message.setData(bundle);
 
+			handler.sendMessage(message);
 		}
 	}
 
-    private class FormImbasPetirSaver extends AsyncTask<Object, Integer, Void>{
+    public class FormImbasPetirSaver extends AsyncTask<Object, Integer, Void>{
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -999,7 +749,13 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 	/**
 	 * Background Async Task to download file
 	 */
-	class DownloadFileFromURL extends AsyncTask<String, String, Boolean> {
+	public class DownloadFileFromURL extends AsyncTask<String, String, Boolean> {
+
+		private Handler handler;
+
+		public DownloadFileFromURL(Handler handler) {
+			this.handler = handler;
+		}
 
 		/**
 		 * Before starting background thread
@@ -1008,7 +764,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			Toast.makeText(activity, activity.getString(R.string.downloadfile), Toast.LENGTH_SHORT).show();
+			showMessageDialog(getString(R.string.downloadfile));
 		}
 
 		/**
@@ -1065,21 +821,32 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
             showMessageDialog(publishMessage[0]);
 		}
 
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			hideDialog();
+			Bundle bundle = new Bundle();
+			bundle.putString("response", "failed");
+			Message message = new Message();
+			message.setData(bundle);
+
+			handler.sendMessage(message);
+		}
+
 		/**
 		 * After completing background task
 		 * Dismiss the progress dialog
 		 **/
 		@Override
 		protected void onPostExecute(Boolean isSuccessful) {
-
             hideDialog();
+            Bundle bundle = new Bundle();
+			if (!isSuccessful) bundle.putString("response", "failed");
+			else bundle.putString("response", "success");
 
-			if (!isSuccessful) {
-				Toast.makeText(BaseActivity.this, BaseActivity.this.getString(R.string.error_update_apk), Toast.LENGTH_LONG).show();
-			} else {
-				// just install the new APK
-				CommonUtil.installAPK(activity, BaseActivity.this);
-			}
+			Message message = new Message();
+			message.setData(bundle);
+			handler.sendMessage(message);
 		}
 	}
 }

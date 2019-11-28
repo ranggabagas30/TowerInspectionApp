@@ -16,7 +16,7 @@ import com.sap.inspection.tools.DebugLog;
 
 import org.parceler.Parcel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 @Parcel
 public class WorkFormModel extends BaseModel {
@@ -25,7 +25,7 @@ public class WorkFormModel extends BaseModel {
     public String name;
     public String notes;
     public int work_type_id;
-    public Vector<WorkFormGroupModel> groups;
+    public ArrayList<WorkFormGroupModel> groups;
     public SiteModel site;
 	public OperatorModel operator;
 	public WorkTypeModel type;

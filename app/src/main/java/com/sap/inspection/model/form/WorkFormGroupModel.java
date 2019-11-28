@@ -11,7 +11,7 @@ import com.sap.inspection.model.DbRepository;
 
 import org.parceler.Parcel;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 @Parcel
 public class WorkFormGroupModel extends BaseModel {
@@ -140,15 +140,15 @@ public class WorkFormGroupModel extends BaseModel {
 
 	}
 
-	public Vector<WorkFormGroupModel> getAllItemByWorkFormGroupId(Context context, int workFormId) {
+	public ArrayList<WorkFormGroupModel> getAllItemByWorkFormGroupId(Context context, int workFormId) {
 		DbRepository.getInstance().open(TowerApplication.getInstance());
-		Vector<WorkFormGroupModel> result = getAllItemByWorkFormId(workFormId);
+		ArrayList<WorkFormGroupModel> result = getAllItemByWorkFormId(workFormId);
 		DbRepository.getInstance().close();
 		return result;
 	}
 
-	public static Vector<WorkFormGroupModel> getAllItemByWorkFormId(int workFormId) {
-		Vector<WorkFormGroupModel> result = new Vector<WorkFormGroupModel>();
+	public static ArrayList<WorkFormGroupModel> getAllItemByWorkFormId(int workFormId) {
+		ArrayList<WorkFormGroupModel> result = new ArrayList<WorkFormGroupModel>();
 
 		String table = DbManager.mWorkFormGroup;
 		String[] columns = null;

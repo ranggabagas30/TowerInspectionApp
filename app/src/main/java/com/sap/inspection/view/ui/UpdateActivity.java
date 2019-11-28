@@ -46,7 +46,7 @@ public class UpdateActivity extends BaseActivity {
 		TextView title = findViewById(R.id.header_title);
 		title.setText("Aplikasi Update");
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		file_url = prefs.getString(this.getString(R.string.url_update), "");
+		file_url = prefs.getString(this.getString(R.string.apk_update_url), "");
 
 		// show progress bar button
 		btnShowProgress = findViewById(R.id.btnProgressBar);
@@ -135,7 +135,7 @@ public class UpdateActivity extends BaseActivity {
 				}
 
 				// Output stream
-				OutputStream output = new FileOutputStream(tempDir.getAbsolutePath()+"/sapInspection"+prefs.getString(UpdateActivity.this.getString(R.string.latest_version), "")+".apk");
+				OutputStream output = new FileOutputStream(tempDir.getAbsolutePath()+"/sapInspection"+prefs.getString(UpdateActivity.this.getString(R.string.latest_apk_version), "")+".apk");
 
                 byte[] data = new byte[1024];
 
@@ -183,7 +183,7 @@ public class UpdateActivity extends BaseActivity {
 			dismissDialog(progress_bar_type);
 
 			File tempFile= Environment.getExternalStorageDirectory();
-			tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(UpdateActivity.this.getString(R.string.latest_version), "")+".apk");
+			tempFile=new File(tempFile.getAbsolutePath()+"/Download/sapInspection"+prefs.getString(UpdateActivity.this.getString(R.string.latest_apk_version), "")+".apk");
 			if(!tempFile.exists())
 			{
 				finish();

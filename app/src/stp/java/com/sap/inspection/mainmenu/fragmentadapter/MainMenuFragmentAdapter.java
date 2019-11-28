@@ -14,7 +14,6 @@ public class MainMenuFragmentAdapter extends BaseFragmentAdapter {
 	private ArrayList<Integer> iconRes;
 	private ArrayList<Integer> titleRes;
 
-	//perubahan irwan menambahkan SUM_ITEM_PER_PAGE menjadi 5 dari 4
 	private final int SUM_ITEM_PER_PAGE = 8;
 
 	public MainMenuFragmentAdapter(FragmentManager fm, ArrayList<Integer> iconRes, ArrayList<Integer> titleRes, OnClickListener mainMenuClickListener) {
