@@ -41,7 +41,6 @@ import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
@@ -360,14 +359,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			}
 			saveValue(split, !string.equalsIgnoreCase(""),false);
 		}
-	}
-
-	public void onEvent(UploadProgressEvent event) {
-		DebugLog.d("event="+new Gson().toJson(event));
-		if (!event.done)
-			showMessageDialog(event.progressString);
-		else
-			hideDialog();
 	}
 
 	OnClickListener photoClickListener = new OnClickListener() {
