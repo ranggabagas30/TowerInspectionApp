@@ -31,8 +31,8 @@ import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.value.FormValueModel;
+import com.sap.inspection.model.DbManager;
+import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
@@ -482,19 +482,15 @@ public class CommonUtil {
         return val.matches(regex);
     }
 
-    public static Completable deleteAllData(ScheduleBaseModel schedule) {
+    public static Completable deleteAllData() {
         return Completable.fromAction(
                 () -> {
-                    if (schedule == null) {// clear all data
-                        clearImageCache(); // clear image loader cache
-                        FormValueModel.deleteAll(); // clear form value data
-                        CommonUtil.clearApplicationData(); // clear application cache
-                        SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
-                        mPref.edit().clear().apply(); // clear shared pref
-                    } else {
-                        if (!TextUtils.isEmpty(schedule.id))
-                            FormValueModel.deleteAllBy(schedule.id);
-                    }
+                    clearImageCache(); // clear image loader cache
+                    //CommonUtil.clearApplicationData(); // clear application cache
+                    DbManager.clearAllData(); // clear dbmanager data
+                    DbManagerValue.clearAllData(); // clear dbmanager value data
+                    SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
+                    mPref.edit().clear().apply(); // clear shared pref
                 }
         );
     }
