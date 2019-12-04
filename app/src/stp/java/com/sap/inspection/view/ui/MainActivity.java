@@ -22,8 +22,7 @@ import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.mainmenu.MainMenuFragment;
-import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.task.ScheduleSaver;
+import com.sap.inspection.tools.AndroidUID;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.NetworkUtil;
@@ -109,15 +108,20 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 
 	@RequiresPermission(Manifest.permission.READ_PHONE_STATE)
 	private void registerDevice() throws NullPointerException{
-		String FCMRegToken = PrefUtil.getStringPref(R.string.app_fcm_reg_id, null);
-		String AccessToken = APIHelper.getAccessToken(this);
-		if (TextUtils.isEmpty(AccessToken))
+		String fcmRegToken = PrefUtil.getStringPref(R.string.app_fcm_reg_id, null);
+		String accessToken = APIHelper.getAccessToken(this);
+		String deviceId	   = AndroidUID.getDeviceID(this);
+
+		if (TextUtils.isEmpty(accessToken))
 			throw new NullPointerException(getString(R.string.error_access_token_empty));
 
-		if (TextUtils.isEmpty(FCMRegToken))
+		if (TextUtils.isEmpty(fcmRegToken))
 			throw new NullPointerException(getString(R.string.error_fcm_token_empty));
 
-		sendRegIdtoServer(FCMRegToken, CommonUtil.getIMEI(this), BuildConfig.VERSION_NAME);
+		if (TextUtils.isEmpty(deviceId))
+			throw new NullPointerException(getString(R.string.error_device_id_empty));
+
+		sendRegIdtoServer(fcmRegToken, deviceId, BuildConfig.VERSION_NAME);
 		TowerApplication.getInstance().setDEVICE_REGISTRATION_STATE(false);
 	}
 
@@ -273,14 +277,15 @@ public class MainActivity extends BaseActivity implements EasyPermissions.Permis
 										if (downloadResponse.status == HttpURLConnection.HTTP_OK) {
 											new FormSaver(new Handler(
 													message -> {
-														String result = message.getData().getString("response");
-														if (result != null && result.equals("success")) {
-															downloadWorkSchedules();
-															return true;
+														String response = message.getData().getString("response");
+														if (TextUtils.isEmpty(response) || response.equals("failed")) {
+															Toast.makeText(this, getString(R.string.error_failed_save_forms), Toast.LENGTH_LONG).show();
+															DebugLog.d("-- " + getString(R.string.error_failed_save_forms) + " --");
 														}
 
-														hideDialog();
-														return false;
+														// todo: tambahkan shared pref put form version
+														downloadWorkSchedules();
+														return true;
 													}
 											)).execute(downloadResponse.data.toArray());
 										} else {

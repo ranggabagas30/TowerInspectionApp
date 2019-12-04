@@ -54,7 +54,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.drawable.ic_preventive,
 					R.drawable.ic_corrective,
 					R.drawable.ic_settings,
-					R.drawable.fofo,
+					R.drawable.ic_siteaudit,
 					R.drawable.ic_hasilpm
 			};
 			this.icons = getArrayList(icons);
@@ -69,7 +69,7 @@ public class MainMenuFragment extends BaseTitleFragment {
 					R.string.preventive,
 					R.string.corrective,
 					R.string.settings,
-					R.string.fiber_optic,
+					R.string.site_audit,
 					R.string.hasil_PM
 			};
 			this.titles = getArrayList(titles);
