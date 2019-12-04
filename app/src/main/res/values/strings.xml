@@ -78,12 +78,26 @@
     <string name="event_take_picture">User memulai pengambilan foto</string>
 
     <!-- error messages -->
+    <string name="error_delete_file">Gagal menghapus data file</string>
+    <string name="error_delete_files">Gagal menghapus foto /file dari memori device</string>
+    <string name="error_delete_schedule">Gagal menghapus schedule</string>
+    <string name="error_delete_all_local_data">Gagal menghapus seluruh data lokal</string>
+    <string name="error_delete_local_schedule_data">Gagal menghapus data lokal schedule</string>
+    <string name="error_delete_schedule_id_not_found">Gagal menghapus schedule. Schedule id tidak ditemukan</string>
+    <string name="error_prerparing_upload_items">Penyiapan upload item gagal</string>
+    <string name="error_retrieving_firebase_instance_id">Gagal mendapatkan firebase instance id. Mohon laporkan masalah</string>
+    <string name="error_device_id_empty">Tidak bisa mendapatkan device id</string>
     <string name="error_fcm_token_empty">Token FCM kosong. Gagal registrasi device</string>
     <string name="error_access_token_empty">Access token kosong. Gagal registrasi device</string>
     <string name="error_response_null">Gagal mendapatkan response dari server</string>
     <string name="error_not_json_type">Respon bukan tipe json</string>
     <string name="error_failed_download_forms">Gagal mengunduh form</string>
+    <string name="error_failed_save_forms">Gagal menyimpan forms</string>
+    <string name="error_failed_download_forms_imbas_petir">Gagal mengunduh form imbas petir</string>
+    <string name="error_failed_save_forms_imbas_petir">Gagal menyimpan form imbas petir</string>
     <string name="error_failed_download_schedules">Gagal mengunduh schedule</string>
+    <string name="error_failed_save_schedule">Gagal menyimpan schedule</string>
+    <string name="error_failed_delete_schedules">Gagal muat ulang hapus schedule</string>
     <string name="error_latest_version_not_found">Tidak ada informasi versi terakhir</string>
     <string name="error_failed_check_apk_version">Gagal mengecek versi aplikasi</string>
     <string name="error_update_apk">Gagal mengupdate apk</string>
@@ -109,7 +123,6 @@
     <string name="error_take_picture">Pengambilan foto gagal</string>
     <string name="error_load_image">Gagal menampilkan gambar</string>
     <string name="error_url_bad_format">URL tidak benar. Periksa kembal</string>
-    <string name="error_delete_file">Gagal menghapus data file</string>
     <string name="error_input_amount_warga">Mohon masukkan jumlah warga dengan benar</string>
     <string name="error_input_amount_barang">Mohon masukkan jumlah barang dengan benar</string>
     <string name="error_using_manual_date_time">Gagal menyimpan foto. Pastikan menggunakan "Automatic date and time" di pengaturan device</string>
@@ -118,10 +131,15 @@
     <!-- success messages-->
     <string name="success_copydatabase">Berhasil salin database</string>
     <string name="success_createdir">Berhasil membuat direktori</string>
+    <string name="success_delete_files">Berhasil menghapus seluruh data</string>
     <string name="success_delete_file">Berhasil menghapus data file</string>
+    <string name="success_delete_schedule">Berhasil menghapus schedule</string>
     <string name="success_permissions_granted">Permissions diizinkan</string>
     <string name="success_update_schedule">Schedule berhasil diperbaharui</string>
+    <string name="success_update_form">Form berhasil diperbaharui</string>
+    <string name="success_update_form_imbas_petir">Form imbas petir berhasil diperbaharui</string>
     <string name="success_latest_apk">Aplikasi terinstal merupakan versi terupdate</string>
+    <string name="success_preparing_upload_items">Penyiapan upload item selesai</string>
 
     <!-- warning messages-->
     <string name="warning_update_form_title">Mengupdate ulang form</string>
@@ -130,6 +148,11 @@
     <string name="warning_check_play_service">Error</string>
     <string name="warning_check_play_service_message">Mohon install Google Play</string>
     <string name="warning_input_amount_warga_barang">Jumlah maksimal untuk ditambahkan adalah 10. Lakukan penambahan kembali jika diperlukan penambahan</string>
+
+    <!-- info messages -->
+    <string name="info_preparing_upload_items">Menyiapkan item untuk diupload</string>
+    <string name="info_deleting_schedule">Menghapus schedule</string>
+    <string name="info_deleting_all_data">Menghapus seluruh data</string>
 
     <string name="informationGPS">Information</string>
     <string name="enableGPS">Silahkan aktifkan GPS</string>
