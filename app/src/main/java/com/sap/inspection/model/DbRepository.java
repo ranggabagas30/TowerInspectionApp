@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 
@@ -22,7 +21,6 @@ public class DbRepository {
 
 	public static synchronized void initializedInstance() {
 		if (mInstance == null) {
-
 			DebugLog.d("initialized db repository instance");
 			mInstance = new DbRepository();
 
@@ -44,7 +42,6 @@ public class DbRepository {
 	public void open(Context context) {
 		//DebugLog.d("db repository opening counter : " + mOpenCounter);
 		if (_database!=null && _database.isOpen()) return;
-
         SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
         if(_databaseHelper == null || !mPref.getString(context.getString(R.string.user_id), null).equalsIgnoreCase(mPref.getString(context.getString(R.string.latest_user_db), null))) {
             System.gc();
@@ -72,12 +69,10 @@ public class DbRepository {
 	}
 	
 	public void clearData(String table){
-		 getDB().delete(table, null, null);
-	}
-
-	public void clearData(Context context,String table){
-		open(context);
-		getDB().delete(table, null, null);
-		close();
+		try {
+			getDB().delete(table, null, null);
+		} catch (RuntimeException re) {
+			DebugLog.e(re.getMessage(), re);
+		}
 	}
 }
