@@ -36,7 +36,7 @@ public class TowerAPIHelper {
         return TowerAPIClient.createService(TowerAPI.class).rxPostCreateScheduleFOCUT(ttNumber, workDate, userId);
     }
 
-    public static Single<CorrectiveScheduleResponseModel> getCorrectiveSchedules() {
+    public static Single<CorrectiveScheduleResponseModel> downloadCorrectiveSchedules() {
         String userId = PrefUtil.getStringPref(R.string.user_id, null);
         String template = "corrective";
         return TowerAPIClient.createService(TowerAPI.class).rxGetCorrectiveSchedules(userId, template);
@@ -64,5 +64,9 @@ public class TowerAPIHelper {
         String userId = PrefUtil.getStringPref(R.string.user_id, null);
         String template = "full";
         return TowerAPIClient.createService(TowerAPI.class).rxGetWorkForm(userId, template);
+    }
+
+    public static Single<FormResponseModel> downloadWorkFormsImbasPetir() {
+        return TowerAPIClient.createService(TowerAPI.class).rxGetWorkFormImbasPetir();
     }
 }
