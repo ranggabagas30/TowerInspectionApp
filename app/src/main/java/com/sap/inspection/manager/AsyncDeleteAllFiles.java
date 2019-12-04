@@ -12,11 +12,12 @@ import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.event.DeleteAllProgressEvent;
+import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
+import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
-import com.sap.inspection.util.CommonUtil;
 
 import org.apache.http.HttpStatus;
 
@@ -32,6 +33,7 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 	private String mPath = Constants.DIR_PHOTOS + "/";
 	private ScheduleGeneral mSchedule;
 	private CompositeDisposable compositeDisposable;
+	private int count = 0;
 
 	public AsyncDeleteAllFiles() {}
 
@@ -47,7 +49,6 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 
 	@Override
 	protected Void doInBackground(Void... arg0) {
-
 		// delete files
 		if (mSchedule != null && !TextUtils.isEmpty(mSchedule.id))
 			mPath += mSchedule.id + "/";
@@ -66,15 +67,13 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 				file.delete();
 			}
 
-		if (mSchedule == null) {// clear all data
+		if (mSchedule == null) {
+			//CommonUtil.clearApplicationData(); // clear application cache
+			DbManager.clearAllData(); // clear dbmanager
+			DbManagerValue.clearAllData(); //clear dbmanagervalue
 			clearImageCache(); // clear image loader cache
-			FormValueModel.deleteAll(); // clear form value data
-			CommonUtil.clearApplicationData(); // clear application cache
 			SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
 			mPref.edit().clear().apply(); // clear shared pref
-		} else {
-			if (!TextUtils.isEmpty(mSchedule.id))
-				FormValueModel.deleteAllBy(mSchedule.id);
 		}
 		return null;
 	}
@@ -91,10 +90,9 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 
 		// after deleting files, then delete all data in table
 		if (mSchedule == null) {
-			//FormValueModel.deleteAll();
             EventBus.getDefault().post(new DeleteAllProgressEvent("Success delete all data", true, true));
         } else {
-            //FormValueModel.deleteAllBy(mScheduleId);
+			// hit delete fo cut schedule only when delete per schedule id
 			if (!TextUtils.isEmpty(mSchedule.id)) {
 				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && mSchedule.work_type.name.matches(Constants.regexFOCUT)) {
 					compositeDisposable.add(
@@ -104,7 +102,9 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 							 			 .subscribe(
 							 			 		response -> {
 							 			 			if (response.status == HttpStatus.SC_OK) {
-							 			 				ScheduleBaseModel.delete(mSchedule.id);
+							 			 				// after deleting schedule on the server, then delete
+							 			 				ScheduleBaseModel.deleteAllBy(mSchedule.id); // local schedule data
+														FormValueModel.deleteAllBy(mSchedule.id); // local value data by schedule id
 														EventBus.getDefault().post(new DeleteAllProgressEvent(response.messages, true, false));
 													} else {
 														EventBus.getDefault().post(new DeleteAllProgressEvent("Failed (error code: " + response.status + ")", true, false));
@@ -116,6 +116,9 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 										 )
 					);
 				} else {
+					// after deleting schedule on the server, then delete
+					ScheduleBaseModel.deleteAllBy(mSchedule.id); // local schedule data
+					FormValueModel.deleteAllBy(mSchedule.id); // local value data by schedule id
 					EventBus.getDefault().post(new DeleteAllProgressEvent("Success delete all " + mSchedule.id + " data", true, false));
 				}
 			} else {
@@ -123,8 +126,6 @@ public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 			}
         }
 	}
-
-	private int count = 0;
 
 	private int getFileCount(String dirPath) {
 		if (count != 0)
