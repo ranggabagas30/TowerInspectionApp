@@ -61,8 +61,8 @@ public class ItemUploadManager {
     private ArrayList<FormValueModel> itemValuesModified;
 
     private boolean running = false;
-    public String syncDone = "Sinkronisasi selesai";
-    public String syncFail = "Sinkronisasi gagal";
+    public final String syncDone = "Sinkronisasi selesai";
+    public final String syncFail = "Sinkronisasi gagal";
     private String latestStatus;
     private UploadValue uploadTask;
 
@@ -118,23 +118,21 @@ public class ItemUploadManager {
     }
 
     public void addItemValues(ArrayList<FormValueModel> itemvalues) {
-        if (itemvalues == null || itemvalues.isEmpty())
-            TowerApplication.getInstance().toast("Gagal upload item. Pastikan item form mandatory telah terisi semua", Toast.LENGTH_LONG);
-        else {
-            DebugLog.d("itemvalues="+itemvalues.size());
-                this.itemValues.clear();
-                this.itemValuesFailed.clear();
-                this.itemValuesModified.clear();
-                for (FormValueModel item : itemvalues) {
-                    if (item != null && !item.disable) {
-                        this.itemValues.add(item);
-                    }
-                }
-                if (!running) {
-                    uploadTask = null;
-                    uploadTask = new UploadValue();
-                    uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                }
+        if (itemvalues == null)
+            return;
+
+        this.itemValues.clear();
+        this.itemValuesFailed.clear();
+        this.itemValuesModified.clear();
+        for (FormValueModel item : itemvalues) {
+            if (item != null && !item.disable) {
+                this.itemValues.add(item);
+            }
+        }
+        if (!running) {
+            uploadTask = null;
+            uploadTask = new UploadValue();
+            uploadTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 
@@ -150,7 +148,6 @@ public class ItemUploadManager {
                     TowerApplication.getInstance().toast("Photo item" + workFormItem.label + " harus ada", Toast.LENGTH_LONG);
                 else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem))
                     DebugLog.d("item file picture radio not validated");
-
                 return;
 
             } else if (workFormItem.field_type.equalsIgnoreCase("file") && !isPictureRadioItemValidated(workFormItem, filledItem)) {
@@ -204,7 +201,6 @@ public class ItemUploadManager {
             super.onPreExecute();
             running = true;
             initConnection();
-            TowerApplication.getInstance().toast(TowerApplication.getContext().getResources().getString(R.string.progressUpload), Toast.LENGTH_SHORT);
         }
 
         private void publish(String msg) {
@@ -215,7 +211,7 @@ public class ItemUploadManager {
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
             UploadProgressEvent event = new UploadProgressEvent(values[0]);
-            event.done = values[0].equalsIgnoreCase(syncDone) || values[0].equalsIgnoreCase(syncFail);
+            if (!running) event = new UploadProgressEvent(values[0], true);
             EventBus.getDefault().post(event);
         }
 
@@ -573,12 +569,13 @@ public class ItemUploadManager {
                 message = itemValueSuccessCount + " item berhasil diupload";
             }
 
-            publish(latestStatus);
-            TowerApplication.getInstance().toast(latestStatus + "\n" + message, Toast.LENGTH_LONG);
+            running = false;
+            publish(latestStatus + "\n" + message);
+            //TowerApplication.getInstance().toast(latestStatus + "\n" + message, Toast.LENGTH_LONG);
 
             // SAP only
             doUploadStatus();
-            running = false;
+
         }
 
         @Override
@@ -586,12 +583,12 @@ public class ItemUploadManager {
             super.onCancelled();
             latestStatus = syncFail;
             messageToServer = MESSAGE_FAILED;
-            publish(latestStatus);
+            running = false;
+            publish(latestStatus + "\ncancelled");
 
             // SAP only
             doUploadStatus();
 
-            running = false;
         }
     }
 
