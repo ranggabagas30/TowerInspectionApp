@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 
-import com.sap.inspection.TowerApplication;
 import com.sap.inspection.R;
 import com.sap.inspection.tools.DebugLog;
 
@@ -67,5 +66,13 @@ public class DbRepositoryValue {
 	
 	public SQLiteDatabase getDB(){
 		return _database;
+	}
+
+	public void clearData(String table){
+		try {
+			getDB().delete(table, null, null);
+		} catch (RuntimeException re) {
+			DebugLog.e(re.getMessage(), re);
+		}
 	}
 }
