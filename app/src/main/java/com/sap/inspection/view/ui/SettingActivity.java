@@ -3,6 +3,7 @@ package com.sap.inspection.view.ui;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -16,9 +17,10 @@ import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.listener.UploadListener;
-import com.sap.inspection.manager.AsyncDeleteAllFiles;
 import com.sap.inspection.manager.ItemUploadManager;
+import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.value.CorrectiveValueModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.tools.DebugLog;
@@ -30,10 +32,13 @@ import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.view.customview.FormInputText;
 import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -265,14 +270,40 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
     OnClickListener deleteAllData = view -> DialogUtil.deleteAllDataDialog(activity)
             .setOnPositiveClickListener(scheduleId -> {
                 trackEvent("user_delete_all_data");
-                AsyncDeleteAllFiles task = new AsyncDeleteAllFiles();
-                task.execute();
+                EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.info_deleting_all_data)));
+                compositeDisposable.add(
+                        CommonUtil.deleteAllData()
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        () -> {
+                                            String path = Constants.DIR_PHOTOS + File.separator;
+                                            if (!CommonUtil.deleteFiles(path)) {
+                                                EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.error_delete_files), true, false));
+                                                return;
+                                            }
+                                            EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.success_delete_files), true, true));
+                                        },
+                                        error -> {
+                                            EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.error_delete_all_local_data), true, false));
+                                            DebugLog.e(error.getMessage(), error);
+                                        }
+                                )
+                );
             }).show();
 
     OnClickListener deleteAndUpdateScheduleClickListener = view -> DialogUtil.deleteAllSchedulesDialog(activity)
             .setOnPositiveClickListener(view1 -> {
                 trackEvent("user_delete_schedule");
-                downloadAndDeleteSchedules();
+                compositeDisposable.add(
+                        Completable.fromAction(ScheduleBaseModel::delete)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        this::downloadWorkSchedules,
+                                        error -> Toast.makeText(this, getString(R.string.error_failed_delete_schedules), Toast.LENGTH_LONG).show()
+                        )
+                );
             })
             .show();
 
@@ -292,17 +323,15 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
 
     OnClickListener updateFormImbasPetirClickListener = v -> {
         trackEvent("user_update_form_imbas_petir");
-        downloadNewFormImbasPetir();
+        downloadWorkFormsImbasPetir();
     };
 
     OnClickListener uploadClickListener = v -> {
         trackEvent("user_upload");
         showMessageDialog(getString(R.string.preparingItemForUpload));
-
         ArrayList<FormValueModel> formValueModels = FormValueModel.getItemValuesForUpload();
         formValueModels.addAll(CorrectiveValueModel.getItemValuesForUpload());
-        if (formValueModels.size() == 0) {
-
+        if (formValueModels.isEmpty()) {
             hideDialog();
 
             // Item is empty
@@ -390,15 +419,56 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                                                         hideDialog();
                                                         String result = message.getData().getString("response");
                                                         if (result != null && result.equals("success")) {
-                                                            Toast.makeText(this, "Selesai menyimpan form", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(this, getString(R.string.success_update_form), Toast.LENGTH_SHORT).show();
                                                             return true;
                                                         }
+
+                                                        Toast.makeText(this, getString(R.string.error_failed_save_forms), Toast.LENGTH_LONG).show();
                                                         return false;
                                                     }
                                             )).execute(downloadResponse.data.toArray());
                                         } else {
                                             hideDialog();
                                             Toast.makeText(this, getString(R.string.error_failed_download_forms), Toast.LENGTH_LONG).show();
+                                        }
+                                    } else {
+                                        hideDialog();
+                                        Toast.makeText(this, getString(R.string.error_response_null), Toast.LENGTH_LONG).show();
+                                    }
+                                }, error -> {
+                                    hideDialog();
+                                    String errorMsg = NetworkUtil.handleApiError(error);
+                                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                                }
+                        )
+        );
+    }
+
+    private void downloadWorkFormsImbasPetir() {
+        DebugLog.d("--> DOWNLOADING WORK FORMS IMBAS PETIR");
+        showMessageDialog(getString(R.string.gettingnewformimbaspetir));
+        compositeDisposable.add(
+                TowerAPIHelper.downloadWorkFormsImbasPetir()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                workFormImbasPetir -> {
+                                    if (workFormImbasPetir != null) {
+                                        if (workFormImbasPetir.status == HttpURLConnection.HTTP_OK) {
+                                            new FormImbasPetirSaver(new Handler(message -> {
+                                                String response = message.getData().getString("response");
+                                                if (TextUtils.isEmpty(response) || response.equalsIgnoreCase("failed")) {
+                                                    Toast.makeText(this, getString(R.string.error_failed_save_forms_imbas_petir), Toast.LENGTH_LONG).show();
+                                                    DebugLog.d("-- " + getString(R.string.error_failed_save_forms_imbas_petir) + " --");
+                                                    return false;
+                                                }
+
+                                                Toast.makeText(this, getString(R.string.success_update_form_imbas_petir), Toast.LENGTH_SHORT).show();
+                                                return true;
+                                            })).execute(workFormImbasPetir.data.toArray());
+                                        } else {
+                                            hideDialog();
+                                            Toast.makeText(this, getString(R.string.error_failed_download_forms_imbas_petir), Toast.LENGTH_LONG).show();
                                         }
                                     } else {
                                         hideDialog();
