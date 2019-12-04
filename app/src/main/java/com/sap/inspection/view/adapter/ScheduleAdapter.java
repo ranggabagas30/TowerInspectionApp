@@ -287,10 +287,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
                                     .subscribe(
                                             response -> {
                                                 if (response.status == HttpStatus.SC_OK) {
-													if (!deleteDataByScheduleId(schedule.id)) {
-														EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.error_delete_files), true, false));
-														return;
-													}
+													deleteDataByScheduleId(schedule.id);
 													removeItem(deletedSchedulePosition);
 													EventBus.getDefault().post(new DeleteAllProgressEvent(response.messages, true, false));
                                                 } else {
@@ -306,10 +303,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
                             // delete schedule for form with non-focut type
                             // delete files and schedule local data by schedule id
                             EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.info_deleting_schedule), false, false));
-                            if (!deleteDataByScheduleId(schedule.id)) {
-								EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.error_delete_files), true, false));
-								return;
-							}
+							deleteDataByScheduleId(schedule.id);
 							removeItem(deletedSchedulePosition);
 							EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.success_delete_schedule), true, false));
                         }
@@ -320,14 +314,13 @@ public class ScheduleAdapter extends MyBaseAdapter {
 				}).show();
 	};
 
-	private boolean deleteDataByScheduleId(String scheduleId) {
+	private void deleteDataByScheduleId(String scheduleId) {
 		String path = Constants.DIR_PHOTOS + File.separator + scheduleId + File.separator;
 		if (!CommonUtil.deleteFiles(path)) {
-			return false;
+
 		}
 		ScheduleBaseModel.deleteAllBy(scheduleId); // local schedule data
 		FormValueModel.deleteAllBy(scheduleId); // local value data by schedule id
-		return true;
 	}
 
 	View.OnClickListener onRejectedTitleClickListener = v -> {
