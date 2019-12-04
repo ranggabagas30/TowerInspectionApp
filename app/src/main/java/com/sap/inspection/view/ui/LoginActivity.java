@@ -16,7 +16,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+import com.pixplicity.easyprefs.library.Prefs;
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.connection.APIHelper;
@@ -102,6 +104,17 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Ratio
 		copy.setVisibility(AppConfig.getInstance().config.isProduction() ? View.GONE : View.VISIBLE);
 		if (!CommonUtil.isUpdateAvailable(this))
 			update.setVisibility(View.GONE);
+
+		// initialization firebase FCM
+		FirebaseInstanceId.getInstance().getInstanceId()
+				.addOnSuccessListener(instanceIdResult -> {
+					DebugLog.d("FIREBASE INSTANCE ID ; " + instanceIdResult.getId());
+					DebugLog.d("FIREBASE TOKEN : " + instanceIdResult.getToken());
+					Prefs.putString(getString(R.string.app_fcm_reg_id), instanceIdResult.getToken());
+				}).addOnFailureListener(error -> {
+					Toast.makeText(this, getString(R.string.error_retrieving_firebase_instance_id), Toast.LENGTH_LONG).show();
+					DebugLog.e(error.getMessage(), error);
+				});
 
 		checkLoginSession();
 	}
