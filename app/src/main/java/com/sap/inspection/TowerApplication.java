@@ -114,16 +114,6 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 
 		TextMarkModel.getInstance().init(textOption);
 
-		// initialization firebase FCM
-		FirebaseInstanceId.getInstance().getInstanceId()
-				.addOnSuccessListener(instanceIdResult -> {
-
-					DebugLog.d("FIREBASE INSTANCE ID ; " + instanceIdResult.getId());
-					DebugLog.d("FIREBASE TOKEN : " + instanceIdResult.getToken());
-
-				}).addOnFailureListener(Throwable::printStackTrace);
-
-
 		// initialization SQLite DB manager
 		DbRepository.initializedInstance();
 		DbRepositoryValue.initializedInstance();
