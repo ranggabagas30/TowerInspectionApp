@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.RowColumnModel;
@@ -233,6 +234,7 @@ public class DbManager extends SQLiteOpenHelper {
 	};
 
 	public static void dropTable(SQLiteDatabase db){
+		// 		Token Model
 		db.execSQL("DROP TABLE IF EXISTS " + mTokenTable);
 		//		User Model
 		db.execSQL("DROP TABLE IF EXISTS " + mUsers);
@@ -248,29 +250,43 @@ public class DbManager extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + mOperator);
 		//		Worktype Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkType);
-
 		//		Form Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkForm);
-
 		//		Form Group Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkFormGroup);
-
 		//		Form Row Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkFormRow);
-
 		//		Form Column Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkFormColumn);
-
 		//		Form Row Column Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkFormRowCol);
-
 		//		Form Item Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkFormItem);
-
 		//		Form Item Option Model
 		db.execSQL("DROP TABLE IF EXISTS " + mWorkFormOption);
-
 		//		Config Model
 		db.execSQL("DROP TABLE IF EXISTS " + mConfig);
+	}
+
+	public static void clearAllData() {
+		DbRepository.getInstance().open(TowerApplication.getContext());
+		DbRepository.getInstance().clearData(DbManager.mTokenTable);
+		DbRepository.getInstance().clearData(DbManager.mUsers);
+		DbRepository.getInstance().clearData(DbManager.mRoles);
+		DbRepository.getInstance().clearData(DbManager.mLoginLogs);
+		DbRepository.getInstance().clearData(DbManager.mSchedule);
+		DbRepository.getInstance().clearData(DbManager.mSite);
+		DbRepository.getInstance().clearData(DbManager.mOperator);
+		DbRepository.getInstance().clearData(DbManager.mWorkType);
+		DbRepository.getInstance().clearData(DbManager.mWorkForm);
+		DbRepository.getInstance().clearData(DbManager.mWorkFormGroup);
+		DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
+		DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
+		DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
+		DbRepository.getInstance().clearData(DbManager.mWorkFormItem);
+		DbRepository.getInstance().clearData(DbManager.mWorkFormOption);
+		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
+			DbRepository.getInstance().clearData(DbManager.mConfig);
+		DbRepository.getInstance().close();
 	}
 }
