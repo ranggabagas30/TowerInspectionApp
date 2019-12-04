@@ -279,8 +279,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                                         () -> {
                                             String path = Constants.DIR_PHOTOS + File.separator;
                                             if (!CommonUtil.deleteFiles(path)) {
-                                                EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.error_delete_files), true, false));
-                                                return;
+                                                TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.error_delete_files), Toast.LENGTH_SHORT);
                                             }
                                             EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.success_delete_files), true, true));
                                         },
