@@ -21,7 +21,6 @@ import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
-import com.sap.inspection.event.UploadProgressEvent;
 import com.sap.inspection.model.DefaultValueScheduleModel;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
@@ -44,7 +43,6 @@ import org.apache.http.HttpStatus;
 
 import java.util.ArrayList;
 
-import de.greenrobot.event.EventBus;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -105,13 +103,13 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
     public void onResume() {
         super.onResume();
 		TowerApplication.getInstance().setIsScheduleNeedCheckIn(false);
-        EventBus.getDefault().register(this);
+        //EventBus.getDefault().register(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        EventBus.getDefault().unregister(this);
+        //EventBus.getDefault().unregister(this);
     }
 
 	@Override
@@ -375,14 +373,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		}
 
 	}
-
-    public void onEvent(UploadProgressEvent event){
-        if (event.done) {
-        	baseActivity.hideDialog();
-			Toast.makeText(baseActivity, event.progressString, Toast.LENGTH_SHORT).show();
-		}
-        else baseActivity.showMessageDialog(event.progressString);
-    }
 
     private void openCreateScheduleFOCUT() {
 		DialogUtil.showCreateFoCutScheduleDialog(getContext(), ttNumber -> {
