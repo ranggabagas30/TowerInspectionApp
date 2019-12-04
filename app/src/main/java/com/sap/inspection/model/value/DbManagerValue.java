@@ -5,6 +5,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.sap.inspection.BuildConfig;
+import com.sap.inspection.TowerApplication;
+import com.sap.inspection.model.DbManager;
+import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.tools.DebugLog;
 
 public class DbManagerValue extends SQLiteOpenHelper {
@@ -82,6 +85,23 @@ public class DbManagerValue extends SQLiteOpenHelper {
 			DebugLog.d("i : " + i);
 			PATCHES[i-1].revert(db);
 		}
+	}
+
+	public static void dropTable(SQLiteDatabase db) {
+		//	FormValue Model
+		db.execSQL("DROP TABLE IF EXISTS " + mFormValue);
+		//	CorrectiveValue Model
+		db.execSQL("DROP TABLE IF EXISTS " + mCorrectiveValue);
+		//	RowValue Model
+		db.execSQL("DROP TABLE IF EXISTS " + mRowValue);
+	}
+
+	public static void clearAllData() {
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
+		DbRepositoryValue.getInstance().clearData(DbManagerValue.mFormValue);
+		DbRepositoryValue.getInstance().clearData(DbManagerValue.mCorrectiveValue);
+		DbRepositoryValue.getInstance().clearData(DbManagerValue.mRowValue);
+		DbRepositoryValue.getInstance().close();
 	}
 
 	private static class Patch {
