@@ -19,7 +19,6 @@ public class AsyncDeleteAllSchedules extends AsyncTask<Void, Integer, Void>{
 
 	@Override
 	protected Void doInBackground(Void... arg0) {
-
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		DbRepository.getInstance().clearData(DbManager.mSchedule);
 		DbRepository.getInstance().close();

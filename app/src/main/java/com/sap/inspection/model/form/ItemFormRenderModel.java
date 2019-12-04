@@ -19,7 +19,6 @@ import com.sap.inspection.util.DateUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.ArrayList;
 
 @org.parceler.Parcel(org.parceler.Parcel.Serialization.BEAN)
 public class ItemFormRenderModel extends BaseModel {
@@ -267,7 +266,7 @@ public class ItemFormRenderModel extends BaseModel {
     public void setRowColumnModels(ArrayList<RowColumnModel> rowColumnModels, String parentLabel) {
         if (schedule.operators == null || schedule.operators.size() == 0) {
             DebugLog.d("operator none");
-            TowerApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_SHORT);
             return;
         }
 

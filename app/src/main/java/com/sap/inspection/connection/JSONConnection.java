@@ -172,7 +172,6 @@ public class JSONConnection extends AsyncTask<Void, Void, String>{
         msg.setData(bundle);
 
         if (handler!=null) {
-
             DebugLog.d("handler is not null");
             DebugLog.d("handler bundle response status : " + isResponseOK);
             handler.sendMessage(msg);

@@ -355,7 +355,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
-	public static void delete(String scheduleId) {
+	public static void deleteAllBy(String scheduleId) {
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		String sql = "DELETE FROM " + DbManager.mSchedule + " WHERE " + DbManager.colID + " = '" + scheduleId + "'";
 		SQLiteStatement stmt = DbRepository.getInstance().getDB().compileStatement(sql);

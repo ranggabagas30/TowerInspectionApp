@@ -136,7 +136,6 @@ public class GroupActivity extends BaseActivity implements GroupActivityListener
 			checkDataWarga();
 
 		} else{
-
 			// get workform by worktypeid
 			workForm = new WorkFormModel();
 			workForm = workForm.getItemByWorkTypeId(schedule.work_type.id);

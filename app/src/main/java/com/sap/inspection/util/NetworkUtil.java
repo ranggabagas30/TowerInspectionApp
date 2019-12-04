@@ -4,6 +4,8 @@ import com.google.gson.JsonSyntaxException;
 import com.jakewharton.retrofit2.adapter.rxjava2.HttpException;
 import com.sap.inspection.tools.DebugLog;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -36,7 +38,11 @@ public class NetworkUtil {
             errorMessage = "Masalah pada format API (Code: 666)";
         } else if (error instanceof UnknownHostException) {
             errorMessage = "Koneksi terputus. Pastikan koneksi stabil";
-        } else{
+        } else if (error instanceof SocketTimeoutException) {
+            errorMessage = "Koneksi ke server terputus (Socket Timeout)";
+        } else if (error instanceof ConnectException) {
+            errorMessage = "Gagal melakukan koneksi ke server";
+        } else {
             errorMessage = error.getMessage();
         }
 

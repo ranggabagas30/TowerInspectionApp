@@ -6,10 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
@@ -34,7 +32,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
@@ -244,7 +241,6 @@ public class FormValueModel extends BaseModel {
 		Cursor cursor = DbRepositoryValue.getInstance().getDB().query(true, table, columns, where, args, null, null, order, null);
 
         if (!cursor.moveToFirst()) {
-
 			cursor.close();
 			DbRepositoryValue.getInstance().close();
 			return null;
@@ -392,7 +388,6 @@ public class FormValueModel extends BaseModel {
 	}
 
 	public static ArrayList<FormValueModel> getItemValuesForUploadWithMandatoryCheck(String workTypeName, String scheduleId, ArrayList<WorkFormGroupModel> groupModels) {
-
 		return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, groupModels, null, null);
     }
 
@@ -403,15 +398,11 @@ public class FormValueModel extends BaseModel {
 
 		// obtain all items from each group
 		for (WorkFormGroupModel perGroup : groupModels) {
-
 			ArrayList<FormValueModel> uploadItemsPerGroup = getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, perGroup.id, wargaId, barangId);
 			if (uploadItemsPerGroup == null)
 				return null;
-
 			uploadItems.addAll(uploadItemsPerGroup);
-
 		}
-
 		return uploadItems;
 	}
 
@@ -423,7 +414,6 @@ public class FormValueModel extends BaseModel {
 
 		DebugLog.d("upload items by scheduleid = " + scheduleId + " workFormGroupId = " + work_form_group_id);
 		ArrayList<FormValueModel> results = new ArrayList<>();
-
 		ArrayList<WorkFormItemModel> workFormItems = new ArrayList<>();
 
 		if (itemId == FormValueModel.UNSPECIFIED) {
@@ -433,66 +423,51 @@ public class FormValueModel extends BaseModel {
 			workFormItems.add(workFormItem);
 		}
 
-		if (workFormItems != null) {
+		if (workFormItems == null) {
+			TowerApplication.getInstance().toast("Tidak ditemukan item form untuk diupload", Toast.LENGTH_SHORT);
+			return null;
+		}
 
-			for (WorkFormItemModel workFormItem : workFormItems) {
+		for (WorkFormItemModel workFormItem : workFormItems) {
+			boolean isMandatory = workFormItem.mandatory;
+			boolean isDisabled  = workFormItem.disable;
 
-				boolean isMandatory = workFormItem.mandatory;
-				boolean isDisabled  = workFormItem.disable;
+			if (!isDisabled) {
+				if (workFormItem.scope_type.equalsIgnoreCase("all")) {
+					ArrayList<FormValueModel> itemValues = getItemValues(scheduleId, workFormItem.id, wargaId, barangId);
+					if (itemValues == null && isMandatory) {
 
-				if (!isDisabled) {
+						// mandatory item is not filled
+						DebugLog.e("Item " + workFormItem.label + " kosong dan harus diisi");
+						TowerApplication.getInstance().toast("Item " + workFormItem.label + " kosong dan harus diisi", Toast.LENGTH_SHORT);
+						return null;
 
-					if (workFormItem.scope_type.equalsIgnoreCase("all")) {
-
-						ArrayList<FormValueModel> itemValues = getItemValues(scheduleId, workFormItem.id, wargaId, barangId);
-
-						if (itemValues == null && isMandatory) {
-
-							// mandatory item is not filled
-							DebugLog.e("Item " + workFormItem.label + " kosong, cancel upload");
+					} else if (itemValues != null) { // there are some filled items
+						if (!isItemValueValidated(workFormItem, itemValues.get(0), workTypeName))
 							return null;
 
-						} else if (itemValues != null) { // there are some filled items
+						// otherwise just add all the items
+						DebugLog.d("-> added");
+						results.addAll(itemValues);
+					}
 
-							if (!isItemValueValidated(workFormItem, itemValues.get(0), workTypeName))
+				} else {
+
+					ScheduleGeneral schedule = ScheduleBaseModel.getScheduleById(scheduleId);
+					for (OperatorModel operator : schedule.operators) {
+						int operatorid = operator.id;
+						FormValueModel itemValue = getItemValue(scheduleId, workFormItem.id, operatorid, wargaId, barangId);
+						if (workFormItem.mandatory) {
+							if (!isItemValueValidated(workFormItem, itemValue, workTypeName))
 								return null;
-
-							// otherwise just add all the items
-							DebugLog.d("-> added");
-							results.addAll(itemValues);
-						}
-
-					} else {
-
-						ScheduleBaseModel schedule = new ScheduleGeneral();
-						schedule = schedule.getScheduleById(scheduleId);
-
-						for (OperatorModel operator : schedule.operators) {
-
-							int operatorid = operator.id;
-							FormValueModel itemValue = getItemValue(scheduleId, workFormItem.id, operatorid, wargaId, barangId);
-
-							if (workFormItem.mandatory) {
-
-								if (!isItemValueValidated(workFormItem, itemValue, workTypeName))
-									return null;
-
+							results.add(itemValue);
+						} else {
+							if (itemValue != null)
 								results.add(itemValue);
-
-							} else {
-
-								if (itemValue != null)
-									results.add(itemValue);
-
-							}
 						}
 					}
 				}
 			}
-
-		} else {
-			DebugLog.e("workitems is null");
-			return null;
 		}
 
 		return results;
@@ -500,15 +475,15 @@ public class FormValueModel extends BaseModel {
 
 	public static class AsyncCollectItemValuesForUpload extends AsyncTask<Void, String, ArrayList<FormValueModel>> {
 
-		private final String DONEPREPARINGITEMS = "DONEPREPARINGITEMS";
 		private String scheduleId;
 		private String workTypeName;
 		private String wargaId;
 		private String barangId;
 		private int workFormGroupId;
 		private int itemId;
+		private boolean isRunning = false;
 
-		private ScheduleBaseModel scheduleBaseModel;
+		private ScheduleGeneral schedule;
 		private WorkFormModel workFormModel;
 		private ArrayList<WorkFormGroupModel> workFormGroupModels;
 
@@ -531,20 +506,18 @@ public class FormValueModel extends BaseModel {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			publish("Menyiapkan item untuk diupload");
+			isRunning = true;
 
-			scheduleBaseModel = new ScheduleGeneral();
-			scheduleBaseModel = scheduleBaseModel.getScheduleById(scheduleId);
-			this.workTypeName = scheduleBaseModel.work_type.name;
+			publish(TowerApplication.getContext().getString(R.string.info_preparing_upload_items));
+			schedule = ScheduleBaseModel.getScheduleById(scheduleId);
+			workTypeName = schedule.work_type.name;
 
-			DebugLog.d("scheduleBase id : " + scheduleBaseModel.id);
-			DebugLog.d("scheduleBase worktype id : " + scheduleBaseModel.work_type.id);
+			DebugLog.d("scheduleBase id : " + schedule.id);
+			DebugLog.d("scheduleBase worktype id : " + schedule.work_type.id);
 
 			if (workFormGroupId == UNSPECIFIED) {
-
 				workFormModel = new WorkFormModel();
-				workFormModel = workFormModel.getItemByWorkTypeId(scheduleBaseModel.work_type.id);
-
+				workFormModel = workFormModel.getItemByWorkTypeId(schedule.work_type.id);
 				workFormGroupModels = WorkFormGroupModel.getAllItemByWorkFormId(workFormModel.id);
 			}
 		}
@@ -552,69 +525,76 @@ public class FormValueModel extends BaseModel {
 		@Override
 		protected ArrayList<FormValueModel> doInBackground(Void... voids) {
 
+			ArrayList<FormValueModel> uploadItems;
 		    if (workFormGroupId == UNSPECIFIED) {
 
-		    	if (!workFormGroupModels.isEmpty()) {
-
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-						DebugLog.d("SAP upload by (" + scheduleId + ",  UNSPECIFIED, " + wargaId + ", " + barangId + ")");
-						return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupModels, wargaId, wargaId);
-					} else {
-
-						DebugLog.d("STP upload by (" + scheduleId + ",  UNSPECIFIED)");
-						return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupModels);
-					}
-				} else {
-
-					Crashlytics.log(Log.ERROR, FormValueModel.class.getSimpleName(), "Schedule " + scheduleId + " tidak memiliki daftar workformgroup");
-					TowerApplication.getInstance().toast("Schedule " + scheduleId + " tidak memiliki daftar workformgroup", Toast.LENGTH_SHORT);
-
-					return new ArrayList<>();
+				try {
+					if (workFormGroupModels == null || workFormGroupModels.isEmpty())
+						throw new NullPointerException("Schedule " + scheduleId + " tidak memiliki work form group");
+				} catch (NullPointerException e) {
+					DebugLog.e(e.getMessage(), e);
+					TowerApplication.getInstance().toast(e.getMessage(), Toast.LENGTH_LONG);
+					return null;
 				}
 
-			} else {
-
-		    	if (itemId == UNSPECIFIED) {
-
-					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-
-						DebugLog.d("SAP upload by (" + scheduleId + ", " + workFormGroupId + ", " + wargaId + ", " + barangId + ")");
-						return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupId, wargaId, barangId);
-					} else {
-
-						DebugLog.d("STP upload by (" + scheduleId + ", " + workFormGroupId + ")");
-						return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupId, null, null);
-					}
-
+				if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+					DebugLog.d("SAP upload by scheduleid: " + scheduleId + ",  workformgroupid: UNSPECIFIED, wargaid: " + wargaId + ", barangid: " + barangId + ")");
+					uploadItems = getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupModels, wargaId, wargaId);
 				} else {
-
-		    		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-		    			return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, itemId, workFormGroupId, wargaId, barangId);
+					DebugLog.d("STP upload by scheduleid: " + scheduleId + ",  workformgroupid: UNSPECIFIED)");
+					uploadItems = getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupModels);
+				}
+			} else {
+		    	if (itemId == UNSPECIFIED) {
+					if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+						DebugLog.d("SAP upload by scheduleid: " + scheduleId + ", workformgroupid: " + workFormGroupId + ", wargaid; " + wargaId + ", barangid: " + barangId);
+						uploadItems = getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupId, wargaId, barangId);
 					} else {
-		    			return getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, itemId, workFormGroupId, null, null);
+						DebugLog.d("STP upload by scheduleid: " + scheduleId + ", workformgroupid: " + workFormGroupId);
+						uploadItems = getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, workFormGroupId, null, null);
+					}
+				} else {
+		    		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+		    			uploadItems = getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, itemId, workFormGroupId, wargaId, barangId);
+					} else {
+		    			uploadItems = getItemValuesForUploadWithMandatoryCheck(workTypeName, scheduleId, itemId, workFormGroupId, null, null);
 					}
 				}
 			}
 
+		    return uploadItems;
 		}
 
 		@Override
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
 			UploadProgressEvent event = new UploadProgressEvent(values[0]);
-			event.done = values[0].equalsIgnoreCase(DONEPREPARINGITEMS);
+			if (!isRunning) event = new UploadProgressEvent(values[0], true);
 			EventBus.getDefault().post(event);
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			isRunning = false;
+			publish(TowerApplication.getContext().getString(R.string.error_upload_item));
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<FormValueModel> uploadItems) {
 			super.onPostExecute(uploadItems);
-			publish(DONEPREPARINGITEMS);
-			if (uploadItems == null)
+			isRunning = false;
+			if (uploadItems == null) {
+				publish(TowerApplication.getContext().getString(R.string.error_upload_item));
+				return;
+			}
+
+			if (uploadItems.isEmpty()) {
 				TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.error_no_upload_item), Toast.LENGTH_LONG);
-			else
+				publish(TowerApplication.getContext().getString(R.string.error_no_upload_item));
+			} else{
 				ItemUploadManager.getInstance().addItemValues(uploadItems);
+			}
 		}
 	}
 
@@ -629,8 +609,8 @@ public class FormValueModel extends BaseModel {
             if (filledItem == null && workFormItem.mandatory) {
 
                 // mandatory item is not filled
-                DebugLog.d("Mandatory item ada yang kosong");
-                TowerApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
+				DebugLog.e("Item " + workFormItem.label + " kosong dan harus diisi");
+				TowerApplication.getInstance().toast("Item " + workFormItem.label + " kosong dan harus diisi", Toast.LENGTH_SHORT);
                 return false;
 
             } else if (filledItem != null) {
@@ -652,9 +632,8 @@ public class FormValueModel extends BaseModel {
                             }
 
                         } else {
-
-                            DebugLog.d("Mandatory item ada yang kosong");
-                            TowerApplication.getInstance().toast("Mandatory item ada yang kosong", Toast.LENGTH_SHORT);
+                            DebugLog.e("Item " + workFormItem.label + " kosong dan harus diisi");
+                            TowerApplication.getInstance().toast("Item " + workFormItem.label + " kosong dan harus diisi", Toast.LENGTH_SHORT);
                             return false; // and not photo item radio, then return null
                         }
 
