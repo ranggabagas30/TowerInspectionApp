@@ -90,4 +90,7 @@ public interface TowerAPI {
             @Query("user_id") String userId,
             @Query("template") String template
     );
+
+    @GET("form_imbas_petir")
+    Single<FormResponseModel> rxGetWorkFormImbasPetir();
 }
