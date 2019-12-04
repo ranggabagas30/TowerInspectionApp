@@ -275,40 +275,29 @@ public class ScheduleAdapter extends MyBaseAdapter {
                         // delete schedule data on server
                         // delete files and schedule local data by schedule id
                         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP) && schedule.work_type.name.matches(Constants.regexFOCUT)) {
-
                             if (!GlobalVar.getInstance().anyNetwork(context)) {
-                                TowerApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
+                                TowerApplication.getInstance().toast(context.getString(R.string.error_no_internet_connection), Toast.LENGTH_SHORT);
                                 return;
                             }
 
-                            EventBus.getDefault().post(new DeleteAllProgressEvent("Deleting schedule on progress", false, false));
+							EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.info_deleting_schedule), false, false));
                             TowerAPIHelper.deleteSchedule(schedule.id)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(
                                             response -> {
                                                 if (response.status == HttpStatus.SC_OK) {
-                                                    String path = Constants.DIR_PHOTOS + File.separator + schedule.id + File.separator;
-                                                    CommonUtil.deleteAllData(schedule)
-                                                            .subscribeOn(Schedulers.io())
-                                                            .observeOn(AndroidSchedulers.mainThread())
-                                                            .subscribe(
-                                                                    () -> {
-                                                                        CommonUtil.deleteFiles(path);
-                                                                        ScheduleBaseModel.delete(schedule.id);
-                                                                        removeItem(deletedSchedulePosition);
-                                                                        EventBus.getDefault().post(new DeleteAllProgressEvent(response.messages, true, false));
-                                                                    },
-                                                                    error -> {
-                                                                        EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete local data for schedule " + schedule.id, true, false));
-                                                                        DebugLog.e(error.getMessage(), error);
-                                                                    }
-                                                            );
+													if (!deleteDataByScheduleId(schedule.id)) {
+														EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.error_delete_files), true, false));
+														return;
+													}
+													removeItem(deletedSchedulePosition);
+													EventBus.getDefault().post(new DeleteAllProgressEvent(response.messages, true, false));
                                                 } else {
                                                     EventBus.getDefault().post(new DeleteAllProgressEvent("Failed (error code: " + response.status + ")", true, false));
                                                 }
                                             }, error ->  {
-                                                EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete schedule", true, false));
+                                                EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.error_delete_schedule), true, false));
                                                 DebugLog.e(error.getMessage(), error);
                                             }
                                     );
@@ -316,29 +305,30 @@ public class ScheduleAdapter extends MyBaseAdapter {
 
                             // delete schedule for form with non-focut type
                             // delete files and schedule local data by schedule id
-                            EventBus.getDefault().post(new DeleteAllProgressEvent("Deleting schedule on progress", false, false));
-                            String path = Constants.DIR_PHOTOS + File.separator + schedule.id + File.separator;
-                            CommonUtil.deleteAllData(schedule)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(
-                                            () -> {
-                                                CommonUtil.deleteFiles(path);
-                                                ScheduleBaseModel.delete(schedule.id);
-                                                EventBus.getDefault().post(new DeleteAllProgressEvent("Success delete schedule data", true, false));
-                                            },
-                                            error -> {
-                                                EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete local data for schedule " + schedule.id, true, false));
-                                                DebugLog.e(error.getMessage(), error);
-                                            }
-                                    );
+                            EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.info_deleting_schedule), false, false));
+                            if (!deleteDataByScheduleId(schedule.id)) {
+								EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.error_delete_files), true, false));
+								return;
+							}
+							removeItem(deletedSchedulePosition);
+							EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.success_delete_schedule), true, false));
                         }
                     } else {
-                        EventBus.getDefault().post(new DeleteAllProgressEvent("Failed delete schedule. Schedule id not found", true, false));
+                        EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.error_delete_schedule_id_not_found), true, false));
                     }
 
 				}).show();
 	};
+
+	private boolean deleteDataByScheduleId(String scheduleId) {
+		String path = Constants.DIR_PHOTOS + File.separator + scheduleId + File.separator;
+		if (!CommonUtil.deleteFiles(path)) {
+			return false;
+		}
+		ScheduleBaseModel.deleteAllBy(scheduleId); // local schedule data
+		FormValueModel.deleteAllBy(scheduleId); // local value data by schedule id
+		return true;
+	}
 
 	View.OnClickListener onRejectedTitleClickListener = v -> {
 		RejectionModel rejection = (RejectionModel) v.getTag();
