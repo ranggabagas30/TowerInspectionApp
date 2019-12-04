@@ -55,6 +55,7 @@ import com.sap.inspection.task.ScheduleSaver;
 import com.sap.inspection.task.ScheduleTempSaver;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
+import com.sap.inspection.util.NetworkUtil;
 import com.sap.inspection.view.ui.fragments.BaseFragment;
 
 import java.io.BufferedInputStream;
@@ -86,7 +87,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 	public static final int progress_bar_type = 0;
 
 	private ProgressDialog progressDialog, pDialog;
-	private String formVersion;
 	private boolean instanceStateSaved;
 	protected boolean isUpdateAvailable = false;
 
@@ -144,34 +144,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 		instanceStateSaved = true;
 	}
 
-	private void offlineSchedule(){
-		byte[] buffer = null;
-		InputStream is;
-		try {
-			is = this.getAssets().open("schedules.txt");
-			int size = is.available();
-			buffer = new byte[size];
-			is.read(buffer);
-			is.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String bufferString = new String(buffer);
-		Gson gson = new Gson();
-		if (bufferString != null){
-			ScheduleResponseModel scheduleResponseModel = gson.fromJson(bufferString, ScheduleResponseModel.class);
-			if (scheduleResponseModel.status == 200){
-				ScheduleSaver scheduleSaver = new ScheduleSaver();
-				scheduleSaver.execute(scheduleResponseModel.data.toArray());
-			}
-		}
-	}
-
 	public void onEvent(ProgressEvent event) {
 		if (event.done) {
 			hideDialog();
-
 			if (event.isSuccess)
 				Toast.makeText(this, event.progressString, Toast.LENGTH_SHORT).show();
 			else
@@ -179,6 +154,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 		} else showMessageDialog(event.progressString);
 	}
+
 	public void onEvent(ScheduleTempProgressEvent event) {
 		if (event.done) {
 			hideDialog();
@@ -214,11 +190,11 @@ public abstract class BaseActivity extends AppCompatActivity {
 	}
 
 	public void onEvent(UploadProgressEvent event) {
-		DebugLog.d("event="+new Gson().toJson(event));
 		if (!event.done)
 			showMessageDialog(event.progressString);
-		else
+		else {
 			hideDialog();
+		}
 	}
 
 	public void writePreference(int key, String value) {
@@ -300,6 +276,24 @@ public abstract class BaseActivity extends AppCompatActivity {
 			progressDialog.dismiss();
 	}
 
+	protected void downloadForm(Handler handler) throws NullPointerException {
+		showMessageDialog(getString(R.string.gettingnewform));
+		APIHelper.getForms(activity, new Handler(message -> {
+			boolean isSuccess = message.getData().getBoolean("isresponseok");
+			String response = message.getData().getString("json");
+
+			if (TextUtils.isEmpty(response)) throw new NullPointerException(getString(R.string.error_response_null));
+
+			if (isSuccess) {
+				FormResponseModel formResponse = new Gson().fromJson(response, FormResponseModel.class);
+				if (formResponse.status == HttpURLConnection.HTTP_OK) {
+					new FormSaver(handler).execute(formResponse.data.toArray());
+				}
+			}
+			return false;
+		}), Prefs.getString(getString(R.string.user_id), ""));
+	}
+
 	protected void downloadNewFormImbasPetir() {
 		showMessageDialog(getString(R.string.gettingnewformimbaspetir));
 		APIHelper.getFormImbasPetir(activity, formImbasPetirSaverHandler);
@@ -308,7 +302,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 	protected void downloadAndDeleteSchedules() {
 		showMessageDialog(getString(R.string.getScheduleFromServer));
 		APIHelper.getSchedules(activity, scheduleHandlerTemp, getPreference(R.string.user_id, ""));
-
 	}
 
 	protected void downloadSchedules() {
@@ -325,7 +318,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         Gson gson = new Gson();
         FormResponseModel formResponseModel = gson.fromJson(json, FormResponseModel.class);
         if (formResponseModel.status == 200) {
-            new FormImbasPetirSaver().execute(formResponseModel.data.toArray());
+            new FormImbasPetirSaver(new Handler(message -> {
+            	String response = message.getData().getString("response");
+            	if (!TextUtils.isEmpty(response) && response.equalsIgnoreCase("success")) {
+            		downloadSchedules();
+				}
+            	return true;
+			})).execute(formResponseModel.data.toArray());
         }
     }
 
@@ -549,7 +548,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 					} else {
 						DebugLog.e("== device registration failed. JSON response null ==");
 					}
-				}, throwable -> { DebugLog.e("== device registration failed with error " + throwable.getMessage() + " =="); });
+				}, error -> {
+					String errorMsg = NetworkUtil.handleApiError(error);
+					DebugLog.e("== device registration failed with error " + error.getMessage() + " ==");
+				});
 	}
 
 	/**
@@ -578,11 +580,12 @@ public abstract class BaseActivity extends AppCompatActivity {
 							showMessageDialog("Menyimpan schedule " + progress + " %");
 						}, error -> {
 							hideDialog();
-							Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+							Toast.makeText(this, getString(R.string.error_failed_save_schedule), Toast.LENGTH_LONG).show();
 							DebugLog.e(error.getMessage(), error);
 						}, () -> {
-							DebugLog.d("-- complete -- ");
 							hideDialog();
+							Toast.makeText(this, getString(R.string.success_update_schedule), Toast.LENGTH_SHORT).show();
+							DebugLog.d("-- complete -- ");
 						}
 				);
 
@@ -605,6 +608,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 			DbRepository.getInstance().clearData(DbManager.mWorkFormColumn);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRow);
 			DbRepository.getInstance().clearData(DbManager.mWorkFormRowCol);
+			DbRepository.getInstance().clearData(DbManager.mWorkFormGroup);
+			DbRepository.getInstance().clearData(DbManager.mWorkForm);
 			DbRepository.getInstance().close();
 		}
 
@@ -683,7 +688,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 	}
 
     public class FormImbasPetirSaver extends AsyncTask<Object, Integer, Void>{
-        @Override
+
+		private Handler handler;
+
+		public FormImbasPetirSaver(Handler handler) {
+			this.handler = handler;
+		}
+
+		@Override
         protected void onPreExecute() {
             super.onPreExecute();
             showMessageDialog("Persiapan menyimpan form imbas petir");
@@ -738,11 +750,26 @@ public abstract class BaseActivity extends AppCompatActivity {
             showMessageDialog("saving forms "+values[0]+" %...");
         }
 
-        @Override
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			hideDialog();
+			Bundle bundle = new Bundle();
+			bundle.putString("response", "failed");
+			Message message = new Message();
+			message.setData(bundle);
+			handler.sendMessage(message);
+		}
+
+		@Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            showMessageDialog("saving form imbas petir is complete");
-            downloadSchedules();
+            hideDialog();
+            Bundle bundle = new Bundle();
+            bundle.putString("response", "success");
+            Message message = new Message();
+            message.setData(bundle);
+            handler.sendMessage(message);
         }
     }
 
