@@ -15,6 +15,8 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
+import io.fabric.sdk.android.Fabric;
+
 /**
  * Create a simple and more understandable Android logs.
  * */
@@ -64,10 +66,12 @@ public class DebugLog {
 
 		// Throwable instance must be created before any methods
 		getMethodNames(new Throwable().getStackTrace());
-		Crashlytics.log(Log.ERROR, className, createLog(message));
 		if (throwable != null) {
 			Log.e(className, createLog(message), throwable);
-			Crashlytics.logException(throwable);
+			if (Fabric.isInitialized()) {
+				Crashlytics.log(Log.ERROR, className, message);
+				Crashlytics.logException(throwable);
+			}
 		} else {
 			Log.e(className, createLog(message));
 		}
