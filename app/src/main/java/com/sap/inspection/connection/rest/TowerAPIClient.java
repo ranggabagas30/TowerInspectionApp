@@ -10,6 +10,7 @@ import com.sap.inspection.R;
 import com.sap.inspection.util.PrefUtil;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -22,13 +23,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TowerAPIClient {
 
+    //private static String API_BASE_URL = "http://192.168.120.18:9292/v1/";
     private static String API_BASE_URL = AppConfig.getInstance().getV1() + "/";
 
-    private static HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC);
+    private static HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);
 
     private static AuthenticationInterceptor authenticationInterceptor = new AuthenticationInterceptor();
 
-    private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+    private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS);
 
     private static Gson gson = new GsonBuilder().setLenient().create();
 
@@ -40,6 +45,10 @@ public class TowerAPIClient {
     private static Retrofit retrofit = retrofitBuilder.build();
 
     static <S> S createService(Class<S> serviceClass) {
+
+        if (!httpClient.interceptors().contains(loggingInterceptor)) {
+            httpClient.addInterceptor(loggingInterceptor);
+        }
 
         if (!httpClient.interceptors().contains(authenticationInterceptor)) {
             httpClient.addInterceptor(authenticationInterceptor);
@@ -70,6 +79,7 @@ public class TowerAPIClient {
                     .url(modifiedHttpUrl);
 
             Request modified = modifiedReqBuilder.build();
+
             return chain.proceed(modified);
         }
     }
