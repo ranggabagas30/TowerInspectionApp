@@ -24,7 +24,6 @@ import com.sap.inspection.tools.DebugLog;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
@@ -296,6 +295,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		private final String DONEPREPARINGITEMS = "DONEPREPARINGITEMS";
 		private String scheduleId;
 		private int workFormGroupId;
+		private boolean isRunning = false;
 
 		private ScheduleBaseModel scheduleBaseModel;
 		private WorkFormModel workFormModel;
@@ -314,6 +314,7 @@ public class CorrectiveValueModel extends FormValueModel {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
+			isRunning = true;
 			publish("Menyiapkan item untuk diupload");
 
 			if (workFormGroupId == UNSPECIFIED) {
@@ -361,13 +362,21 @@ public class CorrectiveValueModel extends FormValueModel {
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
 			UploadProgressEvent event = new UploadProgressEvent(values[0]);
-			event.done = values[0].equalsIgnoreCase(DONEPREPARINGITEMS);
+			if (!isRunning) event = new UploadProgressEvent(values[0], true);
 			EventBus.getDefault().post(event);
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			isRunning = false;
+			publish("Gagal upload");
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<CorrectiveValueModel> uploadItems) {
 			super.onPostExecute(uploadItems);
+			isRunning = false;
 			publish(DONEPREPARINGITEMS);
 			ItemUploadManager.getInstance().addCorrectiveValues(uploadItems);
 
