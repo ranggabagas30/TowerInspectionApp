@@ -503,15 +503,24 @@ public class CommonUtil {
         File f = new File(path);
         File[] files = f.listFiles();
         if (files != null) {
-            for(int i=0; i < files.length; i++)
-            {
-                File file = files[i];
-                DebugLog.d("delete file : "+file.getAbsolutePath());
-                file.delete();
+            for (File file : files) {
+                if (file.delete()) return false;
             }
-            return true;
         }
-        return false;
+        return true;
+    }
+
+    public static boolean isFilesExist(String path) {
+        File f = new File(path);
+        File[] files = f.listFiles();
+        return files != null;
+    }
+
+    public static boolean deleteFiles(File[] files) {
+        for (File file : files) {
+            if (!file.delete()) return false;
+        }
+        return true;
     }
 
     public static void clearApplicationData() {
