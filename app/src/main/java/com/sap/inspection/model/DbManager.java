@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
-import com.sap.inspection.model.form.ColumnModel;
+import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
@@ -188,7 +188,7 @@ public class DbManager extends SQLiteOpenHelper {
 		//		Form Row Model
 		db.execSQL(WorkFormRowModel.createDB());
 		//		Form Column Model
-		db.execSQL(ColumnModel.createDB());
+		db.execSQL(WorkFormColumnModel.createDB());
 		//		Form Row Column Model
 		db.execSQL(RowColumnModel.createDB());
 		//		Form Item Model

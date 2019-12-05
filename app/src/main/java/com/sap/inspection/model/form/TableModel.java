@@ -11,7 +11,7 @@ import java.util.ArrayList;
 @Parcel
 public class TableModel extends BaseModel {
 
-	public ArrayList<ColumnModel> headers;
+	public ArrayList<WorkFormColumnModel> headers;
 	public ArrayList<WorkFormRowModel> rows;
 
 	public void save(Context context){
@@ -20,7 +20,7 @@ public class TableModel extends BaseModel {
 
 	public void save(){
 		if (headers != null)
-			for (ColumnModel header : headers) {
+			for (WorkFormColumnModel header : headers) {
 				header.save();
 			}
 

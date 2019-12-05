@@ -14,7 +14,7 @@ import org.parceler.Parcel;
 import java.util.ArrayList;
 
 @Parcel
-public class ColumnModel extends BaseModel {
+public class WorkFormColumnModel extends BaseModel {
 	
     public int id;
     public String column_name;
@@ -71,16 +71,16 @@ public class ColumnModel extends BaseModel {
 		DbRepository.getInstance().close();
 	}
 
-	public ArrayList<ColumnModel> getAllItemByWorkFormGroupId(Context context, int workFormGroupId) {
+	public ArrayList<WorkFormColumnModel> getAllItemByWorkFormGroupId(Context context, int workFormGroupId) {
 
-		ArrayList<ColumnModel> result = getAllItemByWorkFormGroupId(workFormGroupId);
+		ArrayList<WorkFormColumnModel> result = getAllItemByWorkFormGroupId(workFormGroupId);
 
 		return result;
 	}
 
-	public static ArrayList<ColumnModel> getAllItemByWorkFormGroupId(int workFormGroupId) {
+	public static ArrayList<WorkFormColumnModel> getAllItemByWorkFormGroupId(int workFormGroupId) {
 
-		ArrayList<ColumnModel> result = new ArrayList<ColumnModel>();
+		ArrayList<WorkFormColumnModel> result = new ArrayList<WorkFormColumnModel>();
 		String table = DbManager.mWorkFormColumn;
 		String[] columns = null;
 		String where =DbManager.colWorkFormGroupId + "=?";
@@ -104,8 +104,8 @@ public class ColumnModel extends BaseModel {
 		return result;
 	}
 
-	private static ColumnModel getColumnFromCursor(Cursor c) {
-		ColumnModel item= new ColumnModel();
+	private static WorkFormColumnModel getColumnFromCursor(Cursor c) {
+		WorkFormColumnModel item= new WorkFormColumnModel();
 
 		if (null == c)
 			return item;

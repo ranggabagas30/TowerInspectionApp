@@ -25,7 +25,7 @@ public class WorkFormGroupModel extends BaseModel {
     public String ancestry;
     public String created_at;
     public String updated_at;
-    public int input = -1;
+    public int sumInput = -1;
 
     public WorkFormGroupModel() {}
 
@@ -46,8 +46,8 @@ public class WorkFormGroupModel extends BaseModel {
 	private int countInput(int groupId) {
 		String table = DbManager.mWorkFormItem;
 		String[] columns = null;
-		String where =DbManager.colWorkFormGroupId+" = ? AND "+DbManager.colFieldType+" != 'label'";
-		String[] args = new String[] {String.valueOf(id)};
+		String where =DbManager.colWorkFormGroupId + " =? AND "+DbManager.colFieldType+" != 'label'";
+		String[] args = new String[] {String.valueOf(groupId)};
 		String order = null;
 
 		DbRepository.getInstance().open(TowerApplication.getInstance());
@@ -65,16 +65,12 @@ public class WorkFormGroupModel extends BaseModel {
 		return temp;
 	}
 
-	
-	public void save(Context context){
-		save();
-	}
-
 	public void save(){
 
 		if (table != null)
 			table.save();
-		input = countInput(id);
+
+		sumInput = countInput(id);
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?,?,?)",
 						DbManager.mWorkFormGroup, DbManager.colID,
@@ -94,7 +90,7 @@ public class WorkFormGroupModel extends BaseModel {
 		bindAndCheckNullString(stmt, 6, ancestry);
 		bindAndCheckNullString(stmt, 7, created_at);
 		bindAndCheckNullString(stmt, 8, updated_at);
-		stmt.bindLong(9, input);
+		stmt.bindLong(9, sumInput);
 
 		stmt.executeInsert();
 		stmt.close();
@@ -112,9 +108,9 @@ public class WorkFormGroupModel extends BaseModel {
 	}
 
 	public int getInputCount(int groupId) {
-		if (input == -1)
+		if (sumInput == -1)
 			countInput(groupId);
-		return input;
+		return sumInput;
 	}
 
 	public static WorkFormGroupModel getWorkFormGroupById(String workFormGroupId) {

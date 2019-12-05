@@ -44,7 +44,7 @@ import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
-import com.sap.inspection.model.form.ColumnModel;
+import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
@@ -638,10 +638,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 						if (group.table == null){
 							continue;
 						}
-						for (ColumnModel columnModel : group.table.headers) {
+						for (WorkFormColumnModel workFormColumnModel : group.table.headers) {
 							curr ++;
 							publishProgress(curr*100/sum);
-							columnModel.save();
+							workFormColumnModel.save();
 						}
 
 						for (WorkFormRowModel rowModel : group.table.rows) {
@@ -726,10 +726,10 @@ public abstract class BaseActivity extends AppCompatActivity {
                         if (group.table == null){
                             continue;
                         }
-                        for (ColumnModel columnModel : group.table.headers) {
+                        for (WorkFormColumnModel workFormColumnModel : group.table.headers) {
                             curr ++;
                             publishProgress(curr*100/sum);
-                            columnModel.save();
+                            workFormColumnModel.save();
                         }
 
                         for (WorkFormRowModel rowModel : group.table.rows) {

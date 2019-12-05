@@ -23,7 +23,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TowerAPIClient {
 
-    //private static String API_BASE_URL = "http://192.168.120.18:9292/v1/";
     private static String API_BASE_URL = AppConfig.getInstance().getV1() + "/";
 
     private static HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY);

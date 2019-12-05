@@ -33,10 +33,6 @@ public class FormInputText extends EditText{
 	
 	private void init(){
 		addTextChangedListener(textWatcher);
-		/*
-		int maxLength = 60;    
-		setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLength)});
-		*/
 	}
 
 	TextWatcher textWatcher = new TextWatcher() {

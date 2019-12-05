@@ -276,8 +276,8 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Ratio
 	 *
 	 * */
 	OnClickListener changeClickListener = view -> {
-		Toast.makeText(activity, "Endpoint diganti", Toast.LENGTH_SHORT).show();
 		AppConfig.getInstance().config.setHost(endpoint.getText().toString());
+		Toast.makeText(activity, "Perubahan endpoint ke: " + AppConfig.getInstance().getV1(), Toast.LENGTH_SHORT).show();
 	};
 
 	OnClickListener copyClickListener = view -> {

@@ -39,7 +39,7 @@ public class DbRepositoryValue {
 	}
 
 	public void open(Context context) {
-		DebugLog.d("db repository value opening counter : " + mOpenCounter);
+		//DebugLog.d("db repository value opening counter : " + mOpenCounter);
 		if (_database!=null && _database.isOpen()) return;
 
 		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -50,16 +50,16 @@ public class DbRepositoryValue {
 			mPref.edit().putString(context.getString(R.string.latest_user_db_value), mPref.getString(context.getString(R.string.user_id), null));
 		}
 
-		DebugLog.d("opening new database");
+		//DebugLog.d("opening new database");
 		if (mOpenCounter.incrementAndGet()== 1)
 		_database = _databaseHelper.getWritableDatabase();
 	}
 
 	public void close() {
-		DebugLog.d("db repository value opening counter : " + mOpenCounter);
+		//DebugLog.d("db repository value opening counter : " + mOpenCounter);
 		if (_database!=null && _database.isOpen() && mOpenCounter.decrementAndGet() == 0) {
 
-			DebugLog.d("closing database");
+			//DebugLog.d("closing database");
 			_database.close();
 		}
 	}

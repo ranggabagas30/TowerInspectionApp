@@ -41,7 +41,7 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.ScheduleGeneral;
-import com.sap.inspection.model.form.ColumnModel;
+import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
@@ -78,7 +78,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 
 	private ScheduleGeneral schedule;
 	private WorkFormRowModel parentRow;
-	private ArrayList<ColumnModel> column;
+	private ArrayList<WorkFormColumnModel> column;
 	private FormValueModel itemValueForShare;
 	private Uri mImageUri;
 	public ArrayList<Integer> indexes;
@@ -493,7 +493,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 
 			parentRow = new WorkFormRowModel();
 			parentRow = parentRow.getAllItemsByRowId(workFormGroupId, rowId);
-			column = ColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
+			column = WorkFormColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
 
 			ItemFormRenderModel form;
 			setPageTitle();
@@ -633,7 +633,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 
 				search.setAdapter(searchAdapter);
 			} else {
-
 				DebugLog.d("form kosong");
 				layoutEmpty.setVisibility(View.VISIBLE);
 				list.setVisibility(View.GONE);

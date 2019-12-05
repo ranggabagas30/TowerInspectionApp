@@ -3,7 +3,7 @@
 //import android.os.AsyncTask;
 //
 //import com.sap.inspection.view.ui.MainActivity;
-//import com.sap.inspection.model.form.ColumnModel;
+//import com.sap.inspection.model.form.WorkFormColumnModel;
 //import com.sap.inspection.model.form.WorkFormRowModel;
 //import com.sap.inspection.model.form.WorkFormGroupModel;
 //import com.sap.inspection.model.form.WorkFormModel;
@@ -30,7 +30,7 @@
 //			((WorkFormModel)params[i]).save();
 //			if (((WorkFormModel)params[i]).groups != null)
 //				for (WorkFormGroupModel group : ((WorkFormModel)params[i]).groups) {
-//					for (ColumnModel columnModel : group.table.headers) {
+//					for (WorkFormColumnModel columnModel : group.table.headers) {
 //						curr ++;
 //						publishProgress(curr*100/sum);
 //						columnModel.save();

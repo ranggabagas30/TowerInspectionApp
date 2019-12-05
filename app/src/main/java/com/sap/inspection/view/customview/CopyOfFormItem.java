@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.sap.inspection.R;
 import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.ScheduleBaseModel;
-import com.sap.inspection.model.form.ColumnModel;
+import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
@@ -32,7 +32,7 @@ public class CopyOfFormItem extends RelativeLayout {
 	private LinearLayout rootItem;
 	//	private ArrayList<RowColumnModel> rowColumnModels;
 	//	private ArrayList<WorkFormItemModel> items;
-	private ArrayList<ColumnModel> column;
+	private ArrayList<WorkFormColumnModel> column;
 	private Context context;
 	private String label;
 	private TextView rowTitle;
@@ -103,14 +103,14 @@ public class CopyOfFormItem extends RelativeLayout {
 	}
 
 	public String getColumnName(int colId){
-		for (ColumnModel oneColumn : this.column) {
+		for (WorkFormColumnModel oneColumn : this.column) {
 			if (colId == oneColumn.id)
 				return oneColumn.column_name;
 		}
 		return "";
 	}
 
-	public void setColumns(ArrayList<ColumnModel> column) {
+	public void setColumns(ArrayList<WorkFormColumnModel> column) {
 		this.column = column;
 	}
 

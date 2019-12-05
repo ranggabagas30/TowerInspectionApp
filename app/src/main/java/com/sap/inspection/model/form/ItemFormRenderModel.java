@@ -38,8 +38,8 @@ public class ItemFormRenderModel extends BaseModel {
     public static final int TYPE_EXPAND = 12;
     public static final int MAX_TYPE = 13;
 
-    private RowColumnModel firstItem;
-    private WorkFormItemModel workItemModel;
+    private RowColumnModel firstCell;
+    private WorkFormItemModel workFormItemModel;
     private FormValueModel itemValue;
     private ItemFormRenderModel parent;
     private OperatorModel operator;
@@ -53,13 +53,13 @@ public class ItemFormRenderModel extends BaseModel {
     private boolean open = true;
     private boolean hasInput = false;
     private boolean hasPicture = false;
-    private ColumnModel column;
+    private WorkFormColumnModel column;
     private String label = null;
     private ScheduleGeneral schedule;
-    private ArrayList<ColumnModel> columns;
+    private ArrayList<WorkFormColumnModel> columns;
     private boolean isHeader = false;
     private long when = 0;
-    private int percent = 10;
+    private int percent = 0;
     private int fillableTask = 0;
     private int filledTask = 0;
     private String wargaId; // SAP
@@ -93,19 +93,19 @@ public class ItemFormRenderModel extends BaseModel {
     }
 
     public RowColumnModel getFirstItem() {
-        return firstItem;
+        return firstCell;
     }
 
-    public void setFirstItem(RowColumnModel firstItem) {
-        this.firstItem = firstItem;
+    public void setFirstItem(RowColumnModel firstCell) {
+        this.firstCell = firstCell;
     }
 
     public WorkFormItemModel getWorkItemModel() {
-        return workItemModel;
+        return workFormItemModel;
     }
 
-    public void setWorkItemModel(WorkFormItemModel workItemModel) {
-        this.workItemModel = workItemModel;
+    public void setWorkItemModel(WorkFormItemModel workFormItemModel) {
+        this.workFormItemModel = workFormItemModel;
     }
 
     public FormValueModel getItemValue() {
@@ -192,11 +192,11 @@ public class ItemFormRenderModel extends BaseModel {
         this.hasPicture = hasPicture;
     }
 
-    public ColumnModel getColumn() {
+    public WorkFormColumnModel getColumn() {
         return column;
     }
 
-    public void setColumn(ColumnModel column) {
+    public void setColumn(WorkFormColumnModel column) {
         this.column = column;
     }
     public void setLabel(String label) {
@@ -207,11 +207,11 @@ public class ItemFormRenderModel extends BaseModel {
         return schedule;
     }
 
-    public ArrayList<ColumnModel> getColumns() {
+    public ArrayList<WorkFormColumnModel> getColumns() {
         return columns;
     }
 
-    public void setColumns(ArrayList<ColumnModel> columns) {
+    public void setColumns(ArrayList<WorkFormColumnModel> columns) {
         this.columns = columns;
     }
 
@@ -264,7 +264,7 @@ public class ItemFormRenderModel extends BaseModel {
     }
 
     public void setRowColumnModels(ArrayList<RowColumnModel> rowColumnModels, String parentLabel) {
-        if (schedule.operators == null || schedule.operators.size() == 0) {
+        if (schedule.operators == null || schedule.operators.isEmpty()) {
             DebugLog.d("operator none");
             TowerApplication.getInstance().toast("Tidak ada operator", Toast.LENGTH_SHORT);
             return;
@@ -272,12 +272,12 @@ public class ItemFormRenderModel extends BaseModel {
 
         // get column data with position = 1
         DebugLog.d("> Find first item with column position = 1... \n\n");
-        firstItem = null;
+        firstCell = null;
         int firstColId = -1;
-        for (ColumnModel columnModel : columns) {
-            if (columnModel.position == 1) {
-                firstColId = columnModel.id;
-                DebugLog.d("Found first column ! (col id, col name) : (" + columnModel.id + ", " + columnModel.column_name + ")");
+        for (WorkFormColumnModel workFormColumnModel : columns) {
+            if (workFormColumnModel.position == 1) {
+                firstColId = workFormColumnModel.id;
+                DebugLog.d("Found first column ! (col id, col name) : (" + workFormColumnModel.id + ", " + workFormColumnModel.column_name + ")");
                 break;
             }
         }
@@ -292,16 +292,16 @@ public class ItemFormRenderModel extends BaseModel {
             RowColumnModel rowcol = rowColumnModels.get(i);
             if (rowcol.column_id == firstColId) {
                 DebugLog.d("|\t" + rowcol.id + "\t\t|\t" + rowcol.row_id + "\t|\t" + rowcol.column_id + "\t\t|\t" + rowcol.work_form_group_id + "\t\t| --> found first item");
-                firstItem = rowColumnModels.remove(i);
+                firstCell = rowColumnModels.remove(i);
             } else
                 DebugLog.d("|\t" + rowcol.id + "\t\t|\t" + rowcol.row_id + "\t|\t" + rowcol.column_id + "\t\t|\t" + rowcol.work_form_group_id + "\t\t|");
         }
 
-        if (firstItem == null || firstItem.items == null)
+        if (firstCell == null || firstCell.items == null)
             return;
 
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
-            int hiddenItemId = checkHiddenHeadItem(firstItem.items);
+            int hiddenItemId = checkHiddenHeadItem(firstCell.items);
             if (hiddenItemId == -1) {
                 generateFirstCell(parentLabel);
             }
@@ -315,19 +315,19 @@ public class ItemFormRenderModel extends BaseModel {
     private void generateFirstCell(String parentLabel) {
 
         //generate first cell
-        DebugLog.d("firstitem.items.size() = " + firstItem.items.size());
+        DebugLog.d("firstitem.items.size() = " + firstCell.items.size());
 
-        if (firstItem.items.size() != 0) {
+        if (firstCell.items.size() != 0) {
             DebugLog.d("> generate first cell (header) ");
-            boolean isFirstItemVisible = firstItem.items.get(0).visible;
-            this.type= TYPE_HEADER;                                        DebugLog.d("TYPE\t:\t" + this.getType());
-            this.workItemModel = firstItem.items.get(0);                    DebugLog.d("-WORKFORMITEM id\t:\t" + this.workItemModel.id);
-            this.label = workItemModel.label;                               DebugLog.d("-WORKFORMITEM label\t:\t" + this.label);
-            this.hasPicture = workItemModel.pictureEndPoint != null;        DebugLog.d("HASPICTURE ?\t" + this.hasPicture);
+            boolean isFirstItemVisible = firstCell.items.get(0).visible;
+            this.type = TYPE_HEADER;                                        DebugLog.d("TYPE\t:\t" + this.getType());
+            this.workFormItemModel = firstCell.items.get(0);                    DebugLog.d("-WORKFORMITEM id\t:\t" + this.workFormItemModel.id);
+            this.label = workFormItemModel.label;                               DebugLog.d("-WORKFORMITEM label\t:\t" + this.label);
+            this.hasPicture = workFormItemModel.pictureEndPoint != null;        DebugLog.d("-HASPICTURE ?\t" + this.hasPicture);
             if (parentLabel != null)
-                workItemModel.label = workItemModel.label + " \n " + parentLabel;
-            if (this.workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
-                firstItem.items.remove(0);
+                workFormItemModel.label = workFormItemModel.label + " \n " + parentLabel;
+            if (this.workFormItemModel.field_type.equalsIgnoreCase("label") && !workFormItemModel.expand) {
+                firstCell.items.remove(0);
             }
             ItemFormRenderModel child = new ItemFormRenderModel();
             child.type = TYPE_HEADER_DIVIDER;
@@ -341,20 +341,20 @@ public class ItemFormRenderModel extends BaseModel {
             }
         }
 
-        if (!TextUtils.isEmpty(getColumn(firstItem.column_id).column_name)) {
-            if (checkAnyInputHead(firstItem.items)) {
+        if (!TextUtils.isEmpty(getColumn(firstCell.column_id).column_name)) {
+            if (checkAnyInputHead(firstCell.items)) {
                 ItemFormRenderModel child = new ItemFormRenderModel();
                 child.type = TYPE_COLUMN;
-                child.column = getColumn(firstItem.column_id);
+                child.column = getColumn(firstCell.column_id);
                 child.parent = this;
                 add(child);
             }
         }
 
-        boolean anyInput = checkAnyInput(firstItem.items);
+        boolean anyInput = checkAnyInput(firstCell.items);
         if (!anyInput) {
             operator = schedule.operators.get(schedule.operator_number);
-            generateItemsPerOperator(firstItem, schedule.operators.get(schedule.operator_number).id);
+            generateItemsPerOperator(firstCell, schedule.operators.get(schedule.operator_number).id);
         } else {
             for (int i = 0; i < schedule.operators.size(); i++) {
                 DebugLog.d("operator id " + schedule.operators.get(i).id);
@@ -363,7 +363,7 @@ public class ItemFormRenderModel extends BaseModel {
                 child.operator = schedule.operators.get(i);
                 child.parent = this;
                 add(child);
-                generateItemsPerOperator(firstItem, schedule.operators.get(i).id);
+                generateItemsPerOperator(firstCell, schedule.operators.get(i).id);
                 if (schedule.operators.size() - 2 >= 0 && i < schedule.operators.size() - 1) {
                     child = new ItemFormRenderModel();
                     child.type = TYPE_LINE_DEVIDER;
@@ -557,13 +557,13 @@ public class ItemFormRenderModel extends BaseModel {
         return itemId;
     }
 
-    private void generateViewItem(int rowId, WorkFormItemModel workItemModel, int operatorId) {
-        if (workItemModel.pictureEndPoint != null)
+    private void generateViewItem(int rowId, WorkFormItemModel workFormItemModel, int operatorId) {
+        if (workFormItemModel.pictureEndPoint != null)
             hasPicture = true;
-        if (workItemModel.field_type.equalsIgnoreCase("label") && !workItemModel.expand) {
+        if (workFormItemModel.field_type.equalsIgnoreCase("label") && !workFormItemModel.expand) {
             ItemFormRenderModel child = new ItemFormRenderModel();
             child.type = TYPE_LABEL;
-            child.workItemModel = workItemModel;
+            child.workFormItemModel = workFormItemModel;
             child.parent = this;
             add(child);
             return;
@@ -574,42 +574,42 @@ public class ItemFormRenderModel extends BaseModel {
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
             String wargaId  = getWargaId();
             String barangId = getBarangId();
-            child.itemValue = FormValueModel.getItemValue(schedule.id, workItemModel.id, operatorId, wargaId, barangId);
+            child.itemValue = FormValueModel.getItemValue(schedule.id, workFormItemModel.id, operatorId, wargaId, barangId);
         } else {
-            child.itemValue = FormValueModel.getItemValue(schedule.id, workItemModel.id, operatorId);
+            child.itemValue = FormValueModel.getItemValue(schedule.id, workFormItemModel.id, operatorId);
         }
 
         child.rowId = rowId;
         child.operatorId = operatorId;
         child.schedule = schedule;
-        child.workItemModel = workItemModel;
+        child.workFormItemModel = workFormItemModel;
 
-        if (workItemModel.field_type.equalsIgnoreCase("label") && workItemModel.expand) {
+        if (workFormItemModel.field_type.equalsIgnoreCase("label") && workFormItemModel.expand) {
             hasInput = true;
             child.type = TYPE_EXPAND;
             this.addFillableTask();
             child.parent = this;
             add(child);
-        } else if (workItemModel.field_type.equalsIgnoreCase("text_field")) {
-            Log.d("default_value", "default value : " + child.workItemModel.default_value);
+        } else if (workFormItemModel.field_type.equalsIgnoreCase("text_field")) {
+            Log.d("default_value", "default value : " + child.workFormItemModel.default_value);
             hasInput = true;
             child.type = TYPE_TEXT_INPUT;
             this.addFillableTask();
             child.parent = this;
             add(child);
-        } else if (workItemModel.field_type.equalsIgnoreCase("checkbox")) {
+        } else if (workFormItemModel.field_type.equalsIgnoreCase("checkbox")) {
             hasInput = true;
             child.type = TYPE_CHECKBOX;
             this.addFillableTask();
             child.parent = this;
             add(child);
-        } else if (workItemModel.field_type.equalsIgnoreCase("radio") || workItemModel.field_type.equalsIgnoreCase("dropdown")) {
+        } else if (workFormItemModel.field_type.equalsIgnoreCase("radio") || workFormItemModel.field_type.equalsIgnoreCase("dropdown")) {
             hasInput = true;
             child.type = TYPE_RADIO;
             this.addFillableTask();
             child.parent = this;
             add(child);
-        } else if (workItemModel.field_type.equalsIgnoreCase("file")) {
+        } else if (workFormItemModel.field_type.equalsIgnoreCase("file")) {
             hasInput = true;
             child.type = TYPE_PICTURE_RADIO;
             this.addFillableTask();
@@ -624,9 +624,9 @@ public class ItemFormRenderModel extends BaseModel {
         return label;
     }
 
-    private ColumnModel getColumn(int colId) {
+    private WorkFormColumnModel getColumn(int colId) {
         DebugLog.d("-==-=--=" + this.columns.size());
-        for (ColumnModel oneColumn : this.columns) {
+        for (WorkFormColumnModel oneColumn : this.columns) {
             if (colId == oneColumn.id)
                 return oneColumn;
         }

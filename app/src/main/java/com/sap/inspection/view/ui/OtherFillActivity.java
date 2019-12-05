@@ -48,7 +48,7 @@
 //import com.sap.inspection.model.DbRepository;
 //import com.sap.inspection.model.ScheduleBaseModel;
 //import com.sap.inspection.model.ScheduleGeneral;
-//import com.sap.inspection.model.form.ColumnModel;
+//import com.sap.inspection.model.form.WorkFormColumnModel;
 //import com.sap.inspection.model.form.ItemFormRenderModel;
 //import com.sap.inspection.model.form.ItemUpdateResultViewModel;
 //import com.sap.inspection.model.form.WorkFormRowModel;
@@ -64,7 +64,7 @@
 //	private static final int MenuShootImage = 101;
 //	private LinearLayout root;
 //	private WorkFormRowModel rowModel;
-//	private ArrayList<ColumnModel> column;
+//	private ArrayList<WorkFormColumnModel> column;
 //	private int workFormGroupId;
 //	private int rowId;
 //	private ScheduleBaseModel schedule;
@@ -563,7 +563,7 @@
 //		protected Void doInBackground(Void... params) {
 //			rowModel = new WorkFormRowModel();
 //			rowModel = rowModel.getItemById(workFormGroupId, rowId);
-//			ColumnModel colModel = new ColumnModel();
+//			WorkFormColumnModel colModel = new WorkFormColumnModel();
 //			column = colModel.getAllItemByWorkFormGroupId(workFormGroupId);
 //			ItemFormRenderModel form = null;
 //

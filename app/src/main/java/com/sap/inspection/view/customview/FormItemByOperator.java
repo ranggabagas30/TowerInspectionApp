@@ -16,7 +16,7 @@
 //import android.widget.TextView;
 //
 //import com.sap.inspection.R;
-//import com.sap.inspection.model.form.ColumnModel;
+//import com.sap.inspection.model.form.WorkFormColumnModel;
 //import com.sap.inspection.model.form.RowColumnModel;
 //import com.sap.inspection.model.form.WorkFormItemModel;
 //import com.sap.inspection.model.form.WorkFormOptionsModel;
@@ -26,7 +26,7 @@
 //	private LinearLayout rootItem;
 //	private ArrayList<RowColumnModel> rowColumnModels;
 //	//	private ArrayList<WorkFormItemModel> items;
-//	private ArrayList<ColumnModel> column;
+//	private ArrayList<WorkFormColumnModel> column;
 //	private Context context;
 //	private TextView rowTitle;
 //	private TextView rowSubColored;
@@ -67,14 +67,14 @@
 //	}
 //
 //	public String getColumnName(String colId){
-//		for (ColumnModel oneColumn : this.column) {
+//		for (WorkFormColumnModel oneColumn : this.column) {
 //			if (colId.equalsIgnoreCase(oneColumn.id))
 //				return oneColumn.column_name;
 //		}
 //		return "";
 //	}
 //
-//	public void setColumns(ArrayList<ColumnModel> column) {
+//	public void setColumns(ArrayList<WorkFormColumnModel> column) {
 //		this.column = column;
 //	}
 //

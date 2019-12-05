@@ -56,7 +56,6 @@ public class WorkFormModel extends BaseModel {
 		String[] args = new String[] {String.valueOf(workTypeId)};
 		String order = null;
 
-
 		DbRepository.getInstance().open(TowerApplication.getInstance());
 		Cursor cursor = DbRepository.getInstance().getDB().query(table, columns, where, args, null, null, order, null);
 
@@ -78,11 +77,11 @@ public class WorkFormModel extends BaseModel {
 
 	public void save(){
 
-		int count = 0;
+		int sumInput = 0;
 		if (groups != null)
 			for (WorkFormGroupModel group : groups) {
 				group.save();
-				count += group.getInputCount(group.id);
+				sumInput += group.getInputCount(group.id);
 			}
 		String sql = String
 				.format("INSERT OR REPLACE INTO %s(%s,%s,%s,%s,%s,%s,%s) VALUES(?,?,?,?,?,?,?)",
@@ -100,7 +99,7 @@ public class WorkFormModel extends BaseModel {
 		stmt.bindLong(4, work_type_id);
 		bindAndCheckNullString(stmt, 5, created_at);
 		bindAndCheckNullString(stmt, 6, updated_at);
-		stmt.bindLong(7, count);
+		stmt.bindLong(7, sumInput);
 
 		stmt.executeInsert();
 		stmt.close();

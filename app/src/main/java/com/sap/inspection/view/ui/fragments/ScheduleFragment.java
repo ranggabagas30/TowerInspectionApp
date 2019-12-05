@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -73,8 +74,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	}
 
 	@Override
-	public void onCreateView(LayoutInflater inflater) {
-		super.onCreateView(inflater);
+	public void onCreateView(LayoutInflater inflater, Bundle savedInstanceState) {
 		userId = PrefUtil.getStringPref(R.string.user_id, "");
 		list.setAdapter(adapter);
 		list.setOnItemClickListener(this);
@@ -102,25 +102,36 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	@Override
     public void onResume() {
         super.onResume();
+        DebugLog.d("resume");
 		TowerApplication.getInstance().setIsScheduleNeedCheckIn(false);
-        //EventBus.getDefault().register(this);
+		if (filterBy != 0) {
+			DebugLog.d("key filter by: " + filterBy);
+			setScheduleBy(filterBy);
+		}
     }
 
     @Override
     public void onPause() {
+		DebugLog.d("pause");
         super.onPause();
-        //EventBus.getDefault().unregister(this);
     }
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		DebugLog.d("destroy view");
 		compositeDisposable.clear();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		DebugLog.d("destroy");
 		compositeDisposable.dispose();
 	}
 

@@ -34,12 +34,11 @@ public abstract class BaseListTitleFragment extends BaseFragment {
 		actionRight = headerTitleLayout.findViewById(R.id.action_right);
 		actionLeft = headerTitleLayout.findViewById(R.id.action_left);
 		fabAddSchedule = root.findViewById(R.id.fabAddSchedule);
-		onCreateView(inflater);
+		onCreateView(inflater, savedInstanceState);
 		return root;
 	}
 	
-	public void onCreateView(LayoutInflater inflater){
-	}
+	public void onCreateView(LayoutInflater inflater, Bundle savedInstanceState) {}
 	
 	public abstract String getTitle(); 
 	

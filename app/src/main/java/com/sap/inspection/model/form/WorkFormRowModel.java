@@ -305,7 +305,6 @@ public class WorkFormRowModel extends BaseModel {
 	public WorkFormRowModel getAllItemsByRowId(int workFormGroupId, int parentRowId, boolean allChild) {
 
 		DebugLog.d("workFormGroupId : " + workFormGroupId + ", and parentRowId : " + parentRowId + " ascending order");
-
 		String table = DbManager.mWorkFormRow;
 		String[] columns = null;
 		String where = DbManager.colWorkFormGroupId + "=? AND " + DbManager.colID + "=?";
@@ -534,9 +533,7 @@ public class WorkFormRowModel extends BaseModel {
 	}
 
 	private static ArrayList<RowColumnModel> getRowColumnModels(int rowId){
-
 		return RowColumnModel.getAllItemByWorkFormRowId(rowId);
-
 	}
 
 	private static WorkFormRowModel getRowFromCursor(Cursor c) {

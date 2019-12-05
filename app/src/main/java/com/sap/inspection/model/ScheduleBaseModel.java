@@ -1,7 +1,6 @@
 package com.sap.inspection.model;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
@@ -54,7 +53,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public boolean isSeparator = false;
 	public boolean isAnimated = false;
 	public int operator_number = 0;
-	public int task = -1;
 
 	public ScheduleBaseModel() {}
 
@@ -105,8 +103,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			} else {
 				return value + "%";
 			}
-//			return 100 * sumTaskDone / sumTask >= 100 ? 100 + "%" : (100 * sumTaskDone / sumTask) + "%";
-		}else {
+		} else {
 			return "0%";
 		}
 	}
@@ -117,12 +114,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	public abstract String getPlace();
 	public abstract String getPercentColor();
 	public abstract String getTaskColor();
-
-	public void save(Context context){
-		//DbRepository.getInstance().open(context);
-		save();
-		//DbRepository.getInstance().close();
-	}
 
 	public int saveCorrective(){
 		int count = 0;
@@ -176,7 +167,6 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public void save(){
-
 		for (OperatorModel operator : operators) {
 			operator.save();
 		}
@@ -202,24 +192,20 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		site.save();
 
 		if (tempTask > 0)
-			task = tempTask;
+			sumTask = tempTask;
 		else{
 			tempTask = WorkFormModel.getTaskCount(work_type.id) * operators.size();
 			if (tempTask <= 0 ){
 				tempTask = CorrectiveValueModel.countTaskDone(id);
 			}
-			task = tempTask <= 0 ? -1 : tempTask;
+			sumTask = tempTask <= 0 ? -1 : tempTask;
 		}
 
-		if (sumTaskDone == 0){
-			sumTaskDone = getTaskDone(id);
-		}
 		insert();
 	}
 
 	private void insert() {
 
-		int colIndex;
 		String sql;
 		String format;
 		StringBuilder formatBuilder = new StringBuilder("INSERT OR REPLACE INTO %s(");
@@ -311,13 +297,10 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		}
 		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colWorkDate), work_date);
 		stmt.bindLong(getColIndex(argsList, DbManager.colProgress), (long) progress);
-		//		bindAndCheckNullString(stmt, 13, progress);
 		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colStatus), status);
-		//		bindAndCheckNullString(stmt, 11, day_date == null ? work_date_str.substring(0, 10) : day_date);
 		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colDayDate), work_date_str.substring(0, 10));
 		bindAndCheckNullString(stmt, getColIndex(argsList, DbManager.colWorkDateStr), work_date_str);
-		//		bindAndCheckNullString(stmt, 13, id);
-		stmt.bindLong(getColIndex(argsList, DbManager.colSumTask), task);
+		stmt.bindLong(getColIndex(argsList, DbManager.colSumTask), sumTask);
 		stmt.bindLong(getColIndex(argsList, DbManager.colSumDone), sumTaskDone);
 		stmt.bindLong(getColIndex(argsList, DbManager.colOperatorNumber), operator_number);
 
