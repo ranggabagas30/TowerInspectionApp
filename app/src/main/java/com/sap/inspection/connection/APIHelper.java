@@ -76,8 +76,6 @@ public class APIHelper {
 		NameValuePair nvp = new BasicNameValuePair("username", userName);
 		params.add(nvp);
 		nvp = new BasicNameValuePair("password", password);
-//		penambahan irwan
-//		nvp = new BasicNameValuePair("version", BuildConfig.VERSION_NAME);
 		params.add(nvp);
 		postParams(context, APIList.loginUrl(), handler, params);
 
