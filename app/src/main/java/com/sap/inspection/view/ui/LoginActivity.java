@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.R;
-import com.sap.inspection.connection.APIHelper;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.model.DbManager;
@@ -33,12 +33,16 @@ import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.FileUtil;
+import com.sap.inspection.util.NetworkUtil;
 import com.sap.inspection.util.PermissionUtil;
 import com.sap.inspection.util.StringUtil;
 
+import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -184,7 +188,42 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Ratio
 
 	private void processLogin(UserModel userModel){
 		showMessageDialog("Masuk ke server, silahkan tunggu");
-		APIHelper.login(activity, loginHandler, userModel.username, userModel.password);
+		compositeDisposable.add(
+				TowerAPIHelper.login(userModel.username, userModel.password)
+						.subscribeOn(Schedulers.io())
+						.observeOn(AndroidSchedulers.mainThread())
+						.subscribe(
+								loginResponse -> {
+									hideDialog();
+									try {
+										if (loginResponse == null || loginResponse.data == null) {
+											throw new NullPointerException("login response is null");
+										}
+
+										if (loginResponse.status == HttpURLConnection.HTTP_CREATED) {
+											Prefs.putString(getString(R.string.user_name), loginResponse.data.username);
+											Prefs.putString(getString(R.string.password), loginResponse.data.password);
+											Prefs.putString(getString(R.string.user_fullname), loginResponse.data.full_name);
+											Prefs.putString(getString(R.string.user_id), loginResponse.data.id);
+											Prefs.putString(getString(R.string.user_authToken), loginResponse.data.persistence_token);
+											Prefs.putBoolean(getString(R.string.keep_login), cbKeep.isChecked());
+											navigateToMainMenu();
+										} else {
+											loginLogModel.statusLogin = "failed";
+											Toast.makeText(this, loginResponse.messages, Toast.LENGTH_LONG).show();
+										}
+									} catch (NullPointerException e) {
+										DebugLog.e(e.getMessage(), e);
+										Toast.makeText(this, getString(R.string.error_response_null), Toast.LENGTH_LONG).show();
+									}
+
+								}, error -> {
+									hideDialog();
+									String errorMsg = NetworkUtil.handleApiError(error);
+									Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+								}
+						)
+		);
 	}
 
 	/**
