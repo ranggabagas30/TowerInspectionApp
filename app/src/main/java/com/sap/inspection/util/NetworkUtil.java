@@ -5,6 +5,7 @@ import com.jakewharton.retrofit2.adapter.rxjava2.HttpException;
 import com.sap.inspection.tools.DebugLog;
 
 import java.net.ConnectException;
+import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
@@ -16,8 +17,11 @@ public class NetworkUtil {
         String errorMessage;
         if (error instanceof HttpException) {
             switch (((HttpException) error).code()) {
+                case HttpsURLConnection.HTTP_BAD_REQUEST:
+                    errorMessage = "Bad Request (Code: 400)";
+                    break;
                 case HttpsURLConnection.HTTP_UNAUTHORIZED:
-                    errorMessage = "User tidak memiliki akses (Code: 401)";
+                    errorMessage = "Username dan password tidak dikenali (Code: 401)";
                     break;
                 case HttpsURLConnection.HTTP_FORBIDDEN:
                     errorMessage = "Forbidden access (Code: 404)";
@@ -25,8 +29,14 @@ public class NetworkUtil {
                 case HttpsURLConnection.HTTP_INTERNAL_ERROR:
                     errorMessage = "Masalah pada server (Code: 500)";
                     break;
-                case HttpsURLConnection.HTTP_BAD_REQUEST:
-                    errorMessage = "Bad Request (Code: 400)";
+                case HttpURLConnection.HTTP_BAD_GATEWAY:
+                    errorMessage = "Masalah pada server (Code: 502)";
+                    break;
+                case HttpURLConnection.HTTP_UNAVAILABLE:
+                    errorMessage = "Service tidak tersedia (Code: 503)";
+                    break;
+                case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
+                    errorMessage = "Masalah pada server (Code: 504)";
                     break;
                 case API_STATUS_CODE_LOCAL_ERROR:
                     errorMessage = "Masalah pada API (Code: 0)";
