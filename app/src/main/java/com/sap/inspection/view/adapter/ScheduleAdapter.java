@@ -163,7 +163,6 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.deleteSchedule.setOnClickListener(onDeleteClickListener);
             holder.deleteSchedule.setTag(position);
 			holder.deleteSchedule.setVisibility(View.VISIBLE);
-
 			if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
 				holder.uploadSchedule.setVisibility(View.GONE);
 				holder.deleteSchedule.setVisibility(View.GONE);

@@ -93,7 +93,7 @@ public abstract class ScheduleBaseModel extends BaseModel {
 	}
 
 	public String getPercent(){
-		DebugLog.d(sumTaskDone+":"+sumTask);
+		/*DebugLog.d(sumTaskDone+":"+sumTask);
 		if (sumTask > 0) {
 			int value = 100 * sumTaskDone / sumTask;
 			if (value >= 100) {
@@ -105,7 +105,26 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			}
 		} else {
 			return "0%";
+		}*/
+
+		int taskDone = FormValueModel.countTaskDone(id);
+		String percentage = "0%";
+		if (sumTask > 0) {
+			int value = 100 * taskDone / sumTask;
+			if (value >= 100) {
+				percentage =  100 + "%";
+			} else if (value<0){
+				percentage =  "0%";
+			} else {
+				percentage = value + "%";
+			}
+		} else {
+			percentage = "0%";
 		}
+		DebugLog.d("task done: " + taskDone);
+		DebugLog.d("sum task: " + sumTask);
+		DebugLog.d("percentage: " + percentage);
+		return percentage;
 	}
 
 	public abstract String getTitle();
@@ -194,7 +213,8 @@ public abstract class ScheduleBaseModel extends BaseModel {
 		if (tempTask > 0)
 			sumTask = tempTask;
 		else{
-			tempTask = WorkFormModel.getTaskCount(work_type.id) * operators.size();
+			//tempTask = WorkFormModel.getTaskCount(work_type.id) * operators.size();
+			tempTask = WorkFormModel.getTaskCount(work_type.id); // count sum task based on amount of items
 			if (tempTask <= 0 ){
 				tempTask = CorrectiveValueModel.countTaskDone(id);
 			}

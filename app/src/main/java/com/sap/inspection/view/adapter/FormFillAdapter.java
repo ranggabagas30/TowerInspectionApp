@@ -351,8 +351,7 @@ public class FormFillAdapter extends MyBaseAdapter {
 						DebugLog.d("=child type : " + child.getType());
 						if (child.getType() == ItemFormRenderModel.TYPE_PICTURE_RADIO) {
 
-							if (null != child.getItemValue())
-							{
+							if (null != child.getItemValue()) {
 								DebugLog.d("=child scheduleId : " + child.getItemValue().scheduleId);
 								DebugLog.d("=child itemId : " + child.getItemValue().itemId);
 								DebugLog.d("=child getOperatorId() : " + child.getItemValue().itemId);
