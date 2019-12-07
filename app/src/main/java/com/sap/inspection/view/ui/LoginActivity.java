@@ -1,9 +1,7 @@
 package com.sap.inspection.view.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.R;
@@ -27,7 +24,6 @@ import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.LoginLogModel;
 import com.sap.inspection.model.UserModel;
-import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.value.DbManagerValue;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
@@ -146,43 +142,6 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Ratio
 				ACTION = ACTION_AFTER_GRANTED.NONE;
 				requestAllPermissions();
 			}
-		}
-	}
-
-	/** Get version, checking update, and triggering update if need update **/
-	@SuppressLint("HandlerLeak")
-	Handler loginHandler = new Handler(){
-		public void handleMessage(android.os.Message msg) {
-			hideDialog();
-			Bundle bundle = msg.getData();
-			Gson gson = new Gson();
-
-			if (bundle.getString("json") != null){
-				UserResponseModel userResponseModel = gson.fromJson(bundle.getString("json"), UserResponseModel.class);
-				DebugLog.d("\nlogin response: " + userResponseModel.toString());
-				if (userResponseModel.status == 201){
-					writePreference(R.string.user_name, username.getText().toString());
-					writePreference(R.string.password, password.getText().toString());
-					writePreference(R.string.user_fullname, userResponseModel.data.full_name);
-					writePreference(R.string.user_id, userResponseModel.data.id);
-					writePreference(R.string.user_authToken, userResponseModel.data.persistence_token);
-					writePreference(R.string.keep_login,cbKeep.isChecked());
-					checkLoginState(true);
-				} else {
-					checkLoginState(false);
-				}
-			}else{
-				Toast.makeText(activity, R.string.error_network_connection_problem, Toast.LENGTH_SHORT).show();
-			}
-		}
-	};
-
-	private void checkLoginState(boolean canLogin) {
-		if (canLogin) {
-			navigateToMainMenu();
-		} else {
-			loginLogModel.statusLogin = "failed";
-			Toast.makeText(LoginActivity.this, R.string.error_password_doesnt_match, Toast.LENGTH_SHORT).show();
 		}
 	}
 
