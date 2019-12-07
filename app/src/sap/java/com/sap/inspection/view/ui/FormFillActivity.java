@@ -45,9 +45,9 @@ import com.sap.inspection.listener.FormTextChange;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
 import com.sap.inspection.model.config.formimbaspetir.CorrectiveScheduleConfig;
-import com.sap.inspection.model.form.ColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowColumnModel;
+import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
@@ -76,7 +76,7 @@ import pub.devrel.easypermissions.AppSettingsDialog;
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	private WorkFormRowModel parentRow;
-	private ArrayList<ColumnModel> column;
+	private ArrayList<WorkFormColumnModel> column;
 
 	// bundle data
 	private String wargaId;
@@ -533,7 +533,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 			}
 
-			column = ColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
+			column = WorkFormColumnModel.getAllItemByWorkFormGroupId(workFormGroupId);
 			ItemFormRenderModel form;
 			setPageTitle();
 
@@ -566,7 +566,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 						formModels.add(form);
 					} else if (form.isHasPicture()){
 						String label = form.getLabel();
-
 						if (TextUtils.isEmpty(label)) {
 							label = "item with no label";
 						}
