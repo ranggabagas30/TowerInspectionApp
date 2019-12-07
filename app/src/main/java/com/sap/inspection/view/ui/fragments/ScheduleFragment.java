@@ -42,6 +42,7 @@ import com.sap.inspection.view.ui.MainActivity;
 
 import org.apache.http.HttpStatus;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 import io.reactivex.Observable;
@@ -248,13 +249,10 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 					/* obtain the response */
 					ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
 
-					if (!itemScheduleResponse.data.isEmpty()) {
-
-						if (itemScheduleResponse.status == 200) {
-							DebugLog.d("response OK");
+					if (itemScheduleResponse != null) {
+						if (itemScheduleResponse.status == HttpURLConnection.HTTP_OK) {
 							ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
 							DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
-
 							for (DefaultValueScheduleModel item_default_value : itemScheduleGeneral.default_value_schedule) {
 
 								String workFormItemId    = String.valueOf(item_default_value.getItem_id());
@@ -272,23 +270,15 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 									WorkFormItemModel.setDefaultValueFromItemSchedule(workFormItemId, workFormGroupId, new_default_value);
 								}
 							}
-
 						} else {
-
-							//Toast.makeText(getContext(), "Gagal mendapatkan item schedules\n" + itemScheduleResponse.status + " : " + itemScheduleResponse.messages, Toast.LENGTH_LONG).show();
-
 							DebugLog.d("response status code : " + itemScheduleResponse.status);
 							DebugLog.d("response message : " + itemScheduleResponse.messages);
 						}
 					} else {
-
-						//Toast.makeText(getContext(), "Item schedules data kosong atau tidak ada", Toast.LENGTH_LONG).show();
 						DebugLog.d("item schedules kosong");
 					}
 
 				} else {
-
-					//Toast.makeText(getContext(), "Schedule ini tidak memiliki data item schedules", Toast.LENGTH_LONG).show();
 					DebugLog.e("repsonse json for ITEM SCHEDULES is null");
 				}
 			}
