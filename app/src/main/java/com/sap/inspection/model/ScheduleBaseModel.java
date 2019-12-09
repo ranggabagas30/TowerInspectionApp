@@ -24,6 +24,8 @@ import java.util.LinkedHashMap;
 
 import io.reactivex.Observable;
 
+import static com.sap.inspection.util.DbUtil.getColIndex;
+
 public abstract class ScheduleBaseModel extends BaseModel {
 
 	public String id;
@@ -647,9 +649,5 @@ public abstract class ScheduleBaseModel extends BaseModel {
 			}
 		}
 		return hidden;
-	}
-
-	private static int getColIndex(ArrayList<String> cols, String colKeyword) {
-		return cols.indexOf(colKeyword);
 	}
 }

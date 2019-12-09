@@ -163,6 +163,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			holder.deleteSchedule.setOnClickListener(onDeleteClickListener);
             holder.deleteSchedule.setTag(position);
 			holder.deleteSchedule.setVisibility(View.VISIBLE);
+			holder.rejectedTitle.setVisibility(View.GONE);
 
 			if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
 				holder.uploadSchedule.setVisibility(View.GONE);
@@ -254,6 +255,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 			TowerApplication.getInstance().toast("Tidak ada koneksi internet, periksa kembali jaringan anda.", Toast.LENGTH_SHORT);
 		} else {
 			String scheduleId = (String) v.getTag();
+
 			if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP))
 				new FormValueModel.AsyncCollectItemValuesForUpload(scheduleId, FormValueModel.UNSPECIFIED, Constants.EMPTY, Constants.EMPTY).execute();
 			else
@@ -294,7 +296,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
                                                     EventBus.getDefault().post(new DeleteAllProgressEvent("Failed (error code: " + response.status + ")", true, false));
                                                 }
                                             }, error ->  {
-                                                EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.error_delete_schedule), true, false));
+                                                EventBus.getDefault().post(new DeleteAllProgressEvent(context.getString(R.string.error_delete_schedule) + "\n" + error.getMessage(), true, false));
                                                 DebugLog.e(error.getMessage(), error);
                                             }
                                     );
@@ -317,7 +319,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 	private void deleteDataByScheduleId(String scheduleId) {
 		String path = Constants.DIR_PHOTOS + File.separator + scheduleId + File.separator;
 		if (!CommonUtil.deleteFiles(path)) {
-
+			TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.error_delete_files), Toast.LENGTH_SHORT);
 		}
 		ScheduleBaseModel.deleteAllBy(scheduleId); // local schedule data
 		FormValueModel.deleteAllBy(scheduleId); // local value data by schedule id

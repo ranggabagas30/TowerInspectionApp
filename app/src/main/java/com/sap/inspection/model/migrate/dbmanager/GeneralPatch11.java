@@ -1,4 +1,4 @@
-package com.sap.inspection.model.migrate;
+package com.sap.inspection.model.migrate.dbmanager;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -28,7 +28,8 @@ public class GeneralPatch11 extends DBPatch {
         db.execSQL("INSERT INTO " + DbManager.mSite + " SELECT "
                 + DbManager.colID + ", "
                 + DbManager.colName + ", "
-                + DbManager.colSiteLocation
+                + DbManager.colSiteLocation + ", "
+                + DbManager.colSiteIdCustomer
                 + " FROM " + DbManager.mSite +"temp");
         db.execSQL("DROP TABLE " + DbManager.mSite+"temp");
     }

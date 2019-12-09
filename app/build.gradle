@@ -79,11 +79,11 @@ android {
             dimension "default"
             versionMajor = 2
             versionMinor = 6
-            versionPatch = 0
+            versionPatch = 1
             versionCode minAPIlevel * 1000000 + versionMajor * 10000 + versionMinor * 100 + versionPatch
             versionName "${versionMajor}.${versionMinor}.${versionPatch}"
             buildConfigField("int", "DBMANAGERVALUE_SCHEMA_VERSION", "8")
-            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "12")
+            buildConfigField("int", "DBMANAGER_SCHEMA_VERSION", "13") // add 'siteIdCustomer' if not exists
             buildConfigField("String", "FOLDER_CAMERA", '"Camera"')
             buildConfigField("String", "FOLDER_TOWER_INSPECTION", '"TowerInspection"')
         }

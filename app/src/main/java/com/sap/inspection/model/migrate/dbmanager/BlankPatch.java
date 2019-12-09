@@ -1,4 +1,4 @@
-package com.sap.inspection.model.migrate;
+package com.sap.inspection.model.migrate.dbmanager;
 
 import android.database.sqlite.SQLiteDatabase;
 

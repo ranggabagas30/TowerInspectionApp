@@ -80,7 +80,9 @@
     <!-- error messages -->
     <string name="error_delete_file">Gagal menghapus data file</string>
     <string name="error_delete_files">Gagal menghapus foto /file dari memori device</string>
+    <string name="error_delete_warga_barang">Gagal menghapus</string>
     <string name="error_delete_schedule">Gagal menghapus schedule</string>
+    <string name="error_delete_schedule_relogin">Gagal menghapus schedule. Mohon login ulang</string>
     <string name="error_delete_all_local_data">Gagal menghapus seluruh data lokal</string>
     <string name="error_delete_local_schedule_data">Gagal menghapus data lokal schedule</string>
     <string name="error_delete_schedule_id_not_found">Gagal menghapus schedule. Schedule id tidak ditemukan</string>
@@ -104,8 +106,8 @@
     <string name="error_apk_not_found">Update aplikasi gagal! File APK tidak terunduh atau tidak ditemukan</string>
     <string name="error_login_unauthorized">Username and Password salah</string>
     <string name="error_login_field_blanked">Mohon masukkan dengan benar username dan password</string>
+    <string name="error_incorrect_password">Password salah</string>
     <string name="error_feature_not_supported_or_removed_from_server">Fitur ini belum didukung oleh server atau dihapus dari server</string>
-    <string name="error_password_doesnt_match">Password salah</string>
     <string name="error_network_connection_problem">Masalah pada jaringan</string>
     <string name="error_disconnected">Jaringan terputus. Periksa jaringan Anda</string>
     <string name="error_comment_can_not_blank">Pesan tidak boleh kosong</string>

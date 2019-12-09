@@ -155,7 +155,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         updateForm.setOnClickListener(updateFormClickListener);
         updateFormImbasPetir.setOnClickListener(updateFormImbasPetirClickListener);
         upload.setOnClickListener(uploadClickListener);
-        reupload.setOnClickListener(reuploadClickListener);
+        reupload.setOnClickListener(reUploadClickListener);
         updateSchedule.setOnClickListener(updateScheduleListener);
         updateCorrectiveSchedule.setOnClickListener(updateCorrectiveScheduleListener);
         logout.setOnClickListener(logoutClickListener);
@@ -284,7 +284,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                                             EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.success_delete_files), true, true));
                                         },
                                         error -> {
-                                            EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.error_delete_all_local_data), true, false));
+                                            EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.error_delete_all_local_data) + "\n" + error.getMessage(), true, false));
                                             DebugLog.e(error.getMessage(), error);
                                         }
                                 )
@@ -352,7 +352,7 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         hideDialog();
     };
 
-    OnClickListener reuploadClickListener = view -> {
+    OnClickListener reUploadClickListener = view -> {
         trackEvent("user_reupload");
         DialogUtil.showUploadAllDataDialog(activity, (dialog, id) -> {
             dialog.dismiss();

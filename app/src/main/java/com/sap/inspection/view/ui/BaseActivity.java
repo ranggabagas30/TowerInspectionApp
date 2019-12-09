@@ -35,7 +35,6 @@ import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.event.DeleteAllProgressEvent;
 import com.sap.inspection.event.DeleteAllScheduleEvent;
-import com.sap.inspection.event.ProgressEvent;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.event.ScheduleTempProgressEvent;
 import com.sap.inspection.event.UploadProgressEvent;
@@ -142,17 +141,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		instanceStateSaved = true;
-	}
-
-	public void onEvent(ProgressEvent event) {
-		if (event.done) {
-			hideDialog();
-			if (event.isSuccess)
-				Toast.makeText(this, event.progressString, Toast.LENGTH_SHORT).show();
-			else
-				Toast.makeText(this, event.progressString, Toast.LENGTH_LONG).show();
-
-		} else showMessageDialog(event.progressString);
 	}
 
 	public void onEvent(ScheduleTempProgressEvent event) {

@@ -163,6 +163,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 		if (resId == R.string.hasil_PM){
 			TowerApplication.getInstance().setIS_CHECKING_HASIL_PM(true);
+			resId = R.string.preventive;
 		} else if (resId == R.string.focut) {
 			actionAdd.setVisibility(View.VISIBLE);
 			actionAdd.setOnClickListener(view -> openCreateScheduleFOCUT());

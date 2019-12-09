@@ -2,6 +2,7 @@ package com.sap.inspection.view.dialog;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -58,13 +59,19 @@ public class DeleteAllSchedulesDialog {
 		public void onClick(View v) {
 			v.setTag(password.getText().toString());
 			dialog.dismiss();
-			boolean passTrue = PrefUtil.getStringPref(R.string.password, null).equals(password.getText().toString());
-			if (passTrue){
-				if (positive != null)
-					positive.onClick(v);
+			String savedPassword = PrefUtil.getStringPref(R.string.password, null);
+
+			if (!TextUtils.isEmpty(savedPassword)) {
+				boolean passTrue = savedPassword.equals(password.getText().toString());
+				if (passTrue){
+					if (positive != null)
+						positive.onClick(v);
+				}
+				else
+					Toast.makeText(context, context.getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(context, context.getString(R.string.error_delete_schedule_relogin), Toast.LENGTH_LONG).show();
 			}
-			else
-				Toast.makeText(context, "Please enter the correct password", Toast.LENGTH_SHORT).show();
 		}
 	};
 

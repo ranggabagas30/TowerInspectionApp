@@ -161,7 +161,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Ratio
 
 										if (loginResponse.status == HttpURLConnection.HTTP_CREATED) {
 											Prefs.putString(getString(R.string.user_name), loginResponse.data.username);
-											Prefs.putString(getString(R.string.password), loginResponse.data.password);
+											Prefs.putString(getString(R.string.password), userModel.password);
 											Prefs.putString(getString(R.string.user_fullname), loginResponse.data.full_name);
 											Prefs.putString(getString(R.string.user_id), loginResponse.data.id);
 											Prefs.putString(getString(R.string.user_authToken), loginResponse.data.persistence_token);

@@ -14,18 +14,18 @@ import com.sap.inspection.model.form.WorkFormGroupModel;
 import com.sap.inspection.model.form.WorkFormItemModel;
 import com.sap.inspection.model.form.WorkFormModel;
 import com.sap.inspection.model.form.WorkFormOptionsModel;
-import com.sap.inspection.model.migrate.BlankPatch;
-import com.sap.inspection.model.migrate.DBPatch;
-import com.sap.inspection.model.migrate.GeneralDropCreatePatch;
-import com.sap.inspection.model.migrate.GeneralPatch10;
-import com.sap.inspection.model.migrate.GeneralPatch11;
-import com.sap.inspection.model.migrate.GeneralPatch12;
-import com.sap.inspection.model.migrate.GeneralPatch13;
-import com.sap.inspection.model.migrate.GeneralPatch5;
-import com.sap.inspection.model.migrate.GeneralPatch6;
-import com.sap.inspection.model.migrate.GeneralPatch7;
-import com.sap.inspection.model.migrate.GeneralPatch8;
-import com.sap.inspection.model.migrate.GeneralPatch9;
+import com.sap.inspection.model.migrate.dbmanager.BlankPatch;
+import com.sap.inspection.model.migrate.dbmanager.DBPatch;
+import com.sap.inspection.model.migrate.dbmanager.GeneralDropCreatePatch;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch10;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch11;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch12;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch13;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch5;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch6;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch7;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch8;
+import com.sap.inspection.model.migrate.dbmanager.GeneralPatch9;
 import com.sap.inspection.tools.DebugLog;
 
 public class DbManager extends SQLiteOpenHelper {
@@ -212,7 +212,7 @@ public class DbManager extends SQLiteOpenHelper {
 
 	@Override
 	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		for (int i=oldVersion; i>newVersion; i++) {
+		for (int i=oldVersion; i>newVersion; i--) {
 			PATCHES[i-1].revert(db);
 		}
 	}

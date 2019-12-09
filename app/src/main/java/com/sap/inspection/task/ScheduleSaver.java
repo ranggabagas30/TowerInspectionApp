@@ -1,8 +1,10 @@
 package com.sap.inspection.task;
 
 import android.os.AsyncTask;
+import android.widget.Toast;
 
-import com.sap.inspection.event.ProgressEvent;
+import com.sap.inspection.R;
+import com.sap.inspection.TowerApplication;
 import com.sap.inspection.event.ScheduleProgressEvent;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.tools.DebugLog;
@@ -37,7 +39,8 @@ public class ScheduleSaver extends AsyncTask<Object,Integer,Void> {
 	@Override
 	protected void onCancelled() {
 		super.onCancelled();
-		EventBus.getDefault().post(new ProgressEvent("Penyimpanan schedule dibatalkan", true, false));
+		EventBus.getDefault().post(new ScheduleProgressEvent(0, true));
+		TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.error_failed_save_schedule), Toast.LENGTH_LONG);
 	}
 
 	@Override
