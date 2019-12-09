@@ -22,9 +22,11 @@ public class GeneralPatch13 extends DBPatch {
     public void apply(SQLiteDatabase db) {
         Log.d(getClass().getName(), "general patch 13");
         if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+            Log.d(getClass().getName(), "-> add 'ttNumber' column in 'schedule' table ");
             String alter = "ALTER TABLE " + DbManager.mSchedule + " ADD COLUMN " + DbManager.colTTNumber + " VARCHAR";
             db.execSQL(alter);
         } else {
+            Log.d(getClass().getName(), "-> add 'siteIdCustomer' column if not exists");
             // execute add column "siteIdCustomer. If has been existed, then catch the exception and ignore it
             try {
                 db.execSQL("ALTER TABLE "+ DbManager.mSite+" ADD COLUMN "+DbManager.colSiteIdCustomer+" VARCHAR");

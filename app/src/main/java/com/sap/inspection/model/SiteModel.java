@@ -2,11 +2,13 @@ package com.sap.inspection.model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.TowerApplication;
 import com.sap.inspection.constant.Constants;
+import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.DbUtil;
 
 import org.parceler.Parcel;
@@ -185,4 +187,15 @@ public class SiteModel extends BaseModel {
 		return createTableBuilder.toString();
 	}
 
+	public static void addSiteIdCustomerColumn() {
+		// execute add column "siteIdCustomer. If has been existed, then catch the exception and ignore it
+		try {
+			DbRepository.getInstance().open(TowerApplication.getInstance());
+			DbRepository.getInstance().getDB().execSQL("ALTER TABLE "+ DbManager.mSite+" ADD COLUMN "+DbManager.colSiteIdCustomer+" VARCHAR");
+		} catch (SQLiteException e) {
+			DebugLog.e(e.getMessage(), e);
+		} finally {
+			DbRepository.getInstance().close();
+		}
+	}
 }

@@ -23,7 +23,6 @@ public class DbRepository {
 		if (mInstance == null) {
 			DebugLog.d("initialized db repository instance");
 			mInstance = new DbRepository();
-
 		}
 	}
 

@@ -17,14 +17,16 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.rindang.pushnotification.notificationchannel.DefaultNotificationChannel;
+import com.sap.inspection.constant.Constants;
 import com.sap.inspection.listener.ActivityLifecycleHandler;
 import com.sap.inspection.model.CheckinDataModel;
+import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.DbRepository;
+import com.sap.inspection.model.SiteModel;
 import com.sap.inspection.model.TextMarkDisplayOptionsModel;
 import com.sap.inspection.model.TextMarkModel;
 import com.sap.inspection.model.value.DbRepositoryValue;
@@ -137,6 +139,10 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 		DEVICE_REGISTRATION_STATE = false;
 		ON_FORM_IMBAS_PETIR = false;
 		checkinDataModel = new CheckinDataModel();
+
+		if (DbManager.schema_version >= 9 && BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {
+			SiteModel.addSiteIdCustomerColumn();
+		}
 	}
 
 	@Override
