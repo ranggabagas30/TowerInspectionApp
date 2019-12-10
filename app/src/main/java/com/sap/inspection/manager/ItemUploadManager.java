@@ -571,7 +571,7 @@ public class ItemUploadManager {
 
             running = false;
             publish(latestStatus + "\n" + message);
-            //TowerApplication.getInstance().toast(latestStatus + "\n" + message, Toast.LENGTH_LONG);
+            TowerApplication.getInstance().toast(latestStatus + "\n" + message, Toast.LENGTH_LONG);
 
             // SAP only
             doUploadStatus();

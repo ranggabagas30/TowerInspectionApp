@@ -15,7 +15,7 @@ apply plugin: 'io.fabric'
 def minAPIlevel  = rootProject.ext.minSdkVersion
 def versionMajor = 2
 def versionMinor = 7
-def versionPatch = 1
+def versionPatch = 2
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
