@@ -250,7 +250,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 					/* obtain the response */
 					ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
 
-					if (itemScheduleResponse != null) {
+					if (itemScheduleResponse != null && !itemScheduleResponse.data.isEmpty()) {
 						if (itemScheduleResponse.status == HttpURLConnection.HTTP_OK) {
 							ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
 							DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
