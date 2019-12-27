@@ -7,7 +7,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -35,10 +34,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.gson.Gson;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.listener.FormTextChange;
@@ -50,7 +49,6 @@ import com.sap.inspection.model.form.RowColumnModel;
 import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
-import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
@@ -71,23 +69,24 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AppSettingsDialog;
 
 public class FormFillActivity extends BaseActivity implements FormTextChange{
 
-	private WorkFormRowModel parentRow;
-	private ArrayList<WorkFormColumnModel> column;
-
 	// bundle data
 	private String wargaId;
 	private String barangId;
-    private String scheduleId;
+	private String scheduleId;
 	private String workFormGroupName;
 	private String workTypeName;
 	private int workFormGroupId;
 	private int rowId;
 
 	private ScheduleGeneral schedule;
+	private WorkFormRowModel parentRow;
+	private ArrayList<WorkFormColumnModel> column;
 	private FormValueModel itemValueForShare;
 	private Uri mImageUri;
 	public ArrayList<Integer> indexes;
@@ -179,14 +178,14 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		list.setAdapter(adapter);
 
 		// init view
-		scroll = (ScrollView) findViewById(R.id.scroll);
+		scroll = findViewById(R.id.scroll);
 		layoutEmpty = findViewById(R.id.item_form_empty_layout);
 		searchView = findViewById(R.id.layout_search);
-		search = (AutoCompleteTextView) findViewById(R.id.search);
+		search = findViewById(R.id.search);
 		search.setOnItemClickListener(searchClickListener);
-		root = (LinearLayout) findViewById(R.id.root);
-		title = (TextView) findViewById(R.id.header_title);
-		mBtnSettings = (Button) findViewById(R.id.btnsettings);
+		root = findViewById(R.id.root);
+		title = findViewById(R.id.header_title);
+		mBtnSettings = findViewById(R.id.btnsettings);
 		mBtnSettings.setOnClickListener(view -> {
 			Intent intent = new Intent(this, SettingActivity.class);
 			startActivity(intent);
@@ -333,7 +332,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 		else{
 			if (!isAdding) {
-
 				DebugLog.d("deleting item row");
 				itemValueForShare.delete(schedule.id, itemValueForShare.itemId, itemValueForShare.operatorId);
 			}
@@ -434,14 +432,12 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
 			if (DateUtil.isTimeAutomatic(FormFillActivity.this)) {
-				CommonUtil.checkFakeGPSAvailable(FormFillActivity.this, currentLocation, String.valueOf(schedule.site.id), new Handler(message -> {
-					Bundle bundle = message.getData();
-					if (!TextUtils.isEmpty(bundle.getString("json"))) {
-						FakeGPSResponseModel fakeGPSResponseModel = new Gson().fromJson(bundle.getString("json"), FakeGPSResponseModel.class);
-						DebugLog.d(fakeGPSResponseModel.toString());
-					}
-					return true;
-				}));
+
+			    // anonymously send fake gps report to server
+                String fakeGPSReport = CommonUtil.checkFakeGPS(this, currentLocation);
+                if (!TextUtils.isEmpty(fakeGPSReport)) {
+                    sendFakeGPSReport(fakeGPSReport, String.valueOf(schedule.site.id));
+                }
 
 				Pair<String, String> photoLocation;
 				String currentLat  = String.valueOf(currentLocation.getLatitude());
@@ -498,6 +494,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 		super.onActivityResult(requestCode, resultCode, intent);
 	}
+
+    private void sendFakeGPSReport(String message, String siteId) {
+        compositeDisposable.add(
+                TowerAPIHelper.reportFakeGPS(String.valueOf(System.currentTimeMillis()), BuildConfig.VERSION_NAME, message,siteId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                () -> DebugLog.d("send fake GPS report complete"),
+                                error -> DebugLog.e(error.getMessage(), error)
+                        )
+        );
+    }
 
 	private class FormLoader extends AsyncTask<Void, Integer, Void>{
 		String lastLable = null;
