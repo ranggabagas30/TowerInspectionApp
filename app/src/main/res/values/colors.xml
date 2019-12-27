@@ -6,4 +6,7 @@
     <item type="color" name="lightgray">#e1e1e1</item>
     <item type="color" name="lightgray_hit">#d0d0d0</item>
     <item type="color" name="transparent_gray">#4D3F4144</item>
+
+    <color name="distance_too_far">@color/theme_color</color>
+    <color name="accuracy_too_far">@color/theme_color</color>
 </resources>
