@@ -13,7 +13,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresPermission;
 import android.support.v4.content.ContextCompat;
@@ -29,7 +28,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
-import com.sap.inspection.connection.APIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.model.DbManager;
 import com.sap.inspection.model.value.DbManagerValue;
@@ -101,30 +99,26 @@ public class CommonUtil {
         return false;
     }
 
-    public static boolean checkFakeGPSAvailable(Context context, Location location, String siteId, Handler handler) {
-        if (CommonUtil.isMockLocationOn(location)) {
-            String message = "App is using fake gps";
-            sendReportFakeGPS(context, message, siteId, handler);
-            return true;
-        } else {
-            List<String> listOfFakeGPSApp = CommonUtil.getListOfFakeLocationAppsFromAll(context);
-            if (!listOfFakeGPSApp.isEmpty()) {
-                String message = "Fake gps application(s) found : \n";
-                message += listOfFakeGPSApp.toString();
-                sendReportFakeGPS(context, message, siteId, handler);
-                return true;
+    public static String checkFakeGPS(Context context, Location location) {
+        try {
+            if (CommonUtil.isMockLocationOn(location)) {
+                return "Aplikasi menggunakan mock location. Matikan terlebih dahulu";
+            } else {
+                List<String> listOfFakeGPSApp = CommonUtil.getListOfFakeLocationAppsFromAll(context);
+                if (!listOfFakeGPSApp.isEmpty()) {
+                    String message = "Aplikasi Fake GPS ditemukan : \n";
+                    message += listOfFakeGPSApp.toString();
+                    return message;
+                }
             }
+        } catch (NullPointerException e) {
+            DebugLog.e(e.getMessage(), e);
         }
-        return false;
+        return null;
     }
 
-    public static void sendReportFakeGPS(Context context, String message, String siteId, Handler handler) {
-        String timeDetected = DateUtil.toDate(System.currentTimeMillis(), Constants.DATETIME_PATTERN2);
-        String appVersion = BuildConfig.VERSION_NAME;
-        APIHelper.reportFakeGPS(context, handler, timeDetected, appVersion, message, siteId);
-    }
-
-    public static boolean isMockLocationOn(Location location) {
+    public static boolean isMockLocationOn(Location location) throws NullPointerException {
+        if (location == null) throw new NullPointerException("Location is null. Cannot check mock location");
         return location.isFromMockProvider();
     }
 
@@ -266,7 +260,6 @@ public class CommonUtil {
     public static boolean isCurrentLocationError(double latitude, double longitude) {
         double dLat = Math.abs(latitude);
         double dLng = Math.abs(longitude);
-
         return (dLat == 0.0 && dLng == 0.0);
     }
 
