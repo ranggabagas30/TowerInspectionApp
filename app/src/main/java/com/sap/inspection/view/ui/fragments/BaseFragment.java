@@ -1,6 +1,7 @@
 package com.sap.inspection.view.ui.fragments;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,11 +14,11 @@ public abstract class BaseFragment extends Fragment{
 
 	protected Activity activity;
 	protected CompositeDisposable compositeDisposable;
+	private ProgressDialog progressDialog;
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-
 		if (context instanceof Activity) {
 			this.activity = (Activity) context;
 		}
@@ -27,6 +28,8 @@ public abstract class BaseFragment extends Fragment{
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		compositeDisposable = new CompositeDisposable();
+		progressDialog = new ProgressDialog(getActivity());
+		progressDialog.setCancelable(false);
 	}
 
 	@Override
@@ -59,4 +62,16 @@ public abstract class BaseFragment extends Fragment{
 		Log.d(tag, logString);
 	}
 
+	public void showMessageDialog(String message) {
+		if (progressDialog != null) {
+			progressDialog.setMessage(message);
+			if (!progressDialog.isShowing())
+				progressDialog.show();
+		}
+	}
+
+	public void hideDialog() {
+		if (progressDialog != null && progressDialog.isShowing())
+			progressDialog.dismiss();
+	}
 }
