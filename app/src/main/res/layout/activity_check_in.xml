@@ -30,7 +30,6 @@
         android:id="@+id/scollviewcheckin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="16dp"
         android:layout_below="@+id/layout_helper1"
         android:scrollbars="vertical">
 
@@ -38,8 +37,15 @@
             android:id="@+id/layout_form_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
+            android:padding="16dp"
             android:orientation="vertical">
+
+            <include
+                layout="@layout/item_cardview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone"/>
 
             <com.sap.inspection.view.customview.FormInputText
                 android:id="@+id/input_text_siteid_stp"
@@ -130,8 +136,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:paddingLeft="12dp"
                 android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:text="Jarak ke lokasi site : (dalam meter) "
                 android:textSize="16sp" />
 
@@ -158,21 +164,25 @@
                 android:layout_margin="6dp"
                 android:hint="GPS Accuration"/>
 
-            <android.support.v7.widget.AppCompatButton
-                android:id="@+id/buttoncheckin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="Check In"
-                style="@style/TowerAppTheme.MyButtonTheme"/>
-
             <TextView
                 android:id="@+id/textcheckincriteria"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="@string/info_aturan_checkin"/>
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/buttoncheckin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:padding="10dp"
-                android:text="Anda harus berada dalam radius 200 m dengan akurasi minimum 50 m untuk dapat checkin"/>
+                android:layout_marginBottom="16dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:text="Check In"
+                style="@style/TowerAppTheme.MyButtonTheme"/>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>
