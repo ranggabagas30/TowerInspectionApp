@@ -1,110 +1,62 @@
 package com.sap.inspection.view.ui;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.Manifest;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresPermission;
+import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-import com.google.gson.Gson;
-import com.rindang.zconfig.APIList;
 import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.model.CheckinDataModel;
 import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
-import com.sap.inspection.model.responsemodel.CheckinRepsonseModel;
-import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.tools.PersistentLocation;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.DateUtil;
+import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.LocationRequestProvider;
+import com.sap.inspection.util.NetworkUtil;
 import com.sap.inspection.util.PermissionUtil;
-import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.customview.FormInputText;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
+import java.net.HttpURLConnection;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.SocketTimeoutException;
-
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class CheckInActivity extends BaseActivity implements LocationRequestProvider.LocationCallback, EasyPermissions.RationaleCallbacks{
 
-    private final int DISTANCE_MINIMUM_IN_METERS = 100;
-    private final int ACCURACY_MINIMUM = 50;
-    private final int CHECKIN_DURATION = 3 ; // HOURS then back
-    private final int CHECK_GPS_DURATION = 5; // seconds
+    private final int MAXIMUM_DISTANCE = 100;
+    private final int MAXIMUM_ACCURACY = 50;
 
     /* variabel for location data checking to meet criteria */
     private LocationRequestProvider mLocationRequestProvider;
-    private Location mSiteCoordinate, mCurrentCoordinate, mPastCoordinate;
+    private Location mSiteCoordinate, mCurrentCoordinate;
     private float mDistanceMeasurment, mAccuracy;
-    private boolean mIsLocationRetrieved;
 
     /* variabel for get extra data from GroupsAdapter */
     private int mExtraSiteId, mExtraWorkTypeId;
     private String mExtraScheduleId, mExtraDayDate, mExtraWorkTypeName;
 
-    /* variabel for intent */
-    private static final int NOTIFICATION_CHECK_IN = 101;
-    private NotificationManager mNotificationManager;
-    private Notification.Builder mNotificationBuilder;
-    private Notification mNotification;
-    private PendingIntent mPendingIntent;
-
-    /* variabel for doing post to server */
-    int timeoutConnection =  1 * 3600 * 1000; // 1 HOUR
-    int timeoutSocket = 1 * 3600 * 1000; // 1 HOUR
-
-    HttpParams httpParameters;
-    HttpClient client;
-    HttpPost request;
-    InputStream data;
-    HttpResponse response;
-    CheckinBackgroundTask checkinBackgroundTask;
-    ScheduleGeneral mScheduleData;
-    CheckinDataModel mParamObject;
-
-    /* variabel handlers*/
-    Handler mCheckoutHandler;
-    Handler mCheckGPSHandler;
-    Handler mSendReportFakeGPSHandler;
-    Runnable mRunnableCheckoutHandler;
-    Runnable mRunnableCheckGPSHandler;
+    private ScheduleGeneral mScheduleData;
+    private CheckinDataModel mParamObject;
 
     DisplayMetrics mMetrics;
 
@@ -114,24 +66,178 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     private FormInputText mSiteIDCustomer, mSiteName, mPMPeriod, mSiteLat, mSiteLong;
     private FormInputText mCurrentLat, mCurrentLong, mDistanceToSite, mGPSAccuracy;
     private TextView mCheckinCriteria;
+    private CardView mErrorCard;
+    private TextView mErrorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
-
-        mPastCoordinate = new Location(LocationManager.GPS_PROVIDER);
-        mCheckoutHandler = new Handler();
-        mCheckGPSHandler = new Handler();
-
+        initView();
         getWindowConfiguration();
         getBundleDataFromScheduleFragment();
         preparingScheduleAndSiteData();
 
-        mIsLocationRetrieved = false;
+        mLocationRequestProvider = new LocationRequestProvider(this, this);
 
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mBtnCheckin.setOnClickListener(view -> {
 
+            if (mSiteCoordinate == null) {
+                TowerApplication.getInstance().toast(getString(R.string.error_site_location_empty), Toast.LENGTH_LONG);
+                return;
+            }
+
+            if (!GlobalVar.getInstance().anyNetwork(this)) {
+                TowerApplication.getInstance().toast(getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
+                return;
+            }
+
+            if (mCurrentCoordinate != null) {
+                if (!isLocationError()) {
+                    if (localValidation()) {
+
+                        String fakeGPSReport = CommonUtil.checkFakeGPS(this, mCurrentCoordinate);
+                        if (!TextUtils.isEmpty(fakeGPSReport)) {
+                            hideDialog();
+                            sendFakeGPSReport(fakeGPSReport, String.valueOf(mExtraSiteId));
+                            TowerApplication.getInstance().toast(fakeGPSReport, Toast.LENGTH_LONG);
+                            return;
+                        }
+
+                        checkIn();
+
+                    } else {
+                        if (!isDistanceValid()) TowerApplication.getInstance().toast(getString(R.string.error_distance_too_far), Toast.LENGTH_LONG);
+                        else if (!isAccuracyValid()) TowerApplication.getInstance().toast(getString(R.string.error_accuracy_too_low), Toast.LENGTH_LONG);
+                    }
+                } else {
+                    showLocationGPSError();
+                }
+            } else {
+                showPleaseWaitMessage();
+            }
+        });
+    }
+
+    /**
+     *  implemented interface functions
+     *  onStart()  --> init location services
+     *  onResume() --> check gps
+     *  onStop()   -->  stop location services
+     *  onLocationChanged() --> location change captured
+     *  */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        requestLocationPermission();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!CommonUtil.checkPlayServices(this)) {
+            Toast.makeText(activity, getString(R.string.warning_check_play_service_message), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (!CommonUtil.checkNetworkStatus(this) || !CommonUtil.checkGpsStatus(this)) {
+            DialogUtil.showGPSdialog(this);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopLocationServices();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        /* location is retrieved every 3 - 5 seconds !*/
+        mCurrentCoordinate = location;
+        updateDistanceAndAccuracy();
+        updateCheckInDataRequirements();
+        updateCheckInForm();
+        mBtnCheckin.setEnabled(true);
+    }
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    private void initLocationServices() {
+        try {
+            DebugLog.d("--> start location service");
+            mLocationRequestProvider.connect();
+        } catch (SecurityException e) {
+            DebugLog.e(e.getMessage(), e);
+        }
+    }
+
+    private void stopLocationServices() {
+        DebugLog.d("--> stop location service");
+        mLocationRequestProvider.disconnect();
+    }
+
+
+    private boolean isLocationError() {
+        return CommonUtil.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
+    }
+
+    private boolean isDistanceValid() {
+        return mDistanceMeasurment <= MAXIMUM_DISTANCE;
+    }
+
+    private boolean isAccuracyValid() {
+        return mAccuracy <= MAXIMUM_ACCURACY;
+    }
+
+    private boolean localValidation() {
+        if (BuildConfig.DEBUG) return true;
+        return isDistanceValid() && isAccuracyValid();
+    }
+
+    private void showSuccessCheckinMessage() {
+        TowerApplication.getInstance().toast(getString(R.string.success_check_in), Toast.LENGTH_SHORT);
+    }
+
+    private void showLocationGPSError() {
+        TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
+    }
+
+    private void showPleaseWaitMessage() {
+        TowerApplication.getInstance().toast(getString(R.string.error_please_wait_gps), Toast.LENGTH_LONG);
+    }
+
+    private void keepCurrentLocationDataTobeUsed() {
+        PersistentLocation.getInstance().deletePersistentLatLng();
+        CommonUtil.setPersistentLocation(mExtraScheduleId, mCurrentLat.getText().toString(), mCurrentLong.getText().toString());
+    }
+
+    private void navigateToGroupActivity() {
+        TowerApplication.getInstance().checkinDataModel = mParamObject;
+        navigateToGroupActivity(
+                this,
+                mExtraScheduleId,
+                mExtraSiteId,
+                mExtraWorkTypeId,
+                mExtraWorkTypeName,
+                mExtraDayDate);
+    }
+
+    private void initView() {
         mScrollViewCheckin      = findViewById(R.id.scollviewcheckin);
         mBtnCheckin             = findViewById(R.id.buttoncheckin);
         mSiteIDCustomer         = findViewById(R.id.input_text_siteid_stp);
@@ -144,6 +250,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mDistanceToSite         = findViewById(R.id.input_text_distance_to_site);
         mGPSAccuracy            = findViewById(R.id.input_text_gps_accuracy);
         mCheckinCriteria        = findViewById(R.id.textcheckincriteria);
+        mErrorCard              = findViewById(R.id.card_error);
+        mErrorMessage           = findViewById(R.id.text_error);
 
         /* disable components while retrieving location data */
         mBtnCheckin.setEnabled(true);
@@ -157,224 +265,8 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mDistanceToSite.setEnabled(false);
         mGPSAccuracy.setEnabled(false);
 
-        mLocationRequestProvider = new LocationRequestProvider(this, this);
-        mSendReportFakeGPSHandler = new Handler(message -> {
-            hideDialog();
-            Bundle bundle = message.getData();
-            if (!TextUtils.isEmpty(bundle.getString("json"))) {
-                FakeGPSResponseModel fakeGPSResponseModel = new Gson().fromJson(bundle.getString("json"), FakeGPSResponseModel.class);
-                DebugLog.d(fakeGPSResponseModel.toString());
-            }
-            showSuccessCheckinMessage();
-            startCheckoutCountdown();
-            keepCurrentLocationDataTobeUsed();
-            navigateToGroupActivity();
-            return true;
-        });
-
-        setCheckinCriteriaText();
-
-        mBtnCheckin.setOnClickListener(view -> {
-
-            if (mIsLocationRetrieved) {
-
-                postCheckinDataToSERVER();
-
-                if (!isLocationError()) {
-
-                    if (localValidation()) {
-
-                        showMessageDialog("Checking");
-
-                        if (!GlobalVar.getInstance().anyNetwork(this)) {
-                            hideDialog();
-                            TowerApplication.getInstance().toast(getString(R.string.error_no_internet_connection), Toast.LENGTH_LONG);
-                            return;
-                        }
-
-                        if (!CommonUtil.checkFakeGPSAvailable(this, mCurrentCoordinate, String.valueOf(mExtraSiteId), mSendReportFakeGPSHandler)) {
-                            hideDialog();
-                            showSuccessCheckinMessage();
-                            startCheckoutCountdown();
-                            keepCurrentLocationDataTobeUsed();
-                            navigateToGroupActivity();
-                        }
-
-                    } else {
-
-                        showFailCheckinMessage();
-
-                    }
-                } else {
-
-                    showLocationGPSError();
-
-                }
-            } else {
-
-                showPleaseWaitMessage();
-
-            }
-
-        });
-
-
-
-    }
-
-    /**
-     *  implemented interface functions
-     *  onStart()  --> init location services
-     *  onResume() --> check gps
-     *  onStop()   -->  stop location services
-     *  handleNewLocation() --> location change captured
-     *  */
-    @Override
-    protected void onStart() {
-        super.onStart();
-        requestLocationPermission();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        mIsLocationRetrieved = false;
-
-        if (!CommonUtil.checkNetworkStatus(this) || !CommonUtil.checkGpsStatus(this)) {
-            mLocationRequestProvider.showGPSDialog();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        DebugLog.d("onStop");
-        stopLocationServices();
-        mCheckGPSHandler.removeCallbacks(mRunnableCheckGPSHandler);
-        mCheckoutHandler.removeCallbacks(mRunnableCheckoutHandler);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        DebugLog.d("onDestroy");
-    }
-
-    @Override
-    public void handleNewLocation(Location location) {
-
-        /* check GPS every 3 seconds everytime get new location */
-        startCheckGPSHandler();
-
-        /* location is retrieved every 3 - 5 seconds !*/
-        mCurrentCoordinate = location;
-        mPastCoordinate = mCurrentCoordinate;
-        mIsLocationRetrieved = true;
-
-        processLocationData();
-        updateCheckinDataRequirements();
-        showCheckinDataRequirementsToForm();
-
-        mBtnCheckin.setEnabled(true);
-    }
-
-    /**
-     * initLocationServices() --> connect to google api client
-     * stopLocationServices() --> disconnect from google api client and remove location updates
-     * isCheckInGranted()     --> check devices location and accuracy, whether meets survey requirements or not
-     * showFailCheckInMessages() --> show a message when check in activity returns fail result
-     * showSuccessCheckinMessage() --> show a message when check in activity returns success result
-     * navigateToGroupActivity() --> go to FormFillActivity (survey form)
-     * */
-    private void initLocationServices() {
-        mLocationRequestProvider.connect();
-    }
-
-    private void stopLocationServices() {
-        mLocationRequestProvider.disconnect();
-    }
-
-    private boolean isCheckInGranted() {
-        return serverValidation() && localValidation();
-    }
-
-    private boolean isLocationError() {
-        if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
-            //return CommonUtil.isCurrentLocationError(0.0, 0.0);
-            return false;
-        } else {
-            return CommonUtil.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
-        }
-
-        //return CommonUtil.isCurrentLocationError(mCurrentCoordinate.getLatitude(), mCurrentCoordinate.getLongitude());
-    }
-
-    private boolean serverValidation() {
-        return checkinBackgroundTask.serverValidationResult();
-    }
-
-    private boolean localValidation() {
-        if (BuildConfig.BUILD_TYPE.equalsIgnoreCase("debug")) {
-            return true;
-        } else {
-            return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
-        }
-
-        //return mDistanceMeasurment <= DISTANCE_MINIMUM_IN_METERS && mAccuracy <= ACCURACY_MINIMUM;
-    }
-
-    private void showFailCheckinMessage() {
-        String mFailCheckinMessage = getResources().getString(R.string.failedmessagecheckin);
-
-        TowerApplication.getInstance().toast(mFailCheckinMessage + ".\n" +
-                "Current GPS accuration : " + mAccuracy + " meters. \n" +
-                "Current lat : " + mCurrentCoordinate.getLatitude() + "\n" +
-                "Current long : " + mCurrentCoordinate.getLongitude() + "\n" +
-                "Current distance from site coordinate : " + mDistanceMeasurment + " meters", Toast.LENGTH_LONG);
-    }
-
-    private void showSuccessCheckinMessage() {
-        String mSuccessMessage = getResources().getString(R.string.successmessagecheckin);
-
-        TowerApplication.getInstance().toast(mSuccessMessage + ".\n" +
-                "Current GPS accuration : " + mAccuracy + " meters. \n" +
-                "Current lat : " + mCurrentCoordinate.getLatitude() + "\n" +
-                "Current long : " + mCurrentCoordinate.getLongitude() + "\n" +
-                "Current distance from site coordinate : " + mDistanceMeasurment + " meters", Toast.LENGTH_SHORT);
-    }
-
-    private void showLocationGPSError() {
-        TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_LONG);
-    }
-
-    private void showPleaseWaitMessage() {
-        TowerApplication.getInstance().toast("Mohon tunggu. Sedang proses mendapatkan lokasi", Toast.LENGTH_SHORT);
-    }
-
-    private void setCheckinCriteriaText() {
-        String textCriteria  = "Anda harus berada dalam radius " + DISTANCE_MINIMUM_IN_METERS +
-                " m dengan akurasi minimum " + ACCURACY_MINIMUM + " m untuk dapat checkin";
-
+        String textCriteria = getString(R.string.info_aturan_checkin, MAXIMUM_DISTANCE, MAXIMUM_ACCURACY);
         mCheckinCriteria.setText(textCriteria);
-    }
-
-    private void keepCurrentLocationDataTobeUsed() {
-        PersistentLocation.getInstance().deletePersistentLatLng();
-        CommonUtil.setPersistentLocation(mExtraScheduleId, mCurrentLat.getText().toString(), mCurrentLong.getText().toString());
-    }
-
-    private void navigateToGroupActivity() {
-
-        TowerApplication.getInstance().checkinDataModel = mParamObject;
-
-        navigateToGroupActivity(
-                this,
-                mExtraScheduleId,
-                mExtraSiteId,
-                mExtraWorkTypeId,
-                mExtraWorkTypeName,
-                mExtraDayDate);
     }
 
     private void getBundleDataFromScheduleFragment() {
@@ -387,34 +279,52 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     }
 
     private void preparingScheduleAndSiteData() {
-        mSiteCoordinate    = new Location(LocationManager.GPS_PROVIDER);
         mParamObject = new CheckinDataModel();
         mScheduleData = ScheduleBaseModel.getScheduleById(mExtraScheduleId);
 
-        // TODO: fix on location str null
-        String[] siteCoordinate = mScheduleData.site.locationStr.split(",");
-        mSiteCoordinate.setLatitude(Double.parseDouble(siteCoordinate[0]));
-        mSiteCoordinate.setLongitude(Double.parseDouble(siteCoordinate[1]));
+        try {
+            if (mScheduleData.site == null) {
+                mErrorCard.setVisibility(View.VISIBLE);
+                mErrorMessage.setText(R.string.error_site_empty);
+                throw new NullPointerException(getString(R.string.error_site_empty));
+            }
+            if (TextUtils.isEmpty(mScheduleData.site.locationStr)) {
+                mErrorCard.setVisibility(View.VISIBLE);
+                mErrorMessage.setText(R.string.error_site_location_empty);
+                throw new NullPointerException(getString(R.string.error_site_location_empty));
+            }
 
-        /* assigning persistent data from database */
-        mParamObject.setScheduleId(Integer.parseInt(mScheduleData.id));
-        mParamObject.setSiteIdCustomer(mScheduleData.site.site_id_customer);
-        mParamObject.setSiteName(mScheduleData.site.name);
-        mParamObject.setPeriod(convertDayDateToPeriod(mScheduleData.day_date));
-        mParamObject.setSiteLat(String.valueOf(mSiteCoordinate.getLatitude()));
-        mParamObject.setSiteLong(String.valueOf(mSiteCoordinate.getLongitude()));
+            mSiteCoordinate = new Location(LocationManager.GPS_PROVIDER);
+            String[] siteCoordinate = mScheduleData.site.locationStr.split(",");
+            mSiteCoordinate.setLatitude(Double.parseDouble(siteCoordinate[0]));
+            mSiteCoordinate.setLongitude(Double.parseDouble(siteCoordinate[1]));
+
+            /* assigning persistent data from database */
+            mParamObject.setScheduleId(Integer.parseInt(mScheduleData.id));
+            mParamObject.setSiteIdCustomer(mScheduleData.site.site_id_customer);
+            mParamObject.setSiteName(mScheduleData.site.name);
+            mParamObject.setPeriod(convertDayDateToPeriod(mScheduleData.day_date));
+            mParamObject.setSiteLat(String.valueOf(mSiteCoordinate.getLatitude()));
+            mParamObject.setSiteLong(String.valueOf(mSiteCoordinate.getLongitude()));
+
+        } catch (NullPointerException e) {
+            DebugLog.e(e.getMessage(), e);
+            TowerApplication.getInstance().toast(e.getMessage(), Toast.LENGTH_LONG);
+        }
+
     }
 
-    private void processLocationData() {
-
-        mDistanceMeasurment = mSiteCoordinate.distanceTo(mCurrentCoordinate);
-        mAccuracy = mCurrentCoordinate.getAccuracy();
-
-        DebugLog.d("site coordinate : (" + mSiteCoordinate.getLatitude() + " , " + mSiteCoordinate.getLongitude() + ")");
-        DebugLog.d("current coordinate : (" + mCurrentCoordinate.getLatitude() + " , " + mCurrentCoordinate.getLongitude() + ")");
+    private void updateDistanceAndAccuracy() {
+        try {
+            if (mSiteCoordinate == null) throw new NullPointerException("Site coordinate is null");
+            mDistanceMeasurment = mSiteCoordinate.distanceTo(mCurrentCoordinate);
+            mAccuracy = mCurrentCoordinate.getAccuracy();
+        } catch (NullPointerException e) {
+            DebugLog.e(e.getMessage(), e);
+        }
     }
 
-    private void updateCheckinDataRequirements() {
+    private void updateCheckInDataRequirements() {
         mParamObject.setCurrentLat(String.valueOf(mCurrentCoordinate.getLatitude()));
         mParamObject.setCurrentLong(String.valueOf(mCurrentCoordinate.getLongitude()));
         mParamObject.setDistance(mDistanceMeasurment);
@@ -423,8 +333,7 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mParamObject.setAccuracy(mAccuracy);
     }
 
-    private void showCheckinDataRequirementsToForm() {
-
+    private void updateCheckInForm() {
         mSiteIDCustomer.setText(String.valueOf(mParamObject.getSiteIdCustomer()));
         mSiteName.setText(mParamObject.getSiteName());
         mPMPeriod.setText(String.valueOf(mParamObject.getPeriod()));
@@ -437,144 +346,58 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         mGPSAccuracy.requestFocus();
     }
 
-    private void postCheckinDataToSERVER() {
-
-        mParamObject.compileParamNameValuePair();
-        checkinBackgroundTask = new CheckinBackgroundTask();
-        if (!checkinBackgroundTask.runningTask) {
-            checkinBackgroundTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
-        else {
-            TowerApplication.getInstance().toast("Mohon tunggu sebentar", Toast.LENGTH_SHORT);
-        }
+    private void sendFakeGPSReport(String message, String siteId) {
+        compositeDisposable.add(
+                TowerAPIHelper.reportFakeGPS(String.valueOf(System.currentTimeMillis()), BuildConfig.VERSION_NAME, message,siteId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                () -> DebugLog.d("send fake GPS report complete"),
+                                error -> DebugLog.e(error.getMessage(), error)
+                        )
+        );
     }
 
-    private String sendDataToSERVER() {
+    private void checkIn() {
+        showMessageDialog(getString(R.string.info_sending_check_in_data));
+        compositeDisposable.add(
+                TowerAPIHelper.checkinSchedule(
+                            mExtraScheduleId,
+                            String.valueOf(mParamObject.getScheduleId()),
+                            mParamObject.getSiteIdCustomer(),
+                            mParamObject.getSiteName(),
+                            mParamObject.getPeriod(),
+                            mParamObject.getSiteLat(),
+                            mParamObject.getSiteLong(),
+                            mParamObject.getCurrentLat(),
+                            mParamObject.getCurrentLong(),
+                            String.valueOf(mParamObject.getDistance()),
+                            mParamObject.getTime(),
+                            mParamObject.getStatus(),
+                            String.valueOf(mParamObject.getAccuracy()))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                response -> {
+                                    hideDialog();
+                                    if (response == null || response.data == null) {
+                                        throw new NullPointerException(getString(R.string.error_response_null));
+                                    }
 
-        try {
-
-            /* request part */
-            httpParameters = new BasicHttpParams();
-            client = new DefaultHttpClient(httpParameters);
-            request = new HttpPost(APIList.checkinScheduleUrl(String.valueOf(mParamObject.getScheduleId())));
-            request.setHeader("Cookie", getCookie());
-
-            HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-            HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
-
-            System.gc();
-
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-
-            DebugLog.d("adding parameters...");
-            for (NameValuePair param : mParamObject.getParamNameValuePair()) {
-                reqEntity.addPart(param.getName(), new StringBody(param.getValue()));
-                DebugLog.d(param.getName() + " : " + param.getValue());
-            }
-
-            /* response part */
-            request.setEntity(reqEntity);
-            response = client.execute(request);
-
-            org.apache.http.Header cookie = response.getFirstHeader("Set-Cookie");
-            if (cookie != null) {
-                mPref.edit().putString(TowerApplication.getContext().getString(R.string.user_cookie), cookie.getValue()).commit();
-            }
-
-            data = response.getEntity().getContent();
-            int statusCode = response.getStatusLine().getStatusCode();
-            String s = ConvertInputStreamToString(data);
-            DebugLog.d("response string status code : " + statusCode);
-            DebugLog.d("json /n" + s);
-
-            if (!StringUtil.checkIfContentTypeJson(response.getEntity().getContentType().getValue())) {
-                DebugLog.d("not json type");
-
-                if (statusCode == 404) {
-                    return s;
-                } else {
-                    return null;
-                }
-            }
-            return s;
-
-        } catch (UnsupportedEncodingException ue) {
-            ue.getStackTrace();
-            Crashlytics.log(Log.ERROR, "checkinactivity", ue.getMessage());
-        } catch (SocketTimeoutException se) {
-            se.printStackTrace();
-            Crashlytics.log(Log.ERROR, "checkinactivity", se.getMessage());
-        } catch (IOException ie) {
-            ie.getStackTrace();
-            Crashlytics.log(Log.ERROR, "checkinactivity", ie.getMessage());
-        } catch (NullPointerException ne) {
-            ne.printStackTrace();
-            Crashlytics.log(Log.ERROR, "checkinactivity", ne.getMessage());
-        }
-        return null;
-    }
-
-    private boolean receiveDataFromSERVER(String response) {
-        CheckinRepsonseModel saveCheckinResponse = new Gson().fromJson(response, CheckinRepsonseModel.class);
-        saveCheckinResponse.printLogResponse();
-        DebugLog.d("status : " + saveCheckinResponse.status);
-        DebugLog.d("status_code : " + saveCheckinResponse.status_code);
-        return saveCheckinResponse.status == 201 || saveCheckinResponse.status == 200;
-    }
-
-
-
-    private class CheckinBackgroundTask extends AsyncTask<Void, String, Void> {
-        private Gson gson = new Gson();
-        private String response = null;
-        private boolean taskDone = false;
-        private boolean runningTask = false;
-        private boolean validatedByServer = false;
-
-        public boolean serverValidationResult() {
-            return !runningTask && validatedByServer;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            runningTask = true;
-            mBtnCheckin.setEnabled(false);
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-            DebugLog.d("progress : " + values);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            response = sendDataToSERVER();
-
-            if (response != null) {
-                validatedByServer = receiveDataFromSERVER(response);
-            } else {
-                DebugLog.d("Error response from server");
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            runningTask = false;
-            taskDone = true;
-            mBtnCheckin.setEnabled(true);
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-            runningTask = false;
-            taskDone = true;
-            mBtnCheckin.setEnabled(true);
-        }
+                                    if (response.status == HttpURLConnection.HTTP_CREATED) {
+                                        showSuccessCheckinMessage();
+                                        keepCurrentLocationDataTobeUsed();
+                                        navigateToGroupActivity();
+                                    } else {
+                                        TowerApplication.getInstance().toast(response.messages, Toast.LENGTH_LONG);
+                                    }
+                                }, error -> {
+                                    hideDialog();
+                                    String errorMsg = NetworkUtil.handleApiError(error);
+                                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                                }
+                        )
+        );
     }
 
     /**
@@ -617,61 +440,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
         }
 
         month = Constants.MONTHS[monthindex-1];
-
         period = month + "-" + year;
-
         DebugLog.d("monthindex : " + monthindex);
         DebugLog.d("month : " + month);
         DebugLog.d("period : " + period);
         return period;
-    }
-
-    private String getCookie() {
-        SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(TowerApplication.getContext());
-        if (mPref.getString(TowerApplication.getContext().getString(R.string.user_cookie), null) != null) {
-            return mPref.getString(TowerApplication.getContext().getString(R.string.user_cookie), "");
-        }
-        return null;
-    }
-
-    private String ConvertInputStreamToString(InputStream is) {
-        String str = null;
-        byte[] b = null;
-        try {
-            StringBuffer buffer = new StringBuffer();
-            b = new byte[4096];
-            for (int n; (n = is.read(b)) != -1; ) {
-                buffer.append(new String(b, 0, n));
-            }
-            str = buffer.toString();
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        return str;
-    }
-
-    private void startCheckoutCountdown() {
-        DebugLog.d("start countdown .... ");
-        mRunnableCheckoutHandler  = () -> {
-            TowerApplication.getInstance().toast("Checkout success", Toast.LENGTH_SHORT);
-            Intent recheckinIntent = new Intent(CheckInActivity.this, CheckInActivity.class);
-            recheckinIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(recheckinIntent);
-        };
-        mCheckoutHandler.postDelayed(mRunnableCheckoutHandler, CHECKIN_DURATION * 3600 * 1000); // 3 hours
-    }
-
-    private void startCheckGPSHandler() {
-        DebugLog.d("start check GPS...");
-
-        mRunnableCheckGPSHandler = () -> {
-            if (!CommonUtil.checkNetworkStatus(CheckInActivity.this) || !CommonUtil.checkNetworkStatus(CheckInActivity.this)) {
-                mLocationRequestProvider.showGPSDialog();
-            }
-        };
-        mCheckGPSHandler.removeCallbacks(mRunnableCheckGPSHandler);
-        mCheckGPSHandler.postDelayed(mRunnableCheckGPSHandler, CHECK_GPS_DURATION * 1000); // every 5 seconds
     }
 
     private void getWindowConfiguration() {
@@ -683,16 +456,12 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
 
     @AfterPermissionGranted(Constants.RC_LOCATION_PERMISSION)
     private void requestLocationPermission() {
-
         DebugLog.d("request access location permission");
         if (PermissionUtil.hasPermission(this, PermissionUtil.ACCESS_FINE_LOCATION)) {
-
             // Already has permission, do the thing
-            DebugLog.d("Already have permission, do the thing");
+            DebugLog.d("Already have permission, start request location");
             initLocationServices();
-
         } else {
-
             // Do not have permissions, request them now
             DebugLog.d("Do not have permissions, request them now");
             PermissionUtil.requestPermission(this, getString(R.string.rationale_requestlocation), Constants.RC_LOCATION_PERMISSION, PermissionUtil.ACCESS_FINE_LOCATION);
@@ -702,14 +471,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         DebugLog.d("request permission result");
-
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == Constants.RC_LOCATION_PERMISSION) {
-
             if (PermissionUtil.hasPermission(this, PermissionUtil.ACCESS_FINE_LOCATION)) {
-
                 DebugLog.d("access fine location allowed, start request location");
                 initLocationServices();
             } else {
