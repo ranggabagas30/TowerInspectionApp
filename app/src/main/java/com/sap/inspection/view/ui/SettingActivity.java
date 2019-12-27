@@ -177,23 +177,8 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
         if (!isUpdateAvailable)
             super.onBackPressed();
         else {
-            Toast.makeText(this, "Mohon untuk klik tombol \"Update\" untuk menggunakan aplikasi terbaru", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.warning_mohon_klik_tombol_update), Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
