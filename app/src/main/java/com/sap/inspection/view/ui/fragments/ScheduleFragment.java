@@ -47,12 +47,10 @@ import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class ScheduleFragment extends BaseListTitleFragment implements OnItemClickListener{
 
-	private CompositeDisposable compositeDisposable;
 	private ScheduleAdapter adapter;
 	private BaseActivity baseActivity;
 	private ArrayList<ScheduleGeneral> schedules;
@@ -70,7 +68,6 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		super.onCreate(savedInstanceState);
 		baseActivity = (BaseActivity) getActivity();
 		adapter = new ScheduleAdapter(getActivity());
-		compositeDisposable = new CompositeDisposable();
 		schedules = new ArrayList<>();
 	}
 
@@ -125,15 +122,11 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		DebugLog.d("destroy view");
-		compositeDisposable.clear();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		DebugLog.d("destroy");
-		compositeDisposable.dispose();
 	}
 
 	@Override
@@ -170,7 +163,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		}
 
 		String workType = resId == R.string.schedule ? null : getString(resId);
-		baseActivity.showMessageDialog("Memuat jadwal");
+		showMessageDialog("Memuat jadwal");
 		schedules.clear();
 		compositeDisposable.add(
 				ScheduleBaseModel.loadSchedules(workType)
@@ -180,13 +173,13 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 								schedule -> {
 									if (schedule != null) schedules.add(schedule);
 								}, error -> {
-									baseActivity.hideDialog();
+									hideDialog();
 									DebugLog.e(error.getMessage(), error);
 									Toast.makeText(getActivity(), "Gagal memuat jadwal", Toast.LENGTH_LONG).show();
 								}, () -> {
 									schedules = ScheduleBaseModel.getListScheduleForScheduleAdapter(schedules);
 									adapter.setItems(schedules);
-									baseActivity.hideDialog();
+									hideDialog();
 									if (schedules.isEmpty()) {
 										Toast.makeText(getActivity(), "Tidak ada jadwal", Toast.LENGTH_SHORT).show();
 									}
@@ -209,13 +202,12 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		CorrectiveScheduleResponseModel correctiveData = CorrectiveScheduleConfig.getCorrectiveScheduleConfig();
 		if (correctiveData == null) {
 			DebugLog.d("Corrective schedule config not found, create config");
-			baseActivity.showMessageDialog("Loading corrective schedules data");
+			showMessageDialog("Loading corrective schedules data");
 			APIHelper.getCorrectiveSchedule(getContext(), correctiveScheduleHandler, userId);
 		} else {
 
 			ArrayList<ScheduleGeneral> correctiveScheduleModels = new ArrayList<>();
 			for (CorrectiveScheduleResponseModel.CorrectiveSchedule correctiveSchedule : correctiveData.getData()) {
-
 				String scheduleId = String.valueOf(correctiveSchedule.getId());
 				ScheduleGeneral correctiveScheduleModel = ScheduleBaseModel.getScheduleById(scheduleId);
 				correctiveScheduleModels.add(correctiveScheduleModel);
@@ -236,21 +228,19 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	private Handler itemScheduleHandler = new Handler(){
 
 		public void handleMessage(android.os.Message msg) {
-			baseActivity.hideDialog();
+			hideDialog();
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
-
 			boolean isResponseOK = bundle.getBoolean("isresponseok");
-
 			if (isResponseOK) {
-
 				if (bundle.getString("json") != null) {
 					String jsonItemSchedule = bundle.getString("json");
 
 					/* obtain the response */
 					ScheduleResponseModel itemScheduleResponse = gson.fromJson(jsonItemSchedule, ScheduleResponseModel.class);
 
-					if (itemScheduleResponse != null && !itemScheduleResponse.data.isEmpty()) {
+					// TODO: test itemScheduleResponse.data =
+					if (itemScheduleResponse != null && itemScheduleResponse.data != null && !itemScheduleResponse.data.isEmpty()) {
 						if (itemScheduleResponse.status == HttpURLConnection.HTTP_OK) {
 							ScheduleGeneral itemScheduleGeneral = itemScheduleResponse.data.get(0);
 							DebugLog.d("size of default value schedules : " + itemScheduleGeneral.default_value_schedule.size());
@@ -291,7 +281,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	private Handler correctiveScheduleHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			baseActivity.hideDialog();
+			hideDialog();
 			Bundle bundle = msg.getData();
 			Gson gson = new Gson();
 			boolean isResponseOK = bundle.getBoolean("isresponseok");
@@ -337,16 +327,12 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 
-		int workTypeId = schedules.get(position).work_type.id;
-		int siteId = schedules.get(position).site.id;
-		String workTypeName = schedules.get(position).work_type.name;
-		String dayDate = schedules.get(position).day_date;
-		String scheduleId = schedules.get(position).id;
-
-		log("-=-="+ workTypeName +"-=-=-=");
-		log("-=-="+ workTypeId +"-=-=-=");
-		log("-=-="+ scheduleId +"-=-=-=");
-		log("-=-="+ userId +"-=-=-=");
+		ScheduleGeneral schedule = schedules.get(position);
+		int workTypeId = schedule.work_type.id;
+		int siteId = schedule.site.id;
+		String workTypeName = schedule.work_type.name;
+		String dayDate = schedule.day_date;
+		String scheduleId = schedule.id;
 
 		if (userId != null && !userId.equalsIgnoreCase("") && !TowerApplication.getInstance().IS_CHECKING_HASIL_PM()) {
 			setItemScheduleModelBy(scheduleId, userId);
@@ -395,12 +381,12 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		DebugLog.d("workdate: " + workDate);
 		DebugLog.d("userId: " + userId);
 
-		baseActivity.showMessageDialog("Creating schedule FOCUT");
+		showMessageDialog("Creating schedule FOCUT");
 		compositeDisposable.add(TowerAPIHelper.createScheduleFOCUT(ttNumber, workDate, userId)
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(response -> {
-					baseActivity.hideDialog();
+					hideDialog();
 					if (response.status == HttpStatus.SC_CREATED) {
 						onSuccessCreateScheduleFOCUT(response);
 					} else {
@@ -409,7 +395,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 						Toast.makeText(getContext(), response.messages, Toast.LENGTH_LONG).show();
 					}
 				}, error -> {
-					baseActivity.hideDialog();
+					hideDialog();
 					Toast.makeText(getContext(), "Failed to create schedule FO CUT (error: " + error.getMessage() + ")", Toast.LENGTH_LONG).show();
 					DebugLog.e(error.getMessage(), error);
 				})
@@ -418,11 +404,11 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 
 	private void onSuccessCreateScheduleFOCUT(CreateScheduleFOCUTResponseModel response) {
 		if (response != null) {
-			baseActivity.showMessageDialog("Loading schedules");
+			showMessageDialog("Loading schedules");
 			ScheduleGeneral schedule = response.data;
 			schedule.save();
 			setScheduleBy(R.string.focut);
-			baseActivity.hideDialog();
+			hideDialog();
 		}
 	}
 }
