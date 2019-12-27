@@ -2,7 +2,7 @@ package com.sap.inspection.model.responsemodel;
 
 import com.sap.inspection.tools.DebugLog;
 
-public class CheckinRepsonseModel extends BaseResponseModel {
+public class CheckinResponseModel extends BaseResponseModel {
     public Data data;
     public String respond_in;
 

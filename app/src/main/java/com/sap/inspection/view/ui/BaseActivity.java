@@ -129,12 +129,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
-		if (!instanceStateSaved) {
-//			imageLoader.stop();
-		}
-
-		if (compositeDisposable != null) compositeDisposable.dispose();
 		super.onDestroy();
+		if (compositeDisposable != null) compositeDisposable.dispose();
 	}
 
 	@Override

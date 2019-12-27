@@ -59,7 +59,7 @@ public class MainMenuPageFragment extends BaseFragment {
 	}
 
 	private void initUserName(View root){
-		TextView user = (TextView) root.findViewById(R.id.user);
+		TextView user = root.findViewById(R.id.user);
 		String userName = ((BaseActivity)getActivity()).getPreference(R.string.user_fullname, "");
 		user.setText("Hi "+userName);
 	}
