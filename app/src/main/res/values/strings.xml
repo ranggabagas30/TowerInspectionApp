@@ -90,7 +90,11 @@
     <string name="error_retrieving_firebase_instance_id">Gagal mendapatkan firebase instance id. Mohon laporkan masalah</string>
     <string name="error_device_id_empty">Tidak bisa mendapatkan device id</string>
     <string name="error_fcm_token_empty">Token FCM kosong. Gagal registrasi device</string>
+    <string name="error_site_empty">Error: Data site kosong. Mohon laporkan problem ini</string>
+    <string name="error_site_location_empty">Error: Data lokasi site kosong. Mohon laporkan problem ini</string>
     <string name="error_access_token_empty">Access token kosong. Gagal registrasi device</string>
+    <string name="error_schedule_empty">Schedule kosong. Silahkan "Muat ulang jadwal" di halaman pengaturan</string>
+    <string name="error_form_empty">Form kosong. Silahkan "Update form" di halaman pengaturan</string>
     <string name="error_response_null">Gagal mendapatkan response dari server</string>
     <string name="error_not_json_type">Respon bukan tipe json</string>
     <string name="error_failed_download_forms">Gagal mengunduh form</string>
@@ -129,6 +133,9 @@
     <string name="error_input_amount_barang">Mohon masukkan jumlah barang dengan benar</string>
     <string name="error_using_manual_date_time">Gagal menyimpan foto. Pastikan menggunakan "Automatic date and time" di pengaturan device</string>
     <string name="error_permission_denied">Mohon berikan izin agar dapat melanjutkan</string>
+    <string name="error_distance_too_far">Gagal check-in. Jarak PIC dengan lokasi site di atas 100 m</string>
+    <string name="error_accuracy_too_low">Gagal check-in. Akurasi GPS terlalu rendah (di atas 50 m). Tunggu beberapa saat</string>
+    <string name="error_please_wait_gps">Mohon tunggu. Sedang proses mendapatkan lokasi</string>
 
     <!-- success messages-->
     <string name="success_copydatabase">Berhasil salin database</string>
@@ -142,6 +149,8 @@
     <string name="success_update_form_imbas_petir">Form imbas petir berhasil diperbaharui</string>
     <string name="success_latest_apk">Aplikasi terinstal merupakan versi terupdate</string>
     <string name="success_preparing_upload_items">Penyiapan upload item selesai</string>
+    <string name="success_check_in">Checkin berhasil</string>
+    <string name="success_check_out">Checkout_berhasil</string>
 
     <!-- warning messages-->
     <string name="warning_update_form_title">Mengupdate ulang form</string>
@@ -150,11 +159,14 @@
     <string name="warning_check_play_service">Error</string>
     <string name="warning_check_play_service_message">Mohon install Google Play</string>
     <string name="warning_input_amount_warga_barang">Jumlah maksimal untuk ditambahkan adalah 10. Lakukan penambahan kembali jika diperlukan penambahan</string>
+    <string name="warning_mohon_klik_tombol_update">Mohon untuk klik tombol "Update" untuk menggunakan aplikasi terbaru</string>
 
     <!-- info messages -->
     <string name="info_preparing_upload_items">Menyiapkan item untuk diupload</string>
     <string name="info_deleting_schedule">Menghapus schedule</string>
     <string name="info_deleting_all_data">Menghapus seluruh data</string>
+    <string name="info_checking_data_for_checkin">Checking data</string>
+    <string name="info_sending_check_in_data">Mengirim data checkin</string>
 
     <string name="informationGPS">Information</string>
     <string name="enableGPS">Silahkan aktifkan GPS</string>
@@ -215,5 +227,14 @@
     <string name="positive_understood">Mengerti</string>
     <string name="positive_understood_dont_show_again">Mengerti (Jangan tampilkan lagi)</string>
     <string name="negative_cancel">Batalkan</string>
+
+    <!-- labels -->
+    <string name="label_text_size">Ukuran Huruf</string>
+    <string name="label_portrait">Portrait :</string>
+    <string name="label_landscape">Landscape :</string>
+    <string name="label_simpan_perubahan">Simpan perubahan</string>
+    <string name="label_pengaturan_watermark">Pengaturan Watermark</string>
+    <string name="label_ukuran_spasi_antar_baris">Ukuran Spasi Antar Baris</string>
+    <string name="info_aturan_checkin">Jarak Anda ke site maksimal %d m dan akurasi maksimum %d m agar bisa checkin</string>
 
 </resources>
