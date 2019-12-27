@@ -13,12 +13,12 @@
     </FrameLayout>
 
     <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
 
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="@dimen/padding_large" >
 
@@ -38,7 +38,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingBottom="@dimen/padding_medium"
-                    android:text="Watermark Text" />
+                    android:text="@string/label_pengaturan_watermark" />
 
                 <LinearLayout
                     android:id="@+id/watermarklayouttextsize"
@@ -50,9 +50,9 @@
                         android:id="@+id/textsizesectiontitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="10dp"
                         android:paddingStart="10dp"
-                        android:text="Text Size"
+                        android:paddingEnd="10dp"
+                        android:text="@string/label_text_size"
                         android:textSize="16sp" />
 
                     <LinearLayout
@@ -66,8 +66,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:paddingStart="16dp"
-                            android:paddingLeft="16dp"
-                            android:text="Portrait : "/>
+                            android:paddingEnd="16dp"
+                            android:text="@string/label_portrait"/>
 
                         <com.sap.inspection.view.customview.FormInputText
                             android:id="@+id/textmarksizepotrait"
@@ -90,8 +90,8 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:paddingStart="16dp"
-                            android:paddingLeft="16dp"
-                            android:text="Landscape : "/>
+                            android:paddingEnd="16dp"
+                            android:text="@string/label_landscape"/>
 
                         <com.sap.inspection.view.customview.FormInputText
                             android:id="@+id/textmarksizelandscape"
@@ -108,7 +108,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_button_green_small_padding"
-                        android:text="Set Text Size"
+                        android:text="@string/label_simpan_perubahan"
                         android:textColor="@android:color/white"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -124,9 +124,9 @@
                         android:id="@+id/linespacesectiontitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="10dp"
                         android:paddingStart="10dp"
-                        android:text="Line Space Size"
+                        android:paddingEnd="10dp"
+                        android:text="@string/label_ukuran_spasi_antar_baris"
                         android:textSize="16sp" />
 
                     <LinearLayout
@@ -146,8 +146,8 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:paddingStart="16dp"
-                                android:paddingLeft="16dp"
-                                android:text="Portrait : "/>
+                                android:paddingEnd="16dp"
+                                android:text="@string/label_portrait"/>
 
                             <com.sap.inspection.view.customview.FormInputText
                                 android:id="@+id/linespacepotrait"
@@ -171,8 +171,8 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:paddingStart="16dp"
-                                android:paddingLeft="16dp"
-                                android:text="Landscape : "/>
+                                android:paddingEnd="16dp"
+                                android:text="@string/label_landscape"/>
 
                             <com.sap.inspection.view.customview.FormInputText
                                 android:id="@+id/linespacelandscape"
@@ -192,7 +192,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_button_green_small_padding"
-                        android:text="Set Line Space Size"
+                        android:text="@string/label_simpan_perubahan"
                         android:textColor="@android:color/white"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -208,9 +208,9 @@
                         android:id="@+id/heightbackgroundwatermarktitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="10dp"
                         android:paddingStart="10dp"
-                        android:text="Height Background Watermark Size"
+                        android:paddingEnd="10dp"
+                        android:text="Ketinggian Background Watermark"
                         android:textSize="16sp" />
 
                     <LinearLayout
@@ -230,8 +230,8 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:paddingStart="16dp"
-                                android:paddingLeft="16dp"
-                                android:text="Portrait : "/>
+                                android:paddingEnd="16dp"
+                                android:text="@string/label_portrait"/>
 
                             <com.sap.inspection.view.customview.FormInputText
                                 android:id="@+id/heightbackgroundwatermarkportrait"
@@ -263,8 +263,8 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:paddingStart="16dp"
-                                android:paddingLeft="16dp"
-                                android:text="Landscape : "/>
+                                android:paddingEnd="16dp"
+                                android:text="@string/label_landscape"/>
 
                             <com.sap.inspection.view.customview.FormInputText
                                 android:id="@+id/heightbackgroundwatermarklandscape"
@@ -284,7 +284,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/selector_button_green_small_padding"
-                        android:text="Set Backround Height Size"
+                        android:text="@string/label_simpan_perubahan"
                         android:textColor="@android:color/white"
                         android:textStyle="bold" />
 
@@ -524,5 +524,4 @@
 
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>
