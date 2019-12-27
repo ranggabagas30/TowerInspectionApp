@@ -2,16 +2,17 @@ package com.sap.inspection.connection.rest;
 
 import com.sap.inspection.R;
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
+import com.sap.inspection.model.responsemodel.CheckinResponseModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.CreateScheduleFOCUTResponseModel;
 import com.sap.inspection.model.responsemodel.DeviceRegistrationResponseModel;
-import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.responsemodel.VersionResponseModel;
 import com.sap.inspection.util.PrefUtil;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 
 public class TowerAPIHelper {
@@ -56,7 +57,23 @@ public class TowerAPIHelper {
         return TowerAPIClient.createService(TowerAPI.class).rxEditSchedule(oldTTNumber, newTTNumber);
     }
 
-    public static Single<FakeGPSResponseModel> reportFakeGPS(String timeDetected, String appVersion, String message, String siteId) {
+    public static Single<CheckinResponseModel> checkinSchedule(String scheduleId,
+                                                               String schedule_id,
+                                                               String siteIdCustomer,
+                                                               String siteName,
+                                                               String period,
+                                                               String siteLat,
+                                                               String siteLong,
+                                                               String currentLat,
+                                                               String currentLong,
+                                                               String distance,
+                                                               String timeCheckin,
+                                                               String status,
+                                                               String accuracy) {
+        return TowerAPIClient.createService(TowerAPI.class).rxPostCheckin(scheduleId, schedule_id, siteIdCustomer, siteName, period, siteLat, siteLong, currentLat, currentLong, distance, timeCheckin, status, accuracy);
+    }
+
+    public static Completable reportFakeGPS(String timeDetected, String appVersion, String message, String siteId) {
         return TowerAPIClient.createService(TowerAPI.class).rxPostReportFakeGPS(timeDetected, appVersion, message, siteId);
     }
 

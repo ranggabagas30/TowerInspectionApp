@@ -1,15 +1,16 @@
 package com.sap.inspection.connection.rest;
 
 import com.sap.inspection.model.responsemodel.BaseResponseModel;
+import com.sap.inspection.model.responsemodel.CheckinResponseModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.CreateScheduleFOCUTResponseModel;
 import com.sap.inspection.model.responsemodel.DeviceRegistrationResponseModel;
-import com.sap.inspection.model.responsemodel.FakeGPSResponseModel;
 import com.sap.inspection.model.responsemodel.FormResponseModel;
 import com.sap.inspection.model.responsemodel.ScheduleResponseModel;
 import com.sap.inspection.model.responsemodel.UserResponseModel;
 import com.sap.inspection.model.responsemodel.VersionResponseModel;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -41,7 +42,6 @@ public interface TowerAPI {
             @Field("username") String username,
             @Field("password") String password
     );
-
 
     @FormUrlEncoded
     @POST("schedule/create/fo_cut")
@@ -77,8 +77,27 @@ public interface TowerAPI {
     );
 
     @FormUrlEncoded
+    @POST("schedules/{scheduleId}/check_in")
+    Single<CheckinResponseModel> rxPostCheckin(
+            @Path("scheduleId") String scheduleId,
+            @Field("schedule_id") String schedule_id,
+            @Field("site_id_customer") String siteIdCustomer,
+            @Field("site_name") String siteName,
+            @Field("period") String period,
+            @Field("site_lat") String siteLat,
+            @Field("site_long") String siteLong,
+            @Field("current_lat") String currentLat,
+            @Field("current_long") String currentLong,
+            @Field("distance") String distance,
+            @Field("time_checkin") String timeCheckin,
+            @Field("status") String status,
+            @Field("accuracy") String accuracy
+    );
+
+
+    @FormUrlEncoded
     @POST("register/fake_gps")
-    Single<FakeGPSResponseModel> rxPostReportFakeGPS(
+    Completable rxPostReportFakeGPS(
             @Field("time_detected") String timeDetected,
             @Field("app_version") String appVersion,
             @Field("message") String message,
