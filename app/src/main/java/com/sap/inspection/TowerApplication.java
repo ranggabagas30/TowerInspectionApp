@@ -1,7 +1,6 @@
 package com.sap.inspection;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -12,6 +11,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -42,13 +43,10 @@ import java.util.HashMap;
 
 import io.fabric.sdk.android.Fabric;
 
-/*import com.google.android.gms.analytics.GoogleAnalytics;
-import com.google.android.gms.analytics.Tracker;*/
-
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
-public class TowerApplication extends Application implements ActivityLifecycleHandler.LifecycleListener {
+public class TowerApplication extends MultiDexApplication implements ActivityLifecycleHandler.LifecycleListener {
 
 	private UncaughtExceptionHandler defaultUEH;
 	private static TowerApplication instance;
@@ -72,6 +70,12 @@ public class TowerApplication extends Application implements ActivityLifecycleHa
 
 	public static Context getContext() {
 		return instance;
+	}
+
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+		MultiDex.install(this);
 	}
 
 	@Override
