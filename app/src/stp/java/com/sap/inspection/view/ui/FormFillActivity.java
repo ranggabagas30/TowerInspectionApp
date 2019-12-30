@@ -34,16 +34,18 @@ import android.widget.Toast;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
+import com.sap.inspection.BuildConfig;
 import com.sap.inspection.R;
 import com.sap.inspection.TowerApplication;
+import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
 import com.sap.inspection.listener.FormTextChange;
+import com.sap.inspection.model.ScheduleBaseModel;
 import com.sap.inspection.model.ScheduleGeneral;
-import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.ItemFormRenderModel;
 import com.sap.inspection.model.form.RowColumnModel;
+import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.value.FormValueModel;
 import com.sap.inspection.model.value.Pair;
@@ -64,6 +66,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -87,17 +91,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 	private ArrayList<ItemFormRenderModel> formModels;
 	private File photoFile;
 	private FormFillAdapter adapter;
-
-
+	
 	private String pageTitle;
-	private LatLng currentGeoPoint;
-	private int accuracy;
 	private boolean finishInflate;
 	private boolean isChecklistOrSiteInformation;
 	private boolean isMandatoryCheckingActive = false;
 
 	private GoogleApiClient googleApiClient;
 	private LocationRequest locationRequest;
+	private Location currentLocation;
 
 	// view
 	private ScrollView scroll;
@@ -114,7 +116,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 	public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setCurrentGeoPoint(new LatLng(0, 0));
         setContentView(R.layout.activity_form_fill);
 
         Bundle bundle = getIntent().getExtras();
@@ -147,8 +148,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
             formModels = new ArrayList<>();
 
         // init schedule
-        schedule = new ScheduleGeneral();
-        schedule = schedule.getScheduleById(scheduleId);
+        schedule = ScheduleBaseModel.getScheduleById(scheduleId);
 
         adapter = new FormFillAdapter(this);
         adapter.setScheduleId(scheduleId);
@@ -224,52 +224,54 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
 			if (DateUtil.isTimeAutomatic(this)) {
-				String siteLatitude = String.valueOf(currentGeoPoint.latitude);
-				String siteLongitude = String.valueOf(currentGeoPoint.longitude);
-				Pair<String, String> photoLocation;
-				try {
-					if (mImageUri != null && !TextUtils.isEmpty(photoFile.toString())) {
-						File filePhotoResult = new File(photoFile.toString());
-						if (filePhotoResult.exists()) {
-							if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
-								photoLocation = CommonUtil.getPersistentLocation(scheduleId);
-								if (photoLocation != null) {
-									siteLatitude = photoLocation.first();
-									siteLongitude = photoLocation.second();
-								} else {
-									DebugLog.e("Persistent photo location error (null)");
-								}
-							}
 
-							String[] textMarks = new String[3];
-							String photoDate = DateUtil.getCurrentDate();
-							String latitude = siteLatitude;
-							String longitude = siteLongitude;
-
-							textMarks[0] = "Lat. : " + latitude + ", Long. : " + longitude;
-							textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
-							textMarks[2] = "Photo date : " + photoDate;
-
-							ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
-							System.gc();
-							if (!CommonUtil.isCurrentLocationError(latitude, longitude)) {
-								photoItem.deletePhoto();
-								photoItem.setImage(filePhotoResult, latitude, longitude, accuracy);
-							} else {
-								DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-								TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
-							}
-						} else {
-							throw new NullPointerException("Failed take picture. File not exists");
-						}
-					} else throw new NullPointerException("Failed take picture. Image URI or photo path is null");
-				} catch (IOException e) {
-					DebugLog.e("resize and save image: " + e.getMessage());
-					Toast.makeText(activity, "Gagal menyimpan foto", Toast.LENGTH_LONG).show();
-				} catch (NullPointerException e) {
-					DebugLog.e("resize and save image: " + e.getMessage());
-					Toast.makeText(activity, "Gagal menyimpan foto", Toast.LENGTH_LONG).show();
+				// anonymously send fake gps report to server
+				String fakeGPSReport = CommonUtil.checkFakeGPS(this, currentLocation);
+				if (!TextUtils.isEmpty(fakeGPSReport)) {
+					sendFakeGPSReport(fakeGPSReport, String.valueOf(schedule.site.id));
 				}
+
+				Pair<String, String> photoLocation;
+				String currentLat  = String.valueOf(currentLocation.getLatitude());
+				String currentLong = String.valueOf(currentLocation.getLongitude());
+				int accuracy	   = (int) currentLocation.getAccuracy();
+
+				if (mImageUri != null && !TextUtils.isEmpty(photoFile.toString())) {
+					File filePhotoResult = new File(photoFile.toString());
+					if (filePhotoResult.exists()) {
+						if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
+							photoLocation = CommonUtil.getPersistentLocation(scheduleId);
+							if (photoLocation != null) {
+								currentLat = photoLocation.first();
+								currentLong = photoLocation.second();
+							} else {
+								DebugLog.e("Persistent photo location error (null)");
+							}
+						}
+
+						String[] textMarks = new String[3];
+						String photoDate = DateUtil.getCurrentDate();
+
+						textMarks[0] = "Lat. : " + currentLat + ", Long. : " + currentLong;
+						textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
+						textMarks[2] = "Photo date : " + photoDate;
+
+						try {
+							ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
+							if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
+								photoItem.deletePhoto();
+								photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
+							} else {
+								String errorMessage = this.getResources().getString(R.string.sitelocationisnotaccurate);
+								DebugLog.e("location error : " + errorMessage);
+								TowerApplication.getInstance().toast(errorMessage, Toast.LENGTH_LONG);
+							}
+						} catch (IOException e) {
+							Toast.makeText(activity, getString(R.string.error_resize_and_save_image), Toast.LENGTH_LONG).show();
+							DebugLog.e(getString(R.string.error_resize_and_save_image), e);
+						}
+					}
+				} else Toast.makeText(activity, getString(R.string.error_imageuri_or_photofile_empty), Toast.LENGTH_LONG).show();
 			} else {
 				Toast.makeText(activity, getString(R.string.error_using_manual_date_time), Toast.LENGTH_LONG).show();
 				DateUtil.openDateTimeSetting(FormFillActivity.this, 0);
@@ -353,6 +355,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 		}
 	}
 
+	private void sendFakeGPSReport(String message, String siteId) {
+		compositeDisposable.add(
+				TowerAPIHelper.reportFakeGPS(String.valueOf(System.currentTimeMillis()), BuildConfig.VERSION_NAME, message,siteId)
+						.subscribeOn(Schedulers.io())
+						.observeOn(AndroidSchedulers.mainThread())
+						.subscribe(
+								() -> DebugLog.d("send fake GPS report complete"),
+								error -> DebugLog.e(error.getMessage(), error)
+						)
+		);
+	}
+	
 	private void saveValue(String[] itemProperties,boolean isAdding,boolean isCompundButton){
 
 		if (itemProperties.length < 5){
@@ -459,7 +473,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 					startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
 				} else {
 					DebugLog.e("take picture: photo file not created");
-					Toast.makeText(activity, getString(R.string.error_take_picture) + ". " + "Aplikasi gagal membuat file foto", Toast.LENGTH_LONG).show();
+					Toast.makeText(activity, getString(R.string.error_photo_file_not_created), Toast.LENGTH_LONG).show();
 				}
 				return;
 			} catch (NullPointerException | IOException | IllegalArgumentException e) {
@@ -470,14 +484,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 		// if failed, then show toast with failed message
 		Toast.makeText(activity, getString(R.string.error_take_picture), Toast.LENGTH_SHORT).show();
     }
-
-	public void setCurrentGeoPoint(LatLng currentGeoPoint) {
-		this.currentGeoPoint = currentGeoPoint;
-	}
-
-	public LatLng getCurrentGeoPoint() {
-		return currentGeoPoint;
-	}
 
 	private class FormLoader extends AsyncTask<Void, Integer, Void>{
 		String lastLable = null;
@@ -671,9 +677,8 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 	private com.google.android.gms.location.LocationListener locationListener = new com.google.android.gms.location.LocationListener() {
 		@Override
 		public void onLocationChanged(Location location) {
-			accuracy = (int)location.getAccuracy();
-			setCurrentGeoPoint(new LatLng(location.getLatitude(), location.getLongitude()));
-			DebugLog.d(getCurrentGeoPoint().latitude +" || "+ getCurrentGeoPoint().longitude);
+			currentLocation = location;
+			DebugLog.d("location(lat: " + currentLocation.getLatitude() + ", long: " + currentLocation.getLongitude() + ", acc: " + currentLocation.getAccuracy()+ ")");
 		}
 	};
 
@@ -752,8 +757,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 		public void onClick(View v) {
 			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
 				photoItem = (PhotoItemRadio) v.getTag();
-				if (photoItem == null)
-					Toast.makeText(activity, "Gagal mengambil foto. Item tidak valid", Toast.LENGTH_LONG).show();
+				if (photoItem == null) {
+					Toast.makeText(activity, getString(R.string.error_photo_item_not_valid), Toast.LENGTH_LONG).show();
+					return;
+				}
 
 				// if dialog has never shown once
 				if (!PrefUtil.getBoolPref(R.string.key_should_not_show_take_picture_dialog, false)) {
