@@ -88,8 +88,6 @@ public class ImageUtil {
             } catch (Exception e) {
                 DebugLog.e(e.getMessage(), e);
             }
-            System.gc();
-
         } catch (NullPointerException e) {
             DebugLog.e(e.getMessage(), e);
         }
@@ -141,7 +139,6 @@ public class ImageUtil {
             
             bitmap = null;
             physicalPath = path;
-            System.gc();
 
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -286,7 +283,6 @@ public class ImageUtil {
 
         Paint greyPaint = new Paint();
         greyPaint.setColor(context.getResources().getColor(R.color.transparent_gray));
-
 
         int height_portrait = PrefUtil.getIntPref(R.string.heightbackgroundwatermarkportrait, Constants.HEIGHT_BACKGROUND_WATERMARK_PORTRAIT);
         int height_landscape = PrefUtil.getIntPref(R.string.heightbackgroundwatermarklandscape, Constants.HEIGHT_BACKGROUND_WATERMARK_LANDSCAPE);
