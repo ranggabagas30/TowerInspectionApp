@@ -92,6 +92,11 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
                 return;
             }
 
+            if (!CommonUtil.checkGpsStatus(this) && !CommonUtil.checkNetworkStatus(this)) {
+                DialogUtil.showGPSdialog(this);
+                return;
+            }
+
             if (mCurrentCoordinate != null) {
                 if (!isLocationError()) {
                     if (localValidation()) {
