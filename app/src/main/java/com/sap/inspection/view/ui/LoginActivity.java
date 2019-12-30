@@ -18,6 +18,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.pixplicity.easyprefs.library.Prefs;
 import com.rindang.zconfig.AppConfig;
 import com.sap.inspection.R;
+import com.sap.inspection.connection.rest.TowerAPIClient;
 import com.sap.inspection.connection.rest.TowerAPIHelper;
 import com.sap.inspection.constant.Constants;
 import com.sap.inspection.constant.GlobalVar;
@@ -275,6 +276,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Ratio
 	 * */
 	OnClickListener changeClickListener = view -> {
 		AppConfig.getInstance().config.setHost(endpoint.getText().toString());
+		TowerAPIClient.changeApiBaseUrl(AppConfig.getInstance().getV1() + "/");
 		Toast.makeText(activity, "Perubahan endpoint ke: " + AppConfig.getInstance().getV1(), Toast.LENGTH_SHORT).show();
 	};
 
