@@ -262,9 +262,11 @@ public class SettingActivity extends BaseActivity implements UploadListener, Eas
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                         () -> {
-                                            String path = Constants.DIR_PHOTOS + File.separator;
-                                            if (!CommonUtil.deleteFiles(path)) {
+                                            String path = Constants.DIR_TOWER_PHOTOS;
+                                            if (!CommonUtil.deleteDir(new File(path))) {
                                                 TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.error_delete_files), Toast.LENGTH_SHORT);
+                                                EventBus.getDefault().post(new DeleteAllProgressEvent(TowerApplication.getContext().getString(R.string.error_delete_files), true, false));
+                                                return;
                                             }
                                             EventBus.getDefault().post(new DeleteAllProgressEvent(activity.getString(R.string.success_delete_files), true, true));
                                         },
