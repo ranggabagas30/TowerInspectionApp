@@ -57,6 +57,11 @@ public class TowerAPIClient {
         return retrofit.create(serviceClass);
     }
 
+    public static void changeApiBaseUrl(String API_BASE_URL) {
+        retrofitBuilder
+                .baseUrl(API_BASE_URL);
+        retrofit = retrofitBuilder.build();
+    }
 
     public static class AuthenticationInterceptor implements Interceptor {
 
