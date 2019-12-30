@@ -19,12 +19,11 @@ public class DbRepositoryValue {
 
 	public static synchronized void initializedInstance() {
 		if (mInstance == null) {
-
 			DebugLog.d("initialized db repository value instance");
 			mInstance = new DbRepositoryValue();
-
 		}
 	}
+
 	public static DbRepositoryValue getInstance() {
 
 		if (mInstance == null) {
@@ -45,13 +44,12 @@ public class DbRepositoryValue {
 		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
 		if(_databaseHelper == null || !mPref.getString(context.getString(R.string.user_id), null).equalsIgnoreCase(mPref.getString(context.getString(R.string.latest_user_db_value), null))) {
 			_databaseHelper = null;
-			System.gc();
 			_databaseHelper = new DbManagerValue(context.getApplicationContext(),mPref.getString(context.getString(R.string.user_id), null));
 			mPref.edit().putString(context.getString(R.string.latest_user_db_value), mPref.getString(context.getString(R.string.user_id), null));
 		}
 
 		//DebugLog.d("opening new database");
-		if (mOpenCounter.incrementAndGet()== 1)
+		if (mOpenCounter.incrementAndGet() == 1)
 		_database = _databaseHelper.getWritableDatabase();
 	}
 

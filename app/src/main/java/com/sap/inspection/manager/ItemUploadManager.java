@@ -317,7 +317,6 @@ public class ItemUploadManager {
                 reqEntity.addPart(params.get(i).getName(), new StringBody(params.get(i).getValue()));
             }
 
-            System.gc();
             return reqEntity;
         }
 

@@ -32,7 +32,6 @@ public class DbRepositoryOthersValue {
 		SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
 		if(_databaseHelper == null || !mPref.getString(context.getString(R.string.user_id), null).equalsIgnoreCase(mPref.getString(context.getString(R.string.latest_user_db_value), null))) {
 			_databaseHelper = null;
-			System.gc();
 			_databaseHelper = new DbManagerOthersValue(context.getApplicationContext(),mPref.getString(context.getString(R.string.user_id), null));
 			mPref.edit().putString(context.getString(R.string.latest_user_db_value), mPref.getString(context.getString(R.string.user_id), null));
 		}

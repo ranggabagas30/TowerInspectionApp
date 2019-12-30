@@ -160,10 +160,9 @@ public class FormValueModel extends BaseModel {
 	}
 
 	public static FormValueModel getItemValue(String scheduleId, int itemId, int operatorId) {
-
 		return getItemValue(scheduleId, itemId, operatorId, null, null);
-
 	}
+
 	public static FormValueModel getItemValue(String scheduleId, int itemId, int operatorId, String wargaId, String barangId) {
 
 		String table = DbManagerValue.mFormValue;
@@ -247,12 +246,9 @@ public class FormValueModel extends BaseModel {
 		}
 
 		ArrayList<FormValueModel> results = new ArrayList<>();
-
 		do {
-
 			FormValueModel model = getSiteFromCursor(cursor);
 			results.add(model);
-
 		} while (cursor.moveToNext());
 
 		cursor.close();

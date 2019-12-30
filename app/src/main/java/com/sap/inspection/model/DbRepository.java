@@ -43,7 +43,6 @@ public class DbRepository {
 		if (_database!=null && _database.isOpen()) return;
         SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(context);
         if(_databaseHelper == null || !mPref.getString(context.getString(R.string.user_id), null).equalsIgnoreCase(mPref.getString(context.getString(R.string.latest_user_db), null))) {
-            System.gc();
             //DebugLog.d("user_id : " + mPref.getString(context.getString(R.string.user_id), null));
             _databaseHelper = new DbManager(context.getApplicationContext(),mPref.getString(context.getString(R.string.user_id), null));
             mPref.edit().putString(context.getString(R.string.latest_user_db), mPref.getString(context.getString(R.string.user_id), null));
