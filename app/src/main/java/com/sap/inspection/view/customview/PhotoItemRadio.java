@@ -366,13 +366,16 @@ public class PhotoItemRadio extends RelativeLayout {
 
 		if (itemFormRenderModel.getItemValue() == null){
 			DebugLog.d("itemFormRenderModel.getItemValue() == null");
-			if(!itemFormRenderModel.getWorkItemModel().scope_type.equalsIgnoreCase("operator"))
-				itemFormRenderModel.getSchedule().sumTaskDone+=itemFormRenderModel.getSchedule().operators.size();
-			else
-				itemFormRenderModel.getSchedule().sumTaskDone++;
+
+			// hitung sumtaskdone per item
+			if (itemFormRenderModel.getWorkItemModel().scope_type.equalsIgnoreCase("operator")) { // jika item per operator, maka
+				if (itemFormRenderModel.getSchedule().sumTaskDone == 0) itemFormRenderModel.getSchedule().sumTaskDone++; // naikkan nilai sumtaskdone ketika sebelumnya masih = 0
+			} else itemFormRenderModel.getSchedule().sumTaskDone++; // jika item "all" operator, maka sumtaskdone naikkan 1, bukan dikali jumlah operator
+
 			itemFormRenderModel.getSchedule().save();
 		}
-		DebugLog.d("task done : " + itemFormRenderModel.getSchedule().sumTaskDone);
+
+		DebugLog.d("sum task done : " + itemFormRenderModel.getSchedule().sumTaskDone);
 		if (itemFormRenderModel != null){
 			DebugLog.d("itemFormRenderModel != null");
 			itemFormRenderModel.setItemValue(value);

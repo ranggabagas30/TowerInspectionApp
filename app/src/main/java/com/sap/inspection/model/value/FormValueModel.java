@@ -149,12 +149,28 @@ public class FormValueModel extends BaseModel {
 	}
 
 	public static int countTaskDone(String scheduleId, int rowId){
-
 		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
 		Cursor mCount= DbRepositoryValue.getInstance().getDB().rawQuery("select count(*) from "+DbManagerValue.mFormValue+" where "+DbManagerValue.colScheduleId+"='" + scheduleId + "' and "+DbManagerValue.colRowId+"='" + rowId +"'", null);
 		mCount.moveToFirst();
 		int count= mCount.getInt(0);
 		mCount.close();
+		DbRepositoryValue.getInstance().close();
+		return count;
+	}
+
+	public static int countTaskDone(String scheduleId) {
+		DbRepositoryValue.getInstance().open(TowerApplication.getInstance());
+		Cursor cursor = DbRepositoryValue.getInstance().getDB().rawQuery("SELECT count(data_type." + DbManagerValue.colItemId + ") as total FROM(" +
+				"SELECT " + DbManagerValue.colItemId +
+				" FROM " + DbManagerValue.mFormValue +
+				" WHERE " + DbManagerValue.colScheduleId + " = '" + scheduleId + "'" +
+				" GROUP BY " + DbManagerValue.colItemId +
+			") as data_type", null);
+
+		cursor.moveToFirst();
+		int count = cursor.getInt(0);
+
+		cursor.close();
 		DbRepositoryValue.getInstance().close();
 		return count;
 	}
