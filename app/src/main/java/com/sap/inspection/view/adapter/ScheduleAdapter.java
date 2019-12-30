@@ -317,7 +317,7 @@ public class ScheduleAdapter extends MyBaseAdapter {
 	};
 
 	private void deleteDataByScheduleId(String scheduleId) {
-		String path = Constants.DIR_PHOTOS + File.separator + scheduleId + File.separator;
+		String path = Constants.DIR_TOWER_PHOTOS + File.separator + scheduleId + File.separator;
 		if (!CommonUtil.deleteFiles(path)) {
 			TowerApplication.getInstance().toast(TowerApplication.getContext().getString(R.string.error_delete_files), Toast.LENGTH_SHORT);
 		}

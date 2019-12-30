@@ -399,7 +399,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 			photoFile = null;
 			try {
 				String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
-				String savedPath = Constants.DIR_PHOTOS + File.separator + schedule.id;
+				String savedPath = Constants.DIR_TOWER_PHOTOS + File.separator + schedule.id;
 				photoFile = FileUtil.createTemporaryPhotoFile(CommonUtil.getEncryptedMD5Hex(photoFileName), ".jpg", savedPath);
 				mImageUri = FileUtil.getUriFromFile(this, photoFile);
 				intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);

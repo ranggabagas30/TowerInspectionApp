@@ -455,7 +455,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 			photoFile = null;
 			try {
 				String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
-				String savedPath = Constants.DIR_PHOTOS + File.separator + schedule.id;
+				String savedPath = Constants.DIR_TOWER_PHOTOS + File.separator + schedule.id;
 				photoFile = FileUtil.createTemporaryPhotoFile(photoFileName, ".jpg", savedPath);
 				if (photoFile != null && photoFile.exists()) {
 					photoFileName = photoFile.getPath().replaceFirst("/file:", "");
