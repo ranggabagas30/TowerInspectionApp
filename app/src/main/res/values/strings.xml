@@ -128,7 +128,11 @@
     <string name="error_file_name_too_short">Nama file terlalu pendek. Minimum 3 karakter</string>
     <string name="error_take_picture">Pengambilan foto gagal</string>
     <string name="error_load_image">Gagal menampilkan gambar</string>
+    <string name="error_resize_and_save_image">Gagal mengkompresi dan menyimpan foto</string>
+    <string name="error_photo_item_not_valid">Gagal mengambil foto. Item tidak valid</string>
+    <string name="error_imageuri_or_photofile_empty">Gagal mengambil foto. Image URI atau photo path kosong</string>
     <string name="error_url_bad_format">URL tidak benar. Periksa kembal</string>
+    <string name="error_photo_file_not_created">Aplikasi gagal membuat file foto</string>
     <string name="error_input_amount_warga">Mohon masukkan jumlah warga dengan benar</string>
     <string name="error_input_amount_barang">Mohon masukkan jumlah barang dengan benar</string>
     <string name="error_using_manual_date_time">Gagal menyimpan foto. Pastikan menggunakan "Automatic date and time" di pengaturan device</string>
