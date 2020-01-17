@@ -126,7 +126,8 @@
     <string name="error_storage_read_only">Gagal menyimpan file. (Storage is read-only)</string>
     <string name="error_storage_is_not_available">Gagal menyimpan file. (Storage is not available)</string>
     <string name="error_file_name_too_short">Nama file terlalu pendek. Minimum 3 karakter</string>
-    <string name="error_take_picture">Pengambilan foto gagal</string>
+    <string name="error_take_picture">Pengambilan foto gagal. %s</string>
+    <string name="error_no_camera_application">Tidak ditemukan aplikasi kamera yang mendukung</string>
     <string name="error_load_image">Gagal menampilkan gambar</string>
     <string name="error_resize_and_save_image">Gagal mengkompresi dan menyimpan foto</string>
     <string name="error_photo_item_not_valid">Gagal mengambil foto. Item tidak valid</string>
@@ -155,6 +156,7 @@
     <string name="success_preparing_upload_items">Penyiapan upload item selesai</string>
     <string name="success_check_in">Checkin berhasil</string>
     <string name="success_check_out">Checkout_berhasil</string>
+    <string name="success_storage_available_writeable">Tersedia storage writeable</string>
 
     <!-- warning messages-->
     <string name="warning_update_form_title">Mengupdate ulang form</string>
