@@ -115,8 +115,7 @@ public class FileUtil {
         return tempDir;
     }
 
-    public static boolean isStorageAvailableAndWriteable(Context context) {
-
+    public static boolean isStorageAvailableAndWritable() {
         boolean isAvailable = false;
         boolean isWriteable = false;
         String state = Environment.getExternalStorageState();
@@ -124,12 +123,18 @@ public class FileUtil {
             isAvailable = isWriteable = true;
         } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
             isAvailable = true;
-            Toast.makeText(context, context.getString(R.string.error_storage_read_only), Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(context, context.getString(R.string.error_storage_is_not_available), Toast.LENGTH_LONG).show();
         }
         return isAvailable & isWriteable;
     }
 
-
+    public static String getStorageStatus(Context context) {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) { // storage available and writeable
+            return null;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return context.getString(R.string.error_storage_read_only);
+        } else {
+            return context.getString(R.string.error_storage_is_not_available);
+        }
+    }
 }
