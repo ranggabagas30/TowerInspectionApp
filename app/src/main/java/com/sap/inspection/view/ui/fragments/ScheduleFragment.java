@@ -80,7 +80,7 @@ public class ScheduleFragment extends BaseListTitleFragment implements OnItemCli
 		actionRight.setOnClickListener(v -> {
 			Intent intent = new Intent(getActivity(), CallendarActivity.class);
 			intent.putExtra("filterBy", filterBy);
-			startActivityForResult(intent,MainActivity.REQUEST_CODE);
+			startActivityForResult(intent, MainActivity.REQUEST_CODE);
 		});
 
 		if (BuildConfig.FLAVOR.equalsIgnoreCase(Constants.APPLICATION_SAP)) {

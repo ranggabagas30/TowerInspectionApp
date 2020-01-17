@@ -449,7 +449,6 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 
     public void takePicture(int itemId){
     	trackEvent(getString(R.string.event_take_picture));
-    	DebugLog.d(getString(R.string.event_take_picture));
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (intent.resolveActivity(this.getPackageManager()) != null && FileUtil.isStorageAvailableAndWriteable(this)) {
 			photoFile = null;
