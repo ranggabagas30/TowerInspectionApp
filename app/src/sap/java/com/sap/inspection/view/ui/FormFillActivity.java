@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -58,6 +59,7 @@ import com.sap.inspection.util.DialogUtil;
 import com.sap.inspection.util.FileUtil;
 import com.sap.inspection.util.ImageUtil;
 import com.sap.inspection.util.PermissionUtil;
+import com.sap.inspection.util.PrefUtil;
 import com.sap.inspection.util.StringUtil;
 import com.sap.inspection.view.adapter.FormFillAdapter;
 import com.sap.inspection.view.customview.FormItem;
@@ -71,9 +73,10 @@ import java.util.Set;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class FormFillActivity extends BaseActivity implements FormTextChange{
+public class FormFillActivity extends BaseActivity implements FormTextChange, EasyPermissions.RationaleCallbacks {
 
 	// bundle data
 	private String wargaId;
@@ -197,13 +200,15 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	@Override
 	protected void onStart() {
 		super.onStart();
-		// Connect the client.
-		googleApiClient.connect();
+		connectGoogleApi();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (!CommonUtil.checkPlayServices(this)) {
+			Toast.makeText(activity, getString(R.string.warning_check_play_service_message), Toast.LENGTH_LONG).show();
+		}
 	}
 
 	@Override
@@ -213,9 +218,13 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	@Override
 	protected void onStop() {
-		// Disconnecting the client invalidates it.
-		googleApiClient.disconnect();
 		super.onStop();
+		stopLocationUpdates();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 	OnItemSelectedListener itemSelected = new OnItemSelectedListener() {
@@ -277,7 +286,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		if (itemValueForShare == null)
 			itemValueForShare = new FormValueModel();
 
-		itemValueForShare = itemValueForShare.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
+		itemValueForShare = FormValueModel.getItemValue(schedule.id, Integer.parseInt(itemProperties[1]), Integer.parseInt(itemProperties[2]));
 		if (itemValueForShare == null){
 			itemValueForShare = new FormValueModel();
 			itemValueForShare.scheduleId = schedule.id;
@@ -362,16 +371,38 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	OnClickListener photoClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			if (PermissionUtil.hasAllPermissions(FormFillActivity.this)) {
-				if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
-					photoItem = (PhotoItemRadio) v.getTag();
+			if (CommonUtil.checkGpsStatus(FormFillActivity.this) || CommonUtil.checkNetworkStatus(FormFillActivity.this)) {
+				photoItem = (PhotoItemRadio) v.getTag();
+				if (photoItem == null) {
+					Toast.makeText(activity, getString(R.string.error_photo_item_not_valid), Toast.LENGTH_LONG).show();
+					return;
+				}
+
+				// if dialog has never shown once
+				if (!PrefUtil.getBoolPref(R.string.key_should_not_show_take_picture_dialog, false)) {
+
+					// show it
+					DialogUtil.showTakePictureDialog(activity, (position, item) -> {
+
+						// set initial value of dialog not shown as false
+						PrefUtil.putBoolPref(R.string.key_should_not_show_take_picture_dialog, false);
+						switch (position) {
+							// set dialog not shown as true ("Don't show again") and proceed take picture
+							case 0 : PrefUtil.putBoolPref(R.string.key_should_not_show_take_picture_dialog, true);
+
+								// proceed take picture
+							case 1 : takePicture(photoItem.getItemId()); break;
+
+							// dismiss
+							default: break;
+						}
+					});
+				} else {
+					// proceed take picture anyway
 					takePicture(photoItem.getItemId());
-				} else
-					DialogUtil.showGPSdialog(FormFillActivity.this);
-			} else {
-				// open app settings
-				new AppSettingsDialog.Builder(FormFillActivity.this).build().show();
-			}
+				}
+			} else
+				DialogUtil.showGPSdialog(FormFillActivity.this);
 		}
 	};
 
@@ -394,36 +425,42 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
     };
 
 	public boolean takePicture(int itemId){
+		trackEvent(getString(R.string.event_take_picture));
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		if (intent.resolveActivity(this.getPackageManager()) != null && FileUtil.isStorageAvailableAndWriteable(this)) {
-			photoFile = null;
-			try {
-				String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
-				String savedPath = Constants.DIR_TOWER_PHOTOS + File.separator + schedule.id;
-				photoFile = FileUtil.createTemporaryPhotoFile(CommonUtil.getEncryptedMD5Hex(photoFileName), ".jpg", savedPath);
-				mImageUri = FileUtil.getUriFromFile(this, photoFile);
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-				intent.putExtra("outputX", 480);
-				intent.putExtra("outputY", 480);
-				intent.putExtra("aspectX", 1);
-				intent.putExtra("aspectY", 1);
-				intent.putExtra("scale", true);
-				intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
-				intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-				startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
-				return true;
-			} catch (NullPointerException npe) {
-				DebugLog.e("take picture: " + npe.getMessage());
-			} catch (IOException e ) {
-				DebugLog.e("take picture: " + e.getMessage());
-			} catch (IllegalArgumentException ilae) {
-				DebugLog.e( "take pciture: " + ilae.getMessage());
-			}
+
+		if (!FileUtil.isStorageAvailableAndWritable()) {
+			String storageStatus = FileUtil.getStorageStatus(this);
+			Toast.makeText(this, getString(R.string.error_take_picture, storageStatus), Toast.LENGTH_LONG).show();
+			return false;
 		}
 
-		// if failed, then show toast with failed message
-		Toast.makeText(activity, getString(R.string.error_take_picture), Toast.LENGTH_SHORT).show();
-		return false;
+		if (intent.resolveActivity(this.getPackageManager()) == null) {
+			String errorMessage = getString(R.string.error_no_camera_application);
+			Toast.makeText(this, getString(R.string.error_take_picture, errorMessage), Toast.LENGTH_LONG).show();
+			return false;
+		}
+
+		try {
+			photoFile = null;
+			String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
+			String savedPath = Constants.DIR_TOWER_PHOTOS + File.separator + schedule.id;
+			photoFile = FileUtil.createTemporaryPhotoFile(CommonUtil.getEncryptedMD5Hex(photoFileName), ".jpg", savedPath);
+			mImageUri = FileUtil.getUriFromFile(this, photoFile);
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+			intent.putExtra("outputX", 480);
+			intent.putExtra("outputY", 480);
+			intent.putExtra("aspectX", 1);
+			intent.putExtra("aspectY", 1);
+			intent.putExtra("scale", true);
+			intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
+			intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
+			return true;
+		} catch (NullPointerException | IOException | IllegalArgumentException e) {
+			DebugLog.e("take picture: " + e.getMessage());
+			Toast.makeText(this, getString(R.string.error_take_picture, e.getMessage()), Toast.LENGTH_LONG).show();
+			return false;
+		}
 	}
 
 	//called after camera intent finished
@@ -431,7 +468,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
 		if(requestCode == Constants.RC_TAKE_PHOTO && resultCode == RESULT_OK) {
-			if (DateUtil.isTimeAutomatic(FormFillActivity.this)) {
+			if (DateUtil.isTimeAutomatic(this)) {
 
 			    // anonymously send fake gps report to server
                 String fakeGPSReport = CommonUtil.checkFakeGPS(this, currentLocation);
@@ -444,7 +481,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 				String currentLong = String.valueOf(currentLocation.getLongitude());
 				int accuracy	   = (int) currentLocation.getAccuracy();
 
-				if (photoItem != null && mImageUri != null){
+				if (mImageUri != null && !TextUtils.isEmpty(photoFile.toString())){
 					if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
 						photoLocation = CommonUtil.getPersistentLocation(scheduleId);
 						if (photoLocation != null) {
@@ -478,16 +515,18 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 								photoItem.deletePhoto();
 								photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
 							} else {
-								DebugLog.e("location error : " + this.getResources().getString(R.string.sitelocationisnotaccurate));
-								TowerApplication.getInstance().toast(this.getResources().getString(R.string.sitelocationisnotaccurate), Toast.LENGTH_SHORT);
+								String errorMessage = this.getResources().getString(R.string.sitelocationisnotaccurate);
+								DebugLog.e("location error : " + errorMessage);
+								TowerApplication.getInstance().toast(errorMessage, Toast.LENGTH_LONG);
 							}
 						}
 					} catch (IOException e) {
-						DebugLog.e("ERROR: resize and save image check", e);
+						Toast.makeText(this, getString(R.string.error_resize_and_save_image), Toast.LENGTH_LONG).show();
+						DebugLog.e(getString(R.string.error_resize_and_save_image), e);
 					}
-				}
+				} else Toast.makeText(activity, getString(R.string.error_imageuri_or_photofile_empty), Toast.LENGTH_LONG).show();
 			} else {
-				Toast.makeText(activity, getString(R.string.error_using_manual_date_time), Toast.LENGTH_LONG).show();
+				Toast.makeText(this, getString(R.string.error_using_manual_date_time), Toast.LENGTH_LONG).show();
 				DateUtil.openDateTimeSetting(FormFillActivity.this, 0);
 			}
 		}
@@ -720,11 +759,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 	private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
 		@Override
 		public void onConnected(@Nullable Bundle bundle) {
-			DebugLog.d("");
-			locationRequest = LocationRequest.create();
-			locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-			locationRequest.setInterval(5000); // Update location every second
-			LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,locationListener);
+			if (!PermissionUtil.hasAllPermissions(FormFillActivity.this))
+				return;
+
+			startLocationUpdates();
 		}
 
 		@Override
@@ -734,7 +772,10 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 
 	};
 
-	private GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = connectionResult -> DebugLog.d("connectionResult="+connectionResult.toString());
+	private GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener = connectionResult -> {
+		TowerApplication.getInstance().toast("Koneksi google api client gagal", Toast.LENGTH_LONG);
+		DebugLog.d("connectionResult="+connectionResult.toString());
+	};
 
 	private com.google.android.gms.location.LocationListener locationListener = new com.google.android.gms.location.LocationListener() {
 		@Override
@@ -831,4 +872,51 @@ public class FormFillActivity extends BaseActivity implements FormTextChange{
 		}
 	};
 
+	@AfterPermissionGranted(Constants.RC_ALL_PERMISSION)
+	private void requestAllPermission() {
+		PermissionUtil.requestAllPermissions(this, getString(R.string.rationale_allpermissions), Constants.RC_ALL_PERMISSION);
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if (requestCode == Constants.RC_ALL_PERMISSION) {
+			connectGoogleApi();
+		}
+	}
+
+	@Override
+	public void onRationaleAccepted(int requestCode) {
+
+	}
+
+	@Override
+	public void onRationaleDenied(int requestCode) {
+		if (requestCode == Constants.RC_ALL_PERMISSION) {
+			Toast.makeText(activity, getString(R.string.error_permission_denied), Toast.LENGTH_LONG).show();
+			finish();
+		}
+	}
+
+	private void connectGoogleApi() {
+		if (PermissionUtil.hasAllPermissions(this)) {
+			if (googleApiClient != null) googleApiClient.connect();
+		} else requestAllPermission();
+	}
+
+	private void startLocationUpdates() {
+		locationRequest = LocationRequest.create();
+		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		locationRequest.setInterval(5000); // Update location every second
+		locationRequest.setFastestInterval(3000);
+		LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,locationRequest,locationListener);
+	}
+
+	private void stopLocationUpdates() {
+		if (googleApiClient.isConnected()) {
+			LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, locationListener);
+			googleApiClient.disconnect();
+		}
+	}
 }
