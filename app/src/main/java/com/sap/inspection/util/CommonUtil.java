@@ -420,7 +420,7 @@ public class CommonUtil {
         File tempFile;
         if (CommonUtil.isExternalStorageAvailable()) {
             DebugLog.d("external storage available");
-            tempFile = new File(Constants.PATH_APK);
+            tempFile = new File(Constants.APK_FULL_PATH);
             DebugLog.d(tempFile.getAbsolutePath());
             if (tempFile.exists()) {
                 return tempFile;

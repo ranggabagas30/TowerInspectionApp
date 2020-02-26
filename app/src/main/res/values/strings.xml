@@ -129,7 +129,7 @@
     <string name="error_take_picture">Pengambilan foto gagal. %s</string>
     <string name="error_no_camera_application">Tidak ditemukan aplikasi kamera yang mendukung</string>
     <string name="error_load_image">Gagal menampilkan gambar</string>
-    <string name="error_resize_and_save_image">Gagal mengkompresi dan menyimpan foto</string>
+    <string name="error_resize_and_save_image">Gagal mengkompresi dan menyimpan foto. (ERROR: %s)</string>
     <string name="error_photo_item_not_valid">Gagal mengambil foto. Item tidak valid</string>
     <string name="error_imageuri_or_photofile_empty">Gagal mengambil foto. Image URI atau photo path kosong</string>
     <string name="error_url_bad_format">URL tidak benar. Periksa kembal</string>

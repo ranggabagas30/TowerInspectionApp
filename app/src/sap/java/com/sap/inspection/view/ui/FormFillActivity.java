@@ -51,7 +51,6 @@ import com.sap.inspection.model.form.WorkFormColumnModel;
 import com.sap.inspection.model.form.WorkFormRowModel;
 import com.sap.inspection.model.responsemodel.CorrectiveScheduleResponseModel;
 import com.sap.inspection.model.value.FormValueModel;
-import com.sap.inspection.model.value.Pair;
 import com.sap.inspection.tools.DebugLog;
 import com.sap.inspection.util.CommonUtil;
 import com.sap.inspection.util.DateUtil;
@@ -443,27 +442,38 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 		try {
 			photoFile = null;
 			String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);
-			String savedPath = Constants.DIR_TOWER_PHOTOS + File.separator + schedule.id;
+			/*ContextWrapper cw = new ContextWrapper(getApplicationContext());
+			File savedDir = cw.getDir(Constants.TOWER_PHOTOS_DIR, MODE_PRIVATE); // path to /data/data/yourapp/app_data/{savedDir}*/
+			//File savedDir = new File(getFilesDir(), Constants.TOWER_PHOTOS_DIR); // internal storage dir
+			//File savedDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), Constants.TOWER_PHOTOS_DIR); // path to /Android/data/app/{packagename}/files/pictures/...
+			//File savedPath = new File(savedDir, scheduleId);
+			String savedPath = Constants.TOWER_PHOTOS_PATH + File.separator + schedule.id;
 			photoFile = FileUtil.createTemporaryPhotoFile(CommonUtil.getEncryptedMD5Hex(photoFileName), ".jpg", savedPath);
 			mImageUri = FileUtil.getUriFromFile(this, photoFile);
-			intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-			intent.putExtra("outputX", 480);
-			intent.putExtra("outputY", 480);
-			intent.putExtra("aspectX", 1);
-			intent.putExtra("aspectY", 1);
-			intent.putExtra("scale", true);
-			intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
-			intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
-			return true;
+			DebugLog.d("photoFile string path: " + photoFile.toString());
+			DebugLog.d("photoFile absolute path: " + photoFile.getAbsolutePath());
+			DebugLog.d("mImageUri : " + mImageUri.toString());
+			if (mImageUri != null && photoFile != null && !TextUtils.isEmpty(photoFile.toString())) {
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+				intent.putExtra("outputX", 480);
+				intent.putExtra("outputY", 480);
+				intent.putExtra("aspectX", 1);
+				intent.putExtra("aspectY", 1);
+				intent.putExtra("scale", true);
+				intent.putExtra("outputFormat",Bitmap.CompressFormat.JPEG.toString());
+				intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				startActivityForResult(intent, Constants.RC_TAKE_PHOTO);
+				return true;
+			} else {
+				throw new NullPointerException(getString(R.string.error_imageuri_or_photofile_empty));
+			}
 		} catch (NullPointerException | IOException | IllegalArgumentException e) {
 			DebugLog.e("take picture: " + e.getMessage());
 			Toast.makeText(this, getString(R.string.error_take_picture, e.getMessage()), Toast.LENGTH_LONG).show();
-			return false;
 		}
+		return false;
 	}
 
-	//called after camera intent finished
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
@@ -476,55 +486,41 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
                     sendFakeGPSReport(fakeGPSReport, String.valueOf(schedule.site.id));
                 }
 
-				Pair<String, String> photoLocation;
 				String currentLat  = String.valueOf(currentLocation.getLatitude());
 				String currentLong = String.valueOf(currentLocation.getLongitude());
 				int accuracy	   = (int) currentLocation.getAccuracy();
 
-				if (mImageUri != null && !TextUtils.isEmpty(photoFile.toString())){
-					if (TowerApplication.getInstance().isScheduleNeedCheckIn()) {
-						photoLocation = CommonUtil.getPersistentLocation(scheduleId);
-						if (photoLocation != null) {
-							currentLat  = photoLocation.first();
-							currentLong = photoLocation.second();
-						} else {
-							DebugLog.e("Persistent photo location error (null)");
-						}
-					}
+				String[] textMarks = new String[3];
+				String photoDate = DateUtil.getCurrentDate();
 
-					String[] textMarks = new String[3];
-					String photoDate = DateUtil.getCurrentDate();
+				textMarks[0] = "Lat. : "+  currentLat + ", Long. : "+ currentLong;
+				textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
+				textMarks[2] = "Photo date : "+photoDate;
 
-					textMarks[0] = "Lat. : "+  currentLat + ", Long. : "+ currentLong;
-					textMarks[1] = "Distance to site : " + TowerApplication.getInstance().checkinDataModel.getDistance() + " meters";
-					textMarks[2] = "Photo date : "+photoDate;
+				try {
+					String photoAbsolutePath = photoFile.getAbsolutePath();
+					ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile, textMarks);
+					ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photoAbsolutePath);
+					CommonUtil.encryptFileBase64(photoFile, photoAbsolutePath);
 
-					try {
-						ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
-						ImageUtil.addWaterMark(this, R.drawable.watermark_ipa_grayscale, photoFile.toString());
-						CommonUtil.encryptFileBase64(photoFile, photoFile.toString());
-
-						// reget filePhotoResult
-						File filePhotoResult = new File(photoFile.toString());
-
-						if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
+					if (schedule.work_type.name.matches(Constants.regexIMBASPETIR)) {
+						photoItem.deletePhoto();
+						photoItem.setImage(photoFile, currentLat, currentLong, accuracy);
+					} else {
+						if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
 							photoItem.deletePhoto();
-							photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
+							photoItem.setImage(photoFile, currentLat, currentLong, accuracy);
 						} else {
-							if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
-								photoItem.deletePhoto();
-								photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
-							} else {
-								String errorMessage = this.getResources().getString(R.string.sitelocationisnotaccurate);
-								DebugLog.e("location error : " + errorMessage);
-								TowerApplication.getInstance().toast(errorMessage, Toast.LENGTH_LONG);
-							}
+							String errorMessage = this.getResources().getString(R.string.sitelocationisnotaccurate);
+							DebugLog.e("location error : " + errorMessage);
+							TowerApplication.getInstance().toast(errorMessage, Toast.LENGTH_LONG);
 						}
-					} catch (IOException e) {
-						Toast.makeText(this, getString(R.string.error_resize_and_save_image), Toast.LENGTH_LONG).show();
-						DebugLog.e(getString(R.string.error_resize_and_save_image), e);
 					}
-				} else Toast.makeText(activity, getString(R.string.error_imageuri_or_photofile_empty), Toast.LENGTH_LONG).show();
+				} catch (NullPointerException | IOException e) {
+					String errorMessage = getString(R.string.error_resize_and_save_image, e.getMessage());
+					Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+					DebugLog.e(errorMessage, e);
+				}
 			} else {
 				Toast.makeText(this, getString(R.string.error_using_manual_date_time), Toast.LENGTH_LONG).show();
 				DateUtil.openDateTimeSetting(FormFillActivity.this, 0);

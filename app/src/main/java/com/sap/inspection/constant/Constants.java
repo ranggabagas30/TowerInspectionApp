@@ -123,9 +123,10 @@ public class Constants {
 	/**
 	 * ============================= GLOBAL URL/URI =================================================
 	 * */
-	public static final String DIR_TOWER_PHOTOS = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator + BuildConfig.FOLDER_CAMERA + File.separator + BuildConfig.FOLDER_TOWER_INSPECTION;
-	public static final String DIR_APK = Environment.getExternalStorageDirectory() + File.separator + "Download";
-	public static final String PATH_APK = DIR_APK + File.separator + "sapInspection" + PrefUtil.getStringPref(R.string.latest_apk_version, "")+".apk";
-	public static final String URL_APK = PrefUtil.getStringPref(R.string.apk_update_url, "");
+	public static final String TOWER_PHOTOS_DIR = BuildConfig.FOLDER_TOWER_INSPECTION;
+	public static final String TOWER_PHOTOS_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + File.separator + BuildConfig.FOLDER_CAMERA + File.separator + TOWER_PHOTOS_DIR;
+	public static final String DOWNLOAD_PATH = Environment.getExternalStorageDirectory() + File.separator + "Download";
+	public static final String APK_FULL_PATH = DOWNLOAD_PATH + File.separator + "sapInspection" + PrefUtil.getStringPref(R.string.latest_apk_version, "")+".apk";
+	public static final String APK_URL = PrefUtil.getStringPref(R.string.apk_update_url, "");
 
 } 

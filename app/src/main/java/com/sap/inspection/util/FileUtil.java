@@ -92,7 +92,7 @@ public class FileUtil {
         }
     }
 
-    public static File createTemporaryPhotoFile(String part, String ext, String path) throws IOException, IllegalArgumentException {
+    public static File createTemporaryPhotoFile(String part, String ext, String path) throws NullPointerException, IOException, IllegalArgumentException {
         File photoDir = getDir(path);
         File createdFile = File.createTempFile(part, ext, photoDir);
         DebugLog.d("created file : " + createdFile.getPath());
@@ -101,7 +101,7 @@ public class FileUtil {
 
     public static File getDir(String path) throws NullPointerException {
         if (TextUtils.isEmpty(path))
-            throw new NullPointerException("empth path");
+            throw new NullPointerException("empty path");
 
         File tempDir = new File(path);
         if (!tempDir.exists()) {

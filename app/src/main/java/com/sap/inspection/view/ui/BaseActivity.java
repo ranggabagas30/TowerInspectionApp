@@ -507,7 +507,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 					Toast.makeText(this, getString(R.string.error_update_apk), Toast.LENGTH_LONG).show();
 				}
 				return true;
-			})).execute(Constants.URL_APK);
+			})).execute(Constants.APK_URL);
 		} else {
 			Toast.makeText(this, getString(R.string.error_disconnected), Toast.LENGTH_LONG).show();
 		}
@@ -791,8 +791,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 				// this will be useful so that you can show a tipical 0-100% progress bar
 				int lenghtOfFile = conection.getContentLength();
 
-				File apkFile = new File(Constants.PATH_APK);
-				File apkDir = new File(Constants.DIR_APK);
+				File apkFile = new File(Constants.APK_FULL_PATH);
+				File apkDir = new File(Constants.DOWNLOAD_PATH);
 				if (!apkDir.exists()) apkDir.mkdirs();
 
 				// download the file

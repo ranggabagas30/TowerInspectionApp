@@ -67,12 +67,11 @@ public class ImageUtil {
         return false;
     }
 
-    public static void resizeAndSaveImageCheckExifWithMark(Context ctx, String path, String[] textMarks) throws IOException, NullPointerException {
+    public static void resizeAndSaveImageCheckExifWithMark(Context ctx, File photoFile, String[] textMarks) throws IOException, NullPointerException {
         //change to 480 from 640
         int x = 640;
-        Bitmap bitmap = resizeAndWriteTextOnDrawable(ctx, path, x, textMarks);
-        File file = new File(path);
-        FileOutputStream out = new FileOutputStream(file);
+        Bitmap bitmap = resizeAndWriteTextOnDrawable(ctx, photoFile, x, textMarks);
+        FileOutputStream out = new FileOutputStream(photoFile);
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
         out.close();
     }
@@ -245,11 +244,13 @@ public class ImageUtil {
         return bm;
     }
 
-    public static Bitmap resizeAndWriteTextOnDrawable(Context context, String imagePath, int x,  String[] texts) throws NullPointerException {
+    public static Bitmap resizeAndWriteTextOnDrawable(Context context, File photoFile, int x,  String[] texts) throws NullPointerException, FileNotFoundException {
 
-        if (TextUtils.isEmpty(imagePath) || !new File(imagePath).exists())
+        if (photoFile == null || TextUtils.isEmpty(photoFile.toString()))
             throw new NullPointerException("photo file not found");
 
+        String imagePath = photoFile.getAbsolutePath();
+        DebugLog.d("image path: " + imagePath);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds=true;
 

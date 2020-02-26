@@ -30,7 +30,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class AsyncDeleteAllFiles extends AsyncTask<Void, Integer, Void>{
 
-	private String mPath = Constants.DIR_TOWER_PHOTOS + "/";
+	private String mPath = Constants.TOWER_PHOTOS_PATH + "/";
 	private ScheduleGeneral mSchedule;
 	private CompositeDisposable compositeDisposable;
 	private int count = 0;
