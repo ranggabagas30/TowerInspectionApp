@@ -101,13 +101,13 @@ public class CheckInActivity extends BaseActivity implements LocationRequestProv
                 if (!isLocationError()) {
                     if (localValidation()) {
 
-                        String fakeGPSReport = CommonUtil.checkFakeGPS(this, mCurrentCoordinate);
-                        if (!TextUtils.isEmpty(fakeGPSReport)) {
-                            hideDialog();
-                            sendFakeGPSReport(fakeGPSReport, String.valueOf(mExtraSiteId));
-                            TowerApplication.getInstance().toast(fakeGPSReport, Toast.LENGTH_LONG);
-                            return;
-                        }
+//                        String fakeGPSReport = CommonUtil.checkFakeGPS(this, mCurrentCoordinate);
+//                        if (!TextUtils.isEmpty(fakeGPSReport)) {
+//                            hideDialog();
+//                            sendFakeGPSReport(fakeGPSReport, String.valueOf(mExtraSiteId));
+//                            TowerApplication.getInstance().toast(fakeGPSReport, Toast.LENGTH_LONG);
+//                            return;
+//                        }
 
                         checkIn();
 

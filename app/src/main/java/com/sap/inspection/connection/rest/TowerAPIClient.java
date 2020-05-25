@@ -51,9 +51,10 @@ public class TowerAPIClient {
 
         if (!httpClient.interceptors().contains(authenticationInterceptor)) {
             httpClient.addInterceptor(authenticationInterceptor);
-            retrofitBuilder.client(httpClient.build());
-            retrofit = retrofitBuilder.build();
         }
+
+        retrofitBuilder.client(httpClient.build());
+        retrofit = retrofitBuilder.build();
         return retrofit.create(serviceClass);
     }
 

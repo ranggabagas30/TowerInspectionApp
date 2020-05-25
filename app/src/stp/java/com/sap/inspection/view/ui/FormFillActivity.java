@@ -257,7 +257,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
 						textMarks[2] = "Photo date : " + photoDate;
 
 						try {
-							ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile.toString(), textMarks);
+							ImageUtil.resizeAndSaveImageCheckExifWithMark(this, photoFile, textMarks);
 							if (!CommonUtil.isCurrentLocationError(currentLat, currentLong)) {
 								photoItem.deletePhoto();
 								photoItem.setImage(filePhotoResult, currentLat, currentLong, accuracy);
@@ -450,7 +450,7 @@ public class FormFillActivity extends BaseActivity implements FormTextChange, Ea
     public void takePicture(int itemId){
     	trackEvent(getString(R.string.event_take_picture));
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		if (intent.resolveActivity(this.getPackageManager()) != null && FileUtil.isStorageAvailableAndWriteable(this)) {
+		if (intent.resolveActivity(this.getPackageManager()) != null && FileUtil.isStorageAvailableAndWritable()) {
 			photoFile = null;
 			try {
 				String photoFileName = StringUtil.getNewPhotoFileName(schedule.id, itemId);

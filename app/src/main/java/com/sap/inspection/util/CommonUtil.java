@@ -687,8 +687,8 @@ public class CommonUtil {
         try {
             byte[] fileBytes = FileUtils.readFileToByteArray(file);
             return new Base64().decode(fileBytes);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            DebugLog.e(e.getMessage(), e);
         }
         return null;
     }
